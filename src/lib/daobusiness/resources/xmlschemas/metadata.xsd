@@ -1,0 +1,384 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" version="1.0" xml:lang="es">
+
+<!--
+EJEMPLO A SEGUIR
+    <component type="A" binding="B">
+      <operation name="X">
+        <input type="C" />
+      </operation>
+
+      <event name="Y">
+        <output type="D" />
+      </event>
+    </component>
+
+  <xsd:element name="component">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="operation">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="input">
+                <xsd:complexType>
+                  <xsd:attribute name="type" type="xsd:string" use="required" />
+                </xsd:complexType>
+              </xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string" use="required" />
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="event">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="output">
+                <xsd:complexType>
+                  <xsd:attribute name="type" type="xsd:string" use="required" />
+                </xsd:complexType>
+              </xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name="name" type="xsd:string" use="required" />
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+      <xsd:attribute name="type" type="xsd:string" use="required" />
+      <xsd:attribute name="binding" type="xsd:string" use="required" />
+    </xsd:complexType>
+  </xsd:element>
+-->
+
+<!-- Definición de tipos complejos -->
+<xsd:complexType name="inheritsElementType">
+    <xsd:attribute name="name" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="inheritsType">
+    <xsd:sequence>
+        <xsd:element name="element" type="inheritsElementType"/>
+    </xsd:sequence>
+    <xsd:attribute name="name" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="itemFilterType">
+    <xsd:all>
+        <xsd:element name="fieldToFilter" type="xsd:string" minOccurs="1"/>
+        <xsd:element name="relationFieldToShow" type="xsd:string"/>
+        <xsd:element name="order" type="xsd:string"/>
+        <xsd:element name="setFilterValueOnNewRecords" type="xsd:boolean" default="true"/>
+        <xsd:element name="relationFilter" type="xsd:string"/>
+        <xsd:element name="relationFilterScript" type="xsd:string"/>
+    </xsd:all>
+</xsd:complexType>
+
+<xsd:complexType name="itemsFilterColumnType">
+    <xsd:all>
+        <xsd:element name="itemFilter" type="itemFilterType" minOccurs="1"/>
+    </xsd:all>
+</xsd:complexType>
+
+<xsd:complexType name="envVarPairType">
+    <xsd:all>
+        <xsd:element name="field" type="xsd:string" minOccurs="1"/>
+        <xsd:element name="varName" type="xsd:string" minOccurs="1"/>
+    </xsd:all>
+</xsd:complexType>
+
+<xsd:complexType name="envVarsType">
+    <xsd:all>
+        <xsd:element name="pair" type="envVarPairType" minOccurs="1"/>
+    </xsd:all>
+</xsd:complexType>
+
+<xsd:complexType name="showOnTreeRelationType">
+    <xsd:all>
+        <xsd:element name="name" type="xsd:string" minOccurs="1"/>
+        <xsd:element name="visibleField" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="image" type="xsd:string" minOccurs="0"/>
+    </xsd:all>
+</xsd:complexType>
+
+<xsd:complexType name="showOnTreeType">
+    <xsd:all>
+        <xsd:element name="relation" type="showOnTreeRelationType" minOccurs="1"/>
+    </xsd:all>
+</xsd:complexType>
+
+<xsd:complexType name="sqlType">
+    <xsd:all>
+        <xsd:element name="from" type="xsd:string" minOccurs="1"/>
+        <xsd:element name="where" type="xsd:string"/>
+        <xsd:element name="order" type="xsd:string"/>
+        <xsd:element name="selectCount" type="xsd:string" minOccurs="1"/>
+    </xsd:all>
+</xsd:complexType>
+
+<xsd:complexType name="connectionActionType">
+    <xsd:all>
+        <xsd:element name="signal" type="xsd:string" minOccurs="1"/>
+        <xsd:element name="slot" type="xsd:string" minOccurs="1"/>
+    </xsd:all>
+</xsd:complexType>
+
+<xsd:complexType name="connectionType">
+    <xsd:all>
+        <xsd:element name="sender" type="xsd:string" minOccurs="1"/>
+        <xsd:element name="action" type="connectionActionType" minOccurs="1"/>
+    </xsd:all>
+</xsd:complexType>
+
+<xsd:complexType name="connectionsType">
+    <xsd:all>
+        <xsd:element name="connection" type="connectionType" minOccurs="1"/>
+    </xsd:all>
+</xsd:complexType>
+
+<xsd:complexType name="displayValueExpressionType">
+    <xsd:sequence>
+        <xsd:element name="var" type="xsd:string"/>
+        <xsd:element name="expression" type="xsd:string" minOccurs="1"/>
+    </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="varType">
+    <xsd:attribute name="name" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="builtInExpressionType">
+    <xsd:sequence>
+        <xsd:element name="var" type="varType"/>
+        <xsd:element name="expression" type="xsd:string" minOccurs="1"/>
+    </xsd:sequence>
+</xsd:complexType>
+
+<xsd:complexType name="aggregateCalcItemType">
+    <xsd:all>
+        <xsd:element name="field" type="xsd:string"/>
+        <xsd:element name="relation" type="xsd:string"/>
+        <xsd:element name="filter" type="xsd:string"/>
+        <xsd:element name="script" type="xsd:string"/>
+        <xsd:element name="builtInExpression" type="builtInExpressionType"/>
+    </xsd:all>
+</xsd:complexType>
+
+<xsd:complexType name="aggregateCalcType">
+    <xsd:sequence>
+        <xsd:element name="aggregate" type="aggregateCalcItemType" minOccurs="1"/>
+    </xsd:sequence>
+</xsd:complexType>
+
+<xsd:simpleType name="weightType">
+    <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="light"/>
+        <xsd:enumeration value="normal"/>
+        <xsd:enumeration value="demiBold"/>
+        <xsd:enumeration value="bold"/>
+        <xsd:enumeration value="black"/>
+    </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:complexType name="fontType">
+    <xsd:all>
+        <xsd:element name="name" type="xsd:string"/>
+        <xsd:element name="size" type="xsd:integer"/>
+        <xsd:element name="weight" type="weightType"/>
+        <xsd:element name="italic" type="xsd:boolean"/>
+        <xsd:element name="color" type="xsd:string"/>
+        <xsd:element name="backgroundColor" type="xsd:string"/>
+    </xsd:all>
+</xsd:complexType>
+
+<xsd:complexType name="dependsOnFieldType">
+    <xsd:attribute name="prefixOnRelation" type="xsd:string"/>
+</xsd:complexType>
+
+<xsd:complexType name="counterType">
+    <xsd:choice>
+        <xsd:element name="calculateOnlyOnInsert" type="xsd:boolean" default="false" maxOccurs="1"/>
+        <xsd:element name="useTrailingZeros" type="xsd:boolean" default="false" maxOccurs="1"/>
+        <xsd:element name="userCanModify" type="xsd:boolean" default="false" maxOccurs="1"/>
+        <xsd:element name="dependsOnField" type="dependsOnFieldType" minOccurs="1"/>
+        <xsd:element name="separator" type="xsd:string" maxOccurs="unbounded"/>
+        <xsd:element name="fixedString" type="xsd:string" maxOccurs="unbounded"/>
+    </xsd:choice>
+</xsd:complexType>
+
+<xsd:complexType name="behaviourOnInlineEditType">
+    <xsd:all>
+        <xsd:element name="widgetOnEdit" type="xsd:string" default="false"/>
+        <xsd:element name="viewOnRead" type="xsd:string" default="false"/>
+        <xsd:element name="replaceFields" type="xsd:string" default="false"/>
+        <xsd:element name="relationFieldToShow" type="xsd:string" default="false"/>
+        <xsd:element name="executeScriptAfterChoose" type="xsd:string" default="false"/>
+    </xsd:all>
+</xsd:complexType>
+
+<xsd:simpleType name="fieldTypeType">
+    <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="string"/>
+        <xsd:enumeration value="stringlist"/>
+        <xsd:enumeration value="double"/>
+        <xsd:enumeration value="int"/>
+        <xsd:enumeration value="integer"/>
+        <xsd:enumeration value="serial"/>
+        <xsd:enumeration value="date"/>
+        <xsd:enumeration value="datetime"/>
+        <xsd:enumeration value="bool"/>
+        <xsd:enumeration value="boolean"/>
+        <xsd:enumeration value="image"/>
+    </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:complexType name="calculatedType">
+    <xsd:attribute name="calculatedOneTime" type="xsd:boolean" use="optional" default="false"/>
+    <xsd:attribute name="saveOnDb" type="xsd:boolean" use="optional" default="false"/>
+</xsd:complexType>
+
+<xsd:complexType name="debugEntry">
+    <xsd:attribute name="onInitDebug" type="xsd:boolean" use="optional" default="false"/>
+</xsd:complexType>
+
+<xsd:complexType name="linkEntry">
+    <xsd:attribute name="openReadOnly" type="xsd:boolean" use="optional" default="false"/>
+</xsd:complexType>
+
+<xsd:complexType name="associatedScriptEntry">
+    <xsd:attribute name="debug" type="xsd:boolean" use="optional" default="false"/>
+    <xsd:attribute name="onInitDebug" type="xsd:boolean" use="optional" default="false"/>
+</xsd:complexType>
+
+<xsd:simpleType name="scriptTypes">
+    <xsd:restriction base="xsd:string">
+        <xsd:enumeration value="builtIn"/>
+        <xsd:enumeration value="js"/>
+    </xsd:restriction>
+</xsd:simpleType>
+
+<xsd:complexType name="toStringScriptEntry">
+    <xsd:sequence>
+        <xsd:element name="toStringScript" type="scriptTypes"/>
+    </xsd:sequence>
+    <xsd:attribute name="type" type="xsd:string" use="optional" default="builtIn"/>
+</xsd:complexType>
+
+<xsd:complexType name="fieldType">
+    <xsd:all>
+        <xsd:element name="name" type="xsd:string" minOccurs="1"/>
+        <xsd:element name="alias" type="xsd:string"/>
+        <xsd:element name="aliasScript" type="xsd:string"/>
+        <xsd:element name="null" type="xsd:boolean" default="false"/>
+        <xsd:element name="visiblegrid" type="xsd:boolean" default="true"/>
+        <xsd:element name="showDefault" type="xsd:boolean" default="false"/>
+        <xsd:element name="pk" type="xsd:boolean" default="false"/>
+        <xsd:element name="unique" type="xsd:boolean" default="false"/>
+        <xsd:element name="dbIndex" type="xsd:boolean" default="false"/>
+        <xsd:element name="uniqueOnFilterField" type="xsd:string"/>
+        <xsd:element name="type" type="fieldTypeType"/>
+        <xsd:element name="default" type="xsd:string"/>
+        <xsd:element name="partI" type="xsd:integer"/>
+        <xsd:element name="partD" type="xsd:integer"/>
+        <xsd:element name="length" type="xsd:integer"/>
+        <xsd:element name="optionList" type="xsd:string"/>
+        <xsd:element name="optionValues" type="xsd:string"/>
+        <xsd:element name="optionIcons" type="xsd:string"/>
+        <xsd:element name="displayValueScript" type="xsd:string"/>
+        <xsd:element name="displayValueExpression" type="displayValueExpressionType"/>
+        <xsd:element name="builtInExpression" type="builtInExpressionType"/>
+        <xsd:element name="script" type="xsd:string"/>
+        <xsd:element name="calculated" type="calculatedType"/>
+        <xsd:element name="html" type="xsd:boolean" default="false"/>
+        <xsd:element name="email" type="xsd:boolean" default="false"/>
+        <xsd:element name="scriptDefaultValue" type="xsd:string"/>
+        <xsd:element name="validationRule" type="xsd:string"/>
+        <xsd:element name="debug" type="debugEntry"/>
+        <xsd:element name="aggregateCalc" type="aggregateCalcType"/>
+        <xsd:element name="font" type="fontType"/>
+        <xsd:element name="reloadFromDBAfterSave" type="xsd:boolean" default="false"/>
+        <xsd:element name="counter" type="counterType"/>
+        <xsd:element name="includeOnGeneratedSearchDlg" type="xsd:boolean" default="false"/>
+        <xsd:element name="behaviourOnInlineEdit" type="behaviourOnInlineEditType"/>
+        <xsd:element name="link" type="linkEntry"/>
+        <xsd:element name="toolTipScript" type="xsd:string"/>
+        <xsd:element name="onChangeScript" type="xsd:string"/>
+        
+    </xsd:all>
+</xsd:complexType>
+
+<!-- Elementos de los metadatos -->
+<xsd:element name="table">
+    <xsd:complexType>
+        <xsd:all>
+            <xsd:element name="inherits" type="inheritsType"/>
+        
+            <xsd:element name="name" type="xsd:string"/>
+            <xsd:element name="schema" type="xsd:string"/>
+            <xsd:element name="alias" type="xsd:string"/>
+            <xsd:element name="viewOnGrid" type="xsd:string"/>
+            <xsd:element name="creationSqlView" type="xsd:string"/>
+            <xsd:element name="logicalDelete" type="xsd:boolean" default="false"/>
+            <xsd:element name="initOrderSort" type="xsd:string"/>
+            <xsd:element name="defaultVisualizationField" type="xsd:string"/>
+            <xsd:element name="isCached" type="xsd:boolean" default="false"/>
+            <xsd:element name="accesibleRule" type="xsd:string"/>
+            <xsd:element name="additionalFilter" type="xsd:string"/>
+            <xsd:element name="pixmap" type="xsd:string"/>
+            <xsd:element name="debug" type="debugEntry"/>
+
+            <xsd:element name="associatedScript" type="associatedScriptEntry"/>
+
+            <xsd:element name="beforeInsertScript" type="xsd:string"/>
+            <xsd:element name="beforeUpdateScript" type="xsd:string"/>
+            <xsd:element name="beforeDeleteScript" type="xsd:string"/>
+            <xsd:element name="beforeSaveScript" type="xsd:string"/>
+            <xsd:element name="afterInsertScript" type="xsd:string"/>
+            <xsd:element name="afterUpdateScript" type="xsd:string"/>
+            <xsd:element name="afterDeleteScript" type="xsd:string"/>
+            <xsd:element name="afterSaveScript" type="xsd:string"/>
+
+            <xsd:element name="canHaveRelatedElements" type="xsd:boolean"/>
+            <xsd:element name="newRelatedElementScript" type="xsd:string"/>
+            <xsd:element name="modifiedRelatedElementScript" type="xsd:string"/>
+            <xsd:element name="deletedRelatedElementScript" type="xsd:string"/>
+
+            <xsd:element name="canSendEmail" type="xsd:boolean"/>
+            <xsd:element name="emailTemplateScript" type="xsd:string"/>
+            <xsd:element name="emailSubjectScript" type="xsd:string"/>
+            <xsd:element name="emailContactModel" type="xsd:string"/>
+            <xsd:element name="emailContactModelFilter" type="xsd:string"/>
+            <xsd:element name="emailContactAddressField" type="xsd:string"/>
+            <xsd:element name="emailContactDisplayField" type="xsd:string"/>
+
+            <xsd:element name="rowColorScript" type="xsd:string"/>
+            <xsd:element name="toolTipScript" type="xsd:string"/>
+            <xsd:element name="toStringScript" type="toStringScriptEntry"/>
+
+            <xsd:element name="repositoryPathScript" type="xsd:string"/>
+            <xsd:element name="repositoryKeywordsScript" type="xsd:string"/>
+
+            <xsd:element name="uiDbRecord" type="xsd:string"/>
+            <xsd:element name="qsDbRecord" type="xsd:string"/>
+            <xsd:element name="uiNewDbRecord" type="xsd:string"/>
+            <xsd:element name="qsNewDbRecord" type="xsd:string"/>
+            <xsd:element name="uiDbSearch" type="xsd:string"/>
+            <xsd:element name="qsDbSearch" type="xsd:string"/>
+            <xsd:element name="qsDbForm" type="xsd:string"/>
+
+            <xsd:element name="itemsFilterColumn" type="itemsFilterColumnType" maxOccurs="1"/>
+            <xsd:element name="envVars" type="envVarsType" maxOccurs="1"/>
+            <xsd:element name="showOnTree" type="showOnTreeType" maxOccurs="1"/>
+            <xsd:element name="sql" type="sqlType" maxOccurs="1"/>
+            <xsd:element name="connections" type="connectionsType" maxOccurs="1"/>
+            
+            <xsd:element name="fields">
+                <xsd:complexType>
+                    <xsd:all>
+                        <xsd:element name="inherits" type="inheritsType"/>
+                        <xsd:element name="field" type="fieldType"/>
+                    </xsd:all>
+                </xsd:complexType>
+            </xsd:element>
+            
+        </xsd:all>
+    </xsd:complexType>
+</xsd:element>
+
+</xsd:schema>

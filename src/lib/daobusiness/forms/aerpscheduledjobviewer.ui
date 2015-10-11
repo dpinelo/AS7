@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AERPScheduledJobViewer</class>
+ <widget class="QDialog" name="AERPScheduledJobViewer">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>649</width>
+    <height>380</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Trabajos programados</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QPushButton" name="pbActivateDeactivate">
+     <property name="text">
+      <string>Activar</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../resources/resources.qrc">
+       <normaloff>:/aplicacion/images/ok.png</normaloff>:/aplicacion/images/ok.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QPushButton" name="pbOk">
+     <property name="text">
+      <string>&amp;Ok</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../resources/resources.qrc">
+       <normaloff>:/generales/images/close.png</normaloff>:/generales/images/close.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="3">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Trabajos programados</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QTableWidget" name="tableWidgetScheduledJobs">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="alternatingRowColors">
+         <bool>true</bool>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::SingleSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <column>
+         <property name="text">
+          <string>Trabajo</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Próxima ejecución</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Tiempo hasta la próxima ejecución</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Activo</string>
+         </property>
+        </column>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QPushButton" name="pbRunNow">
+     <property name="text">
+      <string>Ejecutar Ahora</string>
+     </property>
+     <property name="icon">
+      <iconset resource="../resources/resources.qrc">
+       <normaloff>:/aplicacion/images/recalculatecounter.png</normaloff>:/aplicacion/images/recalculatecounter.png</iconset>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>tableWidgetScheduledJobs</tabstop>
+  <tabstop>pbActivateDeactivate</tabstop>
+  <tabstop>pbRunNow</tabstop>
+  <tabstop>pbOk</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

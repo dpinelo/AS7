@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table xmlns="http://www.alephsistemas.es" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.alephsistemas.es alepherp-metadata.xsd">
+       
+    <name>alepherp_users</name>
+    <alias>Usuarios</alias>
+
+    <moduleToolBarEntryPath>Sistema</moduleToolBarEntryPath>
+    <menuEntryPath>Configuración</menuEntryPath>
+
+    <field>
+        <name>username</name>
+        <alias>Username</alias>
+        <null>false</null>
+        <pk>true</pk>
+        <type>string</type>
+        <length>250</length>
+        <relation>
+            <table>alepherp_envvars</table>
+            <field>username</field>
+            <card>1M</card>
+        </relation>	
+    </field>
+    <field>
+        <name>password</name>
+        <alias>Password</alias>
+        <null>true</null>
+        <pk>false</pk>
+        <type>string</type>
+        <length>250</length>
+    </field>
+    <field>
+        <name>name</name>
+        <alias>Nombre</alias>
+        <null>true</null>
+        <pk>false</pk>
+        <type>string</type>
+        <length>250</length>
+    </field>
+    <field>
+        <name>email</name>
+        <alias>EMail</alias>
+        <null>true</null>
+        <pk>false</pk>
+        <type>string</type>
+        <length>250</length>
+    </field>    
+</table>

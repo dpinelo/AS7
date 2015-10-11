@@ -1,0 +1,1 @@
+rcc -binary modules.qrc -o commonresources.rcc

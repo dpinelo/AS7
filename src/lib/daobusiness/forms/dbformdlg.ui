@@ -1,0 +1,876 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DBFormDlg</class>
+ <widget class="QWidget" name="DBFormDlg">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>924</width>
+    <height>399</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string/>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../resources/resources.qrc">
+    <normaloff>:/aplicacion/images/alephLogoIcon.ico</normaloff>:/aplicacion/images/alephLogoIcon.ico</iconset>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>2</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QGroupBox" name="gbButtons">
+     <property name="title">
+      <string/>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>1</number>
+      </property>
+      <property name="leftMargin">
+       <number>1</number>
+      </property>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>1</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
+      <item>
+       <widget class="QToolButton" name="pbWizard">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>25</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Crea un nuevo registro usando el asistente</string>
+        </property>
+        <property name="statusTip">
+         <string>Crea un nuevo registro usando el asistente</string>
+        </property>
+        <property name="whatsThis">
+         <string>Permite crear un nuevo tipo de registro en esta tabla utilizando un registro que le auxilia y ayuda en el proceso.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/wizard.png</normaloff>:/generales/images/wizard.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbNew">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>25</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Crea un nuevo registro (F2)</string>
+        </property>
+        <property name="statusTip">
+         <string>Crea un nuevo registro (F2)</string>
+        </property>
+        <property name="whatsThis">
+         <string>Permite crear un nuevo tipo de registro en esta tabla.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/edit_add.png</normaloff>:/generales/images/edit_add.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>F2</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbEdit">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>25</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Modificar el registro seleccionado (F3)</string>
+        </property>
+        <property name="statusTip">
+         <string>Modificar el registro seleccionado (F3)</string>
+        </property>
+        <property name="whatsThis">
+         <string>Abre el formulario de edición del registro actualmente seleccionado.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/edit_edit.png</normaloff>:/generales/images/edit_edit.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>F3</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbView">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Visualiza en modo lectura el registro</string>
+        </property>
+        <property name="statusTip">
+         <string>Visualiza en modo lectura el registro</string>
+        </property>
+        <property name="whatsThis">
+         <string>Visualiza en modo lectura el registro</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/preview.png</normaloff>:/generales/images/preview.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>F4</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbCopy">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Copia los datos del registro actual a uno nuevo (F4)</string>
+        </property>
+        <property name="statusTip">
+         <string>Copia los datos del registro actual a uno nuevo (F4)</string>
+        </property>
+        <property name="whatsThis">
+         <string>Utilice esta opción si desea trabajar con un nuevo registro pero partiendo de los datos de un registro ya existente.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/copyrecord.png</normaloff>:/generales/images/copyrecord.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>F4</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbDelete">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>25</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Borrar registro seleccionado (F5)</string>
+        </property>
+        <property name="statusTip">
+         <string>Borrar registro seleccionado (F5)</string>
+        </property>
+        <property name="whatsThis">
+         <string>Borra el registro actualmente seleccionado.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/delete.png</normaloff>:/generales/images/delete.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>F5</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbSearch">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>25</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Buscar... (F6)</string>
+        </property>
+        <property name="statusTip">
+         <string>Buscar... (F6)</string>
+        </property>
+        <property name="whatsThis">
+         <string>Abre el formulario de búsqueda.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/edit_search.png</normaloff>:/generales/images/edit_search.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>F6</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbRelatedElements">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Muestra los elementos relacionados al registro seleccionado</string>
+        </property>
+        <property name="statusTip">
+         <string>Muestra los elementos relacionados al registro seleccionado</string>
+        </property>
+        <property name="whatsThis">
+         <string>Muestra los elementos relacionados al registro seleccionado. Esos elementos relacionados son otros registros, correos electrónicos, documentos...</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/relatedelements.png</normaloff>:/generales/images/relatedelements.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbPrint">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>25</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Imprime el documento relacionado con el registro seleccionado. (F7)</string>
+        </property>
+        <property name="statusTip">
+         <string>Imprime el documento relacionado con el registro seleccionado.</string>
+        </property>
+        <property name="whatsThis">
+         <string>Imprime el documento relacionado con el registro seleccionado.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/print.png</normaloff>:/generales/images/print.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>F7</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbExportSpreadSheet">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>25</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Exporta el contenido a hoja de cálculo según el filtrado seleccionado</string>
+        </property>
+        <property name="statusTip">
+         <string>Exporta el contenido a hoja de cálculo</string>
+        </property>
+        <property name="whatsThis">
+         <string>Permite exportar a diferentes formatos de hojas de cálculo o bases de datos, la información visible según el filtrado actual.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/excel.png</normaloff>:/generales/images/excel.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbSendEmail">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Permite enviar un correo electrónico a partir del registro seleccionado.</string>
+        </property>
+        <property name="statusTip">
+         <string>Permite enviar un correo electrónico a partir del registro seleccionado.</string>
+        </property>
+        <property name="whatsThis">
+         <string>Permite enviar un correo electrónico a partir del registro seleccionado.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/email.png</normaloff>:/generales/images/email.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>F6</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>624</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbAdjust">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>25</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Ajustar visualización</string>
+        </property>
+        <property name="statusTip">
+         <string>Ajustar visualización</string>
+        </property>
+        <property name="whatsThis">
+         <string>Ajusta el ancho de las líneas de la rejilla con los datos, para permitir una mejor visualización de los datos.</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/edit_resizelines.png</normaloff>:/generales/images/edit_resizelines.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbHelp">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Muestra la ayuda para esta tabla</string>
+        </property>
+        <property name="statusTip">
+         <string>Muestra la ayuda para esta tabla</string>
+        </property>
+        <property name="whatsThis">
+         <string>Muestra la ayuda para esta tabla</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/help-browser.png</normaloff>:/generales/images/help-browser.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>F1</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbOk">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Cierra el formulario seleccionando el registro marcado</string>
+        </property>
+        <property name="statusTip">
+         <string>Cierra el formulario seleccionando el registro marcado</string>
+        </property>
+        <property name="whatsThis">
+         <string>Cierra el formulario seleccionando el registro marcado</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/aplicacion/images/ok.png</normaloff>:/aplicacion/images/ok.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QToolButton" name="pbClose">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>25</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Cerrar (F10)</string>
+        </property>
+        <property name="statusTip">
+         <string>Cerrar (F10)</string>
+        </property>
+        <property name="whatsThis">
+         <string>Cierra este formulario</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/close.png</normaloff>:/generales/images/close.png</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>24</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="shortcut">
+         <string>F10</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string/>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="leftMargin">
+       <number>3</number>
+      </property>
+      <property name="topMargin">
+       <number>3</number>
+      </property>
+      <property name="rightMargin">
+       <number>3</number>
+      </property>
+      <property name="bottomMargin">
+       <number>3</number>
+      </property>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionCreate">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/generales/images/edit_add.png</normaloff>:/generales/images/edit_add.png</iconset>
+   </property>
+   <property name="text">
+    <string>Insertar registro</string>
+   </property>
+   <property name="toolTip">
+    <string>Abre el formulario de creación de un registro</string>
+   </property>
+   <property name="statusTip">
+    <string>Abre el formulario de creación de un registro</string>
+   </property>
+   <property name="whatsThis">
+    <string>Abre el formulario de creación de un registro</string>
+   </property>
+  </action>
+  <action name="actionEdit">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/generales/images/edit_edit.png</normaloff>:/generales/images/edit_edit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Editar registro</string>
+   </property>
+   <property name="toolTip">
+    <string>Permite editar o modificar un registro existente</string>
+   </property>
+   <property name="statusTip">
+    <string>Permite editar o modificar un registro existente</string>
+   </property>
+   <property name="whatsThis">
+    <string>Permite editar o modificar un registro existente</string>
+   </property>
+  </action>
+  <action name="actionWizard">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/generales/images/wizard.png</normaloff>:/generales/images/wizard.png</iconset>
+   </property>
+   <property name="text">
+    <string>Crear registro con asistente</string>
+   </property>
+   <property name="toolTip">
+    <string>Permite crear un registro a través de un asistente</string>
+   </property>
+   <property name="statusTip">
+    <string>Permite crear un registro a través de un asistente</string>
+   </property>
+   <property name="whatsThis">
+    <string>Permite crear un registro a través de un asistente</string>
+   </property>
+  </action>
+  <action name="actionDelete">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/generales/images/delete.png</normaloff>:/generales/images/delete.png</iconset>
+   </property>
+   <property name="text">
+    <string>Borrar</string>
+   </property>
+   <property name="iconText">
+    <string>Borrar el registro seleccionado en la lista inferior</string>
+   </property>
+   <property name="toolTip">
+    <string>Borrar el registro seleccionado en la lista inferior</string>
+   </property>
+   <property name="statusTip">
+    <string>Borrar el registro seleccionado en la lista inferior</string>
+   </property>
+   <property name="whatsThis">
+    <string>Borrar el registro seleccionado en la lista inferior</string>
+   </property>
+  </action>
+  <action name="actionSearch">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/generales/images/edit_search.png</normaloff>:/generales/images/edit_search.png</iconset>
+   </property>
+   <property name="text">
+    <string>Abre el formulario de búsqueda de registros</string>
+   </property>
+   <property name="iconText">
+    <string>Abre el formulario de búsqueda de registros</string>
+   </property>
+   <property name="toolTip">
+    <string>Abre el formulario de búsqueda de registros</string>
+   </property>
+   <property name="statusTip">
+    <string>Abre el formulario de búsqueda de registros</string>
+   </property>
+   <property name="whatsThis">
+    <string>Abre el formulario de búsqueda de registros</string>
+   </property>
+  </action>
+  <action name="actionAdjustLines">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/generales/images/edit_resizelines.png</normaloff>:/generales/images/edit_resizelines.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ajusta el ancho de las filas de la lista, para una mejor visualización.</string>
+   </property>
+   <property name="iconText">
+    <string>Ajusta el ancho de las filas de la lista, para una mejor visualización.</string>
+   </property>
+   <property name="toolTip">
+    <string>Ajusta el ancho de las filas de la lista, para una mejor visualización.</string>
+   </property>
+   <property name="statusTip">
+    <string>Ajusta el ancho de las filas de la lista, para una mejor visualización.</string>
+   </property>
+   <property name="whatsThis">
+    <string>Ajusta el ancho de las filas de la lista, para una mejor visualización.</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/generales/images/close.png</normaloff>:/generales/images/close.png</iconset>
+   </property>
+   <property name="text">
+    <string>Sale de la aplicación.</string>
+   </property>
+   <property name="iconText">
+    <string>Sale de la aplicación.</string>
+   </property>
+   <property name="toolTip">
+    <string>Sale de la aplicación.</string>
+   </property>
+   <property name="statusTip">
+    <string>Sale de la aplicación.</string>
+   </property>
+   <property name="whatsThis">
+    <string>Sale de la aplicación.</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/generales/images/copyrecord.png</normaloff>:/generales/images/copyrecord.png</iconset>
+   </property>
+   <property name="text">
+    <string>Agregar Usando Actual</string>
+   </property>
+   <property name="toolTip">
+    <string>Agrega un nuevo registro copiando los datos del registro seleccionado</string>
+   </property>
+  </action>
+  <action name="actionOk">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/aplicacion/images/ok.png</normaloff>:/aplicacion/images/ok.png</iconset>
+   </property>
+   <property name="text">
+    <string>Ok</string>
+   </property>
+   <property name="toolTip">
+    <string>Cierra el formulario seleccionando el registro actualmente marcado</string>
+   </property>
+  </action>
+  <action name="actionPrint">
+   <property name="text">
+    <string>Imprime el documento asociado al registro actual</string>
+   </property>
+  </action>
+  <action name="actionEmail">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/generales/images/email.png</normaloff>:/generales/images/email.png</iconset>
+   </property>
+   <property name="text">
+    <string>Enviar correo electrónico</string>
+   </property>
+   <property name="toolTip">
+    <string>Envía un correo electrónico con información asociada al registro seleccionado.</string>
+   </property>
+  </action>
+  <action name="actionHelp">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/generales/images/help-browser.png</normaloff>:/generales/images/help-browser.png</iconset>
+   </property>
+   <property name="text">
+    <string>Mostrar Ayuda</string>
+   </property>
+   <property name="toolTip">
+    <string>Mostrar Ayuda.</string>
+   </property>
+  </action>
+  <action name="actionRelatedElements">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/generales/images/relatedelements.png</normaloff>:/generales/images/relatedelements.png</iconset>
+   </property>
+   <property name="text">
+    <string>Muestra los elementos relacionados</string>
+   </property>
+   <property name="toolTip">
+    <string>Permite visualizar los elementos relacionados al registro actualmente seleccionado: Otros registros, correos electrónicos, documentos...</string>
+   </property>
+  </action>
+  <action name="actionView">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/generales/images/preview.png</normaloff>:/generales/images/preview.png</iconset>
+   </property>
+   <property name="text">
+    <string>Visualiza en modo lectura el registro</string>
+   </property>
+   <property name="toolTip">
+    <string>Permite visualizar en modo sólo lectura el registro actual...</string>
+   </property>
+  </action>
+  <action name="actionExportSpreadSheet">
+   <property name="icon">
+    <iconset resource="../resources/resources.qrc">
+     <normaloff>:/generales/images/excel.png</normaloff>:/generales/images/excel.png</iconset>
+   </property>
+   <property name="text">
+    <string>Exportar a Hoja de Cálculo</string>
+   </property>
+   <property name="toolTip">
+    <string>Exportar a Hoja de Cálculo</string>
+   </property>
+  </action>
+ </widget>
+ <tabstops>
+  <tabstop>pbWizard</tabstop>
+  <tabstop>pbNew</tabstop>
+  <tabstop>pbEdit</tabstop>
+  <tabstop>pbView</tabstop>
+  <tabstop>pbCopy</tabstop>
+  <tabstop>pbDelete</tabstop>
+  <tabstop>pbSearch</tabstop>
+  <tabstop>pbRelatedElements</tabstop>
+  <tabstop>pbPrint</tabstop>
+  <tabstop>pbSendEmail</tabstop>
+  <tabstop>pbAdjust</tabstop>
+  <tabstop>pbHelp</tabstop>
+  <tabstop>pbOk</tabstop>
+  <tabstop>pbClose</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

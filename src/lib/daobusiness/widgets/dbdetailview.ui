@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>DBDetailView</class>
+ <widget class="QWidget" name="DBDetailView">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>739</width>
+    <height>114</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QPushButton" name="pbAdd">
+       <property name="toolTip">
+        <string>Pulse aquí para añadir un nuevo registro.</string>
+       </property>
+       <property name="statusTip">
+        <string>Pulse aquí para añadir un nuevo registro.</string>
+       </property>
+       <property name="whatsThis">
+        <string>Pulse aquí para añadir un nuevo registro.</string>
+       </property>
+       <property name="text">
+        <string>Añadir (F2)</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/generales/images/edit_add.png</normaloff>:/generales/images/edit_add.png</iconset>
+       </property>
+       <property name="shortcut">
+        <string>F2</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbAddExisting">
+       <property name="toolTip">
+        <string>Añade registros existentes</string>
+       </property>
+       <property name="whatsThis">
+        <string>Utilice esta opción para relacionar a este registros, otros ya existentes en otras tablas.</string>
+       </property>
+       <property name="text">
+        <string>Asociar</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/generales/images/down.png</normaloff>:/generales/images/down.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbEdit">
+       <property name="toolTip">
+        <string>Pulse aquí para editar el registro seleccionado.</string>
+       </property>
+       <property name="statusTip">
+        <string>Pulse aquí para editar el registro seleccionado.</string>
+       </property>
+       <property name="whatsThis">
+        <string>Pulse aquí para editar el registro seleccionado.</string>
+       </property>
+       <property name="text">
+        <string>Modificar (F3)</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/generales/images/edit_edit.png</normaloff>:/generales/images/edit_edit.png</iconset>
+       </property>
+       <property name="shortcut">
+        <string>F3</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbView">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Pulse aquí para visualizar el registro en modo sólo lectura</string>
+       </property>
+       <property name="statusTip">
+        <string>Pulse aquí para visualizar el registro en modo sólo lectura</string>
+       </property>
+       <property name="whatsThis">
+        <string>Pulse aquí para visualizar el registro en modo sólo lectura</string>
+       </property>
+       <property name="text">
+        <string>Ver</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/generales/images/edit_search.png</normaloff>:/generales/images/edit_search.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbDelete">
+       <property name="toolTip">
+        <string>Pulse aquí para borrar el registro seleccionado.</string>
+       </property>
+       <property name="statusTip">
+        <string>Pulse aquí para borrar el registro seleccionado.</string>
+       </property>
+       <property name="whatsThis">
+        <string>Pulse aquí para borrar el registro seleccionado.</string>
+       </property>
+       <property name="text">
+        <string>Borrar (F5)</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/generales/images/edit_remove.png</normaloff>:/generales/images/edit_remove.png</iconset>
+       </property>
+       <property name="shortcut">
+        <string>F5</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbRemoveExisting">
+       <property name="toolTip">
+        <string>Elimina la relación del registro seleccionado con el registro actual.</string>
+       </property>
+       <property name="whatsThis">
+        <string>Elimina la relación del registro seleccionado con el registro actual.</string>
+       </property>
+       <property name="text">
+        <string>Desasociar</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/generales/images/up.png</normaloff>:/generales/images/up.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="DBTableView" name="tableView">
+     <property name="editTriggers">
+      <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectItems</enum>
+     </property>
+     <property name="sortingEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DBTableView</class>
+   <extends>QTableView</extends>
+   <header>widgets/dbtableview.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>pbAdd</tabstop>
+  <tabstop>pbAddExisting</tabstop>
+  <tabstop>pbEdit</tabstop>
+  <tabstop>pbView</tabstop>
+  <tabstop>pbDelete</tabstop>
+  <tabstop>pbRemoveExisting</tabstop>
+  <tabstop>tableView</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

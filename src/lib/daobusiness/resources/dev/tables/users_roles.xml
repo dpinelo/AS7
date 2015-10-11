@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table xmlns="http://www.alephsistemas.es" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.alephsistemas.es alepherp-metadata.xsd">
+       
+    <name>alepherp_users_roles</name>
+    <alias>Usuarios - Roles</alias>
+
+    <moduleToolBarEntryPath>Sistema</moduleToolBarEntryPath>
+    <menuEntryPath>Configuración</menuEntryPath>
+
+    <field>
+        <name>id</name>
+        <alias>Id.</alias>
+        <null>false</null>
+        <pk>true</pk>
+        <type>serial</type>
+        <visiblegrid>false</visiblegrid>
+    </field>    
+    <field>
+        <name>username</name>
+        <alias>Nombre</alias>
+        <null>false</null>
+        <pk>true</pk>
+        <type>string</type>
+        <length>250</length>
+        <relation>
+            <table>alepherp_users</table>
+            <field>username</field>
+            <card>M1</card>
+        </relation>		
+    </field>
+    <field>
+        <name>id_rol</name>
+        <alias>Id. Rol</alias>
+        <null>false</null>
+        <pk>true</pk>
+        <type>int</type>
+        <relation>
+            <table>alepherp_roles</table>
+            <field>id</field>
+            <card>M1</card>
+        </relation>		
+    </field>
+</table>

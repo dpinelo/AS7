@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<table xmlns="http://www.alephsistemas.es" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.alephsistemas.es alepherp-metadata.xsd">
+       
+    <name>alepherp_modules</name>
+    <alias>Módulos</alias>
+
+    <moduleToolBarEntryPath>Sistema</moduleToolBarEntryPath>
+    <menuEntryPath>Configuración</menuEntryPath>
+
+    <field>
+        <name>id</name>
+        <alias>Id. Módulo</alias>
+        <null>false</null>
+        <pk>true</pk>
+        <type>string</type>
+        <length>250</length>
+        <visiblegrid>true</visiblegrid>
+        <relation>
+            <table>alepherp_system</table>
+            <field>module</field>
+            <card>1M</card>
+        </relation>
+    </field>
+    <field>
+        <name>name</name>
+        <alias>Nombre</alias>
+        <null>true</null>
+        <pk>false</pk>
+        <type>string</type>
+        <length>250</length>
+    </field>
+    <field>
+        <name>description</name>
+        <alias>Descripción</alias>
+        <null>false</null>
+        <pk>false</pk>
+        <type>stringlist</type>
+        <visiblegrid>false</visiblegrid>
+    </field>
+    <field>
+        <name>showed_name</name>
+        <alias>Nombre para el usuario</alias>
+        <null>true</null>
+        <pk>false</pk>
+        <type>string</type>
+        <length>250</length>
+    </field>
+    <field>
+        <name>icon</name>
+        <alias>Tipo de tabla</alias>
+        <null>false</null>
+        <pk>false</pk>
+        <type>string</type>
+        <length>250</length>
+    </field>
+    <field>
+        <name>enabled</name>
+        <alias>Habilitado</alias>
+        <null>false</null>
+        <pk>false</pk>
+        <type>bool</type>
+        <default>false</default>
+    </field>
+</table>

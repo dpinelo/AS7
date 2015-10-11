@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <style type="text/css">
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map_canvas { height: 100% }
+    </style>
+    <script type="text/javascript"
+      src="http://maps.googleapis.com/maps/api/js?sensor=false&${LICENSEKEY}">
+    </script>
+    <script type="text/javascript">
+      var map;
+      var markers = [];
+      var infoWindow = new google.maps.InfoWindow({});
+
+      function initialize() {
+        var myOptions = {
+          center: new google.maps.LatLng(${INITLATITUDE}, ${INITLONGITUDE}),
+          zoom: ${INITZOOM},
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          panControl: true
+        };
+        map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+      }
+
+      function fitToShowAllMarkers() {
+        var LatLngList = new Array();
+        var idx = 0;
+        for (var i = 0; i < markers.length; i++) {
+          if (markers[i].getMap() != null) {
+            LatLngList[i] = markers[i].getPosition();
+          }
+        }
+        if ( LatLngList.length > 0 ) {
+          var bounds = new google.maps.LatLngBounds();
+          for (var i = 0, LtLgLen = LatLngList.length; i < LtLgLen; i++) {
+            bounds.extend(LatLngList[i]);
+          }
+          map.fitBounds(bounds);
+        }
+      }
+
+      function addMark(latitude, longitude, caption, infoWindowText) {
+        var marker = new google.maps.Marker({
+          position: new google.maps.LatLng(latitude, longitude),
+          map: map,
+          title: caption,
+          draggable: true
+        });
+        marker["ownContent"] = infoWindowText;
+        markers.push(marker);
+
+        google.maps.event.addListener(marker, 'click',
+          function(marker) {
+            return function() {
+              if (marker["ownContent"] != null) {
+                infoWindow.setContent(marker["ownContent"]);
+                infoWindow.open(map, marker);
+              }
+            }
+          }(marker));
+        google.maps.event.addListener(marker, 'dragend',
+          function() {
+            alephERPBinding.userDragInit(marker.getTitle());
+            alephERPBinding.userMovesMark(marker.getTitle(), "" + marker.getPosition().lat() + "," + marker.getPosition().lng());
+            geocodePosition(marker);
+          });
+      }
+
+      function geocodePosition(marker) {
+        var pos = marker.getPosition();
+        var markTitle = marker.getTitle();
+        geocoder = new google.maps.Geocoder();
+        geocoder.geocode(
+          {
+           latLng: pos
+          },
+          function(results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+              alephERPBinding.userMovesMarkFormattedAddress(markTitle, results[0].formatted_address);
+              for (var i = 0 ; i < results[0].address_components.length ; i++) {
+                alephERPBinding.userMovesMarkAddressComponent(markTitle, results[0].address_components[i].types, results[0].address_components[i].long_name);
+              }
+            } else {
+              alephERPBinding.userMovesMarkFormattedAddress(markTitle, "Error");
+            }
+            alephERPBinding.userDragEnd(marker.getTitle());
+          }
+        );
+      }
+
+      function removeMark(caption) {
+        for(var i = 0 ; i < markers.length ;i++) {
+          if (markers[i].getTitle() == caption) {
+            markers[i].setMap(null);
+            markers.splice(i, 1);
+          }
+        }
+      }
+
+    </script>
+  </head>
+  <body onload="initialize()">
+    <div id="map_canvas" style="width:100%; height:100%"></div>
+  </body>
+</html>
+

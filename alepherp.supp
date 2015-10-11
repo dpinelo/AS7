@@ -1,0 +1,968 @@
+{
+   Ignore OpenSSL malloc
+   Memcheck:Leak
+   ...
+   obj:*libcrypto*
+}
+{
+   Ignore OpenSSL realloc
+   Memcheck:Leak
+   ...
+   obj:*libcrypto*
+}
+{
+   Ignore OpenSSL realloc
+   Memcheck:Cond
+   ...
+   obj:*libcrypto*
+}
+{
+   Ignore OpenSSL realloc
+   Memcheck:Value8
+   ...
+   obj:*libcrypto*
+}
+{
+   PQconnectPoll[Memcheck:Cond]
+   Memcheck:Cond
+   fun:PQconnectPoll
+   obj:/usr/lib/x86_64-linux-gnu/libpq.so.5.6
+   fun:PQconnectdb
+   fun:_ZN11QPSQLDriver4openERK7QStringS2_S2_S2_iS2_
+   fun:_ZN12QSqlDatabase4openEv
+   ...
+}
+{
+   memcpy@@GLIBC_2.14[Memcheck:Cond]
+   Memcheck:Cond
+   fun:memcpy@@GLIBC_2.14
+   obj:/usr/lib/x86_64-linux-gnu/libpq.so.5.6
+   obj:/usr/lib/x86_64-linux-gnu/libpq.so.5.6
+   fun:PQgetResult
+   obj:/usr/lib/x86_64-linux-gnu/libpq.so.5.6
+   fun:_ZNK18QPSQLDriverPrivate4execEPKc
+   fun:_ZN18QPSQLDriverPrivate14getPSQLVersionEv
+   fun:_ZN11QPSQLDriver4openERK7QStringS2_S2_S2_iS2_
+   fun:_ZN12QSqlDatabase4openEv
+   ...
+}
+{
+   /usr/lib/x86_64-linux-gnu/libpq.so.5.6[Memcheck:Cond]
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libpq.so.5.6
+   fun:PQgetvalue
+   fun:_ZN18QPSQLDriverPrivate14getPSQLVersionEv
+   fun:_ZN11QPSQLDriver4openERK7QStringS2_S2_S2_iS2_
+   fun:_ZN12QSqlDatabase4openEv
+   ...
+}
+{
+   PQgetvalue[Memcheck:Value8]
+   Memcheck:Value8
+   fun:PQgetvalue
+   fun:_ZN18QPSQLDriverPrivate14getPSQLVersionEv
+   fun:_ZN11QPSQLDriver4openERK7QStringS2_S2_S2_iS2_
+   fun:_ZN12QSqlDatabase4openEv
+   ...
+}
+{
+   QPSQLResult::record() const[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZNK11QPSQLResult6recordEv
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   /usr/lib/x86_64-linux-gnu/libpq.so.5.6[Memcheck:Cond]
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libpq.so.5.6
+   fun:PQfname
+   fun:_ZNK11QPSQLResult6recordEv
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   QString::fromUtf8(char const*, int)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN7QString8fromUtf8EPKci
+   fun:_ZNK11QPSQLResult6recordEv
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   strlen[Memcheck:Value8]
+   Memcheck:Value8
+   fun:strlen
+   fun:_ZN7QString8fromUtf8EPKci
+   fun:_ZNK11QPSQLResult6recordEv
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   strlen[Memcheck:Cond]
+   Memcheck:Cond
+   fun:strlen
+   fun:_ZN7QString8fromUtf8EPKci
+   fun:_ZNK11QPSQLResult6recordEv
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   QUtf8::convertToUnicode(char const*, int, QTextCodec::ConverterState*)[Memcheck:Value8]
+   Memcheck:Value8
+   fun:_ZN5QUtf816convertToUnicodeEPKciPN10QTextCodec14ConverterStateE
+   fun:_ZN7QString8fromUtf8EPKci
+   fun:_ZNK11QPSQLResult6recordEv
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   QUtf8::convertToUnicode(char const*, int, QTextCodec::ConverterState*)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN5QUtf816convertToUnicodeEPKciPN10QTextCodec14ConverterStateE
+   fun:_ZN7QString8fromUtf8EPKci
+   fun:_ZNK11QPSQLResult6recordEv
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   /usr/lib/x86_64-linux-gnu/libpq.so.5.6[Memcheck:Cond]
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libpq.so.5.6
+   fun:PQftype
+   fun:_ZNK11QPSQLResult6recordEv
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   /usr/lib/x86_64-linux-gnu/libpq.so.5.6[Memcheck:Cond]
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libpq.so.5.6
+   fun:PQfsize
+   fun:_ZNK11QPSQLResult6recordEv
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   /usr/lib/x86_64-linux-gnu/libpq.so.5.6[Memcheck:Cond]
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libpq.so.5.6
+   fun:PQfmod
+   fun:_ZNK11QPSQLResult6recordEv
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   QPSQLResult::data(int)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   /usr/lib/x86_64-linux-gnu/libpq.so.5.6[Memcheck:Cond]
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libpq.so.5.6
+   fun:PQftype
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   /usr/lib/x86_64-linux-gnu/libpq.so.5.6[Memcheck:Cond]
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libpq.so.5.6
+   fun:PQgetvalue
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   PQgetvalue[Memcheck:Value8]
+   Memcheck:Value8
+   fun:PQgetvalue
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   /usr/lib/x86_64-linux-gnu/libpq.so.5.6[Memcheck:Cond]
+   Memcheck:Cond
+   obj:/usr/lib/x86_64-linux-gnu/libpq.so.5.6
+   fun:PQgetisnull
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   PQgetisnull[Memcheck:Value8]
+   Memcheck:Value8
+   fun:PQgetisnull
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   ____strtol_l_internal[Memcheck:Value8]
+   Memcheck:Value8
+   fun:____strtol_l_internal
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   ____strtol_l_internal[Memcheck:Cond]
+   Memcheck:Cond
+   fun:____strtol_l_internal
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   QString::fromUtf8(char const*, int)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN7QString8fromUtf8EPKci
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   strlen[Memcheck:Value8]
+   Memcheck:Value8
+   fun:strlen
+   fun:_ZN7QString8fromUtf8EPKci
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   QUtf8::convertToUnicode(char const*, int, QTextCodec::ConverterState*)[Memcheck:Value8]
+   Memcheck:Value8
+   fun:_ZN5QUtf816convertToUnicodeEPKciPN10QTextCodec14ConverterStateE
+   fun:_ZN7QString8fromUtf8EPKci
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   QString::toUpper() const[Memcheck:Value8]
+   Memcheck:Value8
+   fun:_ZNK7QString7toUpperEv
+   fun:_ZNK10QSqlRecord7indexOfERK7QString
+   fun:_ZNK10QSqlRecord5valueERK7QString
+   ...
+}
+{
+   qMemEquals(unsigned short const*, unsigned short const*, int) [clone .part.1][Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZL10qMemEqualsPKtS0_i.part.1
+   fun:_ZNK10QSqlRecord7indexOfERK7QString
+   fun:_ZNK10QSqlRecord5valueERK7QString
+   ...
+}
+{
+   QSqlRecord::indexOf(QString const&) const[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZNK10QSqlRecord7indexOfERK7QString
+   fun:_ZNK10QSqlRecord5valueERK7QString
+   ...
+}
+{
+   QTextStreamPrivate::putNumber(unsigned long long, bool)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN18QTextStreamPrivate9putNumberEyb
+   fun:_ZN11QTextStreamlsEi
+   fun:_ZN6QDebuglsEi
+   ...
+}
+{
+   qulltoa(unsigned long long, int, QChar)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_Z7qulltoayi5QChar
+   fun:_ZN14QLocalePrivate19unsLongLongToStringE5QCharS0_S0_yiiij
+   fun:_ZNK14QLocalePrivate19unsLongLongToStringEyiiij
+   fun:_ZN18QTextStreamPrivate9putNumberEyb
+   fun:_ZN11QTextStreamlsEi
+   fun:_ZN6QDebuglsEi
+   ...
+}
+{
+   vfprintf[Memcheck:Cond]
+   Memcheck:Cond
+   fun:vfprintf
+   fun:buffered_vfprintf
+   fun:vfprintf
+   fun:__fprintf_chk
+   fun:_Z17qt_message_output9QtMsgTypePKc
+   fun:_ZN6QDebugD1Ev
+   ...
+}
+{
+   strlen[Memcheck:Cond]
+   Memcheck:Cond
+   fun:strlen
+   fun:_ZN7QString8fromUtf8EPKci
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   QUtf8::convertToUnicode(char const*, int, QTextCodec::ConverterState*)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN5QUtf816convertToUnicodeEPKciPN10QTextCodec14ConverterStateE
+   fun:_ZN7QString8fromUtf8EPKci
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK9QSqlQuery6recordEv
+   ...
+}
+{
+   QPSQLResult::data(int)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZN18QPSQLDriverPrivate12appendTablesER11QStringListR9QSqlQuery5QChar
+   fun:_ZNK11QPSQLDriver6tablesEN4QSql9TableTypeE
+   ...
+}
+{
+   PQgetvalue[Memcheck:Value8]
+   Memcheck:Value8
+   fun:PQgetvalue
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZN18QPSQLDriverPrivate12appendTablesER11QStringListR9QSqlQuery5QChar
+   fun:_ZNK11QPSQLDriver6tablesEN4QSql9TableTypeE
+   ...
+}
+{
+   PQgetisnull[Memcheck:Value8]
+   Memcheck:Value8
+   fun:PQgetisnull
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZN18QPSQLDriverPrivate12appendTablesER11QStringListR9QSqlQuery5QChar
+   fun:_ZNK11QPSQLDriver6tablesEN4QSql9TableTypeE
+   ...
+}
+{
+   QString::fromUtf8(char const*, int)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN7QString8fromUtf8EPKci
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZN18QPSQLDriverPrivate12appendTablesER11QStringListR9QSqlQuery5QChar
+   fun:_ZNK11QPSQLDriver6tablesEN4QSql9TableTypeE
+   ...
+}
+{
+   QString::operator==(QLatin1String const&) const[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZNK7QStringeqERK13QLatin1String
+   fun:_ZN18QPSQLDriverPrivate12appendTablesER11QStringListR9QSqlQuery5QChar
+   fun:_ZNK11QPSQLDriver6tablesEN4QSql9TableTypeE
+   ...
+}
+{
+   QPSQLResult::data(int)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK11QPSQLDriver6tablesEN4QSql9TableTypeE
+   ...
+}
+{
+   PQgetvalue[Memcheck:Value8]
+   Memcheck:Value8
+   fun:PQgetvalue
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK11QPSQLDriver6tablesEN4QSql9TableTypeE
+   ...
+}
+{
+   PQgetisnull[Memcheck:Value8]
+   Memcheck:Value8
+   fun:PQgetisnull
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK11QPSQLDriver6tablesEN4QSql9TableTypeE
+   ...
+}
+{
+   QString::fromUtf8(char const*, int)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN7QString8fromUtf8EPKci
+   fun:_ZN11QPSQLResult4dataEi
+   fun:_ZNK9QSqlQuery5valueEi
+   fun:_ZNK11QPSQLDriver6tablesEN4QSql9TableTypeE
+   ...
+}
+{
+   ucstrcmp(QChar const*, int, QChar const*, int)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZL8ucstrcmpPK5QChariS1_i
+   fun:_ZNK7QStringltERKS_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   void QAlgorithmsPrivate::qSortHelper<QList<QString>::iterator, QString, qLess<QString> >(QList<QString>::iterator, QList<QString>::iterator, QString const&, qLess<QString>)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   ucstrcmp(QChar const*, int, QChar const*, int)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZL8ucstrcmpPK5QChariS1_i
+   fun:_ZNK7QStringltERKS_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   ucstrcmp(QChar const*, int, QChar const*, int)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZL8ucstrcmpPK5QChariS1_i
+   fun:_ZNK7QStringltERKS_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   void QAlgorithmsPrivate::qSortHelper<QList<QString>::iterator, QString, qLess<QString> >(QList<QString>::iterator, QList<QString>::iterator, QString const&, qLess<QString>)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   ucstrcmp(QChar const*, int, QChar const*, int)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZL8ucstrcmpPK5QChariS1_i
+   fun:_ZNK7QStringltERKS_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   void QAlgorithmsPrivate::qSortHelper<QList<QString>::iterator, QString, qLess<QString> >(QList<QString>::iterator, QList<QString>::iterator, QString const&, qLess<QString>)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   ucstrcmp(QChar const*, int, QChar const*, int)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZL8ucstrcmpPK5QChariS1_i
+   fun:_ZNK7QStringltERKS_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   void QAlgorithmsPrivate::qSortHelper<QList<QString>::iterator, QString, qLess<QString> >(QList<QString>::iterator, QList<QString>::iterator, QString const&, qLess<QString>)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   ucstrcmp(QChar const*, int, QChar const*, int)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZL8ucstrcmpPK5QChariS1_i
+   fun:_ZNK7QStringltERKS_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   void QAlgorithmsPrivate::qSortHelper<QList<QString>::iterator, QString, qLess<QString> >(QList<QString>::iterator, QList<QString>::iterator, QString const&, qLess<QString>)[Memcheck:Cond]
+   Memcheck:Cond
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   void QAlgorithmsPrivate::qSortHelper<QList<QString>::iterator, QString, qLess<QString> >(QList<QString>::iterator, QList<QString>::iterator, QString const&, qLess<QString>)[Memcheck:Value8]
+   Memcheck:Value8
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   void QAlgorithmsPrivate::qSortHelper<QList<QString>::iterator, QString, qLess<QString> >(QList<QString>::iterator, QList<QString>::iterator, QString const&, qLess<QString>)[Memcheck:Value8]
+   Memcheck:Value8
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   void QAlgorithmsPrivate::qSortHelper<QList<QString>::iterator, QString, qLess<QString> >(QList<QString>::iterator, QList<QString>::iterator, QString const&, qLess<QString>)[Memcheck:Value8]
+   Memcheck:Value8
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN18QAlgorithmsPrivate11qSortHelperIN5QListI7QStringE8iteratorES2_5qLessIS2_EEEvT_S7_RKT0_T1_
+   fun:_ZN9QtPrivate16QStringList_sortEP11QStringList
+   fun:_ZN11QStringList4sortEv
+   ...
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   obj:/usr/lib/kde4/plugins/designer/akonadiwidgets.so
+   fun:qt_plugin_instance
+   fun:_ZN13QPluginLoader8instanceEv
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   ...
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN15QLibraryPrivate12findOrCreateERK7QStringS2_
+   fun:_ZN8QLibrary21setFileNameAndVersionERK7QStringi
+   fun:_ZN8QLibraryC1ERK7QStringiP7QObject
+   fun:_ZL23qt_load_library_runtimePKciiS0_
+   fun:_Z7qt_initP19QApplicationPrivateiP9_XDisplaymm
+   fun:_ZN19QApplicationPrivate9constructEP9_XDisplaymm
+   fun:_ZN12QApplicationC1ERiPPci
+   fun:_ZN15AERPApplicationC1ERiPPc
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNK18QxtDesignerPlugins13customWidgetsEv
+   fun:_ZN13QFormInternalL13insertPluginsEP7QObjectP4QMapI7QStringP30QDesignerCustomWidgetInterfaceE
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN15QLibraryPrivate12findOrCreateERK7QStringS2_
+   fun:_ZN8QLibrary21setFileNameAndVersionERK7QStringS2_
+   fun:_ZN8QLibraryC1ERK7QStringS2_P7QObject
+   fun:_Z10qt_initIcuRK7QString
+   fun:_ZN14QLocalePrivate19updateSystemPrivateEv
+   fun:_ZL13systemPrivatev
+   fun:_ZN7QLocaleC1Ev
+   fun:_ZN19QResourceFileEngineC1ERK7QString
+   fun:_ZL46_q_resolveEntryAndCreateLegacyEngine_recursiveR16QFileSystemEntryR19QFileSystemMetaDataRP19QAbstractFileEngineb
+   fun:_ZN17QFileSystemEngine33resolveEntryAndCreateLegacyEngineER16QFileSystemEntryR19QFileSystemMetaData
+   fun:_ZN9QFileInfoC1ERK7QString
+   fun:_ZN5QFile6existsERK7QString
+   fun:_ZN19QLibraryInfoPrivate17findConfigurationEv
+   fun:_ZN16QLibrarySettingsC1Ev
+   fun:_ZL19qt_library_settingsv
+   fun:_ZN12QLibraryInfo8locationENS_15LibraryLocationE
+   fun:_ZN16QCoreApplication12libraryPathsEv
+   fun:_ZN16QCoreApplication4initEv
+   fun:_ZN16QCoreApplicationC1ER23QCoreApplicationPrivate
+   fun:_ZN12QApplicationC1ERiPPci
+   fun:_ZN15AERPApplicationC1ERiPPc
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZNK18QxtDesignerPlugins13customWidgetsEv
+   fun:_ZN13QFormInternalL13insertPluginsEP7QObjectP4QMapI7QStringP30QDesignerCustomWidgetInterfaceE
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN15QLibraryPrivate12findOrCreateERK7QStringS2_
+   fun:_ZN8QLibrary21setFileNameAndVersionERK7QStringi
+   fun:_ZN8QLibraryC1ERK7QStringiP7QObject
+   fun:_Z7qt_initP19QApplicationPrivateiP9_XDisplaymm
+   fun:_ZN19QApplicationPrivate9constructEP9_XDisplaymm
+   fun:_ZN12QApplicationC1ERiPPci
+   fun:_ZN15AERPApplicationC1ERiPPc
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN15QLibraryPrivate12findOrCreateERK7QStringS2_
+   fun:_ZN8QLibrary21setFileNameAndVersionERK7QStringS2_
+   fun:_Z23q_resolveOpenSslSymbolsv
+   fun:_ZN17QSslSocketPrivate19ensureLibraryLoadedEv
+   fun:_ZN17QSslSocketPrivate17ensureInitializedEv
+   fun:_ZN15QSslCertificateC1ERK10QByteArrayN4QSsl14EncodingFormatE
+   fun:_ZN17QSslConfigurationC1Ev
+   fun:_ZN25AERPHttpConnectionPrivateC1Ev
+   fun:_ZN18AERPHTTPConnectionC1EP7QObject
+   fun:_ZN23AERPScriptCommonPrivateC1Ev
+   fun:_ZN16AERPScriptCommonC1EP7QObject
+   fun:_ZN16AERPScriptEngine12scriptCommonEv
+   fun:_ZN16AERPScriptEngine8instanceEv
+   fun:main
+}
+{
+   calloc[Memcheck:Leak]
+   Memcheck:Leak
+   fun:calloc
+   fun:_XimOpenIM
+   fun:_XimRegisterIMInstantiateCallback
+   fun:XRegisterIMInstantiateCallback
+   fun:_ZN16QXIMInputContextC1Ev
+   fun:_ZN20QInputContextFactory6createERK7QStringP7QObject
+   fun:_ZNK12QApplication12inputContextEv
+   fun:_ZN19QApplicationPrivate14setFocusWidgetEP7QWidgetN2Qt11FocusReasonE
+   fun:_ZN7QWidget8setFocusEN2Qt11FocusReasonE
+   fun:_ZN12QApplication15setActiveWindowEP7QWidget
+   fun:_ZN12QApplication15x11ProcessEventEP7_XEvent
+   fun:_ZL22x11EventSourceDispatchP8_GSourcePFiPvES1_
+   fun:g_main_context_dispatch
+   obj:/lib/x86_64-linux-gnu/libglib-2.0.so.0.4000.0
+   fun:g_main_context_iteration
+   fun:_ZN20QEventDispatcherGlib13processEventsE6QFlagsIN10QEventLoop17ProcessEventsFlagEE
+   fun:_ZN23QGuiEventDispatcherGlib13processEventsE6QFlagsIN10QEventLoop17ProcessEventsFlagEE
+   fun:_ZN10QEventLoop13processEventsE6QFlagsINS_17ProcessEventsFlagEE
+   fun:_ZN10QEventLoop4execE6QFlagsINS_17ProcessEventsFlagEE
+   fun:_ZN7QDialog4execEv
+   fun:_Z12loginProcessv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN15QLibraryPrivate12findOrCreateERK7QStringS2_
+   fun:_ZN13QPluginLoader11setFileNameERK7QString
+   fun:_ZN13QPluginLoaderC1ERK7QStringP7QObject
+   fun:_ZNK13QScriptEngine19availableExtensionsEv
+   fun:_ZN16AERPScriptEngine16importExtensionsEP13QScriptEngine
+   fun:_ZN16AERPScriptEngine8instanceEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN15QLibraryPrivate12findOrCreateERK7QStringS2_
+   fun:_ZN13QPluginLoader11setFileNameERK7QString
+   fun:_ZN13QPluginLoaderC1ERK7QStringP7QObject
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN25QxtLanguageComboBoxPluginC1EP7QObject
+   fun:_ZNK18QxtDesignerPlugins13customWidgetsEv
+   fun:_ZN13QFormInternalL13insertPluginsEP7QObjectP4QMapI7QStringP30QDesignerCustomWidgetInterfaceE
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN24QxtCountryComboBoxPluginC1EP7QObject
+   fun:_ZNK18QxtDesignerPlugins13customWidgetsEv
+   fun:_ZN13QFormInternalL13insertPluginsEP7QObjectP4QMapI7QStringP30QDesignerCustomWidgetInterfaceE
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   calloc[Memcheck:Leak]
+   Memcheck:Leak
+   fun:calloc
+   obj:/usr/lib/x86_64-linux-gnu/libfontconfig.so.1.8.0
+   obj:/usr/lib/x86_64-linux-gnu/libfontconfig.so.1.8.0
+   fun:FcFreeTypeQueryFace
+   fun:_ZL12registerFontPN20QFontDatabasePrivate15ApplicationFontE
+   fun:_ZN20QFontDatabasePrivate10addAppFontERK10QByteArrayRK7QString
+   fun:_ZN13QFontDatabase18addApplicationFontERK7QString
+   fun:_ZN11AERPMdiAreaC1EP7QWidget
+   fun:_ZN14AERPMainWindowC1EP7QWidget6QFlagsIN2Qt10WindowTypeEE
+   fun:_ZN20AERPMainWindowPlugin12createWidgetEP7QWidget
+   fun:_ZN13QFormInternal12QFormBuilder12createWidgetERK7QStringP7QWidgetS3_
+   fun:_ZN12AERPUiLoader12createWidgetERK7QStringP7QWidgetS2_
+   fun:_ZN13QFormInternal18FormBuilderPrivate12createWidgetERK7QStringP7QWidgetS3_
+   fun:_ZN13QFormInternal20QAbstractFormBuilder6createEPNS_9DomWidgetEP7QWidget
+   fun:_ZN13QFormInternal12QFormBuilder6createEPNS_9DomWidgetEP7QWidget
+   fun:_ZN13QFormInternal18FormBuilderPrivate6createEPNS_9DomWidgetEP7QWidget
+   fun:_ZN13QFormInternal20QAbstractFormBuilder6createEPNS_5DomUIEP7QWidget
+   fun:_ZN13QFormInternal18FormBuilderPrivate6createEPNS_5DomUIEP7QWidget
+   fun:_ZN13QFormInternal20QAbstractFormBuilder4loadEP9QIODeviceP7QWidget
+   fun:_ZN9QUiLoader4loadEP9QIODeviceP7QWidget
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN24QxtLetterBoxWidgetPluginC1EP7QObject
+   fun:_ZNK18QxtDesignerPlugins13customWidgetsEv
+   fun:_ZN13QFormInternalL13insertPluginsEP7QObjectP4QMapI7QStringP30QDesignerCustomWidgetInterfaceE
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN22QxtProgressLabelPluginC1EP7QObject
+   fun:_ZNK18QxtDesignerPlugins13customWidgetsEv
+   fun:_ZN13QFormInternalL13insertPluginsEP7QObjectP4QMapI7QStringP30QDesignerCustomWidgetInterfaceE
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN20QxtTableWidgetPluginC1EP7QObject
+   fun:_ZNK18QxtDesignerPlugins13customWidgetsEv
+   fun:_ZN13QFormInternalL13insertPluginsEP7QObjectP4QMapI7QStringP30QDesignerCustomWidgetInterfaceE
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN17QxtFlowViewPluginC1EP7QObject
+   fun:_ZNK18QxtDesignerPlugins13customWidgetsEv
+   fun:_ZN13QFormInternalL13insertPluginsEP7QObjectP4QMapI7QStringP30QDesignerCustomWidgetInterfaceE
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   fun:_ZN7QObjectC1EPS_
+   fun:_ZN14QxtStarsPluginC1EP7QObject
+   fun:_ZNK18QxtDesignerPlugins13customWidgetsEv
+   fun:_ZN13QFormInternalL13insertPluginsEP7QObjectP4QMapI7QStringP30QDesignerCustomWidgetInterfaceE
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   obj:/usr/lib/kde4/plugins/designer/pimcommonwidgets.so
+   fun:qt_plugin_instance
+   fun:_ZN13QPluginLoader8instanceEv
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   obj:/usr/lib/kde4/plugins/designer/mailcommonwidgets.so
+   fun:qt_plugin_instance
+   fun:_ZN13QPluginLoader8instanceEv
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   obj:/usr/lib/kde4/plugins/designer/kholidayswidgets.so
+   fun:qt_plugin_instance
+   fun:_ZN13QPluginLoader8instanceEv
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   obj:/usr/lib/kde4/plugins/designer/kdepimwidgets.so
+   fun:qt_plugin_instance
+   fun:_ZN13QPluginLoader8instanceEv
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/qt4/plugins/designer/kdewidgets.so
+   fun:qt_plugin_instance
+   fun:_ZN13QPluginLoader8instanceEv
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/qt4/plugins/designer/kdewebkitwidgets.so
+   fun:qt_plugin_instance
+   fun:_ZN13QPluginLoader8instanceEv
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/qt4/plugins/designer/kdedeprecated.so
+   fun:qt_plugin_instance
+   fun:_ZN13QPluginLoader8instanceEv
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}
+{
+   operator new(unsigned long)[Memcheck:Leak]
+   Memcheck:Leak
+   fun:_Znwm
+   obj:/usr/lib/x86_64-linux-gnu/qt4/plugins/designer/kde3supportwidgets.so
+   fun:qt_plugin_instance
+   fun:_ZN13QPluginLoader8instanceEv
+   fun:_ZN13QFormInternal12QFormBuilder19updateCustomWidgetsEv
+   fun:_ZN9QUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoaderC1EP7QObject
+   fun:_ZN12AERPUiLoader8instanceEv
+   fun:_ZN14AERPMainWindow6loadUiEv
+   fun:main
+}

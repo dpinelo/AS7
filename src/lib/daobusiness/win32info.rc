@@ -1,0 +1,24 @@
+1 VERSIONINFO
+FILEVERSION     1,1,0,0
+PRODUCTVERSION  1,1,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040A04E4"
+    BEGIN
+      VALUE "CompanyName", "Aleph Sistemas de Información"
+      VALUE "FileDescription", "AlephERP"
+      VALUE "FileVersion", "1.1"
+      VALUE "InternalName", "daobusiness.dll"
+      VALUE "LegalCopyright", "(c) Aleph Sistemas de Información, 2011."
+      VALUE "OriginalFilename", "daobusiness.dll"
+      VALUE "ProductName", "AlephERP"
+      VALUE "ProductVersion", "1.1"
+    END
+  END
+
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x040A, 1252
+  END
+END

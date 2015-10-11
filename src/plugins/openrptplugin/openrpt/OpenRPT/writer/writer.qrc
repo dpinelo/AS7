@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>../images/openrpt.png</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>writer_fr.qm</file>
+    </qresource>
+    <qresource lang="fr" prefix="/">
+        <file alias="writer.qm">writer_fr.qm</file>
+    </qresource>
+    <qresource lang="it" prefix="/">
+        <file alias="writer.qm">writer_it.qm</file>
+    </qresource>
+    <qresource lang="ru" prefix="/">
+        <file alias="writer.qm">writer_ru.qm</file>
+    </qresource>
+    <qresource lang="es" prefix="/">
+        <file alias="writer.qm">writer_es.qm</file>
+    </qresource>
+</RCC>

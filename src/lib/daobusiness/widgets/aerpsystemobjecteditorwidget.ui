@@ -1,0 +1,632 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AERPSystemObjectEditorWidget</class>
+ <widget class="QWidget" name="AERPSystemObjectEditorWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1191</width>
+    <height>655</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout_5">
+   <item row="0" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Datos comunes</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="2" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Tipo</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="DBNumberEdit" name="db_version">
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="fieldName">
+           <string>version</string>
+          </property>
+          <property name="dataEditable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" colspan="3">
+         <widget class="DBComboBox" name="db_type">
+          <property name="fieldName">
+           <string>type</string>
+          </property>
+          <property name="dataEditable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Módulo</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_5">
+          <property name="text">
+           <string>Versión</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="DBLineEdit" name="db_modulo">
+          <property name="fieldName">
+           <string>module</string>
+          </property>
+          <property name="dataEditable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Nombre</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="4">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Dispositivo</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1" colspan="3">
+         <widget class="DBLineEdit" name="db_nombre">
+          <property name="fieldName">
+           <string>nombre</string>
+          </property>
+          <property name="dataEditable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="5" rowspan="3">
+         <widget class="DBListView" name="db_device">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="fieldName">
+           <string>device</string>
+          </property>
+          <property name="dataEditable">
+           <bool>true</bool>
+          </property>
+          <property name="itemCheckBox">
+           <bool>true</bool>
+          </property>
+          <property name="valueSeparator">
+           <string>,</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="DBCheckBox" name="db_debug">
+          <property name="text">
+           <string>Debug</string>
+          </property>
+          <property name="fieldName">
+           <string>debug</string>
+          </property>
+          <property name="dataEditable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="DBCheckBox" name="db_on_init_debug">
+          <property name="text">
+           <string>Abrir ventana de Debug al inicio</string>
+          </property>
+          <property name="fieldName">
+           <string>on_init_debug</string>
+          </property>
+          <property name="dataEditable">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="1" rowspan="2">
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="title">
+      <string>Hereda de</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="0" column="0">
+       <widget class="DBChooseRecordButton" name="db_idorigin">
+        <property name="text">
+         <string>Objeto padre</string>
+        </property>
+        <property name="fieldName">
+         <string>idorigin</string>
+        </property>
+        <property name="dataEditable">
+         <bool>true</bool>
+        </property>
+        <property name="replaceFields">
+         <stringlist>
+          <string>tasaconv;tasaconv</string>
+         </stringlist>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="DBLineEdit" name="db_parent_name">
+        <property name="fieldName">
+         <string>alepherp_system.nombre</string>
+        </property>
+        <property name="dataEditable">
+         <bool>true</bool>
+        </property>
+        <property name="autoCompletePopupSize">
+         <size>
+          <width>300</width>
+          <height>200</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="QGroupBox" name="groupBox_5">
+        <property name="title">
+         <string>Visualización</string>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <widget class="QRadioButton" name="rbViewPatch">
+           <property name="text">
+            <string>Visualizar el parche</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QRadioButton" name="rbContentEdit">
+           <property name="text">
+            <string>Edición de contenido</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QRadioButton" name="rbViewPrettyDiff">
+           <property name="text">
+            <string>Ver diferencias con objeto padre</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="DBCheckBox" name="db_ispatch">
+           <property name="text">
+            <string>Almacenar como patch</string>
+           </property>
+           <property name="fieldName">
+            <string>ispatch</string>
+           </property>
+           <property name="dataEditable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QPushButton" name="pbDesigner">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Abrir en Designer</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/generales/images/designer.png</normaloff>:/generales/images/designer.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbImportBinaryFile">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Importar fichero de recursos</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/generales/images/record.png</normaloff>:/generales/images/record.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbCreator">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Abrir en Qt Creator</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/generales/images/designer.png</normaloff>:/generales/images/designer.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbEditReport">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Editar Informe</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/generales/images/blank.png</normaloff>:/generales/images/blank.png</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QStackedWidget" name="stackedWidget">
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="page">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="groupBox_2">
+         <property name="title">
+          <string>Contenido</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="1" column="1">
+           <widget class="QCheckBox" name="chkReplaceTabs">
+            <property name="text">
+             <string>Reemplazar tabulaciones por espacios</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="4">
+           <widget class="QLabel" name="lblNumSpaces">
+            <property name="text">
+             <string>Nº de espacios por tabulador</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="5">
+           <widget class="QLineEdit" name="leNumSpaces">
+            <property name="maximumSize">
+             <size>
+              <width>30</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="inputMask">
+             <string>9</string>
+            </property>
+            <property name="text">
+             <string>4</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="chkValidate">
+            <property name="text">
+             <string>Validar contenido</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0" colspan="6">
+           <widget class="DBCodeEdit" name="db_contenido">
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
+            <property name="fieldName">
+             <string>contenido</string>
+            </property>
+            <property name="dataEditable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pagePatch">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="title">
+          <string>Patch</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="DBTextEdit" name="db_patch">
+            <property name="fieldName">
+             <string>patch</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pageDifferences">
+      <layout class="QVBoxLayout" name="verticalLayout_6">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="groupBox_7">
+         <property name="title">
+          <string>Diferencias</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QTextEdit" name="txtPrettyDiff">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="pageXMLValidation">
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QGroupBox" name="groupBox_8">
+         <property name="title">
+          <string>Error en validación XML</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_8">
+          <item>
+           <widget class="QTextEdit" name="txtXMLValidation">
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lblStatusMessage">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pbValidateOk">
+            <property name="text">
+             <string>&amp;Ok</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../resources/resources.qrc">
+              <normaloff>:/aplicacion/images/ok.png</normaloff>:/aplicacion/images/ok.png</iconset>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>DBCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>widgets/dbcheckbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DBChooseRecordButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets/dbchooserecordbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DBComboBox</class>
+   <extends>QComboBox</extends>
+   <header>widgets/dbcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DBLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets/dblineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DBListView</class>
+   <extends>QListView</extends>
+   <header>widgets/dblistview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DBNumberEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets/dbnumberedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DBTextEdit</class>
+   <extends>QPlainTextEdit</extends>
+   <header>widgets/dbtextedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>DBCodeEdit</class>
+   <extends>QWidget</extends>
+   <header>widgets/dbcodeedit.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>db_nombre</tabstop>
+  <tabstop>db_version</tabstop>
+  <tabstop>db_modulo</tabstop>
+  <tabstop>db_type</tabstop>
+  <tabstop>db_device</tabstop>
+  <tabstop>db_idorigin</tabstop>
+  <tabstop>db_parent_name</tabstop>
+  <tabstop>db_ispatch</tabstop>
+  <tabstop>rbContentEdit</tabstop>
+  <tabstop>rbViewPrettyDiff</tabstop>
+  <tabstop>rbViewPatch</tabstop>
+  <tabstop>db_contenido</tabstop>
+  <tabstop>chkValidate</tabstop>
+  <tabstop>chkReplaceTabs</tabstop>
+  <tabstop>leNumSpaces</tabstop>
+  <tabstop>pbDesigner</tabstop>
+  <tabstop>pbImportBinaryFile</tabstop>
+  <tabstop>pbCreator</tabstop>
+  <tabstop>pbEditReport</tabstop>
+  <tabstop>txtPrettyDiff</tabstop>
+  <tabstop>pbValidateOk</tabstop>
+  <tabstop>db_patch</tabstop>
+  <tabstop>txtXMLValidation</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../resources/resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
+ </resources>
+ <connections/>
+</ui>

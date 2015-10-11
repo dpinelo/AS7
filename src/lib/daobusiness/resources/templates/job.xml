@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<job xmlns="http://www.alephsistemas.es" 
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.alephsistemas.es alepherp-metadata.xsd">
+
+    <!-- Nombre del trabajo -->
+    <name></name>
+
+    <!-- Alias -->
+    <alias></alias>
+    
+    <!-- Usuario para el que se define el trabajo programado. Si está en blanco, se definirá para cualquier usuario. -->
+    <userName></userName>
+    
+    <!-- Rol para el que se define el trabajo programado. -->
+    <roleName></roleName>
+    
+    <!--Expresión de tipo cron para ver cuándo se debe ejecutar la tarea.
+      cronExpression: "m h D M W"
+                       | | | | |
+                       | | | | `- Day of Week, 1-7
+                       | | | `- Month, 1-12, * (para todos los meses)
+                       | | `- Day of Month, 1-31, 1,4,6 (los días 1, 4 y 6)
+                       | `- Hour, 0-23, */2 (cada dos horas a partir de la hora en la que se ejecute la primera tarea)
+                       `- Minute, 0-59, 5/10 (cada 10 minutos pero a partir del minuto 5)
+     -->
+    <cronExpression></cronExpression>
+    
+    <!-- Notificación de base de datos que desencadena la ejecución de este proceso -->
+    <databaseNotification></databaseNotification>
+    
+    <!-- Indica si necesita una conexión específica de base de datos. True por defecto -->
+    <needsDatabaseConnection>true</needsDatabaseConnection>
+    <!-- Código QS a ejecutar -->
+    <code>
+<![CDATA[
+]]>		
+    </code>
+</job>
