@@ -61,17 +61,19 @@ SUBDIRS += src/lib/daobusiness
         SUBDIRS += src/lib/jasperserver
     }
     !contains(QT_VERSION, ^4\\.[0-8]\\..*) {
-        SUBDIRS += src/3rdparty/quazip
-        #SUBDIRS += src/plugins/ods
-        SUBDIRS += src/plugins/xlsx
-        win32-g++|win64-g++|unix {
-            SUBDIRS += src/plugins/xls
+        contains(XLSSUPPORT, Y) {
+            SUBDIRS += src/3rdparty/quazip
+            #SUBDIRS += src/plugins/ods
+            SUBDIRS += src/plugins/xlsx
+            win32-g++|win64-g++|unix {
+                SUBDIRS += src/plugins/xls
+            }
+            SUBDIRS += src/plugins/csv
+            win32-g++|win64-g++|unix {
+                SUBDIRS += src/plugins/xbase
+            }
+            SUBDIRS += src/plugins/plaintext
         }
-        SUBDIRS += src/plugins/csv
-        win32-g++|win64-g++|unix {
-            SUBDIRS += src/plugins/xbase
-        }
-        SUBDIRS += src/plugins/plaintext
     }
 }
 

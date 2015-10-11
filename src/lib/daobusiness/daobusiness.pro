@@ -227,6 +227,7 @@ contains(AERPDOCMNGSUPPORT, Y) {
     FORMS +=   forms/documentrepoexplorerdlg.ui \
                forms/aerpdocumenthotfolders.ui \
                forms/aerpchoosenewfileformat.ui \
+               forms/uploaddocument.ui \
                widgets/dbrecorddocuments.ui \
                widgets/dbdocumenttreeview.ui \
                widgets/dbdocumentview.ui
@@ -632,7 +633,6 @@ FORMS += \
     forms/dbreportrundlg.ui \
     forms/aerpeditconnectoptionsdlg.ui \
     forms/simplemessagedlg.ui \
-    forms/uploaddocument.ui \
     forms/aerpchoosemodules.ui \
     forms/aerpscheduledjobviewer.ui \
     forms/aerpuseraccessrow.ui \
