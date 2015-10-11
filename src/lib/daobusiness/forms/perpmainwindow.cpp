@@ -37,7 +37,9 @@
 #include "forms/aerpmdiarea.h"
 #include "forms/simplemessagedlg.h"
 #include "forms/importsystemitems.h"
+#ifdef ALEPHERP_DOC_MANAGEMENT
 #include "forms/documentrepoexplorerdlg.h"
+#endif
 #include "forms/scriptdlg.h"
 #include "forms/jssystemscripts.h"
 #include "forms/aerpchoosemodules.h"
@@ -49,7 +51,9 @@
 #include "widgets/relatedelementswidget.h"
 #include "models/envvars.h"
 #include "scripts/perpscript.h"
+#ifdef ALEPHERP_LOCALMODE
 #include "business/aerpbatchload.h"
+#endif
 #include "business/aerpscheduledjobs.h"
 #include "reports/reportrun.h"
 #ifdef ALEPHERP_DOC_MANAGEMENT
