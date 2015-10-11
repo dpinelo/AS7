@@ -32,7 +32,6 @@ src/modules/
 src/plugins/aerphttpsqldriver/
 src/plugins/csmailsmtp/
 src/plugins/csv/
-src/plugins/dbcommons
 src/plugins/dbdocumentmngmnt/
 src/plugins/jasperserverwebviewplugin/
 src/plugins/ods/

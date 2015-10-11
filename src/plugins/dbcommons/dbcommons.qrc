@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/printingerp.png</file>
+        <file>images/dbcombobox.png</file>
+        <file>images/dbdetailview.png</file>
+        <file>images/dbfiltertableview.png</file>
+        <file>images/dbtableview.png</file>
+        <file>images/dblineedit.png</file>
+        <file>images/dbnumberedit.png</file>
+        <file>images/dbtabwidget.png</file>
+        <file>images/dbframebuttons.png</file>
+        <file>images/dbtreeview.png</file>
+        <file>images/dbfileupload.jpg</file>
+        <file>images/BolaAleph.png</file>
+    </qresource>
+</RCC>
