@@ -69,7 +69,6 @@ src/lib/daobusiness/dao/beans/aerpdocm*
 src/lib/daobusiness/business/docmngmnt/
 src/lib/daobusiness/ibpp
 src/lib/daobusiness/dao/aerpfirebirddatabase*
-src/lib/daobusiness/forms/sendemail*
 src/lib/daobusiness/forms/emaildao*
 
 
