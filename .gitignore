@@ -72,7 +72,6 @@ src/lib/daobusiness/ibpp
 src/lib/daobusiness/dao/aerpfirebirddatabase*
 src/lib/daobusiness/forms/sendemail*
 src/lib/daobusiness/forms/emaildao*
-src/lib/daobusiness/business/smtp/
 
 
 
