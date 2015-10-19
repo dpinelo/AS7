@@ -263,7 +263,8 @@ BaseBeanSharedPointer DBSearchDlg::selectedBean()
         }
         else
         {
-            return d->m_insertFather;
+            //return d->m_insertFather;
+            return BaseBeanSharedPointer();
         }
     }
     return d->m_selectedBean;

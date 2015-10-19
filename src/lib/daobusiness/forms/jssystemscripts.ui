@@ -64,6 +64,9 @@
         <property name="readOnly">
          <bool>true</bool>
         </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+        </property>
        </widget>
       </item>
      </layout>
@@ -112,6 +115,7 @@
   <tabstop>pbClose</tabstop>
  </tabstops>
  <resources>
+  <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>
