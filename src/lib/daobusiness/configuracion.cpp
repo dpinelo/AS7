@@ -155,7 +155,7 @@ AlephERPSettings::AlephERPSettings(QObject *parent) :
     m_lastServer = -1;
     m_useExternalDiff = false;
     m_debuggerEnabled = false;
-    m_advancedUser = false;
+    m_advancedUser = true;
     m_internalPDFViewer = false;
     m_mdiTabView = false;
     m_allowSystemTray = false;
@@ -327,7 +327,7 @@ void AlephERPSettings::init (void)
     m_cloudProtocol = m_settings->value(KEY_CLOUD_PROTOCOL, "http").toString();
     m_licenseKey = m_settings->value(KEY_LICENSE_KEY, "").toString();
     m_httpTimeout = m_settings->value(KEY_HTTP_TIMEOUT, 60000).toInt();
-    m_advancedUser = m_settings->value(KEY_ADVANCED_USER, false).toBool();
+    m_advancedUser = m_settings->value(KEY_ADVANCED_USER, true).toBool();
     m_lastServer = m_settings->value(KEY_LAST_SERVER_ID, -1).toInt();
     m_logLevel = static_cast<QLogger::LogLevel>(m_settings->value(KEY_LOG_LEVEL, static_cast<int>(QLogger::InfoLevel)).toInt());
     m_allowSystemTray = m_settings->value(KEY_ALLOW_SYSTEM_TRAY, false).toBool();
