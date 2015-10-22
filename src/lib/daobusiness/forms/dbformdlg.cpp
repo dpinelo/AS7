@@ -1510,6 +1510,11 @@ void DBFormDlg::setFilter(const QString &filter)
 */
 bool DBFormDlg::checkPermissionsToOpen()
 {
+    QString systemDatabase = QString("%1_system").arg(alephERPSettings->systemTablePrefix());
+    if ( systemDatabase == d->m_tableName && AERPLoggedUser::instance()->isSuperAdmin() )
+    {
+        return true;
+    }
     if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', d->m_tableName) )
     {
         QMessageBox::warning(this,qApp->applicationName(), trUtf8("No tiene permisos para acceder a estos datos."), QMessageBox::Ok);
