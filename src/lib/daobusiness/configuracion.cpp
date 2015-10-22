@@ -21,6 +21,7 @@
 #include "models/envvars.h"
 #include <QtCore>
 #include <QtGlobal>
+#include <QDebug>
 #if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
 #include <QtGui>
 #else
@@ -799,9 +800,11 @@ QString AlephERPSettings::dataPath() const
     QDir dir;
     if ( !dir.exists(m_dataPath) )
     {
-        if ( !dir.mkdir(m_dataPath) )
+        if ( !dir.mkpath(m_dataPath) )
         {
-            QLogger::QLog_Error(AlephERP::stLogOther, QString("Configuracion::dataPath(): No se ha podido crear el directorio de archivos de datos: [%1]").arg(m_dataPath));
+            QString message = QString("Configuracion::dataPath(): No se ha podido crear el directorio de archivos de datos: [%1]").arg(m_dataPath);
+            QByteArray ba = message.toUtf8();
+            qFatal(ba.constData());
         }
     }
     return m_dataPath;
