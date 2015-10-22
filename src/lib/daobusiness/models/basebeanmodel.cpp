@@ -1002,9 +1002,9 @@ QString BaseBeanModel::sqlSelectFieldsClausule(BaseBeanMetadata *metadata, QList
   Construye la sql del select. Para agilizar la consulta sólo se obtienen los datos que son
   visibles en grid y que forman parte de la Pk.
   */
-QString BaseBeanModel::buildSqlSelect(BaseBeanMetadata *metadata, const QString &where, const QString &order)
+QString BaseBeanModel::buildSqlSelect(BaseBeanMetadata *metadata, const QString &where, const QString &initOrder)
 {
-    QString sql;
+    QString sql, order = initOrder;
     bool includeOid;
     if ( metadata == NULL )
     {
