@@ -101,6 +101,9 @@ int main(int argc, char *argv[])
         app.installTranslator(&translator);
     }
 
+    // Iniciamos la configuración del sistema
+    AlephERPSettings::instance();
+
 #ifdef ALEPHERP_FORCE_TO_USE_CLOUD
     if ( alephERPSettings->licenseKey().isEmpty() )
     {
