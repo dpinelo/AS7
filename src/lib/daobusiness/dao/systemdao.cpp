@@ -390,7 +390,7 @@ QString SystemDAO::systemTablesSQLite = ""
                                         "username character varying(255),"
                                         "id_rol integer,"
                                         "tablename character varying(255),"
-                                        "oid integer,"
+                                        "recordoid integer,"
                                         "accessmode character varying(10)"
                                         ");"
 
