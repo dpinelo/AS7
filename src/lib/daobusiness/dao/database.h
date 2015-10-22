@@ -53,7 +53,7 @@ public:
 
     static bool openPostgreSQL(const QString &name);
     static bool openODBC(const QString &name);
-    static bool openSQLite(const QString &name, bool &emptyDatabase, const QString &dirPath = "");
+    static bool openSQLite(const QString &name, bool &emptyDatabase, const QString &dirPath = "", const QString &databaseFileName = "");
     static bool openCloud(const QString &name);
     static bool openFirebird(const QString &connectionName, const QString &databaseFile);
 
@@ -70,7 +70,7 @@ public:
     static QString driverConnection(const QString &connection = "");
     static QString databaseConnectionForThisThread();
 
-    Q_INVOKABLE static bool createConnection(const QString &name);
+    Q_INVOKABLE static bool createConnection(const QString &name, const QString &path = "", const QString &databaseFileName = "");
     static bool createSystemConnection();
     static bool createBatchConnection(const QString &connectionName = "");
     static bool createServerConnection();

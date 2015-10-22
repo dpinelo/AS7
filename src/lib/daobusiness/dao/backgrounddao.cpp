@@ -18,7 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "backgrounddao.h"
-#include "database.h"
 #include "globales.h"
 #include "qlogger.h"
 #include "backgrounddao_p.h"

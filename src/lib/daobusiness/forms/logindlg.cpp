@@ -171,6 +171,10 @@ void LoginDlg::addServer()
     int rowCount = d->m_model->rowCount();
     QScopedPointer<AERPEditConnectOptionsDlg> dlg (new AERPEditConnectOptionsDlg(d->m_model, this));
     d->m_model->insertRow(rowCount);
+    QModelIndex idx = d->m_model->index(rowCount, d->m_model->record().indexOf("table_prefix"));
+    d->m_model->setData(idx, "alepherp");
+    idx = d->m_model->index(rowCount, d->m_model->record().indexOf("scheme"));
+    d->m_model->setData(idx, "public");
     dlg->setCurrentIndex(d->m_model->index(rowCount, 0));
     dlg->setWindowModality(Qt::WindowModal);
     dlg->exec();

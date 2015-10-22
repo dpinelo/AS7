@@ -21,6 +21,7 @@
 #include "dao/database.h"
 #include "dao/basedao.h"
 #include "qlogger.h"
+#include "configuracion.h"
 #include <aerpcommon.h>
 
 BackgroundDAOWorker::BackgroundDAOWorker(QObject *parent) :
@@ -112,7 +113,7 @@ void BackgroundDAOWorker::init()
     QSqlDatabase db = Database::getQDatabase(m_databaseName);
     if ( !db.isValid() || !db.isOpen() )
     {
-        if ( !Database::createConnection(m_databaseName) )
+        if ( !Database::createConnection(m_databaseName, alephERPSettings->dataPath(), BASE_CONNECTION) )
         {
             QString err = QString("BackgroundDAOThread::run: ERROR: [%1]").arg(Database::lastErrorMessage());
             QLogger::QLog_Error(AlephERP::stLogDB, err);

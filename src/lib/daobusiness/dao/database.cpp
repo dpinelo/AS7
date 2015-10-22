@@ -213,7 +213,7 @@ void Database::closeServerConnection()
  * @param name
  * @return
  */
-bool Database::createConnection(const QString &name)
+bool Database::createConnection(const QString &name, const QString &path, const QString &databaseFileName)
 {
     // Sacamos por salida estándar la lista de Drivers disponibles
     bool result = false;
@@ -228,7 +228,7 @@ bool Database::createConnection(const QString &name)
     else if ( alephERPSettings->connectionType() == AlephERP::stSqliteConnection )
     {
         bool emptyDatabase;
-        result = openSQLite(name, emptyDatabase);
+        result = openSQLite(name, emptyDatabase, path, databaseFileName);
     }
     else if ( alephERPSettings->connectionType() == AlephERP::stCloudConnection )
     {
@@ -375,7 +375,7 @@ bool Database::openODBC(const QString &connectionName)
     return true;
 }
 
-bool Database::openSQLite(const QString &connectionName, bool &emptyDatabase, const QString &dirPath)
+bool Database::openSQLite(const QString &connectionName, bool &emptyDatabase, const QString &dirPath, const QString &databaseFileName)
 {
     if ( !QSqlDatabase::isDriverAvailable("QSQLITE") )
     {
@@ -419,7 +419,7 @@ bool Database::openSQLite(const QString &connectionName, bool &emptyDatabase, co
 
 #else
     QSqlDatabase db;
-    dbPath.append(QString("/%1.db.sqlite").arg(connectionName));
+    dbPath.append(QString("/%1.db.sqlite").arg(databaseFileName.isEmpty() ? connectionName : databaseFileName));
     QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openSQLite: Realizando conexion a la BBDD con los siguientes parametros: "));
     QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openSQLite: Tipo de conexion, SQLITE"));
     QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openSQLite: File: [%1]").arg(dbPath));
