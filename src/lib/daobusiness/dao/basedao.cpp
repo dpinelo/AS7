@@ -2820,64 +2820,68 @@ bool BaseDAO::copyBaseBean(const BaseBeanPointer &orig, const BaseBeanPointer &d
 void BaseDAO::readSerialValuesAfterInsert(BaseBean *bean, qlonglong oid, const QString &connectionName)
 {
     QList<DBField *> fields = bean->fields();
-    QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
     QString whereWithoutOid, whereWithOid, sql;
 
     // Consulta general para obtener serial (sin tener en cuenta oid)
-    foreach ( DBField *field, fields )
+    if ( oid == -1 )
     {
-        if ( field->insertFieldOnUpdateSql(BaseBean::INSERT) )
+        foreach ( DBField *field, fields )
         {
-            // Si el campo puede ser nulo, y no se ha dado valor, se deja a cero.
-            if ( ! ( field->metadata()->canBeNull() && field->value().isNull() ) && !field->metadata()->memo() )
+            if ( field->insertFieldOnUpdateSql(BaseBean::INSERT) )
             {
-                if ( !whereWithoutOid.isEmpty() )
+                // Si el campo puede ser nulo, y no se ha dado valor, se deja a cero.
+                if ( ! ( field->metadata()->canBeNull() && field->value().isNull() ) && !field->metadata()->memo() )
                 {
-                    whereWithoutOid = QString("%1 AND ").arg(whereWithoutOid);
+                    if ( !whereWithoutOid.isEmpty() )
+                    {
+                        whereWithoutOid = QString("%1 AND ").arg(whereWithoutOid);
+                    }
+                    whereWithoutOid = QString("%1%2").arg(whereWithoutOid).arg(field->sqlWhere("="));
                 }
-                whereWithoutOid = QString("%1%2").arg(whereWithoutOid).arg(field->sqlWhere("="));
+            }
+        }
+        foreach ( DBField *field, fields )
+        {
+            if ( field->metadata()->serial() )
+            {
+                QVariant value;
+                sql = QString("SELECT %1 as column1 FROM %2 WHERE %3").arg(field->metadata()->dbFieldName()).
+                      arg(bean->metadata()->sqlTableName()).arg(whereWithoutOid);
+                QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::readSerialValuesAfterInsert: [%1]").arg(sql));
+                if ( !BaseDAO::execute(sql, value, connectionName) || !value.isValid() )
+                {
+                    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::readSerialValuesAfterInsert: Field [%1] NO SE HA PODIDO LEER EL VALOR SERIAL.").arg(field->metadata()->dbFieldName()));
+                }
+                else
+                {
+                    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::readSerialValuesAfterInsert: Field [%1] VALUE [%2]").arg(field->metadata()->dbFieldName()).arg(value.toInt()));
+                    field->setInternalValue(value, true);
+                }
             }
         }
     }
-    if ( oid != -1 )
+    else
     {
         // Tenemos OID, lo asignamos a registro
         bean->setDbOid(oid);
         whereWithOid = QString("oid = %1").arg(oid);
-    }
-    foreach ( DBField *field, fields )
-    {
-        if ( field->metadata()->serial() )
+        foreach ( DBField *field, fields )
         {
-            QVariant value;
-            if ( oid != -1 )
+            if ( field->metadata()->serial() )
             {
+                QVariant value;
                 sql = QString("SELECT %1 as column1 FROM %2 WHERE %3").arg(field->metadata()->dbFieldName()).
                       arg(bean->metadata()->sqlTableName()).arg(whereWithOid);
-            }
-            else
-            {
-                sql = QString("SELECT %1 as column1 FROM %2 WHERE %3").arg(field->metadata()->dbFieldName()).
-                      arg(bean->metadata()->sqlTableName()).arg(whereWithoutOid);
-            }
-            QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::readSerialValuesAfterInsert: [%1]").arg(sql));
-            if ( !BaseDAO::execute(sql, value, connectionName) || !value.isValid() )
-            {
-                if ( oid != -1 )
+                QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::readSerialValuesAfterInsert: [%1]").arg(sql));
+                if ( !BaseDAO::execute(sql, value, connectionName) || !value.isValid() )
                 {
-                    sql = QString("SELECT %1 as column1 FROM %2 WHERE %3").arg(field->metadata()->dbFieldName()).
-                          arg(bean->metadata()->sqlTableName()).arg(whereWithoutOid);
-                    BaseDAO::execute(sql, value, connectionName);
+                    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::readSerialValuesAfterInsert: Field [%1] NO SE HA PODIDO LEER EL VALOR SERIAL.").arg(field->metadata()->dbFieldName()));
                 }
-            }
-            if ( value.isValid() )
-            {
-                QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::readSerialValuesAfterInsert: Field [%1] VALUE [%2]").arg(field->metadata()->dbFieldName()).arg(qry->value(0).toInt()));
-                field->setInternalValue(qry->value(0), true);
-            }
-            else
-            {
-                QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::readSerialValuesAfterInsert: Field [%1] NO SE HA PODIDO LEER EL VALOR SERIAL.").arg(field->metadata()->dbFieldName()));
+                else
+                {
+                    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::readSerialValuesAfterInsert: Field [%1] VALUE [%2]").arg(field->metadata()->dbFieldName()).arg(value.toInt()));
+                    field->setInternalValue(value, true);
+                }
             }
         }
     }

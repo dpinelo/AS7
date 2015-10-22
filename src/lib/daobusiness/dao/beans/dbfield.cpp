@@ -793,11 +793,12 @@ QVariant DBField::value()
          * en este punto, ya que se supone que las base de datos SQLite son locales */
         if ( !d->m_hasBeenCalculated )
         {
-            d->m_value = d->setDataToType(nextSerial());
-            if ( d->m_value.toInt() > -1 )
+            QVariant value = d->setDataToType(nextSerial());
+            if ( value.toInt() > -1 )
             {
+                setInternalValue(value);
                 d->m_hasBeenCalculated = true;
-                d->m_previousValue = d->m_value;
+                d->m_previousValue = -1;
                 d->m_displayValue.clear();
             }
         }
