@@ -1921,7 +1921,7 @@ int DBFieldMetadata::nextSerial(DBField *fld)
     int r = result.toInt(&ok);
     if ( ok )
     {
-        return r;
+        return (r+1);
     }
     return -1;
 }

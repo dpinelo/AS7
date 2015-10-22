@@ -178,7 +178,7 @@ void DBBaseWidget::setRelationFilter(const QString &value)
     {
         m_relationFilter = value;
         // Realizamos algunos reemplazos de algunas reglas
-        m_relationFilter = m_relationFilter.replace("${user}", AERPLoggedUser::instance()->userName());
+        m_relationFilter = DBBaseWidget::processSqlWhere(value);
         if ( m_observer != NULL )
         {
             m_observer->uninstallWidget(dynamic_cast<QObject *>(this));
@@ -592,6 +592,18 @@ BaseBeanPointer DBBaseWidget::beanFromContainer()
         return b;
     }
     return NULL;
+}
+
+QString DBBaseWidget::processSqlWhere(const QString &where)
+{
+    // Realizamos algunos reemplazos de algunas reglas
+    QString result = where.replace("${user}", AERPLoggedUser::instance()->userName());
+    if ( Database::getQDatabase(BASE_CONNECTION).driverName() == "QSQLITE" )
+    {
+        result = result.replace("true", "1");
+        result = result.replace("false", "0");
+    }
+    return rsult;
 }
 
 /**

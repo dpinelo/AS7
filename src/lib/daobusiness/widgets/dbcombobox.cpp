@@ -162,7 +162,7 @@ QString DBComboBox::listColumnToSave () const
 void DBComboBox::setListFilter(const QString &filter)
 {
     d->m_listFilter = filter;
-    d->m_listFilter = d->m_listFilter.replace("${user}", AERPLoggedUser::instance()->userName());
+    d->m_listFilter = DBBaseWidget::processSqlWhere(filter);
     if ( !d->m_filterModel.isNull() )
     {
         d->m_filterModel->resetFilter();
@@ -184,7 +184,7 @@ QString DBComboBox::listSqlFilter() const
 void DBComboBox::setListSqlFilter(const QString &filter)
 {
     d->m_listSqlFilter = filter;
-    d->m_listSqlFilter = d->m_listSqlFilter.replace("${user}", AERPLoggedUser::instance()->userName());
+    d->m_listSqlFilter = DBBaseWidget::processSqlWhere(filter);
     if ( !d->m_filterModel.isNull() && !d->m_model.isNull() )
     {
         delete d->m_filterModel;

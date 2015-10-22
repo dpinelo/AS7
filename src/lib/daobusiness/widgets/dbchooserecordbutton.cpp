@@ -199,7 +199,7 @@ void DBChooseRecordButton::setFieldName(const QString &name)
 void DBChooseRecordButton::setSearchFilter(const QString &value)
 {
     d->m_searchFilter = value;
-    d->m_searchFilter = d->m_searchFilter.replace("${user}", AERPLoggedUser::instance()->userName());
+    d->m_searchFilter = DBBaseWidget::processSqlWhere(value);
 }
 
 QString DBChooseRecordButton::searchFilter()

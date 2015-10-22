@@ -110,6 +110,8 @@ protected:
     virtual QWidget *alephERPContainer();
     virtual BaseBeanPointer beanFromContainer();
 
+    virtual QString processSqlWhere(const QString &where);
+
 public:
     DBBaseWidget();
     virtual ~DBBaseWidget();

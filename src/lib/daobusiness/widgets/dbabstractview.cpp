@@ -154,7 +154,7 @@ void DBAbstractViewInterface::setFilter(const QString &value)
     if ( m_filter != value )
     {
         m_filter = value;
-        m_filter = m_filter.replace("${user}", AERPLoggedUser::instance()->userName());
+        m_filter = DBBaseWidget::processSqlWhere(value);
         init();
     }
 }
