@@ -134,6 +134,7 @@ void BeansFactory::insertMetadataBean(AERPSystemObject *object)
         metadata->setTableName(object->name());
         metadata->setModule(object->module());
         metadata->setXml(object->content());
+        metadata->setDbObjectType(AlephERP::Table);
         BeansFactory::metadataBeans.append(metadata);
         metadata->consolidateTemp();
     }

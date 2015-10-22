@@ -1914,6 +1914,10 @@ int DBFieldMetadata::nextSerial(DBField *fld)
         return -1;
     }
     bool ok;
+    if ( result.toString().isEmpty() )
+    {
+        return 1;
+    }
     int r = result.toInt(&ok);
     if ( ok )
     {
