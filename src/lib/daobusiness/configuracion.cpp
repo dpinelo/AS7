@@ -62,7 +62,7 @@
 
 #define KEY_ADVANCED_USER               "generales/advancedUser"
 #define KEY_DEBUGGER_ENABLED            "generales/debuggerEnabled"
-#define KEY_AERP_DATA_DIRECTORY         "generales/DirectorioTemporal"
+#define KEY_AERP_DATA_DIRECTORY         "generales/dataDirectory"
 #define KEY_LOOK_AND_FEEL               "generales/LookAndFeel"
 #define KEY_LOOK_AND_FEEL_DARK          "generales/LookAndFeelDark"
 #define KEY_FIRST_DAY_OF_WEEK           "generales/PrimerDiaSemana"
@@ -384,7 +384,7 @@ void AlephERPSettings::init (void)
     m_dataPath = m_settings->value(KEY_AERP_DATA_DIRECTORY).toString();
     if ( m_dataPath.isEmpty() )
     {
-        m_dataPath = QString("%1/AlephERP.Data").arg(QDir::homePath());
+        m_dataPath = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     }
 #endif
 
