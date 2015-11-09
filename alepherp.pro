@@ -63,7 +63,7 @@ SUBDIRS += src/lib/daobusiness
     !contains(QT_VERSION, ^4\\.[0-8]\\..*) {
         contains(XLSSUPPORT, Y) {
             SUBDIRS += src/3rdparty/quazip
-            #SUBDIRS += src/plugins/ods
+            SUBDIRS += src/plugins/ods
             SUBDIRS += src/plugins/xlsx
             win32-g++|win64-g++|unix {
                 SUBDIRS += src/plugins/xls
