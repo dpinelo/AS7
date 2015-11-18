@@ -429,5 +429,6 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(AlephERP::CreationTableSqlOptions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(AlephERP::AutoCompleteTypes)
 Q_DECLARE_METATYPE(AlephERP::FormOpenType)
 Q_DECLARE_METATYPE(AlephERP::AERPMapPosition)
+Q_DECLARE_METATYPE(AlephERP::CreationTableSqlOptions)
 
 #endif // COMMON_H

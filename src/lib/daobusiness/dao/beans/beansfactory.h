@@ -113,7 +113,8 @@ public:
     static QList<QPointer<BaseBeanMetadata> > allowedMetadatasToUser();
 
     QList<AERPSystemModule *> modules();
-    AERPSystemModule *newModule(const QString &id, const QString &name, const QString &description, const QString &showedText, const QString &iconName, bool enabled);
+    AERPSystemModule *newModule(const QString &id, const QString &name, const QString &description, const QString &showedText,
+                                const QString &iconName, bool enabled, const QString &tableCreationOptions);
     AERPSystemObject *newSystemObject(AERPSystemModule *module);
     AERPSystemObject *newSystemObject(const QString &objectName, const QString &type, const QString &content, bool debug,
                                       bool debugOnInit, int version, const QStringList &deviceTypes, AERPSystemModule *module);

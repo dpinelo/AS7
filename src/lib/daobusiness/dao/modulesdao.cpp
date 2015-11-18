@@ -65,8 +65,7 @@ public:
                     bool debugOnInit, const QString &typeFile, AERPSystemModule *module, const QStringList &device,
                     const QString &content);
     bool executeSQLAfterImport(const QString &path, const QString &fileName);
-    bool createDatabaseStructures(QList<AERPSystemObject *> systemObjects);
-
+    bool createDatabaseStructures(QList<AERPSystemObject *> systemObjects, AERPSystemModule *module);
 };
 
 ModulesDAO::ModulesDAO() : d(new ModulesDAOPrivate(this))
@@ -162,6 +161,12 @@ bool ModulesDAO::importModules(const QString &xmlOrigin, const QString &moduleId
     return false;
 }
 
+/**
+ * @brief ModulesDAOPrivate::importModuleMetaData
+ * Lee la definición de la cabecera del fichero de metadatos
+ * @param root
+ * @return
+ */
 AERPSystemModule *ModulesDAOPrivate::importModuleMetaData(const QDomElement &root)
 {
     if ( root.isNull() )
@@ -186,14 +191,16 @@ AERPSystemModule *ModulesDAOPrivate::importModuleMetaData(const QDomElement &roo
             QString iconText = iconTextElement.text();
             QDomElement enabledElement = exportElement.firstChildElement("enabled");
             bool enabled = enabledElement.text() == "true" ? true : false;
+            QDomElement tableCreationOptionsElement = exportElement.firstChildElement("tableCreationOptions");
+            QString tableCreationOptions = tableCreationOptionsElement.text();
 
-            if ( !SystemDAO::insertModule(id, name, description, showedText, iconText, enabled, BASE_CONNECTION) )
+            if ( !SystemDAO::insertModule(id, name, description, showedText, iconText, enabled, tableCreationOptions, BASE_CONNECTION) )
             {
                 return NULL;
             }
             else
             {
-                module = BeansFactory::instance()->newModule(id, name, description, showedText, iconText, enabled);
+                module = BeansFactory::instance()->newModule(id, name, description, showedText, iconText, enabled, tableCreationOptions);
             }
         }
         return module;
@@ -424,7 +431,7 @@ bool ModulesDAOPrivate::importModuleFiles(const QString &xmlOrigin, const QStrin
             }
         }
         // Se han importado los datos... Se crean las estructuras de datos necesarios en la base de datos
-        if ( !createDatabaseStructures(systemObjects) )
+        if ( !createDatabaseStructures(systemObjects, module) )
         {
             return false;
         }
@@ -711,7 +718,7 @@ bool ModulesDAOPrivate::executeSQLAfterImport(const QString &path, const QString
     return result;
 }
 
-bool ModulesDAOPrivate::createDatabaseStructures(QList<AERPSystemObject *> systemObjects)
+bool ModulesDAOPrivate::createDatabaseStructures(QList<AERPSystemObject *> systemObjects, AERPSystemModule *module)
 {
     // Tenemos que ordenar los items a crear: Primero tablas y después vistas
     QList<BaseBeanMetadata *> items;
@@ -744,13 +751,13 @@ bool ModulesDAOPrivate::createDatabaseStructures(QList<AERPSystemObject *> syste
             {
                 if ( m->creationSqlView(Database::driverConnection()).isEmpty() )
                 {
-                    QString sqlCreate = m->sqlCreateTable(AlephERP::WithoutForeignKeys | AlephERP::WithSimulateOID, Database::driverConnection());
+                    QString sqlCreate = m->sqlCreateTable(module->tableCreationOptions(), Database::driverConnection());
                     if ( !BaseDAO::executeWithoutPrepare(sqlCreate, BASE_CONNECTION) )
                     {
                         m_lastErrorMessage = QObject::trUtf8("No se pudo crear la tabla %1 en base de datos. Error: %2").arg(m->tableName()).arg(BaseDAO::lastErrorMessage());
                         return false;
                     }
-                    QString sqlIndex = m->sqlCreateIndex(AlephERP::WithoutForeignKeys | AlephERP::CreateIndexOnRelationColumns, Database::driverConnection());
+                    QString sqlIndex = m->sqlCreateIndex(module->tableCreationOptions(), Database::driverConnection());
                     QStringList sqlIndexList = sqlIndex.split(";");
                     foreach ( QString sqlOneIndex, sqlIndexList )
                     {
@@ -763,7 +770,7 @@ bool ModulesDAOPrivate::createDatabaseStructures(QList<AERPSystemObject *> syste
                             }
                         }
                     }
-                    foreach (QString sqlAditional, m->sqlAditional(AlephERP::WithSimulateOID, Database::driverConnection()))
+                    foreach (QString sqlAditional, m->sqlAditional(module->tableCreationOptions(), Database::driverConnection()))
                     {
                         if ( !sqlAditional.isEmpty() )
                         {

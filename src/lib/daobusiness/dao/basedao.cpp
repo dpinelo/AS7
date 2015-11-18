@@ -3115,4 +3115,35 @@ QString BaseDAO::proccessSqlToAddAlias(const QString &sql, BaseBeanMetadata *met
     return result;
 }
 
-
+/**
+ * @brief BatchDAO::alterTableForForeignKeys
+ * Modifica las tablas para añadir reglas de integridad referencial
+ * @return
+ */
+bool BaseDAO::alterTableForForeignKeys(const QString &connectionName)
+{
+    foreach ( BaseBeanMetadata *metadata, BeansFactory::metadataBeans )
+    {
+        if ( metadata->dbObjectType() == AlephERP::Table )
+        {
+            QStringList sqls = metadata->sqlForeignKeys(AlephERP::WithForeignKeys, connectionName);
+            BaseDAO::transaction(connectionName);
+            foreach ( QString sql, sqls )
+            {
+                if ( !sql.isEmpty() && !BaseDAO::executeWithoutPrepare(sql, connectionName) )
+                {
+                    m_lastError = QObject::trUtf8("ModulesDAOPrivate::alterTableForForeignKeys: Foreign Key Alter Table: %1").arg(BaseDAO::lastErrorMessage());
+                    BaseDAO::rollback(connectionName);
+                    return false;
+                }
+            }
+            if ( !BaseDAO::commit(connectionName) )
+            {
+                m_lastError = QObject::trUtf8("ModulesDAOPrivate::alterTableForForeignKeys: Foreign Key Alter Table: %1").arg(BaseDAO::lastErrorMessage());
+                BaseDAO::rollback(connectionName);
+                return false;
+            }
+        }
+    }
+    return true;
+}

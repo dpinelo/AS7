@@ -3941,13 +3941,9 @@ QString BaseBeanMetadata::sqlCreateTable(AlephERP::CreationTableSqlOptions optio
             fieldsSql = QString("%1, committed boolean DEFAULT false").arg(fieldsSql);
         }
     }
-    // Esto sólo aplica a Firebird, ya que las tablas en Postgresql se crean con OID, y en SQLite existe ROWID
     if ( options.testFlag(AlephERP::WithSimulateOID) )
     {
-        if ( dialect == QLatin1String("QIBASE") )
-        {
-            fieldsSql = QString("%1, oid integer").arg(fieldsSql);
-        }
+        fieldsSql = QString("%1, oid integer").arg(fieldsSql);
     }
     if ( options.testFlag(AlephERP::WithRemoteOID) )
     {
@@ -4038,19 +4034,7 @@ QStringList BaseBeanMetadata::sqlForeignKeys(AlephERP::CreationTableSqlOptions o
                 if ( rel->type() == DBRelationMetadata::MANY_TO_ONE )
                 {
                     QString deleteCascade = rel->deleteCascade() ? " ON DELETE CASCADE" : "";
-                    QString foreignKeyName;
-                    if ( options.testFlag(AlephERP::UseForeignKeyUniqueName) )
-                    {
-                        foreignKeyName = QString("fk_%1").arg(alephERPSettings->uniqueId());
-                    }
-                    else
-                    {
-                        foreignKeyName = QString("fk_%1").arg(sqlTableName(dialect));
-                        if ( dialect == QLatin1String("QIBASE") && foreignKeyName.size() > MAX_LENGTH_OBJECT_NAME_FIREBIRD )
-                        {
-                            foreignKeyName = QString("fk_%1").arg(alephERPSettings->uniqueId());
-                        }
-                    }
+                    QString foreignKeyName = rel->sqlForeignKeyName(options, dialect);
                     QString sql = QString("ALTER TABLE %1 ADD CONSTRAINT %2 FOREIGN KEY (%3) REFERENCES %4(%5) ON UPDATE CASCADE %6;").
                                   arg(sqlTableName(dialect)).
                                   arg(foreignKeyName).
@@ -4067,15 +4051,7 @@ QStringList BaseBeanMetadata::sqlForeignKeys(AlephERP::CreationTableSqlOptions o
                 {
                     if ( dialect == QLatin1String("QSQLITE") )
                     {
-                        QString foreignKeyName;
-                        if ( options.testFlag(AlephERP::UseForeignKeyUniqueName) )
-                        {
-                            foreignKeyName = QString("fk_%1").arg(alephERPSettings->uniqueId());
-                        }
-                        else
-                        {
-                            foreignKeyName = QString("fk_%1").arg(sqlTableName(dialect));
-                        }
+                        QString foreignKeyName = rel->sqlForeignKeyName(options, dialect);
                         QString sql = QString("CREATE TRIGGER %1 UPDATE ON %2 BEGIN UPDATE %3 SET %4 = new.%5 WHERE %6 = old.%7;").
                                       arg(foreignKeyName).
                                       arg(sqlTableName(dialect)).
@@ -4088,19 +4064,7 @@ QStringList BaseBeanMetadata::sqlForeignKeys(AlephERP::CreationTableSqlOptions o
                     }
                     else if ( dialect == QLatin1String("QIBASE") )
                     {
-                        QString foreignKeyName;
-                        if ( options.testFlag(AlephERP::UseForeignKeyUniqueName) )
-                        {
-                            foreignKeyName = QString("fk_%1").arg(alephERPSettings->uniqueId());
-                        }
-                        else
-                        {
-                            foreignKeyName = QString("fk_%1").arg(sqlTableName(dialect));
-                            if ( foreignKeyName.size() > MAX_LENGTH_OBJECT_NAME_FIREBIRD )
-                            {
-                                foreignKeyName = QString("fk_%1").arg(alephERPSettings->uniqueId());
-                            }
-                        }
+                        QString foreignKeyName = rel->sqlForeignKeyName(options, dialect);
                         QString sql = QString("CREATE TRIGGER %1 FOR %2 AFTER UPDATE AS BEGIN UPDATE %3 SET %4 = new.%5 WHERE %6 = old.%7; END;").
                                       arg(foreignKeyName).
                                       arg(sqlTableName(dialect)).

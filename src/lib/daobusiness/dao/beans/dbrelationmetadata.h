@@ -25,6 +25,7 @@
 #include <QScriptValue>
 #include <QScriptEngine>
 #include <alepherpglobal.h>
+#include <aerpcommon.h>
 
 class DBRelationMetadataPrivate;
 class BaseBeanMetadata;
@@ -121,6 +122,7 @@ public:
     void setReadOnly(bool v);
     bool allowedInsertChild() const;
     void setAllowedInsertChild(bool b);
+    const QString sqlForeignKeyName(AlephERP::CreationTableSqlOptions options, const QString &dialect) const;
 
     BaseBeanMetadata *rootMetadata();
     DBFieldMetadata *childFieldMetadata();

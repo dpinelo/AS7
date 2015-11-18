@@ -79,7 +79,7 @@ public:
     static bool checkAlephERPSystemTables(QStringList &notExists, const QString &connectionName = "");
     static bool checkIfTableExists(const QString &tableName, const QString &connection = "");
 
-    static bool insertModule(const QString &id, const QString &name, const QString &description, const QString &showedText, const QString &iconName, bool enabled, const QString &connectionName);
+    static bool insertModule(const QString &id, const QString &name, const QString &description, const QString &showedText, const QString &iconName, bool enabled, const QString &tableCreationOptions, const QString &connectionName);
     static bool insertSystemObject(AERPSystemObject *systemObject, const QString &connectionName);
     static bool deleteSystemObject(const QString &name, const QString &type, const QString &device, int version, const QString &connectionName);
     static int versionSystemObject(const QString &name, const QString &type, const QString &device, const QString &connectionName = "");

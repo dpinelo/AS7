@@ -32,6 +32,7 @@
 #include "dao/beans/beansfactory.h"
 #include "dao/database.h"
 #include "dao/basedao.h"
+#include "dao/beans/aerpsystemobject.h"
 
 AERPConsistencyMetadataTableDlg::AERPConsistencyMetadataTableDlg(const QVariantList &err, QWidget *parent) :
     QDialog(parent),
@@ -159,7 +160,7 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
     BaseDAO::transaction(BASE_CONNECTION);
     if ( m->creationSqlView(Database::driverConnection()).isEmpty() )
     {
-        QString sqlCreate = m->sqlCreateTable(AlephERP::WithoutForeignKeys | AlephERP::WithSimulateOID, Database::driverConnection());
+        QString sqlCreate = m->sqlCreateTable(m->module()->tableCreationOptions(), Database::driverConnection());
         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
         if ( !BaseDAO::executeWithoutPrepare(sqlCreate, BASE_CONNECTION) )
         {
@@ -169,7 +170,7 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
             QMessageBox::information(this,qApp->applicationName(), err, QMessageBox::Ok);
             return false;
         }
-        QString sqlIndex = m->sqlCreateIndex(AlephERP::WithoutForeignKeys | AlephERP::CreateIndexOnRelationColumns, Database::driverConnection());
+        QString sqlIndex = m->sqlCreateIndex(m->module()->tableCreationOptions(), Database::driverConnection());
         QStringList sqlIndexList = sqlIndex.split(";");
         foreach ( QString sqlOneIndex, sqlIndexList )
         {

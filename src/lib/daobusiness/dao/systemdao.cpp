@@ -179,6 +179,7 @@ QString SystemDAO::systemTablesPSQL = ""
                                       "  showed_name character varying(250),"
                                       "  icon character varying(250),"
                                       "  enabled boolean DEFAULT true,"
+                                      "  table_creation_options character varying(250),"
                                       "  CONSTRAINT alepherp_modukes_pkey PRIMARY KEY (id)"
                                       ")"
                                       "WITH ("
@@ -421,6 +422,7 @@ QString SystemDAO::systemTablesSQLite = ""
                                         "  showed_name character varying(250),"
                                         "  icon character varying(250),"
                                         "  enabled boolean DEFAULT true,"
+                                        "  table_creation_options character varying(250),"
                                         "  CONSTRAINT alepherp_modules_pkey PRIMARY KEY (id)"
                                         ");"
 
@@ -746,14 +748,14 @@ bool SystemDAO::checkIfTableExists(const QString &tableName, const QString &conn
     return result;
 }
 
-bool SystemDAO::insertModule(const QString &id, const QString &name, const QString &description, const QString &showedText, const QString &icon, bool enabled, const QString &connectionName)
+bool SystemDAO::insertModule(const QString &id, const QString &name, const QString &description, const QString &showedText, const QString &icon, bool enabled, const QString &tableCreationOptions, const QString &connectionName)
 {
     bool result;
     SystemDAO::clearLastDbMessage();
     QSqlDatabase db = Database::getQDatabase(connectionName);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(db));
-    QString sql = QString("INSERT INTO %1_modules(id, name, description, showed_name, icon, enabled) "
-                          "VALUES (:id, :name, :description, :showed_name, :icon, :enabled)").arg(alephERPSettings->systemTablePrefix());
+    QString sql = QString("INSERT INTO %1_modules(id, name, description, showed_name, icon, enabled, table_creation_options) "
+                          "VALUES (:id, :name, :description, :showed_name, :icon, :enabled, :table_creation_options)").arg(alephERPSettings->systemTablePrefix());
     qry->prepare(sql);
     qry->bindValue(":id", id);
     qry->bindValue(":name", name);
@@ -761,6 +763,7 @@ bool SystemDAO::insertModule(const QString &id, const QString &name, const QStri
     qry->bindValue(":showed_name", showedText);
     qry->bindValue(":icon", icon);
     qry->bindValue(":enabled", enabled);
+    qry->bindValue(":table_creation_options", tableCreationOptions);
     result = qry->exec();
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO::insertModule: [%1]. INSERTANDO MODULO EN BASE DE DATOS: [%2]").
                         arg(qry->lastQuery()).arg(id));
@@ -1321,6 +1324,11 @@ AERPSystemObject *SystemDAO::systemObject(const QString &name, const QString &ty
     return NULL;
 }
 
+/**
+ * @brief SystemDAO::checkModules
+ * Comprueba los módulos activados o desactivados en el servidor
+ * @return
+ */
 bool SystemDAO::checkModules()
 {
     QString sql;
@@ -1356,7 +1364,13 @@ bool SystemDAO::checkModules()
     {
         if ( alephERPSettings->advancedUser() && alephERPSettings->dbaUser() )
         {
-            BeansFactory::instance()->newModule(AlephERP::stSystemModule, AlephERP::stSystemModule, trUtf8("Módulo de sistema"), trUtf8("Módulo de sistema"), "", true);
+            BeansFactory::instance()->newModule(AlephERP::stSystemModule,
+                                                AlephERP::stSystemModule,
+                                                trUtf8("Módulo de sistema"),
+                                                trUtf8("Módulo de sistema"),
+                                                "",
+                                                true,
+                                                "AlephERP::WithoutForeignKeys | AlephERP::WithSimulateOID");
         }
         while (qryModules->next())
         {
@@ -1365,7 +1379,8 @@ bool SystemDAO::checkModules()
                                                 qryModules->record().value("description").toString(),
                                                 qryModules->record().value("showed_name").toString(),
                                                 qryModules->record().value("icon").toString(),
-                                                qryModules->record().value("enabled").toBool());
+                                                qryModules->record().value("enabled").toBool(),
+                                                qryModules->record().value("table_creation_options").toString());
         }
     }
     else

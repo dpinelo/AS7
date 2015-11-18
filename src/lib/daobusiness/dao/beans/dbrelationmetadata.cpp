@@ -284,6 +284,24 @@ void DBRelationMetadata::setAllowedInsertChild(bool b)
     d->m_allowedInsertChild = b;
 }
 
+const QString DBRelationMetadata::sqlForeignKeyName(AlephERP::CreationTableSqlOptions options, const QString &dialect) const
+{
+    QString foreignKeyName;
+    if ( options.testFlag(AlephERP::UseForeignKeyUniqueName) )
+    {
+        foreignKeyName = QString("fk_%1").arg(alephERPSettings->uniqueId());
+    }
+    else
+    {
+        foreignKeyName = QString("fk_%1").arg(sqlTableName(dialect));
+        if ( dialect == QLatin1String("QIBASE") && foreignKeyName.size() > MAX_LENGTH_OBJECT_NAME_FIREBIRD )
+        {
+            foreignKeyName = QString("fk_%1").arg(alephERPSettings->uniqueId());
+        }
+    }
+    return foreignKeyName;
+}
+
 /*!
   Tenemos que decirle al motor de scripts, que BaseBean se convierte de esta forma a un valor script
   */

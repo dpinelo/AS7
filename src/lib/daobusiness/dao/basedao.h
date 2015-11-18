@@ -151,6 +151,8 @@ public:
 
     static AlephERP::DBObjectType databaseObjectType(const QString &tableName, const QString &connectionName = "");
     static AlephERP::DBObjectType databaseObjectType(BaseBeanMetadata *metadata, const QString &connectionName = "");
+
+    static bool alterTableForForeignKeys(const QString &connectionName);
 };
 
 #endif

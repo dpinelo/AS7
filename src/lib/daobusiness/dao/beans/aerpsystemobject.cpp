@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include "aerpsystemobject.h"
 #include "business/aerploggeduser.h"
+#include "dao/database.h"
 
 class AERPSystemModulePrivate
 {
@@ -29,10 +30,19 @@ public:
     QString m_showedName;
     QString m_icon;
     bool m_enabled;
+    AlephERP::CreationTableSqlOptions m_tableCreationOptions;
 
     AERPSystemModulePrivate()
     {
         m_enabled = false;
+        if ( QSqlDatabase::database(BASE_CONNECTION).driverName() == "QPSQL" )
+        {
+            m_tableCreationOptions = AlephERP::WithForeignKeys | AlephERP::CreateIndexOnRelationColumns;
+        }
+        else
+        {
+            m_tableCreationOptions = AlephERP::WithoutForeignKeys | AlephERP::WithSimulateOID;
+        }
     }
 };
 
@@ -107,6 +117,16 @@ bool AERPSystemModule::enabled() const
 void AERPSystemModule::setEnabled(bool value)
 {
     d->m_enabled = value;
+}
+
+AlephERP::CreationTableSqlOptions AERPSystemModule::tableCreationOptions() const
+{
+    return d->m_tableCreationOptions;
+}
+
+void AERPSystemModule::setTableCreationOptions(AlephERP::CreationTableSqlOptions tableCreationOptions)
+{
+    d->m_tableCreationOptions = tableCreationOptions;
 }
 
 QList<AERPSystemObject *> AERPSystemModule::systemObjects()

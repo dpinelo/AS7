@@ -22,6 +22,7 @@
 
 #include <QtCore>
 #include <QtScript>
+#include <aerpcommon.h>
 
 class AERPSystemObjectPrivate;
 class AERPSystemModulePrivate;
@@ -36,6 +37,7 @@ class AERPSystemModule : public QObject
     Q_PROPERTY(QString description READ description WRITE setDescription)
     Q_PROPERTY(QString showedName READ showedName WRITE setShowedName)
     Q_PROPERTY(bool enabled READ enabled WRITE setEnabled)
+    Q_PROPERTY(AlephERP::CreationTableSqlOptions tableCreationOptions READ tableCreationOptions WRITE setTableCreationOptions)
 
 private:
     AERPSystemModulePrivate *d;
@@ -56,6 +58,8 @@ public:
     void setIcon(const QString &arg);
     bool enabled() const;
     void setEnabled(bool value);
+    AlephERP::CreationTableSqlOptions tableCreationOptions() const;
+    void setTableCreationOptions(AlephERP::CreationTableSqlOptions tableCreationOptions);
 
     QList<AERPSystemObject *> systemObjects();
     QList<AERPSystemObject *> userAllowedSystemObjects(const QString &type);
