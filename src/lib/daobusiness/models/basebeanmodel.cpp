@@ -597,6 +597,10 @@ QVariant BaseBeanModel::headerData(DBFieldMetadata *field, int section, Qt::Orie
         {
             returnData = int (Qt::AlignCenter | Qt::AlignRight);
         }
+        else if ( field->type() == QVariant::Bool )
+        {
+            returnData = int (Qt::AlignHCenter | Qt::AlignVCenter);
+        }
         else
         {
             returnData = int (Qt::AlignVCenter | Qt::AlignLeft);
