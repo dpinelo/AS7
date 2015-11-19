@@ -250,19 +250,16 @@ bool DBFieldPrivate::checkNull()
     bool result = true;
 
     if ( q_ptr->metadata()->type() == QVariant::String ||
-            q_ptr->metadata()->type() == QVariant::Double || q_ptr->metadata()->type() == QVariant::Int ||
-            q_ptr->metadata()->type() == QVariant::Date || q_ptr->metadata()->type() == QVariant::DateTime )
+         q_ptr->metadata()->type() == QVariant::Double ||
+         q_ptr->metadata()->type() == QVariant::Int ||
+         q_ptr->metadata()->type() == QVariant::Date ||
+         q_ptr->metadata()->type() == QVariant::DateTime )
     {
-        QString temp = q_ptr->value().toString();
-        // También puede ocurrir, que el campo sea un combobox.
-        if ( temp.isEmpty() || ( q_ptr->metadata()->optionsList().size() > 0 && temp == "-1" ))
-        {
-            result = false;
-        }
-        else if ( temp == "0" )
+        bool canBeNullBecauseIsChildPartOfRelation = false;
+        if ( q_ptr->value().isNull() || !q_ptr->value().isValid() )
         {
             // Si el campo apunta a una relación, no podra tener valor cero... o, si es cero, pero
-            // apunta a un padre que va a ser guardado, entonces pasa la validación
+            // apunta a un padre que va a ser guardado, entonces pasa la validación.
             QList<DBRelation *> relations = q_ptr->relations();
             foreach (DBRelation *rel, relations)
             {
@@ -272,9 +269,24 @@ bool DBFieldPrivate::checkNull()
                     {
                         result = false;
                     }
+                    else
+                    {
+                        canBeNullBecauseIsChildPartOfRelation = true;
+                    }
                 }
             }
         }
+
+        if ( !canBeNullBecauseIsChildPartOfRelation )
+        {
+            QString temp = q_ptr->value().toString();
+            // También puede ocurrir, que el campo sea un combobox.
+            if ( temp.isEmpty() || ( q_ptr->metadata()->optionsList().size() > 0 && temp == "-1" ))
+            {
+                result = false;
+            }
+        }
+
         if ( ! result )
         {
             m_message = QObject::trUtf8("%1\r\n%2: No puede estar vacío.").arg(m_message).arg(q_ptr->metadata()->fieldName());

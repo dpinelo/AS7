@@ -764,11 +764,16 @@ void DBRelation::setChildrensModified(BaseBean *bean, bool value)
     QMutexLocker lock(&d->m_mutex);
     // Si el padre, o el ancestro es un registro creado por no modificado es que todavía no se ha accedido
     // por parte del usuario, y no debe ser modificado aún.
-    if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE &&
-         d->m_father->dbState() == BaseBean::INSERT &&
-         !d->m_father->modified() )
+    if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE )
     {
-        return;
+        if ( d->m_father.isNull() )
+        {
+            return;
+        }
+        if ( d->m_father->dbState() == BaseBean::INSERT && !d->m_father->modified() )
+        {
+            return;
+        }
     }
     if ( d->m->type() == DBRelationMetadata::ONE_TO_MANY &&
          ownerBean() != NULL &&
@@ -1132,6 +1137,16 @@ BaseBeanSharedPointer DBRelation::newChild(int pos)
     }
     child->setDbState(BaseBean::INSERT);
     // Establecemos el ID del padre en la relación
+
+    // Vamos a hacer alguna comprobación:
+    DBField *fld = child->field(d->m->childFieldName() );
+    if ( fld != NULL && fld->metadata()->serial() )
+    {
+        QLogger::QLog_Warning(AlephERP::stLogOther,
+                              QString("DBRelation::newChild: RARO: %1 es un tipo serial en la tabla %2, y es referenciada en la relación").
+                              arg(d->m->childFieldName()).arg(d->m->tableName()));
+    }
+
     child->setFieldValue(d->m->childFieldName(), ownerBean()->fieldValue(d->m->rootFieldName()));
     /**
      * Los hijos heredan el contexto actual del bean al que pertenece la relación
