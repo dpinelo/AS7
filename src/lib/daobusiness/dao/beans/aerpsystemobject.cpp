@@ -124,9 +124,105 @@ AlephERP::CreationTableSqlOptions AERPSystemModule::tableCreationOptions() const
     return d->m_tableCreationOptions;
 }
 
+QString AERPSystemModule::stringTableCreationOptions() const
+{
+    QString options;
+    if ( d->m_tableCreationOptions.testFlag(AlephERP::WithoutForeignKeys) )
+    {
+        options.append("WithoutForeignKeys").append(" | ");
+    }
+    if ( d->m_tableCreationOptions.testFlag(AlephERP::WithForeignKeys) )
+    {
+        options.append("WithForeignKeys").append(" | ");
+    }
+    if ( d->m_tableCreationOptions.testFlag(AlephERP::WithCommitColumnToLocalWork) )
+    {
+        options.append("WithCommitColumnToLocalWork").append(" | ");
+    }
+    if ( d->m_tableCreationOptions.testFlag(AlephERP::WithHashRowColumn) )
+    {
+        options.append("WithHashRowColumn").append(" | ");
+    }
+    if ( d->m_tableCreationOptions.testFlag(AlephERP::CreateIndexOnRelationColumns) )
+    {
+        options.append("CreateIndexOnRelationColumns").append(" | ");
+    }
+    if ( d->m_tableCreationOptions.testFlag(AlephERP::UseForeignKeyUniqueName) )
+    {
+        options.append("UseForeignKeyUniqueName").append(" | ");
+    }
+    if ( d->m_tableCreationOptions.testFlag(AlephERP::SimulateForeignKeys) )
+    {
+        options.append("SimulateForeignKeys").append(" | ");
+    }
+    if ( d->m_tableCreationOptions.testFlag(AlephERP::LogicalDeleteColumn) )
+    {
+        options.append("LogicalDeleteColumn").append(" | ");
+    }
+    if ( d->m_tableCreationOptions.testFlag(AlephERP::WithSimulateOID) )
+    {
+        options.append("WithSimulateOID").append(" | ");
+    }
+    if ( d->m_tableCreationOptions.testFlag(AlephERP::WithRemoteOID) )
+    {
+        options.append("WithRemoteOID").append(" | ");
+    }
+    return options;
+}
+
 void AERPSystemModule::setTableCreationOptions(AlephERP::CreationTableSqlOptions tableCreationOptions)
 {
     d->m_tableCreationOptions = tableCreationOptions;
+}
+
+void AERPSystemModule::setTableCreationOptions(const QString &tableCreationOptions)
+{
+    AlephERP::CreationTableSqlOptions options;
+    QStringList parts = tableCreationOptions.split("|");
+    foreach (const QString &part, parts)
+    {
+        if ( part.contains("WithoutForeignKeys") )
+        {
+            options |= AlephERP::WithoutForeignKeys;
+        }
+        if ( part.contains("WithForeignKeys") )
+        {
+            options |= AlephERP::WithForeignKeys;
+        }
+        if ( part.contains("WithCommitColumnToLocalWork") )
+        {
+            options |= AlephERP::WithCommitColumnToLocalWork;
+        }
+        if ( part.contains("WithHashRowColumn") )
+        {
+            options |= AlephERP::WithHashRowColumn;
+        }
+        if ( part.contains("CreateIndexOnRelationColumns") )
+        {
+            options |= AlephERP::CreateIndexOnRelationColumns;
+        }
+        if ( part.contains("UseForeignKeyUniqueName") )
+        {
+            options |= AlephERP::UseForeignKeyUniqueName;
+        }
+        if ( part.contains("SimulateForeignKeys") )
+        {
+            options |= AlephERP::SimulateForeignKeys;
+        }
+        if ( part.contains("LogicalDeleteColumn") )
+        {
+            options |= AlephERP::LogicalDeleteColumn;
+        }
+        if ( part.contains("WithSimulateOID") )
+        {
+            options |= AlephERP::WithSimulateOID;
+        }
+        if ( part.contains("WithRemoteOID") )
+        {
+            options |= AlephERP::WithRemoteOID;
+        }
+    }
+    d->m_tableCreationOptions = options;
 }
 
 QList<AERPSystemObject *> AERPSystemModule::systemObjects()

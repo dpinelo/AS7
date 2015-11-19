@@ -997,13 +997,15 @@ void ModulesDAO::updateModuleMetadata(const QString &moduleId, const QString &pa
     QString lineModuleMetadata = QString("\n<id><![CDATA[%1]]></id>\n<description><![CDATA[%2]]></description>\n<name><![CDATA[%3]]></name>\n"
                                          "<showedText><![CDATA[%4]]></showedText>\n"
                                          "<icon><![CDATA[%5]]></icon>\n"
-                                         "<enabled>%6</enabled>\n").
+                                         "<enabled>%6</enabled>\n"
+                                         "<tableCreationOptions>%7</tableCreationOptions>").
                                  arg(module->id()).
                                  arg(module->name()).
                                  arg(module->description()).
                                  arg(module->showedName()).
                                  arg(module->icon()).
-                                 arg((module->enabled() ? "true" : "false"));
+                                 arg((module->enabled() ? "true" : "false")).
+                                 arg(module->stringTableCreationOptions());
 
     out << lineModuleMetadata;
     out << QString("<generatedTime>%1</generatedTime>\n").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));

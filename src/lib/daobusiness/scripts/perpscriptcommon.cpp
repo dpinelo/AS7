@@ -657,14 +657,8 @@ QScriptValue AERPScriptCommon::beansOnTransaction()
 /**
  * @brief AERPScriptCommon::commit
  * Persiste los cambios en base de datos. Devuelve false si ha ocurrido algún error que será consultable en lastError.
- * Esta función tiene ciertos riesgos: Por ejemplo, supongamos un script único que ejecuta
- * var beans = AERPScriptCommon.beans("tabla", "", "");
- * for ( var i = 0 ; i < beans.length ; i++ ) {
- *     AERPScriptCommon.addToTransaction(beans[i]);
- *     beans.field.value = "modificado";
- *     AERPScriptCommon.commit();
- * }
- * commit permite un parámetro booleano: Si es true se limpia el contexto, con lo que habrá que hacer un "restoreContext" después.
+ * Permite un parámetro booleano "discardContextOnSuccess": Si es true se limpia el contexto, tras la transacción, es decir,
+ * los beans agregados ya no estarán disponibles para otra posible transacción (y tendrían que agregarse de nuevo).
  * Por defecto, será false.
  * Admite un segundo parámetro booleano: Si es false, no se presenta el diálogo modal de estado
  * En el último commit, la aplicación cascará, ya que el script engine borrará los beans.

@@ -677,53 +677,7 @@ AERPSystemModule *BeansFactory::newModule(const QString &id, const QString &name
     so->setShowedName(showedText);
     so->setIcon(iconName);
     so->setEnabled(enabled);
-
-    AlephERP::CreationTableSqlOptions options;
-    QStringList parts = tableCreationOptions.split("|");
-    foreach (const QString &part, parts)
-    {
-        if ( part.contains("WithoutForeignKeys") )
-        {
-            options |= AlephERP::WithoutForeignKeys;
-        }
-        if ( part.contains("WithForeignKeys") )
-        {
-            options |= AlephERP::WithForeignKeys;
-        }
-        if ( part.contains("WithCommitColumnToLocalWork") )
-        {
-            options |= AlephERP::WithCommitColumnToLocalWork;
-        }
-        if ( part.contains("WithHashRowColumn") )
-        {
-            options |= AlephERP::WithHashRowColumn;
-        }
-        if ( part.contains("CreateIndexOnRelationColumns") )
-        {
-            options |= AlephERP::CreateIndexOnRelationColumns;
-        }
-        if ( part.contains("UseForeignKeyUniqueName") )
-        {
-            options |= AlephERP::UseForeignKeyUniqueName;
-        }
-        if ( part.contains("SimulateForeignKeys") )
-        {
-            options |= AlephERP::SimulateForeignKeys;
-        }
-        if ( part.contains("LogicalDeleteColumn") )
-        {
-            options |= AlephERP::LogicalDeleteColumn;
-        }
-        if ( part.contains("WithSimulateOID") )
-        {
-            options |= AlephERP::WithSimulateOID;
-        }
-        if ( part.contains("WithRemoteOID") )
-        {
-            options |= AlephERP::WithRemoteOID;
-        }
-    }
-    so->setTableCreationOptions(options);
+    so->setTableCreationOptions(tableCreationOptions);
 
     BeansFactory::systemModules.append(so);
     return so;

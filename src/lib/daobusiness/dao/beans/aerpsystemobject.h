@@ -59,7 +59,9 @@ public:
     bool enabled() const;
     void setEnabled(bool value);
     AlephERP::CreationTableSqlOptions tableCreationOptions() const;
+    QString stringTableCreationOptions() const;
     void setTableCreationOptions(AlephERP::CreationTableSqlOptions tableCreationOptions);
+    void setTableCreationOptions(const QString &tableCreationOptions);
 
     QList<AERPSystemObject *> systemObjects();
     QList<AERPSystemObject *> userAllowedSystemObjects(const QString &type);
