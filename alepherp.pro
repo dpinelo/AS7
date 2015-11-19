@@ -5,9 +5,7 @@ CONFIG += ordered
 # Este orden es MUY importante ya que marca el orden de dependencias
 # en compilación
 
-contains (AERPDOCMNGSUPPORT, Y) {
-    include (src/doc/doc.pri)
-}
+include (src/doc/doc.pri)
 
 contains (DEVTOOLS, Y) {
     SUBDIRS += src/3rdparty/diff

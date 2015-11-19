@@ -1013,7 +1013,7 @@ void AERPMainWindow::init()
     execQs();
 
     // Veamos si la ayuda está disponible
-    QString collectionHelpFilePath = QString("%1/alepherp.qhc").arg(qApp->applicationDirPath());
+    QString collectionHelpFilePath = QString("%1/alepherp.qhc").arg(alephERPSettings->dataPath());
     QFileInfo helpFile(collectionHelpFilePath);
     if ( helpFile.exists() )
     {

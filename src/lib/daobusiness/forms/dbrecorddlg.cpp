@@ -699,7 +699,7 @@ bool DBRecordDlg::init(bool doConnections)
                 arg(d->m_bean->metadata()->tableName());
     }
 
-    QString helpFilePath = QString("%1/alepherp.qhc").arg(qApp->applicationDirPath());
+    QString helpFilePath = QString("%1/alepherp.qhc").arg(alephERPSettings->dataPath());
     QFileInfo helpFile(helpFilePath);
     if ( helpFile.exists() )
     {
