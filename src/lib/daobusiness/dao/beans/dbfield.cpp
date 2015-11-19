@@ -574,16 +574,23 @@ QString DBField::sqlEqual()
 QVariant DBFieldPrivate::setDataToType(const QVariant &v)
 {
     QVariant result;
+    bool ok;
     if ( m->type() == QVariant::Int )
     {
-        int temp = v.toInt();
-        result = QVariant(temp);
+        int temp = v.toInt(&ok);
+        if ( ok )
+        {
+            result = QVariant(temp);
+        }
     }
     else if ( m->type() == QVariant::Double )
     {
-        double temp = v.toDouble();
-        temp = CommonsFunctions::round(temp, m->partD());
-        result = QVariant(temp);
+        double temp = v.toDouble(&ok);
+        if ( ok )
+        {
+            temp = CommonsFunctions::round(temp, m->partD());
+            result = QVariant(temp);
+        }
     }
     else if ( m->type() == QVariant::Date )
     {
