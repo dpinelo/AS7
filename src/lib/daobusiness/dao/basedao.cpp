@@ -37,6 +37,7 @@
 #include "dao/beans/basebeanmetadata.h"
 #include "dao/beans/dbrelationmetadata.h"
 #include "dao/beans/relatedelement.h"
+#include "dao/beans/aerpsystemobject.h"
 #include "dao/userdao.h"
 #include "models/envvars.h"
 #include "qlogger.h"
@@ -3122,24 +3123,49 @@ QString BaseDAO::proccessSqlToAddAlias(const QString &sql, BaseBeanMetadata *met
  */
 bool BaseDAO::alterTableForForeignKeys(const QString &connectionName)
 {
+    QSqlQuery qry (Database::getQDatabase(connectionName));
+
+    if ( Database::getQDatabase(connectionName).driverName() == "QPSQL" )
+    {
+        qry.prepare("SELECT 1 FROM pg_constraint WHERE conname = :foreign_key_name");
+    }
+    else if ( Database::getQDatabase(connectionName).driverName() == "QSQLITE" )
+    {
+        qry.prepare("SELECT 1 FROM sqlite_master WHERE type='trigger' and name = :foreign_key_name");
+    }
+    else if ( Database::getQDatabase(connectionName).driverName() == "QIBASE" )
+    {
+        qry.prepare("SELECT 1 FROM RDB$TRIGGERS WHERE RDB$TRIGGER_NAME = :foreign_key_name");
+    }
     foreach ( BaseBeanMetadata *metadata, BeansFactory::metadataBeans )
     {
         if ( metadata->dbObjectType() == AlephERP::Table )
         {
-            QStringList sqls = metadata->sqlForeignKeys(AlephERP::WithForeignKeys, connectionName);
             BaseDAO::transaction(connectionName);
-            foreach ( QString sql, sqls )
+            foreach (DBRelationMetadata *rel, metadata->relations(AlephERP::All))
             {
-                if ( !sql.isEmpty() && !BaseDAO::executeWithoutPrepare(sql, connectionName) )
+                bool exists = false;
+                // Vamos a ver si la regla de integridad referencial existe ya o no. Si existe no la creamos.
+                qry.bindValue(":foreign_key_name", rel->sqlForeignKeyName(metadata->module()->tableCreationOptions(), Database::getQDatabase(connectionName).driverName()));
+                if ( qry.exec() )
                 {
-                    m_lastError = QObject::trUtf8("ModulesDAOPrivate::alterTableForForeignKeys: Foreign Key Alter Table: %1").arg(BaseDAO::lastErrorMessage());
-                    BaseDAO::rollback(connectionName);
-                    return false;
+                    if ( qry.first() && qry.value(0).toString() == "1" )
+                    {
+                        exists = true;
+                    }
+                }
+                if ( !exists )
+                {
+                    QString sql = rel->sqlForeignKey(metadata->module()->tableCreationOptions(), connectionName);
+                    if ( !sql.isEmpty() && !BaseDAO::executeWithoutPrepare(sql, connectionName) )
+                    {
+                        BaseDAO::rollback(connectionName);
+                        return false;
+                    }
                 }
             }
             if ( !BaseDAO::commit(connectionName) )
             {
-                m_lastError = QObject::trUtf8("ModulesDAOPrivate::alterTableForForeignKeys: Foreign Key Alter Table: %1").arg(BaseDAO::lastErrorMessage());
                 BaseDAO::rollback(connectionName);
                 return false;
             }

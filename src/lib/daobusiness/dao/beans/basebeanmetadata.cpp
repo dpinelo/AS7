@@ -2157,11 +2157,17 @@ void BaseBeanMetadataPrivate::setConfig()
             // Ahora que tenemos toda la informacion podemos ajustar el default value
             if ( field->type() == QVariant::Int )
             {
-                field->setDefaultValue(QVariant(defaultValue.toInt()));
+                if ( !defaultValue.isEmpty() )
+                {
+                    field->setDefaultValue(QVariant(defaultValue.toInt()));
+                }
             }
             else if ( field->type() == QVariant::Double )
             {
-                field->setDefaultValue(QVariant(defaultValue.toDouble()));
+                if ( !defaultValue.isEmpty() )
+                {
+                    field->setDefaultValue(QVariant(defaultValue.toDouble()));
+                }
             }
             else if ( field->type() == QVariant::Bool )
             {
@@ -4024,60 +4030,9 @@ QString BaseBeanMetadata::sqlCreateTable(AlephERP::CreationTableSqlOptions optio
 QStringList BaseBeanMetadata::sqlForeignKeys(AlephERP::CreationTableSqlOptions options, const QString &dialect)
 {
     QStringList ddl;
-    foreach ( DBRelationMetadata * rel, d->m_relations )
+    foreach ( DBRelationMetadata *rel, d->m_relations )
     {
-        BaseBeanMetadata *f = BeansFactory::metadataBean(rel->tableName());
-        if ( f != NULL )
-        {
-            if ( options.testFlag(AlephERP::WithForeignKeys) )
-            {
-                if ( rel->type() == DBRelationMetadata::MANY_TO_ONE )
-                {
-                    QString deleteCascade = rel->deleteCascade() ? " ON DELETE CASCADE" : "";
-                    QString foreignKeyName = rel->sqlForeignKeyName(options, dialect);
-                    QString sql = QString("ALTER TABLE %1 ADD CONSTRAINT %2 FOREIGN KEY (%3) REFERENCES %4(%5) ON UPDATE CASCADE %6;").
-                                  arg(sqlTableName(dialect)).
-                                  arg(foreignKeyName).
-                                  arg(rel->rootFieldName()).
-                                  arg(rel->sqlTableName("QIBASE")).
-                                  arg(rel->childFieldName()).
-                                  arg(deleteCascade);
-                    ddl.append(sql);
-                }
-            }
-            else if ( options.testFlag(AlephERP::SimulateForeignKeys) )
-            {
-                if ( rel->type() == DBRelationMetadata::ONE_TO_MANY || rel->type() == DBRelationMetadata::ONE_TO_ONE )
-                {
-                    if ( dialect == QLatin1String("QSQLITE") )
-                    {
-                        QString foreignKeyName = rel->sqlForeignKeyName(options, dialect);
-                        QString sql = QString("CREATE TRIGGER %1 UPDATE ON %2 BEGIN UPDATE %3 SET %4 = new.%5 WHERE %6 = old.%7;").
-                                      arg(foreignKeyName).
-                                      arg(sqlTableName(dialect)).
-                                      arg(rel->sqlTableName(dialect)).
-                                      arg(rel->childFieldName()).
-                                      arg(rel->rootFieldName()).
-                                      arg(rel->childFieldName()).
-                                      arg(rel->rootFieldName());
-                        ddl.append(sql);
-                    }
-                    else if ( dialect == QLatin1String("QIBASE") )
-                    {
-                        QString foreignKeyName = rel->sqlForeignKeyName(options, dialect);
-                        QString sql = QString("CREATE TRIGGER %1 FOR %2 AFTER UPDATE AS BEGIN UPDATE %3 SET %4 = new.%5 WHERE %6 = old.%7; END;").
-                                      arg(foreignKeyName).
-                                      arg(sqlTableName(dialect)).
-                                      arg(rel->sqlTableName(dialect)).
-                                      arg(rel->childFieldName()).
-                                      arg(rel->rootFieldName()).
-                                      arg(rel->childFieldName()).
-                                      arg(rel->rootFieldName());
-                        ddl.append(sql);
-                    }
-                }
-            }
-        }
+        ddl.append(rel->sqlForeignKey(options, dialect));
     }
     return ddl;
 }

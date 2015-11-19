@@ -1217,7 +1217,7 @@ QString DBFieldMetadata::ddlCreationTable(const AlephERP::CreationTableSqlOption
     QString ddl = QString("%1 %2 %3").arg(d->m_dbFieldName).arg(databaseType(dialect)).arg(notNull);
     QString references;
 
-    if ( options.testFlag(AlephERP::WithForeignKeys) )
+    if ( options.testFlag(AlephERP::WithForeignKeys) && options.testFlag(AlephERP::ForeignKeysOnTableCreation) )
     {
         foreach ( DBRelationMetadata *rel, d->m_relations )
         {

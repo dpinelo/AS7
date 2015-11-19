@@ -21,6 +21,7 @@
 #include "dbrelationmetadata.h"
 #include "dao/beans/basebeanmetadata.h"
 #include "dao/beans/beansfactory.h"
+#include "configuracion.h"
 
 class DBRelationMetadataPrivate
 {
@@ -284,7 +285,7 @@ void DBRelationMetadata::setAllowedInsertChild(bool b)
     d->m_allowedInsertChild = b;
 }
 
-const QString DBRelationMetadata::sqlForeignKeyName(AlephERP::CreationTableSqlOptions options, const QString &dialect) const
+QString DBRelationMetadata::sqlForeignKeyName(AlephERP::CreationTableSqlOptions options, const QString &dialect)
 {
     QString foreignKeyName;
     if ( options.testFlag(AlephERP::UseForeignKeyUniqueName) )
@@ -300,6 +301,91 @@ const QString DBRelationMetadata::sqlForeignKeyName(AlephERP::CreationTableSqlOp
         }
     }
     return foreignKeyName;
+}
+
+/**
+ * @brief DBRelationMetadata::sqlForeignKey
+ * Genera la DDL para la generación de las foreign key
+ * @param options
+ * @param dialect
+ * @return
+ */
+QString DBRelationMetadata::sqlForeignKey(AlephERP::CreationTableSqlOptions options, const QString &dialect)
+{
+    QString sql;
+    // Tabla relacionada
+    BaseBeanMetadata *f = BeansFactory::metadataBean(tableName());
+    // Tabla "padre" u origen
+    BaseBeanMetadata *root = rootMetadata();
+    if ( f != NULL )
+    {
+        if ( options.testFlag(AlephERP::WithForeignKeys) )
+        {
+            if ( type() == DBRelationMetadata::MANY_TO_ONE )
+            {
+                QString delCascade = deleteCascade() ? " ON DELETE CASCADE" : "";
+                QString foreignKeyName = sqlForeignKeyName(options, dialect);
+                sql = QString("ALTER TABLE %1 ADD CONSTRAINT %2 FOREIGN KEY (%3) REFERENCES %4(%5) ON UPDATE CASCADE %6;").
+                              arg(root->sqlTableName(dialect)).
+                              arg(foreignKeyName).
+                              arg(rootFieldName()).
+                              arg(sqlTableName(dialect)).
+                              arg(childFieldName()).
+                              arg(delCascade);
+            }
+        }
+        else if ( options.testFlag(AlephERP::SimulateForeignKeys) )
+        {
+            if ( type() == DBRelationMetadata::ONE_TO_MANY || type() == DBRelationMetadata::ONE_TO_ONE )
+            {
+                if ( dialect == QLatin1String("QSQLITE") )
+                {
+                    QString foreignKeyName = sqlForeignKeyName(options, dialect);
+                    sql = QString("CREATE TRIGGER %1 UPDATE ON %2 BEGIN UPDATE %3 SET %4 = new.%5 WHERE %6 = old.%7;").
+                                  arg(foreignKeyName).
+                                  arg(sqlTableName(dialect)).
+                                  arg(sqlTableName(dialect)).
+                                  arg(childFieldName()).
+                                  arg(rootFieldName()).
+                                  arg(childFieldName()).
+                                  arg(rootFieldName());
+                }
+                else if ( dialect == QLatin1String("QIBASE") )
+                {
+                    QString foreignKeyName = sqlForeignKeyName(options, dialect);
+                    sql = QString("CREATE TRIGGER %1 FOR %2 AFTER UPDATE AS BEGIN UPDATE %3 SET %4 = new.%5 WHERE %6 = old.%7; END;").
+                                  arg(foreignKeyName).
+                                  arg(sqlTableName(dialect)).
+                                  arg(sqlTableName(dialect)).
+                                  arg(childFieldName()).
+                                  arg(rootFieldName()).
+                                  arg(childFieldName()).
+                                  arg(rootFieldName());
+                }
+            }
+        }
+    }
+    return sql;
+}
+
+QString DBRelationMetadata::sqlDropForeignKey(AlephERP::CreationTableSqlOptions options, const QString &dialect)
+{
+    QString sql;
+    if ( dialect == "QPSQL" )
+    {
+        sql = QString("ALTER TABLE %1 DROP CONSTRAINT IF EXISTS %2").
+                arg(sqlTableName(dialect)).
+                arg(sqlForeignKeyName(options, dialect));
+    }
+    else if ( dialect == "QIBASE" )
+    {
+        sql = QString("DROP TRIGGER %1").arg(sqlForeignKeyName(options, dialect));
+    }
+    else if ( dialect == "QSQLITE" )
+    {
+        sql = QString("DROP TRIGGER %1").arg(sqlForeignKeyName(options, dialect));
+    }
+    return sql;
 }
 
 /*!

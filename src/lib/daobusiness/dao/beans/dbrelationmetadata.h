@@ -122,7 +122,10 @@ public:
     void setReadOnly(bool v);
     bool allowedInsertChild() const;
     void setAllowedInsertChild(bool b);
-    const QString sqlForeignKeyName(AlephERP::CreationTableSqlOptions options, const QString &dialect) const;
+
+    QString sqlForeignKeyName(AlephERP::CreationTableSqlOptions options, const QString &dialect);
+    QString sqlForeignKey(AlephERP::CreationTableSqlOptions options, const QString &dialect);
+    QString sqlDropForeignKey(AlephERP::CreationTableSqlOptions options, const QString &dialect);
 
     BaseBeanMetadata *rootMetadata();
     DBFieldMetadata *childFieldMetadata();

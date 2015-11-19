@@ -152,6 +152,13 @@ bool ModulesDAO::importModules(const QString &xmlOrigin, const QString &moduleId
             BaseDAO::rollback(BASE_CONNECTION);
             return false;
         }
+        // Aplicamos las reglas de integridad referencial si fuesen necesarios
+        if ( !BaseDAO::alterTableForForeignKeys(BASE_CONNECTION) )
+        {
+            d->m_lastErrorMessage = BaseDAO::lastErrorMessage();
+            BaseDAO::rollback(BASE_CONNECTION);
+            return false;
+        }
         return true;
     }
     else

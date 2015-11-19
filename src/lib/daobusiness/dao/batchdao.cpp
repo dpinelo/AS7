@@ -381,7 +381,11 @@ bool BatchDAOPrivate::prepareBatchStructure()
                     BaseDAO::transaction(m_batchDatabase);
                     QString sqlDropTable = QString("DROP TABLE %1").arg(metadata->sqlTableName(BATCH_DATABASE_DRIVER));
                     BaseDAO::executeWithoutPrepare(sqlDropTable, m_batchDatabase);
-                    QString creationSql = metadata->sqlCreateTable(AlephERP::WithoutForeignKeys | AlephERP::WithCommitColumnToLocalWork | AlephERP::WithSimulateOID | AlephERP::WithRemoteOID, BATCH_DATABASE_DRIVER);
+                    QString creationSql = metadata->sqlCreateTable(AlephERP::WithoutForeignKeys |
+                                                                   AlephERP::WithCommitColumnToLocalWork |
+                                                                   AlephERP::WithSimulateOID |
+                                                                   AlephERP::WithRemoteOID |
+                                                                   AlephERP::ForeignKeysOnTableCreation, BATCH_DATABASE_DRIVER);
                     if ( !BaseDAO::executeWithoutPrepare(creationSql, m_batchDatabase) )
                     {
                         BaseDAO::rollback(m_batchDatabase);

@@ -252,7 +252,8 @@ public:
         SimulateForeignKeys = 0x040,
         LogicalDeleteColumn = 0x080,
         WithSimulateOID = 0x0100,
-        WithRemoteOID = 0x0200
+        WithRemoteOID = 0x0200,
+        ForeignKeysOnTableCreation = 0x0400
     };
     Q_DECLARE_FLAGS (CreationTableSqlOptions, CreationTableSqlOptionsFlag)
 
