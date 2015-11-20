@@ -151,6 +151,7 @@ class ALEPHERP_DLL_EXPORT BaseBean : public DBObject
     friend class BeansFactory;
     friend class DBRelation;
     friend class AERPTransactionContext;
+    friend class AERPTransactionContextPrivate;
     friend class DBRecordDlg;
     friend class BaseBeanPrivate;
     friend class BaseBeanMetadata;

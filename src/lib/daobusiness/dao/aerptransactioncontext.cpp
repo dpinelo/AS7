@@ -1056,11 +1056,12 @@ void AERPTransactionContextPrivate::restoreBeansStateAfterRollback()
     foreach (const BaseBeanStatePreviousCommit &data, m_beansStatePreviousCommit)
     {
         bool signalsBlocked = data.bean->blockAllSignals(true);
+        data.bean->clean(true);
+        data.bean->setDbState(data.dbState);
         if ( data.modified )
         {
             data.bean->setModified();
         }
-        data.bean->setDbState(data.dbState);
         foreach (DBField *fld, data.bean->fields())
         {
             fld->setModified(data.fieldsModifiedState[fld->dbFieldName()]);
