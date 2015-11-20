@@ -151,7 +151,6 @@ class ALEPHERP_DLL_EXPORT BaseBean : public DBObject
     friend class BeansFactory;
     friend class DBRelation;
     friend class AERPTransactionContext;
-    friend class AERPTransactionContextPrivate;
     friend class DBRecordDlg;
     friend class BaseBeanPrivate;
     friend class BaseBeanMetadata;
@@ -394,7 +393,7 @@ public:
     void setDefaultValues(BaseBeanPointerList fathers = BaseBeanPointerList());
 
 public slots:
-    void uncheckModifiedFields();
+    void uncheckModifiedFields(bool uncheckChildren = true);
     void uncheckModifiedRelatedElements();
     bool save(const QString &idTransaction = "", bool recalculateFieldsBefore = true);
     bool saveRelatedElements(const QString &idTransaction = "");

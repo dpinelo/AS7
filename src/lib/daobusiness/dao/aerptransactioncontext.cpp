@@ -158,7 +158,6 @@ typedef QList<DBFieldCounter> DBFieldCounterList;
 typedef struct BaseBeanStatePreviousCommitStruct
 {
     BaseBeanPointer bean;
-    bool modified;
     BaseBean::DbBeanStates dbState;
     QHash<QString, bool> fieldsModifiedState;
 } BaseBeanStatePreviousCommit;
@@ -1034,6 +1033,11 @@ QList<BaseBeanPointer> AERPTransactionContextPrivate::orderAndFilterBeans(const 
     return orderedBeans;
 }
 
+/**
+ * @brief AERPTransactionContextPrivate::buildBeansStatePreviousCommit
+ * Antes de hacer el commit, guardamos el estado de los beans, y el de modificación de sus fields
+ * @param list
+ */
 void AERPTransactionContextPrivate::buildBeansStatePreviousCommit(const QList<BaseBeanPointer> &list)
 {
     m_beansStatePreviousCommit.clear();
@@ -1042,7 +1046,6 @@ void AERPTransactionContextPrivate::buildBeansStatePreviousCommit(const QList<Ba
         BaseBeanStatePreviousCommit data;
         data.bean = bean;
         data.dbState = bean->dbState();
-        data.modified = bean->modified();
         foreach (DBField *fld, bean->fields())
         {
             data.fieldsModifiedState[fld->dbFieldName()] = fld->modified();
@@ -1051,17 +1054,18 @@ void AERPTransactionContextPrivate::buildBeansStatePreviousCommit(const QList<Ba
     }
 }
 
+/**
+ * @brief AERPTransactionContextPrivate::restoreBeansStateAfterRollback
+ * En caso de error en commit y rollback, se restauran los estados de beans y sus fields, previamente construidos
+ * con buildBeansStatePreviousCommit
+ */
 void AERPTransactionContextPrivate::restoreBeansStateAfterRollback()
 {
     foreach (const BaseBeanStatePreviousCommit &data, m_beansStatePreviousCommit)
     {
         bool signalsBlocked = data.bean->blockAllSignals(true);
-        data.bean->clean(true);
+        data.bean->uncheckModifiedFields(false);
         data.bean->setDbState(data.dbState);
-        if ( data.modified )
-        {
-            data.bean->setModified();
-        }
         foreach (DBField *fld, data.bean->fields())
         {
             fld->setModified(data.fieldsModifiedState[fld->dbFieldName()]);

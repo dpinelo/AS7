@@ -1540,7 +1540,7 @@ void BaseBean::recalculateCalculatedFields()
 /*!
   Marca como no modificados los campos e hijos de este bean
   */
-void BaseBean::uncheckModifiedFields()
+void BaseBean::uncheckModifiedFields(bool uncheckChildren)
 {
     QMutexLocker lock(&d->m_mutex);
     bool signalsWasBlocked = blockAllSignals(true);
@@ -1548,9 +1548,12 @@ void BaseBean::uncheckModifiedFields()
     {
         fld->setModified(false);
     }
-    foreach (DBRelation *rel, d->m_relations)
+    if ( uncheckChildren )
     {
-        rel->uncheckChildrensModified();
+        foreach (DBRelation *rel, d->m_relations)
+        {
+            rel->uncheckChildrensModified();
+        }
     }
     blockAllSignals(signalsWasBlocked);
     if ( d->m_modified )
