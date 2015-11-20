@@ -155,6 +155,14 @@ typedef struct DBFieldCounterStruct
 
 typedef QList<DBFieldCounter> DBFieldCounterList;
 
+typedef struct BaseBeanStatePreviousCommitStruct
+{
+    BaseBeanPointer bean;
+    bool modified;
+    BaseBean::DbBeanStates dbState;
+    QHash<QString, bool> fieldsModifiedState;
+} BaseBeanStatePreviousCommit;
+
 class AERPTransactionContextPrivate
 {
 public:
@@ -164,13 +172,17 @@ public:
     QHash<QString, bool> m_cancel;
     QHash<QString, DBFieldCounterList> m_counterValues;
     QHash<QString, bool> m_doingCommit;
+    // Antes de hacer un commit vamos a almacenar el dbState que tenían los beans, y así si hay algún tipo
+    // de error se restaura. Lo mismo, para los modified.
+    QList<BaseBeanStatePreviousCommit> m_beansStatePreviousCommit;
 
     AERPTransactionContextPrivate()
     {
     }
 
     QList<BaseBeanPointer> orderAndFilterBeans(const QString &contextName);
-
+    void buildBeansStatePreviousCommit(const QList<BaseBeanPointer> &list);
+    void restoreBeansStateAfterRollback();
 };
 
 AERPTransactionContext::AERPTransactionContext(QObject *parent) :
@@ -519,6 +531,8 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
 
     emit transactionInited(contextName, beansToSave);
 
+    d->buildBeansStatePreviousCommit(list);
+
     // Iniciamos la transacción
     if ( !BaseDAO::transaction(d->m_database) )
     {
@@ -535,6 +549,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
         if ( d->m_cancel[contextName] )
         {
             BaseDAO::rollback(d->m_database);
+            d->restoreBeansStateAfterRollback();
             d->m_lastError = trUtf8("Cancelado por el usuario");
             emit transactionAborted(contextName);
             d->m_cancel[contextName] = false;
@@ -549,6 +564,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
                 d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. ERROR: [%1]").arg(BaseDAO::lastErrorMessage());
                 QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
                 BaseDAO::rollback(d->m_database);
+                d->restoreBeansStateAfterRollback();
                 emit transactionAborted(contextName);
                 d->m_doingCommit[contextName] = false;
                 return false;
@@ -583,6 +599,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
         {
             d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. ERROR: [%1]").arg(BaseDAO::lastErrorMessage());
             QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
+            d->restoreBeansStateAfterRollback();
             BaseDAO::rollback(d->m_database);
             emit transactionAborted(contextName);
             d->m_doingCommit[contextName] = false;
@@ -594,6 +611,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     if ( !BaseDAO::commit(d->m_database) )
     {
         BaseDAO::rollback(d->m_database);
+        d->restoreBeansStateAfterRollback();
         d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. ERROR: [%1]").arg(BaseDAO::lastErrorMessage());
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
         emit transactionAborted(contextName);
@@ -1014,4 +1032,40 @@ QList<BaseBeanPointer> AERPTransactionContextPrivate::orderAndFilterBeans(const 
         }
     }
     return orderedBeans;
+}
+
+void AERPTransactionContextPrivate::buildBeansStatePreviousCommit(const QList<BaseBeanPointer> &list)
+{
+    m_beansStatePreviousCommit.clear();
+    foreach (BaseBeanPointer bean, list)
+    {
+        BaseBeanStatePreviousCommit data;
+        data.bean = bean;
+        data.dbState = bean->dbState();
+        data.modified = bean->modified();
+        foreach (DBField *fld, bean->fields())
+        {
+            data.fieldsModifiedState[fld->dbFieldName()] = fld->modified();
+        }
+        m_beansStatePreviousCommit.append(data);
+    }
+}
+
+void AERPTransactionContextPrivate::restoreBeansStateAfterRollback()
+{
+    foreach (const BaseBeanStatePreviousCommit &data, m_beansStatePreviousCommit)
+    {
+        bool signalsBlocked = data.bean->blockAllSignals(true);
+        if ( data.modified )
+        {
+            data.bean->setModified();
+        }
+        data.bean->setDbState(data.dbState);
+        foreach (DBField *fld, data.bean->fields())
+        {
+            fld->setModified(data.fieldsModifiedState[fld->dbFieldName()]);
+        }
+
+        data.bean->blockAllSignals(signalsBlocked);
+    }
 }
