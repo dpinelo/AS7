@@ -192,6 +192,9 @@ class ALEPHERP_DLL_EXPORT DBFieldMetadata : public QObject, public QScriptable
     Q_PROPERTY(BuiltInExpressionDef builtInExpressionDefaultValue READ builtInExpressionDefaultValue WRITE setBuiltInExpressionDefaultValue)
     /** Misma regla anterior, pero para cadenas de caracteres */
     Q_PROPERTY(StringExpression builtInStringExpressionDefaultValue READ builtInStringExpressionDefaultValue WRITE setBuiltInStringExpressionDefaultValue)
+    /** El valor por defecto que tomará este field, será el de la variable de entorno definida aquí. Este tag espera el nombre de la
+     * variable de entorno */
+    Q_PROPERTY(QString envDefaultValue READ envDefaultValue WRITE setEnvDefaultValue)
     /** Flag para activar el debug de los scripts de cálculo de este field */
     Q_PROPERTY(bool debug READ debug WRITE setDebug)
     /** Indica si el script se ejecuta desde el debugger, por ejemplo paso a paso */
@@ -419,6 +422,8 @@ public:
     void setBuiltInExpressionDefaultValue(const BuiltInExpressionDef &string);
     StringExpression builtInStringExpressionDefaultValue() const;
     void setBuiltInStringExpressionDefaultValue(const StringExpression &string);
+    QString envDefaultValue() const;
+    void setEnvDefaultValue(const QString &value);
     bool aggregate() const;
     void setAggregate(bool value);
     AggregateCalc aggregateCalc() const;

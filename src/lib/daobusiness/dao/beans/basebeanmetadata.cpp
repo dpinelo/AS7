@@ -1892,6 +1892,10 @@ void BaseBeanMetadataPrivate::setConfig()
                 {
                     field->setOrderField(elementText == QLatin1String("true") ? true : false);
                 }
+                else if ( e.tagName() == QLatin1String("envDefaultValue") )
+                {
+                    field->setEnvDefaultValue(elementText);
+                }
                 else if ( e.tagName() == QLatin1String("type") )
                 {
                     field->setMetadataTypeName(elementText);

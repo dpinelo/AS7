@@ -31,6 +31,7 @@
 #include "dao/basedao.h"
 #include "scripts/perpscript.h"
 #include "business/aerpbuiltinexpressioncalculator.h"
+#include "models/envvars.h"
 
 class DBFieldMetadataPrivate
 {
@@ -224,6 +225,8 @@ public:
     almacenamos en un lugar temporal, y después consolidamos
     */
     QString m_tempStringExpression;
+
+    QString m_envDefaultValue;
 
     /** Fuente a presentar en los grid */
     QFont m_fontOnGrid;
@@ -561,6 +564,16 @@ void DBFieldMetadata::setBuiltInStringExpressionDefaultValue(const StringExpress
 {
     d->m_hasDefaultValue = string.valid;
     d->m_builtInStringExpressionDefaultValue = string;
+}
+
+QString DBFieldMetadata::envDefaultValue() const
+{
+    return d->m_envDefaultValue;
+}
+
+void DBFieldMetadata::setEnvDefaultValue(const QString &value)
+{
+    d->m_envDefaultValue = value;
 }
 
 bool DBFieldMetadata::aggregate() const
@@ -1477,6 +1490,10 @@ QVariant DBFieldMetadata::calculateDefaultValue(DBField *parent)
         {
             data = QVariant();
         }
+    }
+    else if ( !d->m_envDefaultValue.isEmpty() )
+    {
+        data = EnvVars::instance()->var(d->m_envDefaultValue);
     }
     else if ( hasCounterDefinition() )
     {
