@@ -48,6 +48,8 @@ contains (QTSCRIPTBINDING, Y) {
 SUBDIRS += src/3rdparty/muparser
 SUBDIRS += src/3rdparty/muparserx
 
+SUBDIRS += src/crashhandler
+
 android {
     SUBDIRS += src/android/aerpandroid
 }
@@ -187,4 +189,5 @@ CONFIG += warn_on \
 OTHER_FILES += \
     alepherp.supp
 
-RESOURCES += src/lib/daobusiness/resources/resources.qrc
+RESOURCES += src/lib/daobusiness/resources/resources.qrc \
+    src/crashhandler/res/resources.qrc

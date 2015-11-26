@@ -31,12 +31,17 @@
 #include <aerpcommon.h>
 #include <dao/database.h>
 #include <scripts/perpscriptengine.h>
+#include <signal.h>
 
 #ifdef ALEPHERP_TEST
 #include "models/test/modeltest.h"
 #include "models/treebasebeanmodel.h"
 #include "models/dbbasebeanmodel.h"
 #include "models/filterbasebeanmodel.h"
+#endif
+
+#ifndef Q_OS_WIN
+#include "execinfo.h"
 #endif
 
 void setStyle();
@@ -50,11 +55,16 @@ void exportModules(const QString &moduleName);
 void exportData(const QString &moduleName);
 bool importModules(bool reinitMetadata, bool askForObjects);
 void closeApp();
+void startCrashHandler(int signal);
 
 QLogger::QLoggerManager *logger;
 
 int main(int argc, char *argv[])
 {
+    // Install a signal handler to start crashhandler when SIGSEGV or SIGABRT is emitted
+    signal(SIGSEGV, startCrashHandler);
+    signal(SIGABRT, startCrashHandler);
+
     AERPApplication app(argc, argv);
 
     // Estas variables deben estar establecidas para poder acceder a la configuración
@@ -879,4 +889,68 @@ bool isSystemStructureCreated(bool &firstCreateStructure)
         }
     }
     return true;
+}
+
+/**
+ * @brief startCrashHandler
+ * Gestor de backtrace. Basado en la implementación que existe en pgModeler.
+ * @param signal
+ */
+void startCrashHandler(int signal)
+{
+    QFile output;
+    QString lin, cmd;
+
+    /** At the moment the backtrace function does not exists on MingW (Windows) this way
+      * the code that generates the stacktrace is available only on Linux/Unix systems
+      */
+#ifndef Q_OS_WIN
+    void *stack[30];
+    size_t stack_size;
+    char **symbols = nullptr;
+    stack_size = backtrace(stack, 30);
+    symbols = backtrace_symbols(stack, stack_size);
+#endif
+
+    QString stackFile = alephERPSettings->dataPath() + QDir::separator() + ".stacktrace";
+
+    cmd = qApp->applicationDirPath() + QString("alepherp-ch -style Fusion -stackFile %1").arg(stackFile);
+
+    //C reates the stacktrace file
+    output.setFileName(stackFile);
+    output.open(QFile::WriteOnly);
+
+    if( output.isOpen() )
+    {
+        lin = QString("** alephERP crashed after receive signal: %1 **\n\nDate/Time: %2\n")
+            .arg(signal)
+            .arg(QDateTime::currentDateTime().toString(QString("yyyy-MM-dd hh:mm:ss")));
+
+        lin += QString("Compilation Qt version: %1\nRunning Qt version: %2\n\n")
+                 .arg(QT_VERSION_STR)
+                 .arg(qVersion());
+
+        output.write(lin.toStdString().c_str(), lin.size());
+
+#ifndef Q_OS_WIN
+        for(size_t i=0; i < stack_size; i++)
+        {
+            lin=QString("[%1] ").arg(stack_size-1-i) + QString(symbols[i]) + QString("\n");
+                output.write(lin.toStdString().c_str(), lin.size());
+        }
+        free(symbols);
+#else
+            lin = QString("** Stack trace unavailable on Windows system **");
+            output.write(lin.toStdString().c_str(), lin.size());
+#endif
+
+        output.close();
+    }
+
+    /* Changing the working dir to the main executable in order to call the crash handler
+    if the PGMODELER_CHANDLER_PATH isn't set */
+    QDir dir;
+    dir.cd(QApplication::applicationDirPath());
+
+    exit(1 + system(cmd.toStdString().c_str()));
 }

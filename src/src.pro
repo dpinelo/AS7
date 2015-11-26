@@ -22,7 +22,9 @@ CONFIG += warn_on \
           qt \
           exceptions
 
-QT += sql \
+QT += widgets \
+      uitools \
+      sql \
       network \
       script \
       xml \
@@ -30,14 +32,6 @@ QT += sql \
 
 RESOURCES += translations.'$$QT_MAJOR_VERSION'.qrc \
              lib/daobusiness/resources/resources.qrc
-
-contains(QT_VERSION, ^4\\.[0-8]\\..*) {
-    QT += gui
-    CONFIG += uitools
-}
-!contains(QT_VERSION, ^4\\.[0-8]\\..*) {
-    QT += widgets uitools
-}
 
 VERSTR = '\\"$${VERSION}\\"'
 DEFINES += VER=\"$${VERSTR}\"
