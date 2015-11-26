@@ -35,6 +35,7 @@
 #include "dbfullscheduleviewplugin.h"
 #include "dbscheduleviewplugin.h"
 #include "dbmappositionplugin.h"
+#include "dbgrouprelationmmhelperplugin.h"
 #ifdef ALEPHERP_BARCODE
 #include "dbbarcodeplugin.h"
 #endif

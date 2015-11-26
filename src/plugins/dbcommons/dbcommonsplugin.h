@@ -21,7 +21,7 @@
 #define DBCOMMONSPLUGIN_H
 
 #include <QObject>
-#include <QDesignerCustomWidgetCollectionInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetCollectionInterface>
 
 class DBCommonsPlugin : public QObject, public QDesignerCustomWidgetCollectionInterface
 {

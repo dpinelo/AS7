@@ -20,7 +20,7 @@
 #ifndef AERPSCRIPTWIDGETPLUGIN_H
 #define AERPSCRIPTWIDGETPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 
 class AERPScriptWidgetPlugin: public QObject, public QDesignerCustomWidgetInterface
 {

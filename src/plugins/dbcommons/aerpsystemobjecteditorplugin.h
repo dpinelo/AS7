@@ -20,7 +20,7 @@
 #ifndef AERPSYSTEMOBJECTEDITORPLUGIN_H
 #define AERPSYSTEMOBJECTEDITORPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class AERPSystemObjectEditorWidgetPlugin : public DBBasePlugin

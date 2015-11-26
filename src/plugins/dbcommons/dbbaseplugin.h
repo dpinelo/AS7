@@ -26,7 +26,7 @@
 #else
 #include <QtWidgets>
 #endif
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include <QDesignerFormEditorInterface>
 
 class DBBasePlugin : public QObject, public QDesignerCustomWidgetInterface

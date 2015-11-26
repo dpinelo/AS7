@@ -20,7 +20,12 @@
             <table>alepherp_envvars</table>
             <field>username</field>
             <card>1M</card>
-        </relation>	
+        </relation>
+        <relation>
+            <table>alepherp_users_roles</table>
+            <field>username</field>
+            <card>1M</card>
+        </relation>
     </field>
     <field>
         <name>password</name>

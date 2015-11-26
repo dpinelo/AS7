@@ -1,7 +1,7 @@
 #ifndef WWRICHTEXTEDITPLUGIN_H
 #define WWRICHTEXTEDITPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 
 class QwwRichTextEditPlugin: public QObject, public QDesignerCustomWidgetInterface
 {

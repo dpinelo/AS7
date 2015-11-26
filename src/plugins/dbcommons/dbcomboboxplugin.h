@@ -20,7 +20,7 @@
 #ifndef DBCOMBOBOXPLUGIN_H
 #define DBCOMBOBOXPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBComboBox;

@@ -20,7 +20,8 @@
 #ifndef AERPMainWindowPLUGIN_H
 #define AERPMainWindowPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
+
 class AERPMainWindow;
 
 class AERPMainWindowPlugin : public QObject, public QDesignerCustomWidgetInterface

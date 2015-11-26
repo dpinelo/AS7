@@ -229,6 +229,7 @@ public:
     Q_INVOKABLE BaseBeanPointerList relationChildren(const QString &relationName, const QString &order = "", bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointer relationChildByField(const QString &relationName, const QString &fieldName, const QVariant &id, bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointerList relationChildrenByFilter(const QString &relationName, const QString &filter, const QString &order = "", bool includeToBeDeleted = false);
+    Q_INVOKABLE BaseBeanPointer relationChildByOid(const QString &telationName, qlonglong oid, bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointer father(const QString &relationName);
     Q_INVOKABLE QVariant fatherFieldValue(const QString &relationName, const QString &field);
     Q_INVOKABLE QString fatherDisplayFieldValue(const QString &relationName, const QString &field);

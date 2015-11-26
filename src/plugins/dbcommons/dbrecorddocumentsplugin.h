@@ -20,7 +20,7 @@
 #ifndef DBRECORDDOCUMENTSPLUGIN_H
 #define DBRECORDDOCUMENTSPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBRecordDocumentsPlugin : public DBBasePlugin

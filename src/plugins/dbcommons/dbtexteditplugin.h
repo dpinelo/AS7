@@ -21,7 +21,7 @@
 #define DBTEXTEDITPLUGIN_H
 
 #include <QObject>
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBTextEditPlugin : public DBBasePlugin

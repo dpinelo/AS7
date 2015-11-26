@@ -1,7 +1,7 @@
 #ifndef DBNUMBEREDITPLUGIN_H
 #define DBNUMBEREDITPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBNumberEditPlugin: public DBBasePlugin

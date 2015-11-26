@@ -85,6 +85,7 @@ public:
     DBRelationMetadata * metadata() const;
 
     Q_INVOKABLE BaseBeanSharedPointer newChild(int pos = -1);
+    Q_INVOKABLE BaseBeanPointer childByOid(qlonglong oid, bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointer childByField(const QString &dbField, const QVariant &value, bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointer childByFilter(const QString &filter, bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointerList childrenByFilter(const QString &filter, const QString &order = "", bool includeToBeDeleted = false);

@@ -20,7 +20,7 @@
 #ifndef DBDETAILVIEWPLUGIN_H
 #define DBDETAILVIEWPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBDetailViewPlugin : public DBBasePlugin

@@ -20,7 +20,7 @@
 #ifndef DBLISTVIEWPLUGIN_H
 #define DBLISTVIEWPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBListViewPlugin: public DBBasePlugin

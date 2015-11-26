@@ -20,7 +20,7 @@
 #ifndef DBFullScheduleViewPlugin_H
 #define DBFullScheduleViewPlugin_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBFullScheduleViewPlugin: public DBBasePlugin

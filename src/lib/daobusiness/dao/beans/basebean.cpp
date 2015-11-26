@@ -791,6 +791,17 @@ BaseBeanPointerList BaseBean::relationChildrenByFilter(const QString &relationNa
     return beans;
 }
 
+BaseBeanPointer BaseBean::relationChildByOid(const QString &relationName, qlonglong oid, bool includeToBeDeleted)
+{
+    BaseBeanPointer bean;
+    DBRelation *rel = relation(relationName);
+    if ( rel != NULL )
+    {
+        bean = rel->childByOid(oid, includeToBeDeleted);
+    }
+    return bean;
+}
+
 void BaseBean::deleteAllChildren(const QString &relationName)
 {
     DBRelation *rel = relation(relationName);

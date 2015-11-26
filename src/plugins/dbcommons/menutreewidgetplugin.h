@@ -2,7 +2,7 @@
 #define MENUTREEWIDGETPLUGIN_H
 
 #include <QtGui>
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 
 class MenuTreeWidgetPlugin : public QObject, public QDesignerCustomWidgetInterface
 {

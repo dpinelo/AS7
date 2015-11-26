@@ -21,7 +21,7 @@
 #define DBCHOOSERECORDBUTTONPLUGIN_H
 
 #include <QObject>
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBChooseRecordButtonPlugin : public DBBasePlugin

@@ -20,7 +20,7 @@
 #ifndef DBTREEVIEWPLUGIN_H
 #define DBTREEVIEWPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBTreeViewPlugin : public DBBasePlugin

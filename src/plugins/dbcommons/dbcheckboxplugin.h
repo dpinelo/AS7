@@ -21,7 +21,7 @@
 #define DBCHECKBOXPLUGIN_H
 
 #include "dbbaseplugin.h"
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 
 class DBCheckBoxPlugin : public DBBasePlugin
 {

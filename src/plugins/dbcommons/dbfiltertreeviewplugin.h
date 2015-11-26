@@ -20,7 +20,7 @@
 #ifndef DBFilterTreeViewPLUGIN_H
 #define DBFilterTreeViewPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBFilterTreeViewPlugin: public DBBasePlugin

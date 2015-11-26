@@ -20,7 +20,7 @@
 #ifndef DBDATETIMEEDITPLUGIN_H
 #define DBDATETIMEEDITPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBDateTimeEditPlugin : public DBBasePlugin

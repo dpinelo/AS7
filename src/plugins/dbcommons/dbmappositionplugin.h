@@ -21,7 +21,7 @@
 #define DBMAPPOSITIONPLUGIN_H
 
 #include "dbbaseplugin.h"
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 
 class DBMapPositionPlugin : public DBBasePlugin
 {

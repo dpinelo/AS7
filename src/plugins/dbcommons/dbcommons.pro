@@ -275,7 +275,8 @@ HEADERS = dbcomboboxplugin.h \
     dbchoosefieldnamedlg.h \
     dbchooserecordbuttontaskmenu.h \
     dbchooserecordbuttonassignfieldsdlg.h \
-    dbmappositionplugin.h
+    dbmappositionplugin.h \
+    dbgrouprelationmmhelperplugin.h
 
 SOURCES = dbcomboboxplugin.cpp \
     dbdetailviewplugin.cpp \
@@ -310,7 +311,8 @@ SOURCES = dbcomboboxplugin.cpp \
     dbchoosefieldnamedlg.cpp \
     dbchooserecordbuttontaskmenu.cpp \
     dbchooserecordbuttonassignfieldsdlg.cpp \
-    dbmappositionplugin.cpp
+    dbmappositionplugin.cpp \
+    dbgrouprelationmmhelperplugin.cpp
 
 FORMS += \
     $$LIB_DAOBUSINESS/widgets/dbdetailview.ui \

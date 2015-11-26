@@ -1202,6 +1202,32 @@ BaseBeanSharedPointer DBRelation::newChild(int pos)
     return child;
 }
 
+BaseBeanPointer DBRelation::childByOid(qlonglong oid, bool includeToBeDeleted)
+{
+    BaseBeanPointer result;
+    foreach ( BaseBeanPointer child, children() )
+    {
+        if ( !child.isNull() )
+        {
+            if ( child->dbOid() == oid )
+            {
+                if ( includeToBeDeleted )
+                {
+                    return child;
+                }
+                else
+                {
+                    if ( child.data()->dbState() != BaseBean::TO_BE_DELETED && child.data()->dbState() != BaseBean::DELETED )
+                    {
+                        return child;
+                    }
+                }
+            }
+        }
+    }
+    return result;
+}
+
 /**
  * @brief DBRelation::addChildren
  * Permite añadir beans existentes a esta relación. Todos estos hijos van a la lista de "Otros". Son

@@ -20,7 +20,7 @@
 #ifndef DBRELATEDLEMENTSVIEWPLUGIN_H
 #define DBRELATEDLEMENTSVIEWPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBRelatedElementsViewPlugin : public DBBasePlugin

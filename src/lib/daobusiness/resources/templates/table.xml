@@ -8,29 +8,29 @@
     <!-- Alias a presentar en la aplicación -->
     <alias></alias>
 
-	<!-- Aquí se definen variables que se traducirán en filtros SQL dentro de la claúsula WHERE
-	y que por tanto, harán visibles unos registros y otros no. Estas variables se pueden establecer
-	por usuario de la aplicación, y deben establecerse por el programador Javascript haciendo
-	AERPScriptCommon.setEnvVar("nombre_de_la_variable", valor);
-	y entrando en vigor en el mismo momento de la ejecución de ese comando -->
+    <!-- Aquí se definen variables que se traducirán en filtros SQL dentro de la claúsula WHERE
+    y que por tanto, harán visibles unos registros y otros no. Estas variables se pueden establecer
+    por usuario de la aplicación, y deben establecerse por el programador Javascript haciendo
+    AERPScriptCommon.setEnvVar("nombre_de_la_variable", valor);
+    y entrando en vigor en el mismo momento de la ejecución de ese comando -->
     <envVars>
-	    <pair>
+        <pair>
             <!-- Nombre de la variable de entorno en Javascript -->
             <varName></varName>
             <!-- Columna de esta tabla a la que afecta y por la que realizará el filtro WHERE -->
             <field></field>
         </pair>
     </envVars>
-    	
+
     <itemsFilterColumn>
-    	<itemFilter>
-    		<fieldToFilter></fieldToFilter>
-    		<relationFieldToShow></relationFieldToShow>
-    		<setFilterValueOnNewRecords></setFilterValueOnNewRecords>
-    		<relationFilter></relationFilter>    		
-    	</itemFilter>
+        <itemFilter>
+            <fieldToFilter></fieldToFilter>
+            <relationFieldToShow></relationFieldToShow>
+            <setFilterValueOnNewRecords></setFilterValueOnNewRecords>
+            <relationFilter></relationFilter>
+        </itemFilter>
     </itemsFilterColumn>
-    			
+
     <field>
         <name>id</name>
         <alias>Identificador</alias>
@@ -39,7 +39,7 @@
         <type>serial</type>
         <visiblegrid>false</visiblegrid>
     </field>
-   
+
     <field>
         <name></name>
         <alias></alias>
@@ -53,7 +53,7 @@
 function value() {
     return 0;
 }
-]]>		
+]]>
         </script>
         <relation>
             <table></table>
@@ -61,7 +61,7 @@ function value() {
             <card></card>
         </relation>
     </field>
-    
+
     <field>
         <name>cod</name>
         <alias>Código</alias>
@@ -100,23 +100,23 @@ function value() {
     </field>
 
     <field>
-    	<name></name>
-    	<alias></alias>
-    	<null></null>
-    	<pk>false</pk>
-    	<type>double</type>
-    	<partD>2</partD>
-    	<default>0</default>
-    	<visiblegrid>false</visiblegrid>
-    	<aggregateCalc>
-    		<operation></operation>
-    		<aggregate>
-    			<field></field>
-    			<relation></relation>
-    		</aggregate>
-    	</aggregateCalc>             
+        <name></name>
+        <alias></alias>
+        <null></null>
+        <pk>false</pk>
+        <type>double</type>
+        <partD>2</partD>
+        <default>0</default>
+        <visiblegrid>false</visiblegrid>
+        <aggregateCalc>
+            <operation></operation>
+            <aggregate>
+                <field></field>
+                <relation></relation>
+            </aggregate>
+        </aggregateCalc>
     </field>
-    			    			    		    
+
     <field>
         <name></name>
         <alias></alias>
@@ -130,5 +130,5 @@ function value() {
             <card></card>
         </relation>
     </field>
-    	    
+
 </table>

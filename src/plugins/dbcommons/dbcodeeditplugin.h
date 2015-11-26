@@ -20,7 +20,7 @@
 #ifndef _DBCODEEDIT_PLUGIN_H_
 #define _DBCODEEDIT_PLUGIN_H_
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBCodeEditPlugin : public DBBasePlugin

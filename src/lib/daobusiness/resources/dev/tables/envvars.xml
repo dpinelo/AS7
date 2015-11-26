@@ -28,7 +28,7 @@
             <table>alepherp_users</table>
             <field>username</field>
             <card>M1</card>
-        </relation>	
+        </relation>
     </field>
     <field>
         <name>id_rol</name>
@@ -40,7 +40,7 @@
             <table>alepherp_roles</table>
             <field>id</field>
             <card>M1</card>
-        </relation>	
+        </relation>
     </field>
     <field>
         <name>varname</name>

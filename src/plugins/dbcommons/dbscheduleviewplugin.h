@@ -20,7 +20,7 @@
 #ifndef DBScheduleViewPlugin_H
 #define DBScheduleViewPlugin_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBScheduleViewPlugin: public DBBasePlugin

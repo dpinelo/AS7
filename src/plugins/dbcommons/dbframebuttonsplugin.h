@@ -20,7 +20,7 @@
 #ifndef DBFRAMEBUTTONSPLUGIN_H
 #define DBFRAMEBUTTONSPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBFrameButtonsPlugin: public DBBasePlugin

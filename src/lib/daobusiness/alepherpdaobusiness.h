@@ -46,6 +46,7 @@
 #include "widgets/fademessage.h"
 #include "widgets/dblineedit.h"
 #include "widgets/dblabel.h"
+#include "widgets/dbgrouprelationmmhelper.h"
 #include "widgets/dbmapposition.h"
 #ifdef ALEPHERP_BARCODE
 #include "widgets/dbbarcode.h"

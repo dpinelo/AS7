@@ -453,7 +453,8 @@ SOURCES += globales.cpp \
     qlogger.cpp \
     aerpapplication.cpp \
     dao/cachedatabase.cpp \
-    models/aerpitemdelegate.cpp
+    models/aerpitemdelegate.cpp \
+    widgets/dbgrouprelationmmhelper.cpp
 
 HEADERS += globales.h \
     dao/basedao.h \
@@ -611,7 +612,8 @@ HEADERS += globales.h \
     qxtglobal.h \
     dao/cachedatabase.h \
     models/beantreeitem.h \
-    models/aerpitemdelegate.h
+    models/aerpitemdelegate.h \
+    widgets/dbgrouprelationmmhelper.h
 
 FORMS += \
     widgets/dbdetailview.ui \

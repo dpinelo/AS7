@@ -20,7 +20,7 @@
 #ifndef AERPBASEDIALOGPLUGIN_H
 #define AERPBASEDIALOGPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include <alepherpdaobusiness.h>
 
 class AERPBaseDialogPlugin : public QObject, public QDesignerCustomWidgetInterface

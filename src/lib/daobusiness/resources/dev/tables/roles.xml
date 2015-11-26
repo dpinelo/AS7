@@ -20,7 +20,7 @@
             <table>alepherp_envvars</table>
             <field>id_rol</field>
             <card>1M</card>
-        </relation>	
+        </relation>
     </field>    
     <field>
         <name>nombre</name>
@@ -36,6 +36,6 @@
         <null>false</null>
         <pk>false</pk>
         <type>bool</type>
-	<default>false</default>
+        <default>false</default>
     </field>
 </table>

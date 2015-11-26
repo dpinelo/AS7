@@ -20,7 +20,7 @@
 #ifndef DBRICHTEXTEDITPLUGIN_H
 #define DBRICHTEXTEDITPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBRichTextEditPlugin  : public DBBasePlugin

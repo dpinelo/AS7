@@ -24,7 +24,7 @@
             <table>alepherp_users</table>
             <field>username</field>
             <card>M1</card>
-        </relation>		
+        </relation>
     </field>
     <field>
         <name>ts</name>

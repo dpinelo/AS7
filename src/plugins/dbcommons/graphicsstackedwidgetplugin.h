@@ -20,7 +20,8 @@
 #ifndef GRAPHICSSTACKEDWIDGETPLUGIN_H
 #define GRAPHICSSTACKEDWIDGETPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
+
 class AERPStackedWidget;
 
 class AERPStackedWidgetPlugin : public QObject, public QDesignerCustomWidgetInterface

@@ -21,7 +21,7 @@
 #define DBLINEEDITPLUGIN_H
 
 #include <QObject>
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBLineEditPlugin : public DBBasePlugin

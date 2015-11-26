@@ -23,7 +23,7 @@
             <table>alepherp_emails</table>
             <field>id</field>
             <card>M1</card>
-        </relation>		
+        </relation>
     </field>
     
     <field>

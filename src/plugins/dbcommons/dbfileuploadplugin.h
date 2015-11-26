@@ -21,7 +21,7 @@
 #define DBFILEUPLOADPLUGIN_H
 
 #include <QObject>
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBFileUploadPlugin : public DBBasePlugin

@@ -20,7 +20,7 @@
 #ifndef DBFILTERTABLEVIEWPLUGIN_H
 #define DBFILTERTABLEVIEWPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
 class DBFilterTableViewPlugin: public DBBasePlugin

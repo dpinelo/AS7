@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2012 by David Pinelo   *
+ *   Copyright (C) 2010 by David Pinelo   *
  *   alepherp@alephsistemas.es   *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -17,13 +17,14 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef DBHTMLEDITORPLUGIN_H
-#define DBHTMLEDITORPLUGIN_H
+#ifndef DBGroupRelationMMHelperPLUGIN_H
+#define DBGroupRelationMMHelperPLUGIN_H
 
+#include <QObject>
 #include <QtUiPlugin/QDesignerCustomWidgetInterface>
 #include "dbbaseplugin.h"
 
-class DBHtmlEditorPlugin : public DBBasePlugin
+class DBGroupRelationMMHelperPlugin : public DBBasePlugin
 {
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
@@ -31,7 +32,7 @@ class DBHtmlEditorPlugin : public DBBasePlugin
 private:
 
 public:
-    DBHtmlEditorPlugin(QObject *parent = 0);
+    explicit DBGroupRelationMMHelperPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     QIcon icon() const;
@@ -42,7 +43,6 @@ public:
     QString toolTip() const;
     QString whatsThis() const;
     QWidget *createWidget(QWidget *parent);
-
 };
 
-#endif // DBHTMLEDITORPLUGIN_H
+#endif // DBGroupRelationMMHelperPLUGIN_H
