@@ -34,6 +34,7 @@
         <pk>false</pk>
         <type>string</type>
         <length>250</length>
+        <visiblegrid>false</visiblegrid>
     </field>
     <field>
         <name>name</name>

@@ -47,11 +47,7 @@ private:
     DBGroupRelationMMHelperPrivate *d;
 
 protected:
-    virtual void showEvent(QShowEvent *event)
-    {
-        DBBaseWidget::showEvent(event);
-        QWidget::showEvent(event);
-    }
+    virtual void showEvent(QShowEvent *event);
     virtual void hideEvent(QHideEvent *event)
     {
         DBBaseWidget::hideEvent(event);
@@ -59,7 +55,7 @@ protected:
     }
 
 public:
-    DBGroupRelationMMHelper(QWidget *parent = 0);
+    explicit DBGroupRelationMMHelper(QWidget *parent = 0);
     virtual ~DBGroupRelationMMHelper();
 
     AlephERP::ObserverType observerType(BaseBean *)

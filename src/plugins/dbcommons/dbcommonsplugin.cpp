@@ -54,6 +54,7 @@ DBCommonsPlugin::DBCommonsPlugin(QObject *parent) :
     m_widgets.append(new DBTreeViewPlugin(this));
     m_widgets.append(new AERPStackedWidgetPlugin(this));
     m_widgets.append(new MenuTreeWidgetPlugin(this));
+    m_widgets.append(new DBGroupRelationMMHelperPlugin(this));
 #ifdef ALEPHERP_DEVTOOLS
     m_widgets.append(new AERPSystemObjectEditorWidgetPlugin(this));
 #endif

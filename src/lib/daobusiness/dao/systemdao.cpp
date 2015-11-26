@@ -168,7 +168,7 @@ QString SystemDAO::systemTablesPSQL = ""
                                       "  CONSTRAINT alepherp_roles_pkey PRIMARY KEY (id)"
                                       ")"
                                       "WITH ("
-                                      "  OIDS=FALSE"
+                                      "  OIDS=TRUE"
                                       ");"
 
                                       "CREATE TABLE alepherp_modules"

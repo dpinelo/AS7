@@ -20,7 +20,7 @@
 #ifndef PERPSCRIPTWIDGETPLUGIN_H
 #define PERPSCRIPTWIDGETPLUGIN_H
 
-#include <QDesignerCustomWidgetInterface>
+#include <QtUiPlugin/QDesignerCustomWidgetInterface>
 
 /**
   Sólo existe por compatibilidad con instalaciones en otros clientes

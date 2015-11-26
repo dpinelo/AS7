@@ -78,50 +78,53 @@ AbstractObserver * DBBaseWidget::observer(bool sync)
     if ( m_observer == NULL )
     {
         QWidget *cont = alephERPContainer();
-        DBSearchDlg *dlgSearch = qobject_cast<DBSearchDlg *> (cont);
-        DBRecordDlg *dlgRecord = qobject_cast<DBRecordDlg *> (cont);
-        DBTableView *tableView = qobject_cast<DBTableView *> (cont);
-        DBWizardDlg *dlgWizard = qobject_cast<DBWizardDlg *> (cont);
-        if ( dlgSearch != 0 )
+        if ( cont != NULL )
         {
-            BaseBean *beanTemplate = dlgSearch->templateBean();
-            if ( beanTemplate != NULL )
+            DBSearchDlg *dlgSearch = qobject_cast<DBSearchDlg *> (cont);
+            DBRecordDlg *dlgRecord = qobject_cast<DBRecordDlg *> (cont);
+            DBTableView *tableView = qobject_cast<DBTableView *> (cont);
+            DBWizardDlg *dlgWizard = qobject_cast<DBWizardDlg *> (cont);
+            if ( dlgSearch != 0 )
             {
-                m_observer = ObserverFactory::instance()->registerBaseWidget(this, beanTemplate);
-            }
-        }
-        else if ( dlgRecord != 0 || tableView != 0 || dlgWizard != 0 )
-        {
-            m_observer = ObserverFactory::instance()->registerBaseWidget(this, beanFromContainer());
-            if ( m_observer != NULL )
-            {
-                applyFieldProperties();
-                // Hay un caso bastante raro: El widget muestra el campo de una relación M1, por ejemplo
-                // tarjetascredito.codtarjeta  Este campo es un campo con un valor por defecto. El control
-                // mostraría ese valor por defecto, engañando al usuario. Debemos filtrar ese caso que se
-                // produce cuando el valor del bean raíz está vacío.
-                if ( m_fieldName.contains(".") )
+                BaseBean *beanTemplate = dlgSearch->templateBean();
+                if ( beanTemplate != NULL )
                 {
-                    QStringList parts = m_fieldName.split(".");
-                    BaseBean *bean = beanFromContainer();
-                    if ( bean != NULL )
+                    m_observer = ObserverFactory::instance()->registerBaseWidget(this, beanTemplate);
+                }
+            }
+            else if ( dlgRecord != 0 || tableView != 0 || dlgWizard != 0 )
+            {
+                m_observer = ObserverFactory::instance()->registerBaseWidget(this, beanFromContainer());
+                if ( m_observer != NULL )
+                {
+                    applyFieldProperties();
+                    // Hay un caso bastante raro: El widget muestra el campo de una relación M1, por ejemplo
+                    // tarjetascredito.codtarjeta  Este campo es un campo con un valor por defecto. El control
+                    // mostraría ese valor por defecto, engañando al usuario. Debemos filtrar ese caso que se
+                    // produce cuando el valor del bean raíz está vacío.
+                    if ( m_fieldName.contains(".") )
                     {
-                        DBRelation *rel = bean->relation(parts.at(0));
-                        if ( rel != NULL )
+                        QStringList parts = m_fieldName.split(".");
+                        BaseBean *bean = beanFromContainer();
+                        if ( bean != NULL )
                         {
-                            if ( bean->isFieldEmpty(rel->metadata()->rootFieldName()) &&
-                                 rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE &&
-                                 rel->father() &&
-                                 !rel->father()->modified() )
+                            DBRelation *rel = bean->relation(parts.at(0));
+                            if ( rel != NULL )
                             {
-                                return m_observer;
+                                if ( bean->isFieldEmpty(rel->metadata()->rootFieldName()) &&
+                                     rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE &&
+                                     rel->father() &&
+                                     !rel->father()->modified() )
+                                {
+                                    return m_observer;
+                                }
                             }
                         }
                     }
-                }
-                if ( sync )
-                {
-                    m_observer->sync();
+                    if ( sync )
+                    {
+                        m_observer->sync();
+                    }
                 }
             }
         }

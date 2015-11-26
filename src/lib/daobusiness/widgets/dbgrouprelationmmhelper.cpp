@@ -62,6 +62,7 @@ void DBGroupRelationMMHelperPrivate::init()
         }
     }
     q_ptr->setLayout(lay);
+    m_inited = true;
 }
 
 void DBGroupRelationMMHelperPrivate::clearCheckBoxes()
@@ -76,7 +77,25 @@ void DBGroupRelationMMHelperPrivate::clearCheckBoxes()
 void DBGroupRelationMMHelperPrivate::setCheckBoxStates()
 {
     BaseBeanPointer bean = q_ptr->beanFromContainer();
-    BaseBeanPointerList childs = bean->relationChildren(q_ptr->relationName());
+    BaseBeanPointerList children = bean->relationChildren(q_ptr->relationName());
+    QList<QCheckBox *> checks = q_ptr->findChildren<QCheckBox *>();
+
+    foreach (BaseBeanPointer child, children)
+    {
+        foreach (QCheckBox *chk, checks)
+        {
+            if ( chk->property("oid").isValid() )
+            {
+                qlonglong oid = chk->property("oid").toLongLong();
+                BaseBeanPointer father = child->father(m_otherTableName);
+                if ( !father.isNull() )
+                {
+                    QSignalBlocker bl(chk);
+                    chk->setChecked(oid == father->dbOid());
+                }
+            }
+        }
+    }
 }
 
 /*!
@@ -220,16 +239,10 @@ void DBGroupRelationMMHelper::setValue(const QVariant &value)
 
 void DBGroupRelationMMHelper::refresh()
 {
-    bool observerWasNull = ( m_observer == NULL );
-    observer();
-    if ( m_observer != NULL )
+    if ( !d->m_inited )
     {
-        m_observer->sync();
-        if ( observerWasNull )
-        {
-            d->init();
-            d->setCheckBoxStates();
-        }
+        d->init();
+        d->setCheckBoxStates();
     }
 }
 
@@ -242,4 +255,10 @@ void DBGroupRelationMMHelper::observerUnregistered()
     blockSignals(blockState);
 }
 
+void DBGroupRelationMMHelper::showEvent(QShowEvent *event)
+{
+    DBBaseWidget::showEvent(event);
+    QWidget::showEvent(event);
+    refresh();
+}
 
