@@ -32,7 +32,7 @@
         <alias>Password</alias>
         <null>true</null>
         <pk>false</pk>
-        <type>string</type>
+        <type>password</type>
         <length>250</length>
         <visiblegrid>false</visiblegrid>
     </field>

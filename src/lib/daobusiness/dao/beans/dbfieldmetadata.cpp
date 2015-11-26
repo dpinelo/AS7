@@ -925,7 +925,7 @@ void DBFieldMetadata::setMetadataTypeName(const QString &value)
 QString DBFieldMetadata::databaseType(const QString &dialect) const
 {
     QString type;
-    if ( d->m_metadataTypeName == "string" )
+    if ( d->m_metadataTypeName == "string" || d->m_metadataTypeName == "password" )
     {
         type = QString("character varying(%1)").arg(d->m_length == 0 ? 1 : d->m_length);
     }

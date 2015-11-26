@@ -1899,7 +1899,9 @@ void BaseBeanMetadataPrivate::setConfig()
                 else if ( e.tagName() == QLatin1String("type") )
                 {
                     field->setMetadataTypeName(elementText);
-                    if ( elementText == QLatin1String("string") || elementText == QLatin1String("stringlist") )
+                    if ( elementText == QLatin1String("string") ||
+                         elementText == QLatin1String("stringlist") ||
+                         elementText == QLatin1String("password") )
                     {
                         field->setType(QVariant::String);
                         if ( elementText == QLatin1String("stringlist") )
