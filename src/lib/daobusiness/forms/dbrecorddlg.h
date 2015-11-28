@@ -124,7 +124,7 @@ protected:
     virtual bool lock();
 
 public:
-    DBRecordDlg(QWidget *parent = 0, Qt::WindowFlags fl = 0);
+    explicit DBRecordDlg(QWidget *parent = 0, Qt::WindowFlags fl = 0);
     DBRecordDlg(BaseBeanPointer bean,
                 AlephERP::FormOpenType openType,
                 QWidget* parent = 0, Qt::WindowFlags fl = 0);

@@ -394,8 +394,8 @@ bool BatchDAOPrivate::prepareBatchStructure()
                         return false;
                     }
                     QString sqlIndex = metadata->sqlCreateIndex(AlephERP::CreateIndexOnRelationColumns, BATCH_DATABASE_DRIVER);
-                    QStringList index = sqlIndex.split(";");
-                    foreach (QString sqlIdx, index)
+                    QStringList index = sqlIndex.split(';');
+                    foreach (const QString & sqlIdx, index)
                     {
                         if ( !sqlIdx.isEmpty() )
                         {
@@ -408,7 +408,7 @@ bool BatchDAOPrivate::prepareBatchStructure()
                             }
                         }
                     }
-                    foreach (QString sqlAditional, metadata->sqlAditional(AlephERP::WithSimulateOID, BATCH_DATABASE_DRIVER))
+                    foreach (const QString & sqlAditional, metadata->sqlAditional(AlephERP::WithSimulateOID, BATCH_DATABASE_DRIVER))
                     {
                         if ( !sqlAditional.isEmpty() )
                         {

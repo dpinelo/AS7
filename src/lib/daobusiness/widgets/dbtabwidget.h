@@ -57,7 +57,7 @@ protected:
     void showEvent (QShowEvent * event);
 
 public:
-    DBTabWidget(QWidget * parent = 0);
+    explicit DBTabWidget(QWidget * parent = 0);
     DBTabWidget(const QString &dbField, QWidget * parent);
 
     ~DBTabWidget();

@@ -1617,11 +1617,11 @@ bool SystemDAO::createSystemTables(const QString &connectionName)
     SystemDAO::clearLastDbMessage();
     if ( db.driverName() == "QPSQL" || db.driverName() == "AERPCLOUD" )
     {
-        sqls = SystemDAO::systemTablesPSQL.split(";");
+        sqls = SystemDAO::systemTablesPSQL.split(';');
     }
     else if ( db.driverName().contains("QSQLITE") )
     {
-        sqls = SystemDAO::systemTablesSQLite.split(";");
+        sqls = SystemDAO::systemTablesSQLite.split(';');
     }
     else if ( db.driverName().contains("QIBASE"))
     {

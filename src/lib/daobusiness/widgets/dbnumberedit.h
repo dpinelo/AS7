@@ -149,7 +149,7 @@ class DBNumberEditKeyPressEater : public QObject
 {
     Q_OBJECT
 public:
-    DBNumberEditKeyPressEater(QObject *parent = 0);
+    explicit DBNumberEditKeyPressEater(QObject *parent = 0);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

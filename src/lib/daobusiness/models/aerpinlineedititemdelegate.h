@@ -40,7 +40,7 @@ private:
     AERPInlineEditItemDelegatePrivate *d;
 
 public:
-    AERPInlineEditItemDelegate(const QString &type, QObject * parent = 0);
+    explicit AERPInlineEditItemDelegate(const QString &type, QObject * parent = 0);
     ~AERPInlineEditItemDelegate();
 
     virtual QWidget *createEditor (QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index ) const;

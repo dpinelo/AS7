@@ -215,7 +215,7 @@ void DBAbstractViewInterface::setAtRowsEndNewRow(bool value)
 
 QString DBAbstractViewInterface::readOnlyColumns() const
 {
-    return m_readOnlyColumns.join(";");
+    return m_readOnlyColumns.join(';');
 }
 
 void DBAbstractViewInterface::setReadOnlyColumns(const QString &value)
@@ -229,7 +229,7 @@ void DBAbstractViewInterface::setReadOnlyColumns(const QString &value)
 
 QString DBAbstractViewInterface::visibleColumns() const
 {
-    return m_visibleColumns.join(";");
+    return m_visibleColumns.join(';');
 }
 
 void DBAbstractViewInterface::setVisibleColumns(const QString &value)
@@ -243,7 +243,7 @@ void DBAbstractViewInterface::setVisibleColumns(const QString &value)
 
 QString DBAbstractViewInterface::linkColumns() const
 {
-    return m_linkColumns.join(";");
+    return m_linkColumns.join(';');
 }
 
 void DBAbstractViewInterface::setLinkColumns(const QString &value)

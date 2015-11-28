@@ -84,7 +84,7 @@ private:
     Q_DECLARE_PRIVATE(DBRelationMetadata)
 
 public:
-    DBRelationMetadata(QObject *parent = NULL);
+    explicit DBRelationMetadata(QObject *parent = NULL);
     ~DBRelationMetadata();
 
     enum DBRelationType {ONE_TO_ONE, ONE_TO_MANY, MANY_TO_ONE};

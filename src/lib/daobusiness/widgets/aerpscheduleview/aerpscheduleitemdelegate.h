@@ -50,7 +50,7 @@ public:
 
     };
 
-    AERPScheduleItemDelegate(QObject *parent = 0);
+    explicit AERPScheduleItemDelegate(QObject *parent = 0);
     ~AERPScheduleItemDelegate();
 
     virtual void        paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;

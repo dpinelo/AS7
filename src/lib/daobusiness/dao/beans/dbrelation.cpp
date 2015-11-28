@@ -674,7 +674,7 @@ BaseBeanPointer DBRelation::childByField(const QString &dbField, const QVariant 
 BaseBeanPointer DBRelation::childByFilter(const QString &filter, bool includeToBeDeleted)
 {
     // Primero obtenemos las condiciones
-    QStringList conditions = filter.split(";");
+    QStringList conditions = filter.split(';');
 
     if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE )
     {

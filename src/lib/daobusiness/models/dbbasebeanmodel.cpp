@@ -1714,7 +1714,7 @@ void DBBaseBeanModel::possibleRowDeleted(const QString &notificationName, QSqlDr
         return;
     }
     QString data = payLoad.toString();
-    QStringList parts = data.split(";");
+    QStringList parts = data.split(';');
     if ( parts.size() != 2 )
     {
         return;

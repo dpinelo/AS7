@@ -713,7 +713,7 @@ bool ModulesDAOPrivate::executeSQLAfterImport(const QString &path, const QString
     QTextStream in(&file);
     in.setCodec("UTF-8");
     content = in.readAll();
-    QStringList sqls = content.split(";");
+    QStringList sqls = content.split(';');
     foreach ( QString sql, sqls )
     {
         if ( !sql.isEmpty() && !BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION) )
@@ -765,7 +765,7 @@ bool ModulesDAOPrivate::createDatabaseStructures(QList<AERPSystemObject *> syste
                         return false;
                     }
                     QString sqlIndex = m->sqlCreateIndex(module->tableCreationOptions(), Database::driverConnection());
-                    QStringList sqlIndexList = sqlIndex.split(";");
+                    QStringList sqlIndexList = sqlIndex.split(';');
                     foreach ( QString sqlOneIndex, sqlIndexList )
                     {
                         if ( !sqlOneIndex.isEmpty() )
@@ -777,7 +777,7 @@ bool ModulesDAOPrivate::createDatabaseStructures(QList<AERPSystemObject *> syste
                             }
                         }
                     }
-                    foreach (QString sqlAditional, m->sqlAditional(module->tableCreationOptions(), Database::driverConnection()))
+                    foreach (const QString & sqlAditional, m->sqlAditional(module->tableCreationOptions(), Database::driverConnection()))
                     {
                         if ( !sqlAditional.isEmpty() )
                         {

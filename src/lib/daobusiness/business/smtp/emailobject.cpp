@@ -197,7 +197,7 @@ QString EmailObject::toXml() const
     xml = QString("%1<from><![CDATA[%2]]></from>\n").arg(xml).arg(m_from);
 
     xml += "<to>\n";
-    foreach (QString to, m_to)
+    foreach (const QString & to, m_to)
     {
         if ( !to.isEmpty() )
         {
@@ -207,7 +207,7 @@ QString EmailObject::toXml() const
     xml += "</to>\n";
 
     xml += "<copy>\n";
-    foreach (QString copy, m_copy)
+    foreach (const QString & copy, m_copy)
     {
         if ( !copy.isEmpty() )
         {
@@ -217,7 +217,7 @@ QString EmailObject::toXml() const
     xml += "</copy>\n";
 
     xml += "<blindCopy>\n";
-    foreach (QString blindCopy, m_blindCopy)
+    foreach (const QString & blindCopy, m_blindCopy)
     {
         if ( !blindCopy.isEmpty() )
         {

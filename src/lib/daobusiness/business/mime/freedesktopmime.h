@@ -28,7 +28,7 @@ class QFreeDesktopMime : public QObject
     Q_OBJECT
 
 public:
-    QFreeDesktopMime (QObject *parent = 0);
+    explicit QFreeDesktopMime (QObject *parent = 0);
     ~QFreeDesktopMime();
 
     QString fromFileName (const QString& fileName);

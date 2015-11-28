@@ -50,7 +50,7 @@ private:
     bool m_checkConnectArgs;
 
 public:
-    DynamicQObject(QObject *parent = 0);
+    explicit DynamicQObject(QObject *parent = 0);
 
     virtual int qt_metacall(QMetaObject::Call c, int id, void **arguments);
 

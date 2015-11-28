@@ -316,6 +316,7 @@ void AERPSpreadSheet::fromScriptValue(const QScriptValue &object, AERPSpreadShee
 
 QScriptValue AERPSpreadSheet::toScriptValueType(QScriptEngine *engine, const AERPSpreadSheet::Type &in)
 {
+    Q_UNUSED(engine)
     QScriptValue v = static_cast<int>(in);
     return v;
 }

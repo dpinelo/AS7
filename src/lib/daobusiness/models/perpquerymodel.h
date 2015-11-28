@@ -43,7 +43,7 @@ private:
     Q_DECLARE_PRIVATE(AERPQueryModel)
 
 public:
-    AERPQueryModel(bool loadDataBackground, QObject *parent = NULL);
+    explicit AERPQueryModel(bool loadDataBackground, QObject *parent = NULL);
     ~AERPQueryModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
@@ -93,7 +93,7 @@ private:
     QHash<int, QVariant> m_datas;
 
 public:
-    AERPDataset();
+    explicit AERPDataset();
     ~AERPDataset();
 
     // Constructor de copia y operador de asignación
@@ -116,7 +116,7 @@ private:
     AERPThreadReadDataPrivate *d;
 
 public:
-    AERPReadDataWorker(QObject * parent = 0);
+    explicit AERPReadDataWorker(QObject * parent = 0);
     AERPReadDataWorker(const QString &sql, int limit, QObject * parent = 0);
     virtual ~AERPReadDataWorker();
 

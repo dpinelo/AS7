@@ -65,7 +65,7 @@ class ALEPHERP_DLL_EXPORT DBTreeView : public QTreeView, public DBAbstractViewIn
       Deben tener el mismo número de entradas que m_tableNames y en el mismo orden */
     Q_PROPERTY (QString visibleColumns READ visibleColumns WRITE setVisibleColumns)
     Q_PROPERTY (QString keyColumns READ keyColumns WRITE setKeyColumns)
-    /** Filtro para cada nivel del árbol. Los filtros se separan por ";", que determinan
+    /** Filtro para cada nivel del árbol. Los filtros se separan por ';', que determinan
       cada nivel. Los filtros serán de la forma: */
     Q_PROPERTY (QString filter READ filter WRITE setFilter)
     /** Indica si se mostrará alguna imagen. La imagen puede ser de un archivo que se indique,

@@ -98,7 +98,7 @@ DBRelatedElementsView::~DBRelatedElementsView()
 
 QString DBRelatedElementsView::allowedMetadatas() const
 {
-    return d->m_allowedMetadatas.join(QStringLiteral(";"));
+    return d->m_allowedMetadatas.join(';');
 }
 
 void DBRelatedElementsView::setAllowedMetadatas(const QString &value)
@@ -338,7 +338,7 @@ void DBRelatedElementsView::setCardinality(AlephERP::RelatedElementCardinalities
 
 QString DBRelatedElementsView::linkColumns() const
 {
-    return d->m_linkColumns.join(QStringLiteral(";"));
+    return d->m_linkColumns.join(';');
 }
 
 void DBRelatedElementsView::setLinkColumns(const QString &value)

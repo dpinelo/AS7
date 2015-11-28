@@ -2019,9 +2019,9 @@ bool BaseBean::checkFilter(const QString &filterExpression, Qt::CaseSensitivity 
         {
             /** ¿es un intervalo de fechas?. Los intervalos de fecha se ponen
             fecha=2010-11-21;2010-12-30 */
-            if ( data.contains(QStringLiteral(";")) )
+            if ( data.contains(';') )
             {
-                QStringList dates = data.split(";");
+                QStringList dates = data.split(';');
                 if ( dates.size() == 2 )
                 {
                     filterDate = QDate::fromString(dates.at(0), Qt::ISODate);
@@ -2085,7 +2085,7 @@ bool BaseBean::checkFilter(const QString &filterExpression, Qt::CaseSensitivity 
   */
 QList<DBObject *> BaseBean::navigateThrough(const QString &path, const QString &relationFilters)
 {
-    QStringList filters = relationFilters.split(";");
+    QStringList filters = relationFilters.split(';');
     QStringList paths = path.split(".");
     if ( relationFilters.isEmpty() )
     {

@@ -32,7 +32,7 @@ class AERPMovie: public QMovie
    Q_OBJECT
 
 public:
-   AERPMovie(const QString &fileName);
+   explicit AERPMovie(const QString &fileName);
 
 private slots:
    void convertFrameChanged(int);

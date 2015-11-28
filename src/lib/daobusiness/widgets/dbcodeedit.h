@@ -131,7 +131,7 @@ class EditorLostFocusEventFilter : public QObject
 {
     Q_OBJECT
 public:
-    EditorLostFocusEventFilter(QObject *parent);
+    explicit EditorLostFocusEventFilter(QObject *parent);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);

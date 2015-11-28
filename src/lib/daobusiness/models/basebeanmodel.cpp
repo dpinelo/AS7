@@ -1211,7 +1211,7 @@ QMimeData *BaseBeanModel::mimeData(const QModelIndexList &indexes) const
                             {
                                 if ( !text.isEmpty() )
                                 {
-                                    text = text.append(";");
+                                    text = text.append(';');
                                 }
                                 text = text.append(fld->fieldName());
                             }
@@ -1225,7 +1225,7 @@ QMimeData *BaseBeanModel::mimeData(const QModelIndexList &indexes) const
                         {
                             if ( !firstItem )
                             {
-                                text = text.append(";");
+                                text = text.append(';');
                             }
                             text = text.append(fld->displayValue());
                             firstItem = false;

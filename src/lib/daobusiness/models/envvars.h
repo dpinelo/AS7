@@ -39,7 +39,7 @@ private:
     QHash<QString, QVariant> m_vars;
     QMutex m_mutex;
 
-    EnvVars(QObject *parent);
+    explicit EnvVars(QObject *parent);
 
 public:
 

@@ -68,7 +68,7 @@ public:
         MonthView
     };
 
-    AERPScheduleView(QWidget *parent = 0);
+    explicit AERPScheduleView(QWidget *parent = 0);
 
     virtual void                setModel(QAbstractItemModel *model);
     virtual QAbstractItemModel* model() const;

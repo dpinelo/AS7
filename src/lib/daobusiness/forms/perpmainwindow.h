@@ -57,7 +57,7 @@ private:
     void addActionsFromSubMenu(QAction *action, QMenu *menuToAdd);
 
 public:
-    AERPMainWindow(QWidget* parent = 0, Qt::WindowFlags fl = 0);
+    explicit AERPMainWindow(QWidget* parent = 0, Qt::WindowFlags fl = 0);
     virtual ~AERPMainWindow();
 
     static AERPMainWindow *loadUi();

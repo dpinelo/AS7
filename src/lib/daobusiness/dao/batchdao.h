@@ -45,7 +45,7 @@ private:
     BatchDAOPrivate *d;
 
 public:
-    BatchDAO(BeansFactory *factory, QObject *parent = NULL);
+    explicit BatchDAO(BeansFactory *factory, QObject *parent = NULL);
     ~BatchDAO();
 
     void setDatabases(const QString &base, const QString &batch);

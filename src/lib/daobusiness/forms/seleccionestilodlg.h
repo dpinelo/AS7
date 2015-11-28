@@ -51,7 +51,7 @@ private:
     void selectButton(const QString &boton);
 
 public:
-    StyleSelectDlg(QWidget* parent = 0, Qt::WindowFlags fl = 0 );
+    explicit StyleSelectDlg(QWidget* parent = 0, Qt::WindowFlags fl = 0 );
     ~StyleSelectDlg();
 
 protected slots:

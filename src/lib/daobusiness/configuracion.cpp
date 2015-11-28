@@ -135,7 +135,7 @@ QVariant convert(QMultiHash<QString, QString> hash)
 
 QMultiHash<QString, QString> convert_back(QVariant variant_hash) {
     QMultiHash<QString, QString> new_hash;
-    foreach(QVariant item, variant_hash.toList()) {
+    foreach(const QVariant &item, variant_hash.toList()) {
         new_hash.insertMulti(item.toList()[0].toString(), item.toList()[1].toString());
     }
     return new_hash;
@@ -610,17 +610,17 @@ void AlephERPSettings::saveToolBarActions(QToolBar *toolBar)
     {
         if ( action->isSeparator() )
         {
-            value.append("separator").append(";");
+            value.append("separator").append(';');
         }
         else
         {
             if ( action->objectName().isEmpty() )
             {
-                value.append(action->text()).append(";");
+                value.append(action->text()).append(';');
             }
             else
             {
-                value.append(action->objectName()).append(";");
+                value.append(action->objectName()).append(';');
             }
         }
     }
@@ -643,7 +643,7 @@ void AlephERPSettings::restoreToolBarActions(QToolBar *toolBar)
     }
     if ( dlg != NULL )
     {
-        QStringList actionNames = m_toolBarActions[toolBar->windowTitle()].split(";");
+        QStringList actionNames = m_toolBarActions[toolBar->windowTitle()].split(';');
         if ( !actionNames.isEmpty() && !(actionNames.size() == 1 && actionNames.first().isEmpty() ) )
         {
             QList<QAction *> actualActions = toolBar->actions();
@@ -652,7 +652,7 @@ void AlephERPSettings::restoreToolBarActions(QToolBar *toolBar)
                 toolBar->removeAction(actualAction);
             }
         }
-        foreach (QString actionName, actionNames)
+        foreach (const QString &actionName, actionNames)
         {
             if ( !actionName.isEmpty() )
             {
@@ -688,7 +688,7 @@ void AlephERPSettings::restoreState(QMainWindow *window)
 {
     QList<QToolBar *> toolBars = window->findChildren<QToolBar *>();
     // Creemos las barras de tareas que se hubieran creado antes
-    foreach (QString toolBarName, m_toolBars.split(";"))
+    foreach (const QString & toolBarName, m_toolBars.split(';'))
     {
         if ( !toolBarName.isEmpty() )
         {
@@ -726,7 +726,7 @@ void AlephERPSettings::saveState(QMainWindow *window)
     QList<QToolBar *> toolBars = window->findChildren<QToolBar *>();
     foreach (QToolBar *tb, toolBars)
     {
-        m_toolBars.append(tb->windowTitle()).append(";");
+        m_toolBars.append(tb->windowTitle()).append(';');
         alephERPSettings->saveToolBarActions(tb);
     }
 
@@ -833,7 +833,7 @@ QMap<QString, QString> AlephERPSettings::groupValues(const QString &key)
         {
             QString temp = childKey;
             temp = temp.remove(registryKey);
-            temp = temp.remove("/");
+            temp = temp.remove('/');
             map[temp] = m_settings->value(childKey).toString();
         }
     }

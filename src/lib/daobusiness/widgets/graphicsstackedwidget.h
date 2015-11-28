@@ -65,8 +65,8 @@ private:
     Q_DECLARE_PRIVATE(AERPStackedWidget)
 
 public:
-    AERPStackedWidget(QWidget *parent = 0);
-    ~AERPStackedWidget();
+    explicit AERPStackedWidget(QWidget *parent = 0);
+    virtual ~AERPStackedWidget();
 
     int addWidget(QWidget *widget);
     int insertWidget(int index, QWidget *widget);

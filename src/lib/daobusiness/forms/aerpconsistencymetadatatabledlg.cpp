@@ -171,7 +171,7 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
             return false;
         }
         QString sqlIndex = m->sqlCreateIndex(m->module()->tableCreationOptions(), Database::driverConnection());
-        QStringList sqlIndexList = sqlIndex.split(";");
+        QStringList sqlIndexList = sqlIndex.split(';');
         foreach ( QString sqlOneIndex, sqlIndexList )
         {
             if ( !sqlOneIndex.isEmpty() )
@@ -186,7 +186,7 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
                 }
             }
         }
-        foreach (QString sqlAditional, m->sqlAditional(0, Database::driverConnection()))
+        foreach (const QString & sqlAditional, m->sqlAditional(0, Database::driverConnection()))
         {
             if ( !sqlAditional.isEmpty() )
             {

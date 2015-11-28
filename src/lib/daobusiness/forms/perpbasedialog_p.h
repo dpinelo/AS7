@@ -54,7 +54,7 @@ public:
 
     AERPBaseDialog *q_ptr;
 
-    AERPBaseDialogPrivate(AERPBaseDialog * qq) : q_ptr(qq)
+    explicit AERPBaseDialogPrivate(AERPBaseDialog * qq) : q_ptr(qq)
     {
         m_waitWidget = 0;
         m_openSuccess = false;

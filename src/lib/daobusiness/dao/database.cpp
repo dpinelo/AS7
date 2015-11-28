@@ -540,7 +540,7 @@ bool Database::createSystemTablesSQLite()
         return false;
     }
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(db));
-    QStringList sqls = SystemDAO::systemTablesSQLite.split(";");
+    QStringList sqls = SystemDAO::systemTablesSQLite.split(';');
     foreach ( QString sql, sqls )
     {
         if ( !sql.isEmpty() && (sql.contains(QString("%1_system").arg(alephERPSettings->systemTablePrefix())) || sql.contains(QString("%1_modules").arg(alephERPSettings->systemTablePrefix()))) )

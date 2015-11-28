@@ -42,7 +42,7 @@ private:
     AERPCompleterHighlightDelegatePrivate *d;
 
 public:
-    AERPCompleterHighlightDelegate(QObject *parent = 0);
+    explicit AERPCompleterHighlightDelegate(QObject *parent = 0);
     ~AERPCompleterHighlightDelegate();
 
     QString currentSearch() const;

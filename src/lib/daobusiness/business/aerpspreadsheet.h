@@ -126,7 +126,7 @@ private:
     AERPSheetPrivate *d;
 
 public:
-    AERPSheet(QObject *parent = 0);
+    explicit AERPSheet(QObject *parent = 0);
     virtual ~AERPSheet();
 
     QString name() const;
@@ -211,7 +211,7 @@ private:
     void setColumn(const QString &value);
 
 public:
-    AERPCell(QObject *parent = 0);
+    explicit AERPCell(QObject *parent = 0);
     virtual ~AERPCell();
 
     QVariant value() const;

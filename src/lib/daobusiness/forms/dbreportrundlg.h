@@ -57,8 +57,8 @@ private:
     DBReportRunDlgPrivate *d;
 
 public:
-    DBReportRunDlg(QWidget *parent = 0, Qt::WindowFlags fl = 0);
-    DBReportRunDlg(ReportRun *run, QWidget *parent = 0, Qt::WindowFlags fl = 0);
+    explicit DBReportRunDlg(QWidget *parent = 0, Qt::WindowFlags fl = 0);
+    explicit DBReportRunDlg(ReportRun *run, QWidget *parent = 0, Qt::WindowFlags fl = 0);
     virtual ~DBReportRunDlg();
 
     Q_INVOKABLE void setParameterValue(const QString &name, const QVariant &value);

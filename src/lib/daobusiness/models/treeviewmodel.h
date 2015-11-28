@@ -55,7 +55,7 @@ protected:
     virtual void setupInitialData() = 0;
 
 public:
-    TreeViewModel(QObject *parent = 0);
+    explicit TreeViewModel(QObject *parent = 0);
     virtual ~TreeViewModel();
 
     virtual QVariant data(const QModelIndex &index, int role) const;

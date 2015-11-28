@@ -56,7 +56,7 @@ private:
     void execQs();
 
 public:
-    SendEmailDlg(BaseBeanPointer bean, QWidget* parent = 0, Qt::WindowFlags fl = 0);
+    explicit SendEmailDlg(BaseBeanPointer bean, QWidget* parent = 0, Qt::WindowFlags fl = 0);
     ~SendEmailDlg();
 
     bool openSuccess();

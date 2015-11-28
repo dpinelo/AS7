@@ -83,7 +83,7 @@ class ALEPHERP_DLL_EXPORT DBWizardPage : public QWizardPage
 protected:
 
 public:
-    DBWizardPage(QWidget *parent = 0);
+    explicit DBWizardPage(QWidget *parent = 0);
 
     void setWidget(QWidget *widget);
     bool validatePage();

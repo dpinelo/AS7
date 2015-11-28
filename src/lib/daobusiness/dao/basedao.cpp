@@ -2677,7 +2677,7 @@ QString BaseDAO::serializePk(const QVariant &pk)
         pkIterator.next();
         if ( !result.isEmpty() )
         {
-            result.append(";");
+            result.append(';');
         }
         if ( pkIterator.value().type() == QVariant::Int )
         {
@@ -2712,7 +2712,7 @@ QString BaseDAO::serializePk(const QVariant &pk)
 QString BaseDAO::serializedPkToSqlWhere(const QString &pkey)
 {
     QString sql;
-    foreach ( QString pkeyPart, pkey.split(";") )
+    foreach ( QString pkeyPart, pkey.split(';') )
     {
         if ( !sql.isEmpty() )
         {

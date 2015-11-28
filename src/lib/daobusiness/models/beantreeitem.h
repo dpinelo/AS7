@@ -35,8 +35,8 @@ private:
     BeanTreeItemPrivate *d;
 
 public:
-    BeanTreeItem(const BaseBeanSharedPointer bean, TreeItem *parent = 0);
-    BeanTreeItem(const QString &tableName, TreeItem *parent = 0);
+    explicit BeanTreeItem(const BaseBeanSharedPointer bean, TreeItem *parent = 0);
+    explicit BeanTreeItem(const QString &tableName, TreeItem *parent = 0);
     virtual ~BeanTreeItem();
 
     virtual qlonglong id() const;

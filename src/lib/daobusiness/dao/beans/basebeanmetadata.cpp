@@ -3413,7 +3413,7 @@ QStringList BaseBeanMetadata::repositoryKeywordsScriptExecute(BaseBean *b)
         d->m_engine->setScript(d->m_repositoryKeywordsScript, QString("%1.repositoryKeywords.js").arg(d->m_tableName));
         QVariant r = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("repositoryKeywords")));
         QString result = r.toString();
-        list = result.split(";");
+        list = result.split(';');
     }
     return list;
 }

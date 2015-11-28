@@ -96,8 +96,8 @@ protected:
     void showEvent (QShowEvent * event);
 
 public:
-    DBSearchDlg(QWidget *parent = 0);
-    DBSearchDlg(const QString &tableName, QWidget *parent = 0);
+    explicit DBSearchDlg(QWidget *parent = 0);
+    explicit DBSearchDlg(const QString &tableName, QWidget *parent = 0);
     ~DBSearchDlg();
 
     BaseBeanSharedPointer selectedBean();

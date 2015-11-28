@@ -579,7 +579,7 @@ void SendEmailDlg::addAttachmentClick()
     {
         return;
     }
-    foreach (QString file, files)
+    foreach (const QString & file, files)
     {
         QFileInfo fi (file);
         QString type;

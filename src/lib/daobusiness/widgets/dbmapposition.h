@@ -167,7 +167,7 @@ private:
     QHash<QString, AlephERP::AERPMapPosition> m_data;
 
 public:
-    DBMapPositionJSObject(QObject *parent);
+    explicit DBMapPositionJSObject(QObject *parent);
     virtual ~DBMapPositionJSObject();
 
 public slots:

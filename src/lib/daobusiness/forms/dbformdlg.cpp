@@ -1781,7 +1781,7 @@ void DBFormDlg::view()
 
 void DBFormDlg::specialEdit(const QString code)
 {
-    QStringList list = code.split(";");
+    QStringList list = code.split(';');
     edit(list.at(0), list.at(1), list.at(2));
 }
 

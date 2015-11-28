@@ -131,7 +131,7 @@ QString QLoggerManager::levelToText(const LogLevel &level)
 
 void QLoggerManager::addDestination(const QString &fileDest, const QStringList &modules, LogLevel level)
 {
-    foreach (QString module, modules)
+    foreach (const QString &module, modules)
     {
         if (!m_moduleDest.contains(module))
         {

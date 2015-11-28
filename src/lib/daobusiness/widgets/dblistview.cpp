@@ -72,7 +72,7 @@ DBListViewPrivate::DBListViewPrivate(DBListView *qq) : q_ptr(qq)
 QVariant DBListViewPrivate::valueFromBeans()
 {
     QVariant v;
-    QStringList keyFields = m_keyField.split(";");
+    QStringList keyFields = m_keyField.split(';');
     if ( q_ptr->filterModel() != NULL )
     {
         QModelIndexList indexes;
@@ -95,7 +95,7 @@ QVariant DBListViewPrivate::valueFromBeans()
                     if ( !bean.isNull() )
                     {
                         QString result;
-                        foreach (QString key, keyFields)
+                        foreach (const QString & key, keyFields)
                         {
                             if ( result.isEmpty() )
                             {
@@ -120,7 +120,7 @@ QVariant DBListViewPrivate::valueFromBeans()
                     if ( !bean.isNull() )
                     {
                         QString result;
-                        foreach (QString key, keyFields)
+                        foreach (const QString & key, keyFields)
                         {
                             if ( result.isEmpty() )
                             {

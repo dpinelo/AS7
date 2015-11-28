@@ -108,7 +108,7 @@ public:
     /** Número de filas totales que tiene la última tabla */
     int m_lastTableRecordCount;
 
-    TreeBaseBeanModelPrivate(TreeBaseBeanModel *qq) : q_ptr(qq)
+    explicit TreeBaseBeanModelPrivate(TreeBaseBeanModel *qq) : q_ptr(qq)
     {
         m_viewIntermediateNodesWithoutChildren = true;
         m_deleteFromDB = true;

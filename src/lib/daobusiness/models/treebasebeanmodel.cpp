@@ -730,7 +730,7 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
         QModelIndex p = idx.parent();
         while (p.isValid())
         {
-            result.append(";").append(p.data(AlephERP::TableSerializedPrimaryKeyRole).toString());
+            result.append(';').append(p.data(AlephERP::TableSerializedPrimaryKeyRole).toString());
             p = p.parent();
         }
         return result;
@@ -1222,7 +1222,7 @@ void TreeBaseBeanModel::possibleRowDeleted(const QString &notification, QSqlDriv
         return;
     }
     QString data = payLoad.toString();
-    QStringList parts = data.split(";");
+    QStringList parts = data.split(';');
     if ( parts.size() != 2 )
     {
         return;

@@ -41,18 +41,14 @@ private:
     Ui::AcercaDeDlg *ui;
 
 public:
-    QDlgAbout(QWidget* parent = 0, Qt::WindowFlags fl = 0 );
+    explicit QDlgAbout(QWidget* parent = 0, Qt::WindowFlags fl = 0 );
     ~QDlgAbout();
-    /*$PUBLIC_FUNCTIONS$*/
 
 public slots:
-    /*$PUBLIC_SLOTS$*/
 
 protected:
-    /*$PROTECTED_FUNCTIONS$*/
 
 protected slots:
-    /*$PROTECTED_SLOTS$*/
     void closeEvent ( QCloseEvent * event );
 
 signals:

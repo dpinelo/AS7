@@ -714,7 +714,7 @@ QScriptValue AERPScriptCommon::orderMetadatasForInsertUpdate(QList<BaseBeanMetad
     QStringList listTableNames = BeansFactory::orderMetadataTableNamesForInsertOrUpdate(tableToOrders);
     QScriptValue finalList = engine()->newArray();
     int index = 0;
-    foreach (QString tableName, listTableNames)
+    foreach (const QString & tableName, listTableNames)
     {
         foreach (BaseBeanMetadata *metadata, list)
         {

@@ -494,7 +494,7 @@ void DBFrameButtons::syncronizeWithOthers()
         return;
     }
 
-    QStringList othersFrames = d->m_syncronizeWith.split(";");
+    QStringList othersFrames = d->m_syncronizeWith.split(';');
     if ( dlg == NULL )
     {
         return;

@@ -51,7 +51,7 @@ protected:
     SMTPObjectPrivate *d;
 
 public:
-    SMTPObject(QObject *parent);
+    explicit SMTPObject(QObject *parent);
     virtual ~SMTPObject();
 
     QString from() const;

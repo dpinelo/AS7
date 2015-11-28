@@ -80,7 +80,8 @@ public:
     int m_filterLevel;
     bool m_restoreStateEnabled;
 
-    DBAbstractFilterViewPrivate(DBAbstractFilterView *w);
+    explicit DBAbstractFilterViewPrivate(DBAbstractFilterView *w);
+
     QString initSortForModel();
     QString initOrderedColumn();
     QString initOrderedColumnSort();

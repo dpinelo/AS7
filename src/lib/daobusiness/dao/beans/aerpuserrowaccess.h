@@ -42,7 +42,8 @@ private:
     QString m_access;
 
 public:
-    AERPUserRowAccess(BaseBeanPointer bean);
+    explicit AERPUserRowAccess(BaseBeanPointer bean);
+
     QString userName() const;
     void setUserName(const QString &userName);
     int idRole() const;

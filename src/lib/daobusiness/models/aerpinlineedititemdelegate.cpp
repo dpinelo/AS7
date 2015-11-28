@@ -468,7 +468,7 @@ void AERPInlineEditItemDelegate::buttonUpdateFields(DBField *fld, BaseBean *sele
         iterator.next();
         if ( iterator.key() == "replaceFields" )
         {
-            QStringList items = iterator.value().toString().split(";");
+            QStringList items = iterator.value().toString().split(';');
             if ( items.size() == 2 && selectedBean->field(items.at(0)) != NULL )
             {
                 QString editedField = items.at(1);

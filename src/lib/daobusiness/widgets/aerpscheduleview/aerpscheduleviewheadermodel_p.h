@@ -54,7 +54,7 @@ class AERPScheduleViewHeaderModel : public QAbstractTableModel
     Q_OBJECT
 
 public:
-    AERPScheduleViewHeaderModel(QObject *parent = 0);
+    explicit AERPScheduleViewHeaderModel(QObject *parent = 0);
 
     void                    setDataSource(AERPScheduleView *dataSource);
 

@@ -112,7 +112,7 @@ protected:
     void showEvent ( QShowEvent * event );
 
 public:
-    DBFrameButtons(QWidget * parent = 0 );
+    explicit DBFrameButtons(QWidget * parent = 0 );
     ~DBFrameButtons();
 
     bool internalData();

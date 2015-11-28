@@ -57,7 +57,7 @@ private:
     TreeItemPrivate *d;
 
 public:
-    TreeItem(TreeItem *parent = 0);
+    explicit TreeItem(TreeItem *parent = 0);
     virtual ~TreeItem();
 
     virtual void prependChild(TreeItem *child);

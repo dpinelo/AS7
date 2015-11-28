@@ -348,7 +348,7 @@ protected:
     void setXmlDefinition(const QString &value);
 
 public:
-    DBFieldMetadata(QObject *parent = NULL);
+    explicit DBFieldMetadata(QObject *parent = NULL);
     ~DBFieldMetadata();
 
     static int desiredLengthForType(QVariant::Type type);

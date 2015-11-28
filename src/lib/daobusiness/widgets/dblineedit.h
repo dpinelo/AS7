@@ -249,7 +249,7 @@ class AERPReturnOnFocus : public QObject {
     }
 
 public:
-    AERPReturnOnFocus(QObject * parent = 0) : QObject(parent) {}
+    explicit AERPReturnOnFocus(QObject * parent = 0) : QObject(parent) {}
 
     /// Installs the reset functionality on a given line edit
     void installOn(QLineEdit * ed)

@@ -86,7 +86,7 @@ RelatedElement *DBChooseRelatedRecordButton::relatedElement() const
 
 QString DBChooseRelatedRecordButton::allowedMetadatas() const
 {
-    return d->m_allowedMetadatas.join(";");
+    return d->m_allowedMetadatas.join(';');
 }
 
 void DBChooseRelatedRecordButton::setAllowedMetadatas(const QString &value)

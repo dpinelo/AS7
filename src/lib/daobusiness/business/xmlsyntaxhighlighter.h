@@ -46,7 +46,7 @@
 class XmlSyntaxHighlighter : public QSyntaxHighlighter
 {
 public:
-    XmlSyntaxHighlighter(QTextDocument *parent = 0);
+    explicit XmlSyntaxHighlighter(QTextDocument *parent = 0);
 
 protected:
     virtual void highlightBlock(const QString &text);

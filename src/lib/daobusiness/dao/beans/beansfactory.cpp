@@ -478,7 +478,7 @@ void BeansFactory::buildCalculatedFieldRules()
 
 bool BeansFactory::unloadResources()
 {
-    foreach (QString resource, loadedResources)
+    foreach (const QString & resource, loadedResources)
     {
         QResource::unregisterResource(resource);
     }
@@ -954,7 +954,7 @@ BaseBeanMetadata *BeansFactory::metadataBean(const QString &name)
 QList<BaseBeanMetadata *> BeansFactory::metadataBeansList(const QStringList &names)
 {
     QList<BaseBeanMetadata *> list;
-    foreach (QString name, names)
+    foreach (const QString & name, names)
     {
         BaseBeanMetadata *m = BeansFactory::metadataBean(name);
         if ( m != NULL )
