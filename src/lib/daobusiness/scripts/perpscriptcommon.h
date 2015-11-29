@@ -104,7 +104,7 @@ public:
     Q_INVOKABLE bool addToTransaction(BaseBean *bean, const QString &contextName);
     Q_INVOKABLE void discardContext(const QString &contextName = "");
     Q_INVOKABLE QScriptValue beansOnTransaction();
-    Q_INVOKABLE bool commit(bool discardContextOnSuccess = false, bool showProgressDialog = true);
+    Q_INVOKABLE bool commit();
     Q_INVOKABLE bool rollback();
 
     Q_INVOKABLE QScriptValue orderMetadatasForInsertUpdate(QList<BaseBeanMetadata *> list);

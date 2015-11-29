@@ -507,7 +507,7 @@ void DBChooseRecordButtonPrivate::setSelectedBean(const BaseBeanPointer &bean)
 
     if ( !m_searchFieldName.isEmpty() )
     {
-        BaseBeanPointer dialogBean = beanFromContainer();
+        BaseBeanPointer dialogBean = q_ptr->beanFromContainer();
         if ( !dialogBean.isNull() )
         {
             emit q_ptr->valueEdited(bean->fieldValue(m_searchFieldName));

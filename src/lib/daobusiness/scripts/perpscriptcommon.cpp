@@ -664,15 +664,43 @@ QScriptValue AERPScriptCommon::beansOnTransaction()
  * En el último commit, la aplicación cascará, ya que el script engine borrará los beans.
  * @return
  */
-bool AERPScriptCommon::commit(bool discardContextOnSuccess, bool showProgressDialog)
+bool AERPScriptCommon::commit()
 {
+    bool discardContextOnSuccess = false;
+    bool showProgressDialog = true;
+    QString contextName = d_ptr->m_transactionName;
+
+    if (argumentCount() >= 1)
+    {
+        if ( argument(0).isString() )
+        {
+            contextName = argument(0).toString();
+        }
+    }
+    if ( argumentCount() >= 2 )
+    {
+        if ( argument(0).isString() )
+        {
+            discardContextOnSuccess = argument(1).toBool();
+        }
+        else
+        {
+            discardContextOnSuccess = argument(0).toBool();
+            showProgressDialog = argument(1).toBool();
+        }
+    }
+    if ( argumentCount() >= 3 )
+    {
+        showProgressDialog = argument(2).toBool();
+    }
+
     AERPTransactionContext::instance()->setDatabase(Database::databaseConnectionForThisThread());
     if ( showProgressDialog )
     {
-        AERPTransactionContextProgressDlg::showDialog(d_ptr->m_transactionName, 0);
+        AERPTransactionContextProgressDlg::showDialog(contextName, 0);
     }
-    bool r = AERPTransactionContext::instance()->commit(d_ptr->m_transactionName, discardContextOnSuccess);
-    AERPTransactionContext::instance()->waitCommitToEnd(d_ptr->m_transactionName);
+    bool r = AERPTransactionContext::instance()->commit(contextName, discardContextOnSuccess);
+    AERPTransactionContext::instance()->waitCommitToEnd(contextName);
     if ( !r )
     {
         d_ptr->m_lastError = AERPTransactionContext::instance()->lastErrorMessage();
