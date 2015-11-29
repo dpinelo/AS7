@@ -156,6 +156,9 @@ CONFIG(debug, debug|release) {
         }
     }
     DEFINES += ALEPHERP_DEBUG
+
+    # Esta opción del compilador permite hacer un análisis estático del código
+    # QMAKE_CXXFLAGS += -Weffc++
 }
 
 win32 {

@@ -56,7 +56,7 @@ AERPScheduledJobViewer::AERPScheduledJobViewer(QWidget *parent) :
     foreach (AERPScheduledJob *job, jobs)
     {
         if ( job->metadata()->userName() == AERPLoggedUser::instance()->userName() ||
-                AERPLoggedUser::instance()->checkRole(job->metadata()->roleName()) ||
+                AERPLoggedUser::instance()->hasRole(job->metadata()->roleName()) ||
                 job->metadata()->userName() == "*" ||
                 job->metadata()->roleName() == "*" )
         {
@@ -113,7 +113,7 @@ void AERPScheduledJobViewer::refreshTable()
     foreach (AERPScheduledJob *job, jobs)
     {
         if ( job->metadata()->userName() == AERPLoggedUser::instance()->userName() ||
-                AERPLoggedUser::instance()->checkRole(job->metadata()->roleName()) ||
+                AERPLoggedUser::instance()->hasRole(job->metadata()->roleName()) ||
                 job->metadata()->userName() == "*" ||
                 job->metadata()->roleName() == "*" )
         {

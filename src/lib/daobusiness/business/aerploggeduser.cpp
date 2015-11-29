@@ -102,7 +102,7 @@ QList<AlephERP::RoleInfo> AERPLoggedUser::roles() const
     return d->m_roles;
 }
 
-bool AERPLoggedUser::checkRole(const QString &roleName)
+bool AERPLoggedUser::hasRole(const QString &roleName)
 {
     QMutexLocker lock(&mutex);
     if ( roleName.isEmpty() )
@@ -123,7 +123,7 @@ bool AERPLoggedUser::checkRole(const QString &roleName)
     return false;
 }
 
-bool AERPLoggedUser::checkRole(int idRole)
+bool AERPLoggedUser::hasRole(int idRole)
 {
     QMutexLocker lock(&mutex);
     foreach (const AlephERP::RoleInfo &info, d->m_roles)

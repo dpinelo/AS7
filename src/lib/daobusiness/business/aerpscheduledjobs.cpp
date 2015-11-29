@@ -355,7 +355,7 @@ AERPScheduledJobMetadata *AERPScheduledJob::metadata() const
 bool AERPScheduledJob::init()
 {
     if ( d->m->userName() == AERPLoggedUser::instance()->userName() ||
-            AERPLoggedUser::instance()->checkRole(d->m->roleName()) ||
+            AERPLoggedUser::instance()->hasRole(d->m->roleName()) ||
             d->m->userName() == "*" ||
             d->m->roleName() == "*" )
     {

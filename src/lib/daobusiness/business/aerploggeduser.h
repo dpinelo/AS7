@@ -52,8 +52,8 @@ public:
     QString name() const;
     void setName(const QString &value);
     QList<AlephERP::RoleInfo> roles() const;
-    bool checkRole(const QString &roleName);
-    bool checkRole(int idRole);
+    bool hasRole(const QString &roleName);
+    bool hasRole(int idRole);
     bool isSuperAdmin();
     bool checkMetadataAccess(QChar access, const QString &tableName);
 

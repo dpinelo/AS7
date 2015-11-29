@@ -2555,7 +2555,7 @@ bool BaseBeanPrivate::checkAccess(QChar access)
     foreach (AERPUserRowAccess item, q_ptr->access())
     {
         if ( (item.userName() == AERPLoggedUser::instance()->userName() ||
-                AERPLoggedUser::instance()->checkRole(item.idRole()) )
+                AERPLoggedUser::instance()->hasRole(item.idRole()) )
                 && !item.access().contains(access) )
         {
             return false;
@@ -2569,7 +2569,7 @@ bool BaseBeanPrivate::checkAccess(QChar access)
             {
                 return true;
             }
-            if ( item.roleName() == "*" || AERPLoggedUser::instance()->checkRole(item.idRole() ) )
+            if ( item.roleName() == "*" || AERPLoggedUser::instance()->hasRole(item.idRole() ) )
             {
                 return true;
             }

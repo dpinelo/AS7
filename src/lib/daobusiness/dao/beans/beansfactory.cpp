@@ -450,7 +450,7 @@ void BeansFactory::initJobs()
     {
         if ( m->userName() == AERPLoggedUser::instance()->userName() ||
                 m->userName() == "*" ||
-                AERPLoggedUser::instance()->checkRole(m->roleName()) ||
+                AERPLoggedUser::instance()->hasRole(m->roleName()) ||
                 m->roleName() == "*" )
         {
             AERPScheduledJob *job = new AERPScheduledJob(m, qApp);

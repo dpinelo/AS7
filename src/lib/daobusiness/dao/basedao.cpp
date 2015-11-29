@@ -774,8 +774,11 @@ bool BaseDAO::loadCommonEnvVars(const QString &connection)
 bool BaseDAO::loadUserEnvVars(const QString &connection)
 {
     bool result;
-    /** Las variables de entorno de usuario prevalecen sobre las variables de entorno de los roles. Por eso, primero se obtienen las de rol
-    y después las de usuario, que sobreescriben a las de rol*/
+
+    /**
+     * Las variables de entorno de usuario prevalecen sobre las variables de entorno de los roles.
+     * Por eso, primero se obtienen las de rol y después las de usuario, que sobreescriben a las de rol
+     */
 
     QString idRoles, sql;
     QList<AlephERP::RoleInfo> userRoles = AERPLoggedUser::instance()->roles();
