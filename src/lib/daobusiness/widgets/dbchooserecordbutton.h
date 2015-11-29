@@ -74,6 +74,9 @@ class ALEPHERP_DLL_EXPORT DBChooseRecordButton : public QPushButton, public DBBa
     /** Es posible establecer un conjunto específico de beans en los que realizar la búsqueda. Se pueden establecer aquí. Se buscará
     el registro adecuado de listado de children de este bean*/
     Q_PROPERTY(BaseBean* beanSearchList READ beanSearchList WRITE setBeanSearchList)
+    /** Es posible indicar, de esa tabla de búsqueda, la columna que contiene el dato que se dará a la columna del registro actual
+     * especificada por fieldName */
+    Q_PROPERTY (QString searchFieldName READ searchFieldName WRITE setSearchFieldName)
 
     /** También puede ser interesante realizar algunas acciones, justo antes de abrir el formulario de búsqueda, por ejemplo,
      * estableciendo un searchFilter determinado, o unos valores por defecto de búsqueda predefinidos para el usuario (defaultValues).
@@ -129,6 +132,8 @@ public:
     void setControlsToAssignValue(const QString &value);
     QString searchFilter();
     void setSearchFilter(const QString &value);
+    QString searchFieldName();
+    void setSearchFieldName(const QString &value);
     void setFieldName(const QString &name);
     QString scriptExecuteAfterChoose();
     void setScriptExecuteAfterChoose(const QString &script);

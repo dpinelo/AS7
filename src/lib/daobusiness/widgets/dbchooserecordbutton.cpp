@@ -62,6 +62,7 @@ public:
     QString m_scriptAfterClear;
     QAction *m_actionClear;
     QAction *m_actionEdit;
+    QString m_searchFieldName;
 
     DBChooseRecordButton *q_ptr;
 
@@ -200,6 +201,16 @@ void DBChooseRecordButton::setSearchFilter(const QString &value)
 {
     d->m_searchFilter = value;
     d->m_searchFilter = DBBaseWidget::processSqlWhere(value);
+}
+
+QString DBChooseRecordButton::searchFieldName()
+{
+    return d->m_searchFieldName;
+}
+
+void DBChooseRecordButton::setSearchFieldName(const QString &value)
+{
+    d->m_searchFieldName = value;
 }
 
 QString DBChooseRecordButton::searchFilter()
@@ -494,6 +505,15 @@ void DBChooseRecordButtonPrivate::setSelectedBean(const BaseBeanPointer &bean)
 
     q_ptr->updateFields();
 
+    if ( !m_searchFieldName.isEmpty() )
+    {
+        BaseBeanPointer dialogBean = beanFromContainer();
+        if ( !dialogBean.isNull() )
+        {
+            emit q_ptr->valueEdited(bean->fieldValue(m_searchFieldName));
+        }
+    }
+
     AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(q_ptr);
     if ( thisForm != NULL )
     {
@@ -613,7 +633,7 @@ void DBChooseRecordButton::observerUnregistered()
 
 /**
   Si hay un bean seleccionado, reemplaza los valores de los fields del bean que contiene a este DBChooseRecordButton con los valores
-  del bean seleccionado, según las reglas definicas en replaceFields
+  del bean seleccionado, según las reglas definidas en replaceFields
   */
 void DBChooseRecordButton::updateFields()
 {
