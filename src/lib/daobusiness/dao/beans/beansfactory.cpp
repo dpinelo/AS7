@@ -774,6 +774,16 @@ BaseBean *BeansFactory::originalBean(BaseBeanPointer view, QObject *parent)
     {
         return NULL;
     }
+
+    // Si es una vista como tal, y tiene definido de quién es la vista, proporcionamos el metadato de este campo.
+    if ( view->metadata()->dbObjectType() == AlephERP::View && !view->metadata()->viewForTable().isEmpty() )
+    {
+        BaseBean *obj = newBaseBean(view->metadata()->viewForTable(), false, false);
+        obj->setParent(parent == NULL ? this : parent);
+        BaseDAO::originalBeanFromView(view, obj);
+        return obj;
+    }
+
     foreach (BaseBeanMetadata *m, BeansFactory::metadataBeans)
     {
         if ( m->viewOnGrid() == view->metadata()->tableName() )
@@ -793,6 +803,16 @@ BaseBeanSharedPointer BeansFactory::originalQBean(BaseBeanPointer view, QObject 
     {
         return BaseBeanSharedPointer();
     }
+
+    // Si es una vista como tal, y tiene definido de quién es la vista, proporcionamos el metadato de este campo.
+    if ( view->metadata()->dbObjectType() == AlephERP::View && !view->metadata()->viewForTable().isEmpty() )
+    {
+        BaseBeanSharedPointer obj = newQBaseBean(view->metadata()->viewForTable(), false);
+        obj->setParent(parent == NULL ? this : parent);
+        BaseDAO::originalBeanFromView(view, obj.data());
+        return obj;
+    }
+
     foreach (BaseBeanMetadata *m, BeansFactory::metadataBeans)
     {
         if ( m->viewOnGrid() == view->metadata()->tableName() )

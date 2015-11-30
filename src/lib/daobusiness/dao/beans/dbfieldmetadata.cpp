@@ -574,6 +574,7 @@ QString DBFieldMetadata::envDefaultValue() const
 void DBFieldMetadata::setEnvDefaultValue(const QString &value)
 {
     d->m_envDefaultValue = value;
+    d->m_hasDefaultValue = !value.isEmpty();
 }
 
 bool DBFieldMetadata::aggregate() const

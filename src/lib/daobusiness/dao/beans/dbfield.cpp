@@ -1493,9 +1493,10 @@ QString DBField::valueOnCounter()
 {
     if ( d->m->counterPrefix().isEmpty() )
     {
-        if ( !displayValue().isEmpty() )
+        QString v = displayValue();
+        if ( !v.isEmpty() )
         {
-            return displayValue();
+            return v;
         }
         return defaultValue().toString();
     }

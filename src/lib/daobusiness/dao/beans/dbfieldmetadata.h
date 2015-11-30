@@ -328,7 +328,9 @@ class ALEPHERP_DLL_EXPORT DBFieldMetadata : public QObject, public QScriptable
     /** La carga de estos campos se hará siempre en background */
     Q_PROPERTY(bool loadOnBackground READ loadOnBackground)
     /** Si este campo está involucrado en un contador y se proporciona un valor de counterPrefix, este
-     * será utilizado para calcular el valor en lugar de value */
+     * será utilizado para calcular el valor en lugar de value. Esto por ejemplo es muy utilizado si el campo es un
+     * tipo boolean, y se quiere que participe en un contador. ¿Qué valor mostramos si es un boolean? El que se
+     * especifique en este prefijo */
     Q_PROPERTY(QString counterPrefix READ counterPrefix)
     /** Hay ocasiones que determinadas reglas de cálculo en campos calculados, especialmente en JS hacen que el sistema
      * no sea capaz de detectar todos los fields involucrados en el cálculo. Por ejemplo, este field calculado puede tener un if
@@ -336,6 +338,8 @@ class ALEPHERP_DLL_EXPORT DBFieldMetadata : public QObject, public QScriptable
      * este campo. Es posible registrar estos cambios a través de código JS con bean.registerRecalculateFields, pero también podemos
      * definirlo en los metadatos, con esta propiedad */
     Q_PROPERTY(QStringList dependOnFieldsToCalc READ dependOnFieldsToCalc WRITE setDependOnFieldsToCalc)
+    /** Indica si este metadato tiene algún cálculo para valor por defecto */
+    Q_PROPERTY(bool hasDefaultValue READ hasDefaultValue)
 
 private:
     Q_DISABLE_COPY(DBFieldMetadata)

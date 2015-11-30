@@ -60,6 +60,8 @@ public:
     /** Esta es la vista o consulta que se utiliza para obtener los datos que se presentan en el ListView.
     Debe ser una lista o consulta que exista en las definiciones de tablas de AlephERP */
     QString m_viewOnGrid;
+    /** Si el metadato es una vista, este valor indica de qué tabla es vista */
+    QString m_viewForTable;
     /** AlephERP trabajan intensivamente con el OID de base de datos. Cuando se utilizan vistas de base de datos, es interesante
      * saber si ésta provee el OID de la tabla referencia */
     bool m_viewProvidesOid;
@@ -548,6 +550,16 @@ void BaseBeanMetadata::setModule(AERPSystemModule *module)
 AERPSystemModule *BaseBeanMetadata::module() const
 {
     return d->m_module;
+}
+
+QString BaseBeanMetadata::viewForTable() const
+{
+    return d->m_viewForTable;
+}
+
+void BaseBeanMetadata::setViewForTable(const QString &query)
+{
+    d->m_viewForTable = query;
 }
 
 void BaseBeanMetadata::setViewOnGrid(const QString &query)
@@ -1426,6 +1438,11 @@ void BaseBeanMetadataPrivate::setConfig()
         if ( !n.isNull() )
         {
             m_schema = QObject::trUtf8(checkWildCards(n).toUtf8());
+        }
+        n = root.firstChildElement("viewForTable");
+        if ( !n.isNull() )
+        {
+            m_viewForTable = checkWildCards(n);
         }
         n = root.firstChildElement("viewOnGrid");
         if ( !n.isNull() )

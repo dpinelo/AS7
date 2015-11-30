@@ -110,6 +110,9 @@ class ALEPHERP_DLL_EXPORT BaseBeanMetadata : public QObject, public QScriptable
     /** Esta es la vista o consulta que se utiliza para obtener los datos que
     en los controles que utiliza a modelos derivados de BaseBeanModel */
     Q_PROPERTY(QString viewOnGrid READ viewOnGrid WRITE setViewOnGrid)
+    /** Si este metadato representa una vista, se indica a qué tabla hace referencia esta vista. Este valor es
+      * muy importante, si se quieren hacer ediciones de datos de vistas. */
+    Q_PROPERTY(QString viewForTable READ viewForTable WRITE setViewForTable)
     /** AlephERP trabajan intensivamente con el OID de base de datos. Cuando se utilizan vistas de base de datos, es interesante
      * saber si ésta provee el OID de la tabla referencia */
     Q_PROPERTY(bool viewProvidesOid READ viewProvidesOid WRITE setViewProvidesOid)
@@ -490,6 +493,8 @@ public:
     void setReadOnly(bool value);
     void setModule(AERPSystemModule *module);
     AERPSystemModule *module() const;
+    QString viewForTable() const;
+    void setViewForTable(const QString &query);
     void setViewOnGrid(const QString &query);
     QString viewOnGrid() const;
     bool viewProvidesOid() const;
