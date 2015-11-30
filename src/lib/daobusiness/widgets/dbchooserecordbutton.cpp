@@ -511,6 +511,7 @@ void DBChooseRecordButtonPrivate::setSelectedBean(const BaseBeanPointer &bean)
         if ( !dialogBean.isNull() )
         {
             emit q_ptr->valueEdited(bean->fieldValue(m_searchFieldName));
+            q_ptr->DBBaseWidget::askToRecalculateCounterField();
         }
     }
 
