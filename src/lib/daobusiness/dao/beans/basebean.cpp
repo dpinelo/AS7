@@ -3704,7 +3704,7 @@ void BaseBean::setViewLinkedBean(BaseBean *bean)
  * @brief BaseBean::copyValues
  * Esta es una función muy útil al motor QtScript, ya que permite copiar los valores de los dbfields que tienen el mismo
  * nombre (y mismo tipo) de otro bean de otra tabla. Esto permite una fácil replicación de datos
- * @param otherBean Bean desde el que se quieren copiar los datos
+ * @param otherBean Bean DESDE el que se quieren copiar los datos
  */
 void BaseBean::copyValues(BaseBeanPointer otherBean, bool saveValues)
 {
@@ -3727,7 +3727,7 @@ void BaseBean::copyValues(BaseBeanPointer otherBean, bool saveValues)
 /**
  * @brief BaseBean::copyValues
  * Igual que copyValues, pero sólo se copian los fields que se han incluído en fields
- * @param otherBean Bean desde el que se quieren copiar los datos
+ * @param otherBean Bean DESDE el que se quieren copiar los datos
  * @param fields Fields a copiar
  */
 void BaseBean::copyValues(BaseBeanPointer otherBean, const QStringList &fields)
