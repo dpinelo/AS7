@@ -45,7 +45,7 @@
     <field>
         <name>varname</name>
         <alias>Nombre de la variable</alias>
-        <null>true</null>
+        <null>false</null>
         <pk>false</pk>
         <type>string</type>
         <length>250</length>

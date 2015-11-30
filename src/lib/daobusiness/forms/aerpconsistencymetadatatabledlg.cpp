@@ -186,6 +186,22 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
                 }
             }
         }
+        QStringList foreignKeysList = m->sqlForeignKeys(m->module()->tableCreationOptions(), Database::driverConnection());
+        foreach (const QString &sql, foreignKeysList)
+        {
+            if ( !sql.isEmpty() )
+            {
+                if ( !BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION) )
+                {
+                    BaseDAO::rollback(BASE_CONNECTION);
+                    CommonsFunctions::restoreOverrideCursor();
+                    QString err = trUtf8("No se pudieron crear las relaciones de integridad referencial %1 en base de datos. Error: %2").arg(m->tableName()).arg(BaseDAO::lastErrorMessage());
+                    QMessageBox::information(this,qApp->applicationName(), err, QMessageBox::Ok);
+                    return false;
+                }
+            }
+        }
+
         foreach (const QString & sqlAditional, m->sqlAditional(0, Database::driverConnection()))
         {
             if ( !sqlAditional.isEmpty() )

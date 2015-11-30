@@ -26,7 +26,15 @@
     <field>
         <name>name</name>
         <alias>Nombre</alias>
-        <null>true</null>
+        <null>false</null>
+        <pk>false</pk>
+        <type>string</type>
+        <length>250</length>
+    </field>
+    <field>
+        <name>table_creation_options</name>
+        <alias>Nombre</alias>
+        <null>false</null>
         <pk>false</pk>
         <type>string</type>
         <length>250</length>
@@ -34,7 +42,7 @@
     <field>
         <name>description</name>
         <alias>Descripción</alias>
-        <null>false</null>
+        <null>true</null>
         <pk>false</pk>
         <type>stringlist</type>
         <visiblegrid>false</visiblegrid>
@@ -50,7 +58,7 @@
     <field>
         <name>icon</name>
         <alias>Tipo de tabla</alias>
-        <null>false</null>
+        <null>true</null>
         <pk>false</pk>
         <type>string</type>
         <length>250</length>

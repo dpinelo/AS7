@@ -20,7 +20,7 @@
     <field>
         <name>nombre</name>
         <alias>Nombre</alias>
-        <null>true</null>
+        <null>false</null>
         <pk>false</pk>
         <type>string</type>
         <length>250</length>
