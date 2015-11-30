@@ -162,7 +162,6 @@ QScriptValue BaseBeanQsFunction::function(QScriptEngine *eng)
  * @param args
  * @return
  */
-
 QScriptValue BaseBeanQsFunction::call(const QScriptValue &args)
 {
     QScriptValue preparedArgs;
@@ -192,8 +191,8 @@ QScriptValue BaseBeanQsFunctionPrivate::call(QScriptEngine *eng, const QScriptVa
 {
     QScriptValue result(QScriptValue::UndefinedValue);
     QScriptValue arrayArgs = args;
-#ifdef ALEPHERP_DEVTOOLS
 
+#ifdef ALEPHERP_DEVTOOLS
     QScriptEngineDebugger *debugger = NULL;
 #endif
 
@@ -216,7 +215,7 @@ QScriptValue BaseBeanQsFunctionPrivate::call(QScriptEngine *eng, const QScriptVa
             arrayArgs.setProperty(0, args);
         }
 #ifdef ALEPHERP_DEVTOOLS
-        // Si ya se estaba en modo debug, se entra o se sigue en él... No creo de todas formas que estos sea muy necesario.
+        // Si ya se estaba en modo debug, se entra o se sigue en él... No creo de todas formas que esto sea muy necesario.
         if ( alephERPSettings->debuggerEnabled() && BeansFactory::systemScriptsDebug[bean->metadata()->associatedScript(m_functionName)] )
         {
             if ( eng == m_engine->engine() )

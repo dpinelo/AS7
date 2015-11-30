@@ -1136,7 +1136,6 @@ BaseBeanSharedPointer DBRelation::newChild(int pos)
         return BaseBeanSharedPointer();
     }
     child->setDbState(BaseBean::INSERT);
-    // Establecemos el ID del padre en la relación
 
     // Vamos a hacer alguna comprobación:
     DBField *fld = child->field(d->m->childFieldName() );
@@ -1147,7 +1146,9 @@ BaseBeanSharedPointer DBRelation::newChild(int pos)
                               arg(d->m->childFieldName()).arg(d->m->tableName()));
     }
 
+    // Establecemos el ID del padre en la relación
     child->setFieldValue(d->m->childFieldName(), ownerBean()->fieldValue(d->m->rootFieldName()));
+
     /**
      * Los hijos heredan el contexto actual del bean al que pertenece la relación
      */

@@ -123,6 +123,13 @@ void DBTreeViewPrivate::connections()
     {
         return;
     }
+
+    if ( m_progressDialog.isNull() )
+    {
+        m_progressDialog = new QProgressDialog(q_ptr);
+        m_progressDialog->hide();
+    }
+
     TreeBaseBeanModel *treeModel = qobject_cast<TreeBaseBeanModel *>(q_ptr->filterModel()->sourceModel());
     if ( treeModel != NULL && treeModel->metadata() && treeModel->metadata()->showOnTreePreloadRecords() )
     {
@@ -244,9 +251,6 @@ DBTreeView::DBTreeView(QWidget *parent) :
 
     m_header->installEventFilter(m_eventForwarder);
     connect(m_eventForwarder, SIGNAL(entered()), this, SLOT(resetCursor()));
-
-    d->m_progressDialog = new QProgressDialog(this);
-    d->m_progressDialog->hide();
 }
 
 DBTreeView::~DBTreeView()
@@ -498,6 +502,11 @@ void DBTreeView::showEvent(QShowEvent * event)
 
     if ( !d->m_tableNames.isEmpty() )
     {
+        if ( d->m_progressDialog.isNull() )
+        {
+            d->m_progressDialog = new QProgressDialog(this);
+            d->m_progressDialog->hide();
+        }
         if ( !property(AlephERP::stInited).toBool() )
         {
             init();

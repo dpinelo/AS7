@@ -245,6 +245,7 @@ void AERPScript::processError()
     d->m_lastError = exception.toString();
     d->m_lastError.append("\n").append(m_engine->uncaughtExceptionBacktrace().join("\n"));
     d->m_lastErrorLine = m_engine->uncaughtExceptionLineNumber();
+    qWarning() << QString("AERPScript: ERROR: Script [%1]. Error: [%2].").arg(d->m_scriptName).arg(d->m_lastError);
 }
 
 void AERPScript::clearError()
@@ -431,14 +432,14 @@ QScriptValue AERPScript::evaluateObjectScript()
         if ( m_engine->hasUncaughtException() || result.isError() )
         {
             result = false;
-            printError(m_engine, d->m_scriptName, d->m_scriptCode);
             processError();
-    #ifdef ALEPHERP_DEVTOOLS
+            printError(m_engine, d->m_scriptName, d->m_scriptCode);
+#ifdef ALEPHERP_DEVTOOLS
             if ( alephERPSettings->debuggerEnabled() )
             {
                 showDebugger();
             }
-    #endif
+#endif
         }
         else
         {
@@ -1220,8 +1221,8 @@ bool AERPScriptQsObject::createQsObject()
     if ( m_engine->hasUncaughtException() )
     {
         result = false;
-        printError(m_engine, d->m_scriptObjectName, scriptCode());
         processError();
+        printError(m_engine, d->m_scriptObjectName, scriptCode());
     }
     else
     {
@@ -1251,8 +1252,8 @@ bool AERPScriptQsObject::createQsObject()
             if ( m_engine->hasUncaughtException() )
             {
                 result = false;
-                printError(m_engine, d->m_scriptObjectName, scriptCode());
                 processError();
+                printError(m_engine, d->m_scriptObjectName, scriptCode());
 #ifdef ALEPHERP_DEVTOOLS
                 if ( alephERPSettings->debuggerEnabled() )
                 {
@@ -1279,8 +1280,8 @@ bool AERPScriptQsObject::createQsObject()
                 */
                 if ( m_engine->hasUncaughtException() )
                 {
-                    printError(m_engine, d->m_scriptObjectName, scriptCode());
                     processError();
+                    printError(m_engine, d->m_scriptObjectName, scriptCode());
 #ifdef ALEPHERP_DEVTOOLS
                     if ( alephERPSettings->debuggerEnabled() )
                     {
