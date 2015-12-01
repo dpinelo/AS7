@@ -54,6 +54,8 @@ public:
     QList<AlephERP::RoleInfo> roles() const;
     bool hasRole(const QString &roleName);
     bool hasRole(int idRole);
+    bool hasOnlyRole(const QString &roleName);
+    bool hasOnlyRole(int idRole);
     bool isSuperAdmin();
     bool checkMetadataAccess(QChar access, const QString &tableName);
 

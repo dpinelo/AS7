@@ -732,10 +732,17 @@ AERPMainWindow::AERPMainWindow(QWidget* parent, Qt::WindowFlags fl)
     {
         d->m_mdiArea->setViewMode(QMdiArea::TabbedView);
     }
-    // Leemos el formulario de sistema
+    /**
+      * El formulario de sistema (el mainWindow) es configurable. Una primera opción de configuración es que esté definido expresamente
+      * para el usuario, o para el rol en sus variables de entorno
+      * */
     if ( EnvVars::instance()->contains(AlephERP::stMainWindow) )
     {
         d->m_uiName = EnvVars::instance()->var(AlephERP::stMainWindow).toString();
+        if ( d->m_uiName.endsWith(QString(".ui")) )
+        {
+            d->m_uiName.replace(QString(".ui"), QString());
+        }
     }
     else
     {
@@ -760,6 +767,10 @@ AERPMainWindow *AERPMainWindow::loadUi()
     if ( EnvVars::instance()->contains(AlephERP::stMainWindow) )
     {
         uiName = EnvVars::instance()->var(AlephERP::stMainWindow).toString();
+        if ( uiName.endsWith(QString(".ui")) )
+        {
+            uiName.replace(QString(".ui"),  QString());
+        }
     }
     else
     {

@@ -136,6 +136,34 @@ bool AERPLoggedUser::hasRole(int idRole)
     return false;
 }
 
+bool AERPLoggedUser::hasOnlyRole(const QString &roleName)
+{
+    QMutexLocker lock(&mutex);
+    if ( roleName.isEmpty() )
+    {
+        return false;
+    }
+    if ( roleName == "*" )
+    {
+        return true;
+    }
+    if ( d->m_roles.size() > 1 )
+    {
+        return false;
+    }
+    return d->m_roles.first().roleName == roleName;
+}
+
+bool AERPLoggedUser::hasOnlyRole(int idRole)
+{
+    QMutexLocker lock(&mutex);
+    if ( d->m_roles.size() > 1 )
+    {
+        return false;
+    }
+    return d->m_roles.first().idRole == idRole;
+}
+
 bool AERPLoggedUser::isSuperAdmin()
 {
     QMutexLocker lock(&mutex);
