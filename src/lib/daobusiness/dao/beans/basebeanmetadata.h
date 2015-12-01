@@ -41,6 +41,8 @@ class RelatedElement;
 class AERPSystemModule;
 class BeansFactory;
 
+typedef QHash<QString,QString> QVariantString;
+
 struct ConnectionAction
 {
     QString signalAction;
@@ -261,44 +263,44 @@ class ALEPHERP_DLL_EXPORT BaseBeanMetadata : public QObject, public QScriptable
     /** Interno. Reflejará la estructura anterior de la siguiente forma: Lista de QHash. Esos QHash tendrán los campos del relation antes definidos */
     Q_PROPERTY(QVariantList treeDefinitions READ treeDefinitions WRITE setTreeDefinitions)
     /** Nombre del archivo de systema, de tipo UI, que se utilizará para crear el formulario de Edición de Registros. Si no se especifica,
-    se buscará un archivo con el mismo nombre de la tabla seguido de .dbrecord.ui*/
-    Q_PROPERTY(QString uiDbRecord READ uiDbRecord WRITE setUiDbRecord)
+    se buscará un archivo con el mismo nombre de la tabla seguido de .dbrecord.ui. Podrá definirse por rol. */
+    Q_PROPERTY(QString uiDbRecord READ uiDbRecord)
     /** Nombre del archivo de systema, de tipo UI, que se utilizará para crear el formulario de Inserción de Registros. Si no se especifica,
-    se buscará un archivo con el mismo nombre de la tabla seguido de .new.dbrecord.ui*/
-    Q_PROPERTY(QString uiNewDbRecord READ uiNewDbRecord WRITE setUiNewDbRecord)
-    /** Asistente para la introducción de registros. Si no se especifica, se buscarán archivos con el mismo nombre de la tabla seguido de .wizard.1.ui*/
-    Q_PROPERTY(QString uiWizard READ uiWizard WRITE setUiWizard)
+    se buscará un archivo con el mismo nombre de la tabla seguido de .new.dbrecord.ui. Podrá definirse por rol. */
+    Q_PROPERTY(QString uiNewDbRecord READ uiNewDbRecord)
+    /** Asistente para la introducción de registros. Si no se especifica, se buscarán archivos con el mismo nombre de la tabla seguido de .wizard.1.ui. Podrá definirse por rol. */
+    Q_PROPERTY(QString uiWizard READ uiWizard)
     /** Nombre del archivo de systema, de tipo QML, que se utilizará para crear el formulario de Edición de Registros. Si no se especifica,
-    se buscará un archivo con el mismo nombre de la tabla seguido de .dbrecord.qml*/
-    Q_PROPERTY(QString qmlDbRecord READ qmlDbRecord WRITE setQmlDbRecord)
+    se buscará un archivo con el mismo nombre de la tabla seguido de .dbrecord.qml. Podrá definirse por rol. */
+    Q_PROPERTY(QString qmlDbRecord READ qmlDbRecord)
     /** Nombre del archivo de systema, de tipo QML, que se utilizará para crear el formulario de Inserción de Registros. Si no se especifica,
-    se buscará un archivo con el mismo nombre de la tabla seguido de .new.dbrecord.qml*/
-    Q_PROPERTY(QString qmlNewDbRecord READ qmlNewDbRecord WRITE setQmlNewDbRecord)
+    se buscará un archivo con el mismo nombre de la tabla seguido de .new.dbrecord.qml. Podrá definirse por rol. */
+    Q_PROPERTY(QString qmlNewDbRecord READ qmlNewDbRecord)
     /** Nombre del archivo de systema, de tipo QS, que se utilizará para crear el formulario de Edición de Registros. Si no se especifica,
-    se buscará un archivo con el mismo nombre de la tabla seguido de .dbrecord.qs */
-    Q_PROPERTY(QString qsDbRecord READ qsDbRecord WRITE setQsDbRecord)
+    se buscará un archivo con el mismo nombre de la tabla seguido de .dbrecord.qs. Podrá definirse por rol.  */
+    Q_PROPERTY(QString qsDbRecord READ qsDbRecord)
     /** Nombre del archivo de systema, de tipo QS, que se utilizará para crear el formulario de Inserción de Registros. Si no se especifica,
-    se buscará un archivo con el mismo nombre de la tabla seguido de .new.dbrecord.qs*/
-    Q_PROPERTY(QString qsNewDbRecord READ qsNewDbRecord WRITE setQsNewDbRecord)
+    se buscará un archivo con el mismo nombre de la tabla seguido de .new.dbrecord.qs. Podrá definirse por rol. */
+    Q_PROPERTY(QString qsNewDbRecord READ qsNewDbRecord)
     /** Puede ser habitual reutilizar código entre formularios, lo que se hace definiendo un prototipo JS para el código contenido a qsDbRecord (herencia
-     * de JS). Aquí se puede especificar ese fichero */
+     * de JS). Aquí se puede especificar ese fichero. Podrá definirse por rol.  */
     Q_PROPERTY(QString qsPrototypeDbRecord READ qsPrototypeDbRecord WRITE setQsPrototypeDbRecord)
     Q_PROPERTY(QString qsPrototypeDbWizard READ qsPrototypeDbWizard WRITE setQsPrototypeDbWizard)
     /** Nombre del archivo de systema, de tipo UI, que se utilizará para crear el formulario de Búsqueda de Registros. Si no se especifica,
-    se buscará un archivo con el mismo nombre de la tabla seguido de .search.ui*/
-    Q_PROPERTY(QString uiDbSearch READ uiDbSearch WRITE setUiDbSearch)
+    se buscará un archivo con el mismo nombre de la tabla seguido de .search.ui. Podrá definirse por rol. */
+    Q_PROPERTY(QString uiDbSearch READ uiDbSearch)
     /** Nombre del archivo de systema, de tipo QS, que se utilizará para crear el formulario de Búsqueda de Registros. Si no se especifica,
-    se buscará un archivo con el mismo nombre de la tabla seguido de .search.qs */
-    Q_PROPERTY(QString qsDbSearch READ qsDbSearch WRITE setQsDbSearch)
+    se buscará un archivo con el mismo nombre de la tabla seguido de .search.qs. Podrá definirse por rol.  */
+    Q_PROPERTY(QString qsDbSearch READ qsDbSearch)
     /** Puede ser habitual reutilizar código entre formularios, lo que se hace definiendo un prototipo JS para el código contenido a qsDbRecord (herencia
-     * de JS). Aquí se puede especificar ese fichero */
+     * de JS). Aquí se puede especificar ese fichero. Podrá definirse por rol.  */
     Q_PROPERTY(QString qsPrototypeDbSearch READ qsPrototypeDbSearch WRITE setQsPrototypeDbSearch)
     /** Puede ser habitual reutilizar código entre formularios, lo que se hace definiendo un prototipo JS para el código contenido a qsDbRecord (herencia
      * de JS). Aquí se puede especificar ese fichero */
     Q_PROPERTY(QString qsPrototypeDbForm READ qsPrototypeDbForm WRITE setQsPrototypeDbForm)
     /** Nombre del archivo de systema, de tipo QS, que se utilizará para crear el formulario de Listado Registros. Si no se especifica,
     se buscará un archivo con el mismo nombre de la tabla seguido de .dbform.qs */
-    Q_PROPERTY(QString qsDbForm READ qsDbForm WRITE setQsDbForm)
+    Q_PROPERTY(QString qsDbForm READ qsDbForm)
     /** Esta función Qs se ejecutará para determinar si la capa de acceso DAO de la aplicación, proporciona acceso
      a un determinado registro. Debe usarse con cuidado, ya que al ejecutarse por cada registro, puede enlentecer en exceso
      la aplicación. Es útil para, por ejemplo, poder poner filtros de visualización de registros por roles de usuario */
@@ -601,34 +603,59 @@ public:
     void setShowOnTreePreloadRecords(bool value);
     QVariantList treeDefinitions ();
     void setTreeDefinitions (const QVariantList &value);
-    QString uiDbRecord();
-    void setUiDbRecord(const QString &value);
-    QString uiNewDbRecord();
-    void setUiNewDbRecord(const QString &value);
+
+    QHash<QString, QString> uiDbRecordForRoles() const;
+    QString uiDbRecord() const;
+    void setUiDbRecord(const QHash<QString, QString> &value);
+
+    QHash<QString, QString> uiNewDbRecordForRoles() const;
+    QString uiNewDbRecord() const;
+    void setUiNewDbRecord(const QHash<QString, QString> &value);
+
+    QHash<QString, QString> uiWizardForRoles() const;
     QString uiWizard() const;
-    void setUiWizard(const QString &value);
-    QString qmlDbRecord();
-    void setQmlDbRecord(const QString &value);
-    QString qmlNewDbRecord();
-    void setQmlNewDbRecord(const QString &value);
-    QString qsDbRecord();
-    void setQsDbRecord(const QString &value);
-    QString qsNewDbRecord();
-    void setQsNewDbRecord(const QString &value);
+    void setUiWizard(const QHash<QString, QString> &value);
+
+    QHash<QString, QString> qmlDbRecordForRoles() const;
+    QString qmlDbRecord() const;
+    void setQmlDbRecord(const QHash<QString, QString> &value);
+
+    QHash<QString, QString> qmlNewDbRecordForRoles() const;
+    QString qmlNewDbRecord() const;
+    void setQmlNewDbRecord(const QHash<QString, QString> &value);
+
+    QHash<QString, QString> qsDbRecordForRoles() const;
+    QString qsDbRecord() const;
+    void setQsDbRecord(const QHash<QString, QString> &value);
+
+    QHash<QString, QString> qsNewDbRecordForRoles() const;
+    QString qsNewDbRecord() const;
+    void setQsNewDbRecord(const QHash<QString, QString> &value);
+
     QString qsPrototypeDbRecord() const;
     void setQsPrototypeDbRecord(const QString &value);
+
     QString qsPrototypeDbSearch() const;
     void setQsPrototypeDbSearch(const QString &value);
+
     QString qsPrototypeDbWizard() const;
     void setQsPrototypeDbWizard(const QString &value);
+
     QString qsPrototypeDbForm() const;
     void setQsPrototypeDbForm(const QString &value);
-    QString uiDbSearch();
-    void setUiDbSearch(const QString &value);
-    QString qsDbSearch();
-    void setQsDbSearch(const QString &value);
-    QString qsDbForm();
-    void setQsDbForm(const QString &value);
+
+    QHash<QString, QString> uiDbSearchForRoles() const;
+    QString uiDbSearch() const;
+    void setUiDbSearch(const QHash<QString, QString> &value);
+
+    QHash<QString, QString> qsDbSearchForRoles() const;
+    QString qsDbSearch() const;
+    void setQsDbSearch(const QHash<QString, QString> &value);
+
+    QHash<QString, QString> qsDbFormForRoles() const;
+    QString qsDbForm() const;
+    void setQsDbForm(const QHash<QString, QString> &value);
+
     QString accessibleRule();
     void setAccessibleRule(const QString &value);
     QString additionalFilter();

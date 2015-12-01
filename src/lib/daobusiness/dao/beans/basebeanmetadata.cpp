@@ -195,33 +195,33 @@ public:
     QVariantList m_treeDefinitions;
     /** Nombre del archivo de systema, de tipo UI, que se utilizará para crear el formulario de Edición de Registros. Si no se especifica,
     se buscará un archivo con el mismo nombre de la tabla seguido de .dbrecord.ui*/
-    QString m_uiDbRecord;
+    QHash<QString, QString> m_uiDbRecord;
     /** Nombre del archivo de systema, de tipo UI, que se utilizará para crear el formulario de Inserción de Registros. Si no se especifica,
     se buscará un archivo con el mismo nombre de la tabla seguido de .new.dbrecord.ui*/
-    QString m_uiNewDbRecord;
+    QHash<QString, QString> m_uiNewDbRecord;
     /** Nombre del wizard, si hay, para introducir un nuevo registro */
-    QString m_uiWizard;
+    QHash<QString, QString> m_uiWizard;
     /** Nombre del archivo de systema, de tipo QML, que se utilizará para crear el formulario de Edición de Registros. Si no se especifica,
     se buscará un archivo con el mismo nombre de la tabla seguido de .dbrecord.qml*/
-    QString m_qmlDbRecord;
+    QHash<QString, QString> m_qmlDbRecord;
     /** Nombre del archivo de systema, de tipo QML, que se utilizará para crear el formulario de Inserción de Registros. Si no se especifica,
     se buscará un archivo con el mismo nombre de la tabla seguido de .new.dbrecord.qml*/
-    QString m_qmlNewDbRecord;
+    QHash<QString, QString> m_qmlNewDbRecord;
     /** Nombre del archivo de systema, de tipo QS, que se utilizará para crear el formulario de Edición de Registros. Si no se especifica,
     se buscará un archivo con el mismo nombre de la tabla seguido de .dbrecord.qs*/
-    QString m_qsDbRecord;
+    QHash<QString, QString> m_qsDbRecord;
     /** Nombre del archivo de systema, de tipo QS, que se utilizará para crear el formulario de Inserción de Registros. Si no se especifica,
     se buscará un archivo con el mismo nombre de la tabla seguido de .new.dbrecord.qs*/
-    QString m_qsNewDbRecord;
+    QHash<QString, QString> m_qsNewDbRecord;
     /** Nombre del archivo de systema, de tipo UI, que se utilizará para crear el formulario de Búsqueda de Registros. Si no se especifica,
     se buscará un archivo con el mismo nombre de la tabla seguido de .search.ui*/
-    QString m_uiDbSearch;
+    QHash<QString, QString> m_uiDbSearch;
     /** Nombre del archivo de systema, de tipo QS, que se utilizará para crear el formulario de Búsqueda de Registros. Si no se especifica,
     se buscará un archivo con el mismo nombre de la tabla seguido de .search.qs*/
-    QString m_qsDbSearch;
+    QHash<QString, QString> m_qsDbSearch;
     /** Nombre del archivo de systema, de tipo QS, que se utilizará para crear el formulario de Listado de Registros. Si no se especifica,
     se buscará un archivo con el mismo nombre de la tabla seguido de .dbform.qs*/
-    QString m_qsDbForm;
+    QHash<QString, QString> m_qsDbForm;
     QString m_qsPrototypeDbForm;
     QString m_qsPrototypeDbSearch;
     QString m_qsPrototypeDbRecord;
@@ -354,6 +354,7 @@ public:
     void createInternalConnectionForField(DBField *sender, const QString &signalName, BaseBeanQsFunction *qsFunction);
     void createInternalConnectionForRelatedElement(RelatedElement *sender, const QString &signalName, BaseBeanQsFunction *qsFunction);
     int countEnvVarForOneField(const QString &fieldName);
+    void readFormsConfigNames(const QDomElement &root);
 };
 
 bool BaseBeanMetadataPrivate::m_registerFieldsInvolvedOnCalc;
@@ -1188,72 +1189,191 @@ void BaseBeanMetadata::setTreeDefinitions (const QVariantList &value)
     d->m_treeDefinitions = value;
 }
 
-QString BaseBeanMetadata::uiDbRecord()
+QString BaseBeanMetadata::uiDbRecord() const
+{
+    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    {
+        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
+        if ( d->m_uiDbRecord.contains(roleName) )
+        {
+            return d->m_uiDbRecord.value(roleName);
+        }
+        else if ( d->m_uiDbRecord.contains("*") )
+        {
+            return d->m_uiDbRecord.value("*");
+        }
+    }
+    return QString();
+}
+
+QHash<QString, QString> BaseBeanMetadata::uiDbRecordForRoles() const
 {
     return d->m_uiDbRecord;
 }
 
-void BaseBeanMetadata::setUiDbRecord(const QString &value)
+void BaseBeanMetadata::setUiDbRecord(const QHash<QString, QString> &value)
 {
     d->m_uiDbRecord = value;
 }
 
-QString BaseBeanMetadata::uiNewDbRecord()
+QString BaseBeanMetadata::uiNewDbRecord() const
+{
+    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    {
+        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
+        if ( d->m_uiNewDbRecord.contains(roleName) )
+        {
+            return d->m_uiNewDbRecord.value(roleName);
+        }
+        else if ( d->m_uiNewDbRecord.contains("*") )
+        {
+            return d->m_uiNewDbRecord.value("*");
+        }
+    }
+    return QString();
+}
+
+QHash<QString, QString> BaseBeanMetadata::uiNewDbRecordForRoles() const
 {
     return d->m_uiNewDbRecord;
 }
 
-void BaseBeanMetadata::setUiNewDbRecord(const QString &value)
+void BaseBeanMetadata::setUiNewDbRecord(const QHash<QString, QString> &value)
 {
     d->m_uiNewDbRecord = value;
 }
 
 QString BaseBeanMetadata::uiWizard() const
 {
+    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    {
+        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
+        if ( d->m_uiWizard.contains(roleName) )
+        {
+            return d->m_uiWizard.value(roleName);
+        }
+        else if ( d->m_uiWizard.contains("*") )
+        {
+            return d->m_uiWizard.value("*");
+        }
+    }
+    return QString();
+}
+
+QHash<QString, QString> BaseBeanMetadata::uiWizardForRoles() const
+{
     return d->m_uiWizard;
 }
 
-void BaseBeanMetadata::setUiWizard(const QString &value)
+void BaseBeanMetadata::setUiWizard(const QHash<QString, QString> &value)
 {
     d->m_uiWizard = value;
 }
 
-QString BaseBeanMetadata::qmlDbRecord()
+QString BaseBeanMetadata::qmlDbRecord() const
+{
+    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    {
+        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
+        if ( d->m_qmlDbRecord.contains(roleName) )
+        {
+            return d->m_qmlDbRecord.value(roleName);
+        }
+        else if ( d->m_qmlDbRecord.contains("*") )
+        {
+            return d->m_qmlDbRecord.value("*");
+        }
+    }
+    return QString();
+}
+
+QHash<QString, QString> BaseBeanMetadata::qmlDbRecordForRoles() const
 {
     return d->m_qmlDbRecord;
 }
 
-void BaseBeanMetadata::setQmlDbRecord(const QString &value)
+void BaseBeanMetadata::setQmlDbRecord(const QHash<QString, QString> &value)
 {
     d->m_qmlDbRecord = value;
 }
 
-QString BaseBeanMetadata::qmlNewDbRecord()
+QString BaseBeanMetadata::qmlNewDbRecord() const
+{
+    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    {
+        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
+        if ( d->m_qmlNewDbRecord.contains(roleName) )
+        {
+            return d->m_qmlNewDbRecord.value(roleName);
+        }
+        else if ( d->m_qmlNewDbRecord.contains("*") )
+        {
+            return d->m_qmlNewDbRecord.value("*");
+        }
+    }
+    return QString();
+}
+
+QHash<QString, QString> BaseBeanMetadata::qmlNewDbRecordForRoles() const
 {
     return d->m_qmlNewDbRecord;
 }
 
-void BaseBeanMetadata::setQmlNewDbRecord(const QString &value)
+void BaseBeanMetadata::setQmlNewDbRecord(const QHash<QString, QString> &value)
 {
     d->m_qmlNewDbRecord = value;
 }
 
-QString BaseBeanMetadata::qsDbRecord()
+QString BaseBeanMetadata::qsDbRecord() const
+{
+    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    {
+        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
+        if ( d->m_qsDbRecord.contains(roleName) )
+        {
+            return d->m_qsDbRecord.value(roleName);
+        }
+        else if ( d->m_qsDbRecord.contains("*") )
+        {
+            return d->m_qsDbRecord.value("*");
+        }
+    }
+    return QString();
+}
+
+QHash<QString, QString> BaseBeanMetadata::qsDbRecordForRoles() const
 {
     return d->m_qsDbRecord;
 }
 
-void BaseBeanMetadata::setQsDbRecord(const QString &value)
+void BaseBeanMetadata::setQsDbRecord(const QHash<QString, QString> &value)
 {
     d->m_qsDbRecord = value;
 }
 
-QString BaseBeanMetadata::qsNewDbRecord()
+QString BaseBeanMetadata::qsNewDbRecord() const
+{
+    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    {
+        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
+        if ( d->m_qsNewDbRecord.contains(roleName) )
+        {
+            return d->m_qsNewDbRecord.value(roleName);
+        }
+        else if ( d->m_qsNewDbRecord.contains("*") )
+        {
+            return d->m_qsNewDbRecord.value("*");
+        }
+    }
+    return QString();
+}
+
+QHash<QString, QString> BaseBeanMetadata::qsNewDbRecordForRoles() const
 {
     return d->m_qsNewDbRecord;
 }
 
-void BaseBeanMetadata::setQsNewDbRecord(const QString &value)
+void BaseBeanMetadata::setQsNewDbRecord(const QHash<QString, QString> &value)
 {
     d->m_qsNewDbRecord = value;
 }
@@ -1288,6 +1408,23 @@ void BaseBeanMetadata::setQsPrototypeDbForm(const QString &value)
     d->m_qsPrototypeDbForm = value;
 }
 
+QString BaseBeanMetadata::uiDbSearch() const
+{
+    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    {
+        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
+        if ( d->m_uiDbSearch.contains(roleName) )
+        {
+            return d->m_uiDbSearch.value(roleName);
+        }
+        else if ( d->m_uiDbSearch.contains("*") )
+        {
+            return d->m_uiDbSearch.value("*");
+        }
+    }
+    return QString();
+}
+
 QString BaseBeanMetadata::qsPrototypeDbWizard() const
 {
     return d->m_qsPrototypeDbWizard;
@@ -1298,32 +1435,66 @@ void BaseBeanMetadata::setQsPrototypeDbWizard(const QString &value)
     d->m_qsPrototypeDbWizard = value;
 }
 
-QString BaseBeanMetadata::uiDbSearch()
+QHash<QString, QString> BaseBeanMetadata::uiDbSearchForRoles() const
 {
     return d->m_uiDbSearch;
 }
 
-void BaseBeanMetadata::setUiDbSearch(const QString &value)
+void BaseBeanMetadata::setUiDbSearch(const QHash<QString, QString> &value)
 {
     d->m_uiDbSearch = value;
 }
 
-QString BaseBeanMetadata::qsDbSearch()
+QString BaseBeanMetadata::qsDbSearch() const
+{
+    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    {
+        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
+        if ( d->m_qsDbSearch.contains(roleName) )
+        {
+            return d->m_qsDbSearch.value(roleName);
+        }
+        else if ( d->m_qsDbSearch.contains("*") )
+        {
+            return d->m_qsDbSearch.value("*");
+        }
+    }
+    return QString();
+}
+
+QHash<QString, QString> BaseBeanMetadata::qsDbSearchForRoles() const
 {
     return d->m_qsDbSearch;
 }
 
-void BaseBeanMetadata::setQsDbSearch(const QString &value)
+void BaseBeanMetadata::setQsDbSearch(const QHash<QString, QString> &value)
 {
     d->m_qsDbSearch = value;
 }
 
-QString BaseBeanMetadata::qsDbForm()
+QString BaseBeanMetadata::qsDbForm() const
+{
+    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    {
+        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
+        if ( d->m_qsDbForm.contains(roleName) )
+        {
+            return d->m_qsDbForm.value(roleName);
+        }
+        else if ( d->m_qsDbForm.contains("*") )
+        {
+            return d->m_qsDbForm.value("*");
+        }
+    }
+    return QString();
+}
+
+QHash<QString, QString> BaseBeanMetadata::qsDbFormForRoles() const
 {
     return d->m_qsDbForm;
 }
 
-void BaseBeanMetadata::setQsDbForm(const QString &value)
+void BaseBeanMetadata::setQsDbForm(const QHash<QString, QString> &value)
 {
     d->m_qsDbForm = value;
 }
@@ -1716,31 +1887,6 @@ void BaseBeanMetadataPrivate::setConfig()
             m_toStringType = "builtIn";
         }
 
-        n = root.firstChildElement("uiDbRecord");
-        if ( !n.isNull() )
-        {
-            m_uiDbRecord = checkWildCards(n);
-        }
-        n = root.firstChildElement("uiNewDbRecord");
-        if ( !n.isNull() )
-        {
-            m_uiNewDbRecord = checkWildCards(n);
-        }
-        n = root.firstChildElement("uiWizard");
-        if ( !n.isNull() )
-        {
-            m_uiWizard = checkWildCards(n);
-        }
-        n = root.firstChildElement("qmlDbRecord");
-        if ( !n.isNull() )
-        {
-            m_qmlDbRecord = checkWildCards(n);
-        }
-        n = root.firstChildElement("qmlNewDbRecord");
-        if ( !n.isNull() )
-        {
-            m_qmlNewDbRecord = checkWildCards(n);
-        }
         n = root.firstChildElement("qsPrototypeDbRecord");
         if ( !n.isNull() )
         {
@@ -1751,41 +1897,17 @@ void BaseBeanMetadataPrivate::setConfig()
         {
             m_qsPrototypeDbWizard = checkWildCards(n);
         }
-        n = root.firstChildElement("qsDbRecord");
-        if ( !n.isNull() )
-        {
-            m_qsDbRecord = checkWildCards(n);
-        }
-        n = root.firstChildElement("qsNewDbRecord");
-        if ( !n.isNull() )
-        {
-            m_qsNewDbRecord = checkWildCards(n);
-        }
         n = root.firstChildElement("qsPrototypeDbSearch");
         if ( !n.isNull() )
         {
             m_qsPrototypeDbSearch = checkWildCards(n);
-        }
-        n = root.firstChildElement("uiDbSearch");
-        if ( !n.isNull() )
-        {
-            m_uiDbSearch = checkWildCards(n);
-        }
-        n = root.firstChildElement("qsDbSearch");
-        if ( !n.isNull() )
-        {
-            m_qsDbSearch = checkWildCards(n);
         }
         n = root.firstChildElement("qsPrototypeDbForm");
         if ( !n.isNull() )
         {
             m_qsPrototypeDbForm = checkWildCards(n);
         }
-        n = root.firstChildElement("qsDbForm");
-        if ( !n.isNull() )
-        {
-            m_qsDbForm = checkWildCards(n);
-        }
+        readFormsConfigNames(root);
         n = root.firstChildElement("helpUrl");
         if ( !n.isNull() )
         {
@@ -3320,6 +3442,139 @@ int BaseBeanMetadataPrivate::countEnvVarForOneField(const QString &fieldName)
         }
     }
     return count;
+}
+
+void BaseBeanMetadataPrivate::readFormsConfigNames(const QDomElement &root)
+{
+    QDomNodeList nodes = root.elementsByTagName("uiDbRecord");
+    for ( int i = 0 ; i < nodes.size() ; i++ )
+    {
+        if ( nodes.at(i).toElement().hasAttribute("role") )
+        {
+            m_uiDbRecord[nodes.at(i).toElement().attribute("role")] = nodes.at(i).toElement().text();
+        }
+        else
+        {
+            m_uiDbRecord["*"] = nodes.at(i).toElement().text();
+        }
+    }
+
+    nodes = root.elementsByTagName("uiNewDbRecord");
+    for ( int i = 0 ; i < nodes.size() ; i++ )
+    {
+        if ( nodes.at(i).toElement().hasAttribute("role") )
+        {
+            m_uiNewDbRecord[nodes.at(i).toElement().attribute("role")] = nodes.at(i).toElement().text();
+        }
+        else
+        {
+            m_uiNewDbRecord["*"] = nodes.at(i).toElement().text();
+        }
+    }
+
+    nodes = root.elementsByTagName("uiWizard");
+    for ( int i = 0 ; i < nodes.size() ; i++ )
+    {
+        if ( nodes.at(i).toElement().hasAttribute("role") )
+        {
+            m_uiWizard[nodes.at(i).toElement().attribute("role")] = nodes.at(i).toElement().text();
+        }
+        else
+        {
+            m_uiWizard["*"] = nodes.at(i).toElement().text();
+        }
+    }
+
+    nodes = root.elementsByTagName("qmlDbRecord");
+    for ( int i = 0 ; i < nodes.size() ; i++ )
+    {
+        if ( nodes.at(i).toElement().hasAttribute("role") )
+        {
+            m_qmlDbRecord[nodes.at(i).toElement().attribute("role")] = nodes.at(i).toElement().text();
+        }
+        else
+        {
+            m_qmlDbRecord["*"] = nodes.at(i).toElement().text();
+        }
+    }
+
+    nodes = root.elementsByTagName("qmlNewDbRecord");
+    for ( int i = 0 ; i < nodes.size() ; i++ )
+    {
+        if ( nodes.at(i).toElement().hasAttribute("role") )
+        {
+            m_qmlNewDbRecord[nodes.at(i).toElement().attribute("role")] = nodes.at(i).toElement().text();
+        }
+        else
+        {
+            m_qmlNewDbRecord["*"] = nodes.at(i).toElement().text();
+        }
+    }
+
+    nodes = root.elementsByTagName("qsDbRecord");
+    for ( int i = 0 ; i < nodes.size() ; i++ )
+    {
+        if ( nodes.at(i).toElement().hasAttribute("role") )
+        {
+            m_qsDbRecord[nodes.at(i).toElement().attribute("role")] = nodes.at(i).toElement().text();
+        }
+        else
+        {
+            m_qsDbRecord["*"] = nodes.at(i).toElement().text();
+        }
+    }
+
+    nodes = root.elementsByTagName("qsNewDbRecord");
+    for ( int i = 0 ; i < nodes.size() ; i++ )
+    {
+        if ( nodes.at(i).toElement().hasAttribute("role") )
+        {
+            m_qsNewDbRecord[nodes.at(i).toElement().attribute("role")] = nodes.at(i).toElement().text();
+        }
+        else
+        {
+            m_qsNewDbRecord["*"] = nodes.at(i).toElement().text();
+        }
+    }
+
+    nodes = root.elementsByTagName("uiDbSearch");
+    for ( int i = 0 ; i < nodes.size() ; i++ )
+    {
+        if ( nodes.at(i).toElement().hasAttribute("role") )
+        {
+            m_uiDbSearch[nodes.at(i).toElement().attribute("role")] = nodes.at(i).toElement().text();
+        }
+        else
+        {
+            m_uiDbSearch["*"] = nodes.at(i).toElement().text();
+        }
+    }
+
+    nodes = root.elementsByTagName("qsDbSearch");
+    for ( int i = 0 ; i < nodes.size() ; i++ )
+    {
+        if ( nodes.at(i).toElement().hasAttribute("role") )
+        {
+            m_qsDbSearch[nodes.at(i).toElement().attribute("role")] = nodes.at(i).toElement().text();
+        }
+        else
+        {
+            m_qsDbSearch["*"] = nodes.at(i).toElement().text();
+        }
+    }
+
+    nodes = root.elementsByTagName("qsDbForm");
+    for ( int i = 0 ; i < nodes.size() ; i++ )
+    {
+        if ( nodes.at(i).toElement().hasAttribute("role") )
+        {
+            m_qsDbForm[nodes.at(i).toElement().attribute("role")] = nodes.at(i).toElement().text();
+        }
+        else
+        {
+            m_qsDbForm["*"] = nodes.at(i).toElement().text();
+        }
+    }
 }
 
 /**
