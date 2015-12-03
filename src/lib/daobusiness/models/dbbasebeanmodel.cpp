@@ -1367,21 +1367,26 @@ BaseBeanSharedPointer DBBaseBeanModel::beanToBeEdited (const QModelIndex &index)
     {
         return b;
     }
-    if ( b->metadata()->tableName() != d->m_tableName )
+    if ( b->metadata()->tableName() != d->m_tableName || b->metadata()->dbObjectType() == AlephERP::View )
     {
+        QString originalTableName = d->m_tableName;
+        if ( b->metadata()->dbObjectType() == AlephERP::View )
+        {
+            originalTableName = b->metadata()->viewForTable();
+        }
         if ( d->m_tableVectorBean.at(index.row()).isNull() )
         {
             if ( b->dbState() != BaseBean::INSERT )
             {
-                beanOriginal = BaseDAO::selectByPk(b->pkValue(), d->m_tableName);
+                beanOriginal = BaseDAO::selectByPk(b->pkValue(), originalTableName);
                 if ( beanOriginal.isNull() )
                 {
-                    beanOriginal = BeansFactory::instance()->newQBaseBean(d->m_tableName);
+                    beanOriginal = BeansFactory::instance()->newQBaseBean(originalTableName);
                 }
             }
             else
             {
-                beanOriginal = BeansFactory::instance()->newQBaseBean(d->m_tableName);
+                beanOriginal = BeansFactory::instance()->newQBaseBean(originalTableName);
             }
             // Si es un bean de una vista, lo recargamos cuando el original se ha guardado correctamente.
             b->setViewLinkedBean(beanOriginal.data());

@@ -56,8 +56,11 @@ class ALEPHERP_DLL_EXPORT DBFrameButtons : public QFrame, public DBBaseWidget
     Q_OBJECT
     Q_DISABLE_COPY(DBFrameButtons)
 
-    /** ¿Se leen los datos de base de dato o del Bean del formulario que contiene este control?
-    Si se leen los datos de forma externa, estos datos se obtendrán de tableName, filter */
+    /**
+     * ¿Se leen los datos de base de datos o del Bean del formulario que contiene este control?
+     * Si se leen los datos de forma externa, estos datos se obtendrán de tableName, filter
+     * Si se leen los datos de forma interna, se leerán desde una relación asociada al bean en cuestión.
+     */
     Q_PROPERTY(bool internalData READ internalData WRITE setInternalData)
 
     /** Si los datos se leen de las estructura externa del formulario, aquí se indica de donde */
@@ -76,6 +79,8 @@ class ALEPHERP_DLL_EXPORT DBFrameButtons : public QFrame, public DBBaseWidget
 
     /** Indicará el field que se mostrará en los botones */
     Q_PROPERTY(QString fieldView READ fieldView WRITE setFieldView)
+    /** El botón puede mostrar una imágen, que esté en un field del registro del que muestra datos. */
+    Q_PROPERTY(QString imageField READ imageField WRITE setImageField)
     /** Indicará el field que se guardará en fieldName o relationFieldName si es que este control
       está siendo utilizado para almacenar información. Será el que se devuelva en value */
     Q_PROPERTY(QString fieldToSave READ fieldToSave WRITE setFieldToSave)
@@ -90,6 +95,9 @@ class ALEPHERP_DLL_EXPORT DBFrameButtons : public QFrame, public DBBaseWidget
       del bean asignado al propio AERPScriptWidget, o bien, leerlos del bean del formulario base
       que lo contiene. Esta propiedad marca esto */
     Q_PROPERTY (bool dataFromParentDialog READ dataFromParentDialog WRITE setDataFromParentDialog)
+
+    /** Número de botones en cada fila */
+    Q_PROPERTY (int columnButtonsCount READ columnButtonsCount WRITE setColumnButtonsCount)
 
     Q_PROPERTY(QVariant value READ value WRITE setValue)
     Q_PROPERTY(bool aerpControl READ aerpControl)
@@ -115,20 +123,25 @@ public:
     explicit DBFrameButtons(QWidget * parent = 0 );
     ~DBFrameButtons();
 
-    bool internalData();
+    bool internalData() const;
     void setInternalData(bool value);
-    QString fieldView();
+    QString fieldView() const;
     void setFieldView(const QString &value);
-    QString fieldToSave();
+    QString imageField() const;
+    void setImageField(const QString &value);
+    QString fieldToSave() const;
     void setFieldToSave(const QString &value);
-    QString tableName();
+    QString tableName() const;
     void setTableName(const QString &value);
-    QString filter();
+    QString filter() const;
     void setFilter(const QString &value);
-    QString order();
+    QString order() const;
     void setOrder(const QString &value);
-    QString syncronizeWith();
+    QString syncronizeWith() const;
     void setSyncronizeWith(const QString &value);
+    int columnButtonsCount() const;
+    void setColumnButtonsCount(int value);
+
     AlephERP::ObserverType observerType(BaseBean *)
     {
         return AlephERP::DbField;
@@ -153,6 +166,7 @@ signals:
     void buttonClicked(const QVariant &data);
     void buttonClicked(const DBFrameButtons *obj, int id);
     void buttonClicked(const DBFrameButtons *obj, const QVariant &data);
+    void buttonClicked(BaseBean *bean);
     void destroyed(QWidget *);
     void valueEdited(const QVariant &value);
     void fieldNameChanged();
@@ -172,7 +186,10 @@ public slots:
     {
         DBBaseWidget::askToRecalculateCounterField();
     }
-    void setFocus() { QWidget::setFocus(); }
+    void setFocus()
+    {
+        QWidget::setFocus();
+    }
 };
 
 Q_DECLARE_METATYPE(DBFrameButtons*)
