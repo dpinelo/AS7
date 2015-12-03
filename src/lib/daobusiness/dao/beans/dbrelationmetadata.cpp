@@ -299,6 +299,10 @@ QString DBRelationMetadata::sqlForeignKeyName(AlephERP::CreationTableSqlOptions 
         {
             foreignKeyName = QString("fk_%1").arg(alephERPSettings->uniqueId());
         }
+        if ( dialect == QLatin1String("QPSQL") && foreignKeyName.size() > MAX_LENGTH_OBJECT_NAME_PSQL )
+        {
+            foreignKeyName = QString("fk_%1").arg(alephERPSettings->uniqueId());
+        }
     }
     return foreignKeyName;
 }
