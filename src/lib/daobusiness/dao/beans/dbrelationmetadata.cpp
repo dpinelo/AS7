@@ -294,7 +294,7 @@ QString DBRelationMetadata::sqlForeignKeyName(AlephERP::CreationTableSqlOptions 
     }
     else
     {
-        foreignKeyName = QString("fk_%1").arg(sqlTableName(dialect));
+        foreignKeyName = QString("fk_%1_%2").arg(rootFieldName()).arg(sqlTableName(dialect));
         if ( dialect == QLatin1String("QIBASE") && foreignKeyName.size() > MAX_LENGTH_OBJECT_NAME_FIREBIRD )
         {
             foreignKeyName = QString("fk_%1").arg(alephERPSettings->uniqueId());
