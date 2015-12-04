@@ -340,7 +340,7 @@ void DBFrameButtons::init()
  */
 void DBFrameButtonsPrivate::addButton(const QString & texto, const QPixmap &pixmap)
 {
-    QPushButton *boton;
+    QPushButton *button;
     QString strButtonName;
     // id del botón
     int id = m_buttons.buttons().size();
@@ -350,17 +350,18 @@ void DBFrameButtonsPrivate::addButton(const QString & texto, const QPixmap &pixm
     // que se borran con este.
     if ( !pixmap.isNull() )
     {
-        boton = new QPushButton (QIcon(pixmap), texto, q_ptr);
+        button = new QPushButton (QIcon(pixmap), texto, q_ptr);
     }
     else
     {
-        boton = new QPushButton (texto, q_ptr);
+        button = new QPushButton (texto, q_ptr);
     }
     // Nombre específico del botón
     QTextStream (&strButtonName) << "btn" << q_ptr->objectName() << texto;
-    boton->setObjectName(strButtonName);
-    boton->setCheckable(true);
-    boton->setAttribute(Qt::WA_DeleteOnClose);
+    button->setObjectName(strButtonName);
+    button->setCheckable(true);
+    button->setAttribute(Qt::WA_DeleteOnClose);
+    button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 
     if ( m_lastButtonAdded.first == -1 && m_lastButtonAdded.second == -1 )
     {
@@ -376,9 +377,9 @@ void DBFrameButtonsPrivate::addButton(const QString & texto, const QPixmap &pixm
     {
         m_lastButtonAdded.first = m_lastButtonAdded.first + 1;
     }
-    m_layoutButtons->addWidget(boton, m_lastButtonAdded.second, m_lastButtonAdded.first);
+    m_layoutButtons->addWidget(button, m_lastButtonAdded.second, m_lastButtonAdded.first);
     // Hay que pasarle el id del botón. Siempre será el tamaño de la lista, más uno
-    m_buttons.addButton(boton, id);
+    m_buttons.addButton(button, id);
 }
 
 /*!
