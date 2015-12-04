@@ -231,6 +231,7 @@ public slots:
     void setChildrenCount(int value);
     BaseBeanPointer child(int row);
     void restoreValues(bool blockSignals = false);
+    void loadFather();
 };
 
 Q_DECLARE_METATYPE(QList<DBRelation*>)

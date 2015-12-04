@@ -331,6 +331,7 @@ void DBFrameButtons::init()
         d->m_buttons.buttons().at(0)->setChecked(true);
         buttonIsClicked(0);
     }
+    d->m_init = true;
 }
 
 /*!
@@ -406,10 +407,20 @@ int DBFrameButtons::idButtonByData(const QVariant &data)
 
     foreach (BaseBeanSharedPointer bean, d->m_list)
     {
-        DBField *fld = bean->field(d->m_fieldToSave);
-        if ( fld != NULL )
+        if ( !d->m_fieldToSave.isEmpty() )
         {
-            if ( fld->checkValue(data) )
+            DBField *fld = bean->field(d->m_fieldToSave);
+            if ( fld != NULL )
+            {
+                if ( fld->checkValue(data) )
+                {
+                    return i;
+                }
+            }
+        }
+        else
+        {
+            if ( bean->pkEqual(data) )
             {
                 return i;
             }
@@ -504,7 +515,14 @@ QVariant DBFrameButtons::value()
     BaseBeanSharedPointer bean = selectedBean();
     if ( !bean.isNull() )
     {
-        v = bean->fieldValue(d->m_fieldToSave);
+        if ( !d->m_fieldToSave.isEmpty() )
+        {
+            v = bean->fieldValue(d->m_fieldToSave);
+        }
+        else
+        {
+            v = bean->pkValue();
+        }
     }
     return v;
 }
@@ -533,16 +551,10 @@ void DBFrameButtons::applyFieldProperties()
 */
 void DBFrameButtons::refresh()
 {
-    QVariant data;
-    if ( d->m_init )
+    observer();
+    if ( m_observer != NULL )
     {
-        data = this->value();
-    }
-    reset();
-    init();
-    if ( data.isValid() )
-    {
-        setValue(data);
+        m_observer->sync();
     }
 }
 

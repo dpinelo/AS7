@@ -1002,6 +1002,15 @@ void DBRelation::restoreValues(bool blockSignals)
     }
 }
 
+/**
+ * @brief DBRelation::loadFather
+ * Fuerza la carga de un padre, caso de ser posible.
+ */
+void DBRelation::loadFather()
+{
+    father(true);
+}
+
 BaseBeanPointerList DBRelation::internalChildren()
 {
     BaseBeanPointerList list;

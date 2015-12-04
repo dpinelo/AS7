@@ -40,6 +40,8 @@ class ALEPHERP_DLL_EXPORT DBGroupRelationMMHelper : public QGroupBox, public DBB
       del bean asignado al propio AERPScriptWidget, o bien, leerlos del bean del formulario base
       que lo contiene. Esta propiedad marca esto */
     Q_PROPERTY (bool dataFromParentDialog READ dataFromParentDialog WRITE setDataFromParentDialog)
+    /** Número de botones en cada fila */
+    Q_PROPERTY (int columnCount READ columnCount WRITE setColumnCount)
 
     friend class DBGroupRelationMMHelperPrivate;
 
@@ -72,6 +74,8 @@ public:
     void setOtherTableName(const QString &name);
     QString otherFieldName() const;
     void setOtherFieldName(const QString &name);
+    int columnCount() const;
+    void setColumnCount(int value);
 
     virtual QScriptValue checkedBeans();
     virtual void setCheckedBeans(BaseBeanSharedPointerList list, bool checked = true);
