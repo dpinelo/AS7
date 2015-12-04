@@ -1008,6 +1008,7 @@ void DBRelation::restoreValues(bool blockSignals)
  */
 void DBRelation::loadFather()
 {
+    d->m_fatherLoaded = false;
     father(true);
 }
 

@@ -128,6 +128,13 @@ AbstractObserver *ObserverFactory::installBaseBeanObserver(DBBaseWidget *baseWid
     return NULL;
 }
 
+/**
+ * @brief ObserverFactory::installDBFieldObserver
+ * Obtiene el DBField al que este observador relacionará widget y field.
+ * @param baseWidget
+ * @param bean
+ * @return
+ */
 AbstractObserver *ObserverFactory::installDBFieldObserver(DBBaseWidget *baseWidget, BaseBean *bean)
 {
     DBField *fld;
@@ -170,7 +177,17 @@ AbstractObserver *ObserverFactory::installDBFieldObserver(DBBaseWidget *baseWidg
                 }
             }
         }
-        if ( fld != NULL )
+        // Quizás el campo es NULO porque es el field de un father de una relación, y este father aún no se ha cargado.
+        if ( fld == NULL )
+        {
+            DBRelation *rel = bean->relation(path.first());
+            if ( rel != NULL)
+            {
+                connect(rel, SIGNAL(fatherLoaded(BaseBean*)), widget, SLOT(refresh()));
+                connect(rel, SIGNAL(brotherLoaded(BaseBean*)), widget, SLOT(refresh()));
+            }
+        }
+        else
         {
             AbstractObserver *observer = NULL;
             observer = fld->observer();
