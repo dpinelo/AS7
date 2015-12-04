@@ -341,6 +341,16 @@ void DBBaseWidget::setOnBarCodeReadNextFocus(bool value)
     m_onBarCodeReadNextFocus = value;
 }
 
+QString DBBaseWidget::scriptAfterCodeBarRead() const
+{
+    return m_scriptAfterCodeBarRead;
+}
+
+void DBBaseWidget::setScriptAfterCodeBarRead(const QString &value)
+{
+    m_scriptAfterCodeBarRead = value;
+}
+
 void DBBaseWidget::observerUnregistered()
 {
     m_observer = NULL;

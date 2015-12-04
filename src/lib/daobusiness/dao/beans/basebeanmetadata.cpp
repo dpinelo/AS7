@@ -411,6 +411,13 @@ QString BaseBeanMetadata::sqlTableName(const QString &dialect)
             name = d->m_tableName.left(MAX_LENGTH_OBJECT_NAME_FIREBIRD);
         }
     }
+    if ( dbDialect == QLatin1String("QPSQL") )
+    {
+        if ( d->m_tableName.size() > MAX_LENGTH_OBJECT_NAME_PSQL )
+        {
+            name = d->m_tableName.left(MAX_LENGTH_OBJECT_NAME_PSQL);
+        }
+    }
     if ( d->m_schema.isEmpty() )
     {
         return name;
@@ -4341,7 +4348,10 @@ QString BaseBeanMetadata::sqlCreateIndex(AlephERP::CreationTableSqlOptions optio
             if ( dialect == QLatin1String("QIBASE") && idxName.size() > MAX_LENGTH_OBJECT_NAME_FIREBIRD )
             {
                 idxName = QString("idx_%1").arg(alephERPSettings->uniqueId());
-                idxName = idxName.left(30);
+            }
+            if ( dialect == QLatin1String("QPSQL") && idxName.size() > MAX_LENGTH_OBJECT_NAME_PSQL )
+            {
+                idxName = QString("idx_%1").arg(alephERPSettings->uniqueId());
             }
             sql = QString("%1CREATE%2INDEX %3 ON %4(%5);").
                   arg(sql).
@@ -4355,6 +4365,10 @@ QString BaseBeanMetadata::sqlCreateIndex(AlephERP::CreationTableSqlOptions optio
     {
         QString idxName = QString("idx_%1_hash").arg(tableName());
         if ( dialect == QLatin1String("QIBASE") && idxName.size() > MAX_LENGTH_OBJECT_NAME_FIREBIRD )
+        {
+            idxName = QString("idx_%1").arg(alephERPSettings->uniqueId());
+        }
+        if ( dialect == QLatin1String("QPSQL") && idxName.size() > MAX_LENGTH_OBJECT_NAME_PSQL )
         {
             idxName = QString("idx_%1").arg(alephERPSettings->uniqueId());
         }

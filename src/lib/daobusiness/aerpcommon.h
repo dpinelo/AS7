@@ -40,6 +40,7 @@ class DBField;
 #define SYSTEM_CONNECTION   "AlephERPSystem"
 #define BATCH_CONNECTION    "AlephERPBatch"
 #define MAX_LENGTH_OBJECT_NAME_FIREBIRD 30
+#define MAX_LENGTH_OBJECT_NAME_PSQL     64
 
 /**
  * @brief The AlephERP class

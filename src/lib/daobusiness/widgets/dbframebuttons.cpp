@@ -34,6 +34,7 @@
 #include "dao/basedao.h"
 #include "dao/dbrelationobserver.h"
 #include "forms/dbrecorddlg.h"
+#include "qlogger.h"
 
 class DBFrameButtonsPrivate
 {
@@ -47,6 +48,8 @@ public:
     QString m_tableName;
     /** Campo que se mostrará en los botones */
     QString m_fieldView;
+    /** Imagen desde base de datos */
+    QString m_imageField;
     /** Campo que se guardará si se utiliza este control para guardar información. Será el que
       se devuelva en value */
     QString m_fieldToSave;
@@ -55,21 +58,27 @@ public:
     /** Orden con el que se presentan los datos */
     QString m_order;
     /** Layout que contendrá los botones */
-    QHBoxLayout *m_layoutButtons;
+    QGridLayout *m_layoutButtons;
     QString m_syncronizeWith;
     /** Conjunto de beans asociados a cada botón */
     BaseBeanSharedPointerList m_list;
     DBFrameButtons * q_ptr;
     /** Indicará si el control se ha iniciado o no */
     bool m_init;
+    int m_columnButtonsCount;
+    /** Último botón añadido: primera item: columna, segundo item: fila */
+    QPair<int, int> m_lastButtonAdded;
 
     DBFrameButtonsPrivate(DBFrameButtons * qq) : q_ptr (qq)
     {
         m_internalData = true;
         m_init = false;
         m_layoutButtons = NULL;
+        m_columnButtonsCount = 1000;
+        m_lastButtonAdded.first = -1;
+        m_lastButtonAdded.second = -1;
     }
-    void addButton (const QString &texto);
+    void addButton (const QString &texto, const QPixmap &pixmap);
 };
 
 
@@ -77,7 +86,7 @@ DBFrameButtons::DBFrameButtons(QWidget * parent )
     : QFrame(parent), DBBaseWidget(), d(new DBFrameButtonsPrivate(this))
 {
     d->m_buttons.setExclusive(true);
-    d->m_layoutButtons = new QHBoxLayout;
+    d->m_layoutButtons = new QGridLayout;
     QWidget::setMinimumSize(1, 20);
     d->m_layoutButtons->setContentsMargins(0, 0, 0, 0);
     if ( layout() != 0 )
@@ -96,7 +105,7 @@ DBFrameButtons::~DBFrameButtons()
     delete d;
 }
 
-bool DBFrameButtons::internalData()
+bool DBFrameButtons::internalData() const
 {
     return d->m_internalData;
 }
@@ -106,7 +115,7 @@ void DBFrameButtons::setInternalData(bool value)
     d->m_internalData = value;
 }
 
-QString DBFrameButtons::tableName()
+QString DBFrameButtons::tableName() const
 {
     return d->m_tableName;
 }
@@ -125,12 +134,22 @@ void DBFrameButtons::setFieldView(const QString &value)
     }
 }
 
-QString DBFrameButtons::fieldView()
+QString DBFrameButtons::imageField() const
+{
+    return d->m_imageField;
+}
+
+void DBFrameButtons::setImageField(const QString &value)
+{
+    d->m_imageField = value;
+}
+
+QString DBFrameButtons::fieldView() const
 {
     return d->m_fieldView;
 }
 
-QString DBFrameButtons::fieldToSave()
+QString DBFrameButtons::fieldToSave() const
 {
     return d->m_fieldToSave;
 }
@@ -140,7 +159,7 @@ void DBFrameButtons::setFieldToSave(const QString &value)
     d->m_fieldToSave = value;
 }
 
-QString DBFrameButtons::filter()
+QString DBFrameButtons::filter() const
 {
     return d->m_filter;
 }
@@ -150,7 +169,7 @@ void DBFrameButtons::setFilter(const QString &value)
     d->m_filter = value;
 }
 
-QString DBFrameButtons::order()
+QString DBFrameButtons::order() const
 {
     return d->m_order;
 }
@@ -160,7 +179,7 @@ void DBFrameButtons::setOrder(const QString &value)
     d->m_order = value;
 }
 
-QString DBFrameButtons::syncronizeWith()
+QString DBFrameButtons::syncronizeWith() const
 {
     return d->m_syncronizeWith;
 }
@@ -168,6 +187,16 @@ QString DBFrameButtons::syncronizeWith()
 void DBFrameButtons::setSyncronizeWith(const QString &value)
 {
     d->m_syncronizeWith = value;
+}
+
+int DBFrameButtons::columnButtonsCount() const
+{
+    return d->m_columnButtonsCount;
+}
+
+void DBFrameButtons::setColumnButtonsCount(int value)
+{
+    d->m_columnButtonsCount = value;
 }
 
 /*!
@@ -210,6 +239,7 @@ void DBFrameButtons::buttonIsClicked(int dataBoton)
             {
                 emit buttonClicked(bean->fieldValue(d->m_fieldToSave));
                 emit buttonClicked(this, bean->fieldValue(d->m_fieldToSave));
+                emit buttonClicked(bean.data());
                 emit valueEdited(bean->fieldValue(d->m_fieldToSave));
                 DBBaseWidget::askToRecalculateCounterField();
             }
@@ -217,7 +247,7 @@ void DBFrameButtons::buttonIsClicked(int dataBoton)
     }
 }
 
-void DBFrameButtons::showEvent ( QShowEvent * event )
+void DBFrameButtons::showEvent (QShowEvent * event)
 {
     DBBaseWidget::showEvent(event);
     if ( d->m_buttons.buttons().isEmpty() )
@@ -238,7 +268,14 @@ void DBFrameButtons::showEvent ( QShowEvent * event )
   */
 void DBFrameButtons::init()
 {
-    if ( !d->m_internalData )
+    // Campo visible de la relación
+    if ( d->m_fieldView.isEmpty() )
+    {
+        QLogger::QLog_Warning(AlephERP::stLogDB,
+                              QString::fromUtf8("DBFrameButtons::init: fieldView está vacío"));
+    }
+
+    if ( !d->m_internalData || !d->m_tableName.isEmpty() )
     {
         if ( !BaseDAO::select(d->m_list, d->m_tableName, d->m_filter, d->m_order) )
         {
@@ -276,11 +313,15 @@ void DBFrameButtons::init()
     {
         if ( bean->dbState() == BaseBean::INSERT || bean->dbState() == BaseBean::UPDATE )
         {
-            // Campo visible de la relación
             DBField *fld = bean->field(d->m_fieldView);
+            QPixmap pixmap = bean->pixmapFieldValue(d->m_imageField);
             if ( fld != NULL )
             {
-                d->addButton(fld->displayValue());
+                d->addButton(fld->displayValue(), pixmap);
+            }
+            else
+            {
+                d->addButton(bean->toString(), pixmap);
             }
         }
     }
@@ -297,9 +338,9 @@ void DBFrameButtons::init()
 	El argumento data será información adicional a ese botón que puede consultarse.
 	Probablemente sea una primary key de un bean
  */
-void DBFrameButtonsPrivate::addButton(const QString & texto)
+void DBFrameButtonsPrivate::addButton(const QString & texto, const QPixmap &pixmap)
 {
-    QPushButton *boton;
+    QPushButton *button;
     QString strButtonName;
     // id del botón
     int id = m_buttons.buttons().size();
@@ -307,15 +348,38 @@ void DBFrameButtonsPrivate::addButton(const QString & texto)
     // Los botones se ponen dentro del frame, en el layout correspondiente.
     // De no existir, se le crea uno. El padre es este widget, así garantizamos
     // que se borran con este.
-    boton = new QPushButton (texto, q_ptr);
+    if ( !pixmap.isNull() )
+    {
+        button = new QPushButton (QIcon(pixmap), texto, q_ptr);
+    }
+    else
+    {
+        button = new QPushButton (texto, q_ptr);
+    }
     // Nombre específico del botón
     QTextStream (&strButtonName) << "btn" << q_ptr->objectName() << texto;
-    boton->setObjectName(strButtonName);
-    boton->setCheckable(true);
-    boton->setAttribute(Qt::WA_DeleteOnClose);
-    m_layoutButtons->addWidget(boton);
+    button->setObjectName(strButtonName);
+    button->setCheckable(true);
+    button->setAttribute(Qt::WA_DeleteOnClose);
+    button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+
+    if ( m_lastButtonAdded.first == -1 && m_lastButtonAdded.second == -1 )
+    {
+        m_lastButtonAdded.first = 0;
+        m_lastButtonAdded.second = 0;
+    }
+    else if ( m_lastButtonAdded.first > m_columnButtonsCount )
+    {
+        m_lastButtonAdded.first = 0;
+        m_lastButtonAdded.second = m_lastButtonAdded.second + 1;
+    }
+    else
+    {
+        m_lastButtonAdded.first = m_lastButtonAdded.first + 1;
+    }
+    m_layoutButtons->addWidget(button, m_lastButtonAdded.second, m_lastButtonAdded.first);
     // Hay que pasarle el id del botón. Siempre será el tamaño de la lista, más uno
-    m_buttons.addButton(boton, id);
+    m_buttons.addButton(button, id);
 }
 
 /*!
@@ -384,6 +448,8 @@ void DBFrameButtons::reset()
         d->m_buttons.removeButton(button);
         delButtonFromLayout(button);
     }
+    d->m_lastButtonAdded.first = -1;
+    d->m_lastButtonAdded.second = -1;
     d->m_list.clear();
     d->m_init = false;
 }

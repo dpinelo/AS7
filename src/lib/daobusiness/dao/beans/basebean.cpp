@@ -1120,7 +1120,7 @@ QPixmap BaseBean::pixmapFieldValue(const QString &dbFieldName)
 {
     QPixmap pixmap;
     DBField *fld = field(dbFieldName);
-    if ( fld->metadata()->type() == QVariant::Pixmap )
+    if ( fld != NULL && fld->metadata()->type() == QVariant::Pixmap )
     {
         pixmap = fld->pixmapValue();
     }

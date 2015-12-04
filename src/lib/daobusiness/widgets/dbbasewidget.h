@@ -101,6 +101,8 @@ protected:
     bool m_barCodeReaderAllowed;
     /** Si se ha recibido una lectura de un código de barras, indica si hará un nextfocus */
     bool m_onBarCodeReadNextFocus;
+    /** Script a ejecutar tras leer un código de barras */
+    QString m_scriptAfterCodeBarRead;
     /** Bean de trabajo cuando este objeto se utiliza desde un QAbstractItemView */
     BaseBeanPointer m_workBean;
 
@@ -150,6 +152,8 @@ public:
     virtual void setBarCodeReaderAllowed(bool value);
     virtual bool onBarCodeReadNextFocus() const;
     virtual void setOnBarCodeReadNextFocus(bool value);
+    virtual QString scriptAfterCodeBarRead() const;
+    virtual void setScriptAfterCodeBarRead(const QString &value);
 
     /** Establece el valor a mostrar en el control */
     virtual void setValue(const QVariant &value) = 0;
