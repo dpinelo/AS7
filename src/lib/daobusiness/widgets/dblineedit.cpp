@@ -545,7 +545,7 @@ void DBLineEdit::applyFieldProperties()
     {
         fld = qobject_cast<DBField *>(obs->entity());
     }
-    if ( d->m_autoComplete != AlephERP::NoCompletition && d->m_autoComplete != AlephERP::ValuesFromThisField )
+    if ( fld != NULL && d->m_autoComplete != AlephERP::NoCompletition && d->m_autoComplete != AlephERP::ValuesFromThisField )
     {
         if ( d->m_autoComplete.testFlag(AlephERP::ValuesFromRelation) )
         {
