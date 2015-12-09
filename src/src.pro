@@ -9,6 +9,7 @@ TARGET = $$APPNAME
 win32 {
     CONFIG += windows
     RC_FILE = win32info.rc
+    LIBS += -lDbgHelp
 }
 
 TRANSLATIONS = alepherp_english.ts \

@@ -44,6 +44,11 @@
 #include "execinfo.h"
 #endif
 
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include <DbgHelp.h>
+#endif
+
 void setStyle();
 void loadPlugins();
 bool connectToAuxiliarDatabases();
@@ -56,6 +61,10 @@ void exportData(const QString &moduleName);
 bool importModules(bool reinitMetadata, bool askForObjects);
 void closeApp();
 void startCrashHandler(int signal);
+
+#ifdef Q_OS_WIN
+static void windows_stack_trace(QFile &output);
+#endif
 
 QLogger::QLoggerManager *logger;
 
@@ -940,8 +949,7 @@ void startCrashHandler(int signal)
         }
         free(symbols);
 #else
-            lin = QString("** Stack trace unavailable on Windows system **");
-            output.write(lin.toStdString().c_str(), lin.size());
+        windows_stack_trace(output);
 #endif
 
         output.close();
@@ -954,3 +962,82 @@ void startCrashHandler(int signal)
 
     exit(1 + system(cmd.toStdString().c_str()));
 }
+
+#ifdef Q_OS_WIN
+static void windows_stack_trace(QFile &output)
+{
+    HANDLE process = GetCurrentProcess();
+    HANDLE thread = GetCurrentThread();
+
+    CONTEXT context;
+    memset(&context, 0, sizeof(CONTEXT));
+    context.ContextFlags = CONTEXT_FULL;
+    RtlCaptureContext(&context);
+
+    SymInitialize(process, NULL, TRUE);
+
+    DWORD image;
+    STACKFRAME64 stackframe;
+    ZeroMemory(&stackframe, sizeof(STACKFRAME64));
+
+#ifdef _M_IX86
+    image = IMAGE_FILE_MACHINE_I386;
+    stackframe.AddrPC.Offset = context.Eip;
+    stackframe.AddrPC.Mode = AddrModeFlat;
+    stackframe.AddrFrame.Offset = context.Ebp;
+    stackframe.AddrFrame.Mode = AddrModeFlat;
+    stackframe.AddrStack.Offset = context.Esp;
+    stackframe.AddrStack.Mode = AddrModeFlat;
+#elif _M_X64
+    image = IMAGE_FILE_MACHINE_AMD64;
+    stackframe.AddrPC.Offset = context.Rip;
+    stackframe.AddrPC.Mode = AddrModeFlat;
+    stackframe.AddrFrame.Offset = context.Rsp;
+    stackframe.AddrFrame.Mode = AddrModeFlat;
+    stackframe.AddrStack.Offset = context.Rsp;
+    stackframe.AddrStack.Mode = AddrModeFlat;
+#elif _M_IA64
+    image = IMAGE_FILE_MACHINE_IA64;
+    stackframe.AddrPC.Offset = context.StIIP;
+    stackframe.AddrPC.Mode = AddrModeFlat;
+    stackframe.AddrFrame.Offset = context.IntSp;
+    stackframe.AddrFrame.Mode = AddrModeFlat;
+    stackframe.AddrBStore.Offset = context.RsBSP;
+    stackframe.AddrBStore.Mode = AddrModeFlat;
+    stackframe.AddrStack.Offset = context.IntSp;
+    stackframe.AddrStack.Mode = AddrModeFlat;
+#endif
+
+    for (size_t i = 0; i < 25; i++)
+    {
+        BOOL result = StackWalk64(
+              image, process, thread,
+              &stackframe, &context, NULL,
+              SymFunctionTableAccess64, SymGetModuleBase64, NULL);
+
+        if (!result)
+        {
+            break;
+        }
+
+        char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+        PSYMBOL_INFO symbol = (PSYMBOL_INFO)buffer;
+        symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+        symbol->MaxNameLen = MAX_SYM_NAME;
+
+        DWORD64 displacement = 0;
+        if (SymFromAddr(process, stackframe.AddrPC.Offset, &displacement, symbol))
+        {
+            QByteArray ba(symbol->Name, symbol->NameLen);
+            ba = ba.append(QString("[%1]: ").arg(i));
+            output.write(ba);
+        }
+        else
+        {
+            QString line = QString("[%1]: ???").arg(i);
+            output.write(line.toUtf8());
+        }
+    }
+    SymCleanup(process);
+}
+#endif
