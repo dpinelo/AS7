@@ -634,7 +634,7 @@ void AERPSystemObjectEditorWidget::selectOrigin()
                     return;
                 }
                 BaseBean *bean = dlg->bean();
-                if ( bean != NULL )
+                if ( bean != NULL && bean->dbOid() != selectedBean->dbOid() )
                 {
                     bean->setFieldValue("idorigin", selectedBean->fieldValue("id"));
                 }

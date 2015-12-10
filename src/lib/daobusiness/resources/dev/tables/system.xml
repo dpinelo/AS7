@@ -88,4 +88,18 @@
             <card>M1</card>
         </relation>	
     </field>
+    <field>
+        <name>idorigin</name>
+        <alias>Elemento padre</alias>
+        <null>true</null>
+        <pk>false</pk>
+        <type>string</type>
+        <length>250</length>
+        <visiblegrid>false</visiblegrid>
+        <relation>
+            <table>alepherp_system</table>
+            <field>id</field>
+            <card>M1</card>
+        </relation>
+    </field>
 </table>
