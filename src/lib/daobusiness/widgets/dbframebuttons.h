@@ -102,6 +102,11 @@ class ALEPHERP_DLL_EXPORT DBFrameButtons : public QFrame, public DBBaseWidget
     Q_PROPERTY(QVariant value READ value WRITE setValue)
     Q_PROPERTY(bool aerpControl READ aerpControl)
 
+    /** Altura fija que queremos dar a los botones */
+    Q_PROPERTY(int buttonFixedHeight READ buttonFixedHeight WRITE setButtonFixedHeight)
+    Q_PROPERTY(int buttonFixedWidth READ buttonFixedWidth WRITE setButtonFixedWidth)
+    Q_PROPERTY(bool showButtonText READ showButtonText WRITE setShowButtonText)
+
 private:
     DBFrameButtonsPrivate *d;
     Q_DECLARE_PRIVATE(DBFrameButtons)
@@ -141,6 +146,12 @@ public:
     void setSyncronizeWith(const QString &value);
     int columnButtonsCount() const;
     void setColumnButtonsCount(int value);
+    int buttonFixedHeight() const;
+    void setButtonFixedHeight(int height);
+    int buttonFixedWidth() const;
+    void setButtonFixedWidth(int width);
+    bool showButtonText() const;
+    void setShowButtonText(bool value);
 
     AlephERP::ObserverType observerType(BaseBean *)
     {

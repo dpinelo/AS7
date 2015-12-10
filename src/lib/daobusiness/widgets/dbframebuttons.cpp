@@ -68,6 +68,9 @@ public:
     int m_columnButtonsCount;
     /** Último botón añadido: primera item: columna, segundo item: fila */
     QPair<int, int> m_lastButtonAdded;
+    int m_buttonFixedHeight;
+    int m_buttonFixedWidth;
+    bool m_showButtonText;
 
     DBFrameButtonsPrivate(DBFrameButtons * qq) : q_ptr (qq)
     {
@@ -77,6 +80,9 @@ public:
         m_columnButtonsCount = 1000;
         m_lastButtonAdded.first = -1;
         m_lastButtonAdded.second = -1;
+        m_buttonFixedHeight = -1;
+        m_buttonFixedWidth = -1;
+        m_showButtonText = true;
     }
     void addButton (const QString &texto, const QPixmap &pixmap);
 };
@@ -197,6 +203,36 @@ int DBFrameButtons::columnButtonsCount() const
 void DBFrameButtons::setColumnButtonsCount(int value)
 {
     d->m_columnButtonsCount = value;
+}
+
+int DBFrameButtons::buttonFixedHeight() const
+{
+    return d->m_buttonFixedHeight;
+}
+
+void DBFrameButtons::setButtonFixedHeight(int height)
+{
+    d->m_buttonFixedHeight = height;
+}
+
+int DBFrameButtons::buttonFixedWidth() const
+{
+    return d->m_buttonFixedWidth;
+}
+
+void DBFrameButtons::setButtonFixedWidth(int width)
+{
+    d->m_buttonFixedWidth = width;
+}
+
+bool DBFrameButtons::showButtonText() const
+{
+    return d->m_showButtonText;
+}
+
+void DBFrameButtons::setShowButtonText(bool value)
+{
+    d->m_showButtonText = value;
 }
 
 /*!
@@ -339,9 +375,8 @@ void DBFrameButtons::init()
 	El argumento data será información adicional a ese botón que puede consultarse.
 	Probablemente sea una primary key de un bean
  */
-void DBFrameButtonsPrivate::addButton(const QString & texto, const QPixmap &pixmap)
+void DBFrameButtonsPrivate::addButton(const QString &texto, const QPixmap &pixmap)
 {
-    QPushButton *button;
     QString strButtonName;
     // id del botón
     int id = m_buttons.buttons().size();
@@ -349,13 +384,18 @@ void DBFrameButtonsPrivate::addButton(const QString & texto, const QPixmap &pixm
     // Los botones se ponen dentro del frame, en el layout correspondiente.
     // De no existir, se le crea uno. El padre es este widget, así garantizamos
     // que se borran con este.
+    QPushButton *button = new QPushButton(q_ptr);
     if ( !pixmap.isNull() )
     {
-        button = new QPushButton (QIcon(pixmap), texto, q_ptr);
+        button->setIcon(QIcon(pixmap));
+        if ( m_showButtonText )
+        {
+            button->setText(texto);
+        }
     }
     else
     {
-        button = new QPushButton (texto, q_ptr);
+        button->setText(texto);
     }
     // Nombre específico del botón
     QTextStream (&strButtonName) << "btn" << q_ptr->objectName() << texto;
@@ -363,6 +403,14 @@ void DBFrameButtonsPrivate::addButton(const QString & texto, const QPixmap &pixm
     button->setCheckable(true);
     button->setAttribute(Qt::WA_DeleteOnClose);
     button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+    if ( m_buttonFixedHeight != -1 )
+    {
+        button->setFixedHeight(m_buttonFixedHeight);
+    }
+    if ( m_buttonFixedWidth != -1 )
+    {
+        button->setFixedWidth(m_buttonFixedWidth);
+    }
 
     if ( m_lastButtonAdded.first == -1 && m_lastButtonAdded.second == -1 )
     {
