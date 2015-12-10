@@ -28,6 +28,7 @@
 #include "models/envvars.h"
 #include "forms/perpbasedialog.h"
 #include "forms/dbrecorddlg.h"
+#include "forms/dbsearchdlg.h"
 #include "widgets/dbcodeedit.h"
 #include "business/xmlsyntaxhighlighter.h"
 #include <aerpcommon.h>
@@ -258,6 +259,7 @@ void AERPSystemObjectEditorWidget::init()
     connect(ui->pbEditReport, SIGNAL(clicked()), this, SLOT(editReport()));
     connect(ui->pbImportBinaryFile, SIGNAL(clicked()), this, SLOT(importBinary()));
     connect(ui->pbValidateOk, SIGNAL(clicked()), this, SLOT(validateOkClicked()));
+    connect(ui->db_idorigin, SIGNAL(clicked()), this, SLOT(selectOrigin()));
 }
 
 void AERPSystemObjectEditorWidget::openDesigner()
@@ -605,6 +607,40 @@ bool AERPSystemObjectEditorWidget::validateXML(const QByteArray &xmlSchema)
 void AERPSystemObjectEditorWidget::validateOkClicked()
 {
     ui->stackedWidget->setCurrentWidget(ui->page);
+}
+
+void AERPSystemObjectEditorWidget::selectOrigin()
+{
+    DBSearchDlg *dlg = new DBSearchDlg("alepherp_system", this);
+    if ( dlg->openSuccess() )
+    {
+        dlg->setModal(true);
+        dlg->setCanSelectSeveral(false);
+        dlg->init();
+        dlg->exec();
+        if ( dlg->userClickOk() )
+        {
+            BaseBeanSharedPointer selectedBean = dlg->selectedBean();
+            if ( selectedBean )
+            {
+                AERPBaseDialog *baseDlg = CommonsFunctions::aerpParentDialog(this);
+                if ( baseDlg == NULL )
+                {
+                    return;
+                }
+                DBRecordDlg *dlg = qobject_cast<DBRecordDlg *> (baseDlg);
+                if ( dlg == NULL || dlg->bean() == NULL )
+                {
+                    return;
+                }
+                BaseBean *bean = dlg->bean();
+                if ( bean != NULL )
+                {
+                    bean->setFieldValue("idorigin", selectedBean->fieldValue("id"));
+                }
+            }
+        }
+    }
 }
 
 void AERPSystemObjectEditorDlgPrivate::importTemplate(const QString &resource)

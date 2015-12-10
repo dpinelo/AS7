@@ -390,17 +390,18 @@ void DBFrameButtonsPrivate::addButton(const QString &texto, const QPixmap &pixma
         button->setIcon(QIcon(pixmap));
         if ( m_buttonFixedHeight != -1 && m_buttonFixedWidth != -1 )
         {
-            QPixmap scaledPixmap =  pixmap.scaled(m_buttonFixedWidth, m_buttonFixedHeight, Qt::KeepAspectRatio);
+            QSize sz(m_buttonFixedWidth - 10, m_buttonFixedHeight - 10);
+            QPixmap scaledPixmap = pixmap.scaled(sz, Qt::KeepAspectRatio);
             button->setIconSize(scaledPixmap.size());
         }
         else if ( m_buttonFixedHeight != -1 )
         {
-            QPixmap scaledPixmap = pixmap.scaledToHeight(m_buttonFixedHeight);
+            QPixmap scaledPixmap = pixmap.scaledToHeight(m_buttonFixedHeight - 10);
             button->setIconSize(scaledPixmap.size());
         }
         else if ( m_buttonFixedWidth != -1 )
         {
-            QPixmap scaledPixmap =  pixmap.scaledToWidth(m_buttonFixedWidth);
+            QPixmap scaledPixmap =  pixmap.scaledToWidth(m_buttonFixedWidth - 10);
             button->setIconSize(scaledPixmap.size());
         }
         if ( m_showButtonText )

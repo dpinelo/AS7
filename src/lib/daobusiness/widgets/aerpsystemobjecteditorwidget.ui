@@ -49,20 +49,20 @@
             <height>16777215</height>
            </size>
           </property>
-          <property name="fieldName">
+          <property name="fieldName" stdset="0">
            <string>version</string>
           </property>
-          <property name="dataEditable">
+          <property name="dataEditable" stdset="0">
            <bool>true</bool>
           </property>
          </widget>
         </item>
         <item row="2" column="1" colspan="3">
          <widget class="DBComboBox" name="db_type">
-          <property name="fieldName">
+          <property name="fieldName" stdset="0">
            <string>type</string>
           </property>
-          <property name="dataEditable">
+          <property name="dataEditable" stdset="0">
            <bool>true</bool>
           </property>
          </widget>
@@ -83,10 +83,10 @@
         </item>
         <item row="1" column="3">
          <widget class="DBLineEdit" name="db_modulo">
-          <property name="fieldName">
+          <property name="fieldName" stdset="0">
            <string>module</string>
           </property>
-          <property name="dataEditable">
+          <property name="dataEditable" stdset="0">
            <bool>true</bool>
           </property>
          </widget>
@@ -107,10 +107,10 @@
         </item>
         <item row="0" column="1" colspan="3">
          <widget class="DBLineEdit" name="db_nombre">
-          <property name="fieldName">
+          <property name="fieldName" stdset="0">
            <string>nombre</string>
           </property>
-          <property name="dataEditable">
+          <property name="dataEditable" stdset="0">
            <bool>true</bool>
           </property>
          </widget>
@@ -126,16 +126,16 @@
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
-          <property name="fieldName">
+          <property name="fieldName" stdset="0">
            <string>device</string>
           </property>
-          <property name="dataEditable">
+          <property name="dataEditable" stdset="0">
            <bool>true</bool>
           </property>
-          <property name="itemCheckBox">
+          <property name="itemCheckBox" stdset="0">
            <bool>true</bool>
           </property>
-          <property name="valueSeparator">
+          <property name="valueSeparator" stdset="0">
            <string>,</string>
           </property>
          </widget>
@@ -149,10 +149,10 @@
           <property name="text">
            <string>Debug</string>
           </property>
-          <property name="fieldName">
+          <property name="fieldName" stdset="0">
            <string>debug</string>
           </property>
-          <property name="dataEditable">
+          <property name="dataEditable" stdset="0">
            <bool>true</bool>
           </property>
          </widget>
@@ -162,10 +162,10 @@
           <property name="text">
            <string>Abrir ventana de Debug al inicio</string>
           </property>
-          <property name="fieldName">
+          <property name="fieldName" stdset="0">
            <string>on_init_debug</string>
           </property>
-          <property name="dataEditable">
+          <property name="dataEditable" stdset="0">
            <bool>true</bool>
           </property>
          </widget>
@@ -186,28 +186,23 @@
         <property name="text">
          <string>Objeto padre</string>
         </property>
-        <property name="fieldName">
+        <property name="fieldName" stdset="0">
          <string>idorigin</string>
         </property>
-        <property name="dataEditable">
+        <property name="dataEditable" stdset="0">
          <bool>true</bool>
-        </property>
-        <property name="replaceFields">
-         <stringlist>
-          <string>tasaconv;tasaconv</string>
-         </stringlist>
         </property>
        </widget>
       </item>
       <item row="0" column="1">
        <widget class="DBLineEdit" name="db_parent_name">
-        <property name="fieldName">
+        <property name="fieldName" stdset="0">
          <string>alepherp_system.nombre</string>
         </property>
-        <property name="dataEditable">
-         <bool>true</bool>
+        <property name="dataEditable" stdset="0">
+         <bool>false</bool>
         </property>
-        <property name="autoCompletePopupSize">
+        <property name="autoCompletePopupSize" stdset="0">
          <size>
           <width>300</width>
           <height>200</height>
@@ -247,10 +242,10 @@
            <property name="text">
             <string>Almacenar como patch</string>
            </property>
-           <property name="fieldName">
+           <property name="fieldName" stdset="0">
             <string>ispatch</string>
            </property>
-           <property name="dataEditable">
+           <property name="dataEditable" stdset="0">
             <bool>true</bool>
            </property>
           </widget>
@@ -421,14 +416,14 @@
            </widget>
           </item>
           <item row="0" column="0" colspan="6">
-           <widget class="DBCodeEdit" name="db_contenido">
+           <widget class="DBCodeEdit" name="db_contenido" native="true">
             <property name="focusPolicy">
              <enum>Qt::StrongFocus</enum>
             </property>
-            <property name="fieldName">
+            <property name="fieldName" stdset="0">
              <string>contenido</string>
             </property>
-            <property name="dataEditable">
+            <property name="dataEditable" stdset="0">
              <bool>true</bool>
             </property>
            </widget>
@@ -460,7 +455,7 @@
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
            <widget class="DBTextEdit" name="db_patch">
-            <property name="fieldName">
+            <property name="fieldName" stdset="0">
              <string>patch</string>
             </property>
            </widget>

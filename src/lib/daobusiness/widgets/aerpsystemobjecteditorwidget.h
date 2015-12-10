@@ -66,6 +66,7 @@ public slots:
     void setTemplate();
     bool validateXML(const QByteArray &xmlSchema);
     void validateOkClicked();
+    void selectOrigin();
 };
 
 Q_DECLARE_METATYPE(AERPSystemObjectEditorWidget*)
