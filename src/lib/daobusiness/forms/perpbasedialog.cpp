@@ -248,7 +248,7 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBRecordDlg(BaseBeanMetadata
                     if ( !fld->serial() && (fld->type() == QVariant::Int || fld->type() == QVariant::Double) )
                     {
                         DBNumberEdit *ne = new DBNumberEdit(q_ptr);
-                        ne->setDecimalNumbers(fld->partD());
+                        ne->setDecimalPlaces(fld->partD());
                         widList.append(qobject_cast<QWidget *>(ne));
                     }
                     else if ( fld->type() == QVariant::String && !fld->memo() )
@@ -341,13 +341,13 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBSearchDlg(BaseBeanMetadata
                     {
                         widList << createComboOperators(fld->dbFieldName());
                         DBNumberEdit *ne = new DBNumberEdit(q_ptr);
-                        ne->setDecimalNumbers(fld->partD());
+                        ne->setDecimalPlaces(fld->partD());
                         ne->setObjectName(QString("db_%1_1").arg(fld->dbFieldName()));
                         ne->setProperty(AlephERP::stFieldName, fld->dbFieldName());
                         ne->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
                         widList << qobject_cast<QWidget *>(ne);
                         ne = new DBNumberEdit(q_ptr);
-                        ne->setDecimalNumbers(fld->partD());
+                        ne->setDecimalPlaces(fld->partD());
                         ne->setObjectName(QString("db_%1_2").arg(fld->dbFieldName()));
                         ne->setVisible(false);
                         ne->setProperty(AlephERP::stFieldName, fld->dbFieldName());

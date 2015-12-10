@@ -40,7 +40,7 @@ class DBNumberEditPrivate
 public:
     /** Es posible establecer el número de decimales que deseamos visualizar en el control.
     Lo hacemos con esta variable */
-    int m_decimalNumbers;
+    int m_decimalPlaces;
     /** Esta variable, almacenará internamente el valor numérico del control */
     double m_numericValue;
     /** Variable chivato para evitar interacciones desagradables entre entrada de datos del
@@ -57,7 +57,7 @@ public:
     DBNumberEditPrivate()
     {
         // Número de decimales que por defecto mostrará el control
-        m_decimalNumbers = 2;
+        m_decimalPlaces = 2;
         // Inicialmente tendrá cero
         m_numericValue = 0;
         m_doingChanges = false;
@@ -127,7 +127,7 @@ DBNumberEdit::DBNumberEdit(QWidget * parent)
     setAttribute(Qt::WA_MacShowFocusRect);
     setAlignment (Qt::AlignRight);
     d->m_validator = new QDoubleValidator(this);
-    d->m_validator->setDecimals(this->d->m_decimalNumbers);
+    d->m_validator->setDecimals(this->d->m_decimalPlaces);
     d->m_validator->setLocale(*(alephERPSettings->locale()));
     this->installEventFilter(d->m_filterObject);
     QLineEdit::setValidator(d->m_validator);
@@ -150,9 +150,9 @@ double DBNumberEdit::numericValue()
     return d->m_numericValue;
 }
 
-int DBNumberEdit::decimalNumbers() const
+int DBNumberEdit::decimalPlaces() const
 {
-    return d->m_decimalNumbers;
+    return d->m_decimalPlaces;
 }
 
 QString DBNumberEdit::calculatedExpression() const
@@ -169,10 +169,10 @@ void DBNumberEdit::setCalculatedExpression(const QString &value)
     }
 }
 
-void DBNumberEdit::setDecimalNumbers ( int theValue )
+void DBNumberEdit::setDecimalPlaces(int theValue)
 {
-    d->m_decimalNumbers = theValue;
-    d->m_validator->setDecimals(d->m_decimalNumbers);
+    d->m_decimalPlaces = theValue;
+    d->m_validator->setDecimals(d->m_decimalPlaces);
 }
 
 void DBNumberEdit::setValue(const QVariant &value)
@@ -201,10 +201,10 @@ void DBNumberEdit::setValue(const QVariant &value)
 void DBNumberEdit::setNumericValue(double valor)
 {
     d->m_doingChanges = true;
-    d->m_numericValue = CommonsFunctions::round(valor, d->m_decimalNumbers);
+    d->m_numericValue = CommonsFunctions::round(valor, d->m_decimalPlaces);
     if ( !hasFocus() )
     {
-        setText(alephERPSettings->locale()->toString(valor, 'f', d->m_decimalNumbers));
+        setText(alephERPSettings->locale()->toString(valor, 'f', d->m_decimalPlaces));
     }
     update();
     d->m_doingChanges = false;
@@ -224,7 +224,7 @@ void DBNumberEdit::storeNumber(const QString & texto)
     {
         if ( !texto.isNull() && !texto.isEmpty() )
         {
-            d->m_numericValue = CommonsFunctions::round(alephERPSettings->locale()->toDouble(texto, &ok), d->m_decimalNumbers);
+            d->m_numericValue = CommonsFunctions::round(alephERPSettings->locale()->toDouble(texto, &ok), d->m_decimalPlaces);
             if ( !ok )
             {
                 d->m_numericValue = 0;
@@ -270,7 +270,7 @@ void DBNumberEdit::focusInEvent(QFocusEvent * event)
     }
     else
     {
-        QTextStream (&text) << CommonsFunctions::round(d->m_numericValue, d->m_decimalNumbers);
+        QTextStream (&text) << CommonsFunctions::round(d->m_numericValue, d->m_decimalPlaces);
         // Sustituimos el punto en d->m_numericValue por el caracter separador de decimales del local.
         QChar separadorDecimales = alephERPSettings->locale()->decimalPoint ();
         text = text.replace('.', separadorDecimales);
@@ -303,7 +303,7 @@ void DBNumberEdit::focusOutEvent(QFocusEvent * event)
     if ( event->lostFocus() )
     {
         bool blockState = blockSignals(true);
-        setText (alephERPSettings->locale()->toString(d->m_numericValue, 'f', d->m_decimalNumbers));
+        setText (alephERPSettings->locale()->toString(d->m_numericValue, 'f', d->m_decimalPlaces));
         setAlignment (Qt::AlignRight);
         blockSignals(blockState);
     }
@@ -329,7 +329,7 @@ void DBNumberEdit::applyFieldProperties()
     DBFieldObserver *obs= qobject_cast<DBFieldObserver *>(observer());
     if ( obs != NULL )
     {
-        setDecimalNumbers(obs->partD());
+        setDecimalPlaces(obs->partD());
     }
     setFontAndColor();
     setReadOnly(!dataEditable());

@@ -580,6 +580,11 @@ QVariant DBFrameButtons::value()
 */
 void DBFrameButtons::applyFieldProperties()
 {
+    QList<QPushButton *> buttons = findChildren<QPushButton *>();
+    foreach (QPushButton *pb, buttons)
+    {
+        pb->setEnabled(dataEditable());
+    }
     if ( !dataEditable() )
     {
         setFocusPolicy(Qt::NoFocus);

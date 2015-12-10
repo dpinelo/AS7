@@ -55,7 +55,9 @@ class ALEPHERP_DLL_EXPORT DBNumberEdit : public QLineEdit, public DBBaseWidget
     Q_PROPERTY (bool userModified READ userModified WRITE setUserModified)
     Q_PROPERTY (QVariant value READ value WRITE setValue)
     /** Números de decimales que se muestran */
-    Q_PROPERTY (int decimalNumbers READ decimalNumbers WRITE setDecimalNumbers)
+    Q_PROPERTY (int decimalNumbers READ decimalPlaces WRITE setDecimalPlaces)
+    /** Mejor inglés. El anterior se mantiene por compatiblidad */
+    Q_PROPERTY (int decimalPlaces READ decimalPlaces WRITE setDecimalPlaces)
     /** Un control puede estar dentro de un AERPScriptWidget. ¿De dónde lee los datos? Los puede leer
       del bean asignado al propio AERPScriptWidget, o bien, leerlos del bean del formulario base
       que lo contiene. Esta propiedad marca esto */
@@ -99,8 +101,8 @@ public:
     double numericValue();
     QVariant value();
 
-    void setDecimalNumbers (int theValue);
-    int decimalNumbers() const;
+    void setDecimalPlaces (int theValue);
+    int decimalPlaces() const;
     QString calculatedExpression() const;
     void setCalculatedExpression(const QString &valu);
 

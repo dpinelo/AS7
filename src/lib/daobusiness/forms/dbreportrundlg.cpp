@@ -378,11 +378,11 @@ void DBReportRunDlgPrivate::buildUIParameters()
                     lbl->setText(text);
                     if ( paramInfo.type == AlephERP::Double )
                     {
-                        (dynamic_cast<DBNumberEdit *>(edit))->setDecimalNumbers(fld->partD());
+                        (dynamic_cast<DBNumberEdit *>(edit))->setDecimalPlaces(fld->partD());
                     }
                     else
                     {
-                        (dynamic_cast<DBNumberEdit *>(edit))->setDecimalNumbers(0);
+                        (dynamic_cast<DBNumberEdit *>(edit))->setDecimalPlaces(0);
                     }
                 }
                 else if ( fld->type() == QVariant::Bool )
