@@ -169,7 +169,7 @@ AbstractObserver *ObserverFactory::installDBFieldObserver(DBBaseWidget *baseWidg
                     if ( baseWidget->fieldName().contains("father") )
                     {
                         // Para los controles, los padres no modificados e insertados no existen.
-                        if ( !fld->bean()->modified() && fld->bean()->dbState() == BaseBean::INSERT )
+                        if ( fld != NULL && !fld->bean()->modified() && fld->bean()->dbState() == BaseBean::INSERT )
                         {
                             fld = NULL;
                         }

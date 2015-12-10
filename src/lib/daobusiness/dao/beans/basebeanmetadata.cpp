@@ -4740,6 +4740,10 @@ QList<QObject *> BaseBeanMetadataPrivate::senders(const QString &senderQs, BaseB
 
 void BaseBeanMetadataPrivate::createInternalConnectionForBean(BaseBean *sender, const QString &signalName, BaseBeanQsFunction *qsFunction)
 {
+    if ( sender == NULL )
+    {
+        return;
+    }
     if ( signalName == QLatin1String("modified") )
     {
         QObject::connect(sender, SIGNAL(beanModified(bool)), qsFunction, SLOT(call(bool)));
@@ -4800,6 +4804,10 @@ void BaseBeanMetadataPrivate::createInternalConnectionForBean(BaseBean *sender, 
 
 void BaseBeanMetadataPrivate::createInternalConnectionForRelation(DBRelation *sender, const QString &signalName, BaseBeanQsFunction *qsFunction)
 {
+    if ( sender == NULL )
+    {
+        return;
+    }
     if ( signalName == QLatin1String("childModified") )
     {
         QObject::connect(sender, SIGNAL(childModified(BaseBean*,bool)), qsFunction, SLOT(call(BaseBean*,bool)));
@@ -4848,6 +4856,10 @@ void BaseBeanMetadataPrivate::createInternalConnectionForRelation(DBRelation *se
 
 void BaseBeanMetadataPrivate::createInternalConnectionForField(DBField *sender, const QString &signalName, BaseBeanQsFunction *qsFunction)
 {
+    if ( sender == NULL )
+    {
+        return;
+    }
     if ( signalName == QLatin1String("valueModified") )
     {
         QObject::connect(sender, SIGNAL(valueModified(QVariant)), qsFunction, SLOT(call(QVariant)));
@@ -4864,6 +4876,11 @@ void BaseBeanMetadataPrivate::createInternalConnectionForField(DBField *sender, 
 
 void BaseBeanMetadataPrivate::createInternalConnectionForRelatedElement(RelatedElement *sender, const QString &signalName, BaseBeanQsFunction *qsFunction)
 {
+    if ( sender == NULL )
+    {
+        return;
+    }
+
     if ( signalName == QLatin1String("modified") )
     {
         QObject::connect(sender, SIGNAL(hasBeenModified(RelatedElement *)), qsFunction, SLOT(call(RelatedElement *)));

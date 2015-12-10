@@ -175,6 +175,10 @@ QHash<int, QWidgetList> AERPBaseDialog::setupWidgetFromBaseBeanMetadata(BaseBean
         bool showVisibleGridOnly, bool searchDlg)
 {
     QHash<int, QWidgetList> rowWidgets;
+    if ( layoutDestiny == NULL )
+    {
+        return rowWidgets;
+    }
     if ( searchDlg )
     {
         rowWidgets = d->setupDBSearchDlg(metadata, showVisibleGridOnly);

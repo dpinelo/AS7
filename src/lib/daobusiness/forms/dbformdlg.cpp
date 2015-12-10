@@ -501,7 +501,10 @@ void DBFormDlg::keyPressEvent (QKeyEvent * e)
             if ( pbBranchTree->isChecked() )
             {
                 pbBranchTree->setChecked(false);
-                (qobject_cast<DBFilterTreeView*>(d->m_itemView))->showOrHideBranchFilter();
+                if ( qobject_cast<DBFilterTreeView*>(d->m_itemView) != NULL )
+                {
+                    (qobject_cast<DBFilterTreeView*>(d->m_itemView))->showOrHideBranchFilter();
+                }
                 return;
             }
         }
@@ -927,10 +930,23 @@ void DBFormDlg::deleteRecord(void)
     d->m_itemView->freezeModel();
 
     QItemSelectionModel *selModel = d->m_itemView->selectionModel();
+    if ( selModel == NULL )
+    {
+        QMessageBox::warning(this, qApp->applicationName(),
+                             QString::fromUtf8("Ha ocurrido un error inesperado. Es posible que haya perdido la conexión a la base de datos."),
+                             QMessageBox::Ok);
+        d->m_canDefrostModel = true;
+        if ( !d->m_mainWindow->isVisibleRelatedWidget() )
+        {
+            d->m_itemView->defrostModel();
+        }
+        return;
+    }
+
     QAbstractItemModel *mdl = const_cast<QAbstractItemModel *>(selModel->model());
     FilterBaseBeanModel *filterModel = qobject_cast<FilterBaseBeanModel *>(mdl);
 
-    if ( selModel == NULL || mdl == NULL )
+    if ( mdl == NULL )
     {
         QMessageBox::warning(this, qApp->applicationName(),
                              QString::fromUtf8("Ha ocurrido un error inesperado. Es posible que haya perdido la conexión a la base de datos."),
@@ -976,7 +992,7 @@ void DBFormDlg::deleteRecord(void)
     QString message = trUtf8("¿Está seguro de que desea borrar el(los) registro(s) actualmente seleccionado(s)?");
     int ret = QMessageBox::information(this, qApp->applicationName(), message, QMessageBox::Yes | QMessageBox::No);
 
-    if ( ret == QMessageBox::Yes )
+    if ( ret == QMessageBox::Yes && filterModel != NULL )
     {
         emit beforeDelete();
         BaseBeanModel *sourceModel = qobject_cast<BaseBeanModel *>(filterModel->sourceModel());
@@ -995,14 +1011,17 @@ void DBFormDlg::deleteRecord(void)
                 bean = sourceModel->beanToBeEdited(idx);
             }
             CommonsFunctions::restoreOverrideCursor();
-            if ( bean.isNull() )
+            if ( bean.isNull() || sourceModel == NULL )
             {
                 QMessageBox::warning(this, qApp->applicationName(),
                                      QString::fromUtf8("Ha ocurrido un error inesperado. No se ha podido borrar el registro. "
                                                        "Es posible que otro usuario lo haya borrado o que no se haya refrescado el modelo. "
                                                        "Cierre el formulario, ábralo de nuevo y vuelva a intentarlo."),
                                      QMessageBox::Ok);
-                sourceModel->rollback();
+                if ( sourceModel != NULL )
+                {
+                    sourceModel->rollback();
+                }
                 d->m_canDefrostModel = true;
                 if ( !d->m_mainWindow->isVisibleRelatedWidget() )
                 {
@@ -1019,7 +1038,7 @@ void DBFormDlg::deleteRecord(void)
                     args.append(engine()->createScriptValue(bean.data()));
                     if ( engine()->callQsObjectFunction(result, "beforeDelete", args) )
                     {
-                        if (!result.toBool())
+                        if (!result.toBool() && sourceModel)
                         {
                             sourceModel->rollback();
                             d->m_canDefrostModel = true;
@@ -1301,6 +1320,10 @@ void DBFormDlg::fromScriptValue(const QScriptValue &object, DBFormDlg * &out)
 QPushButton *DBFormDlg::createPushButton(int position, const QString &text, const QString &toolTip, const QString &img, const QString &methodNameToInvokeOnClicked, int width, int height)
 {
     QHBoxLayout *layout = qobject_cast<QHBoxLayout *>(ui->gbButtons->layout());
+    if ( layout == NULL )
+    {
+        return NULL;
+    }
     if ( position < 0 || position > layout->count() )
     {
         return NULL;
@@ -1422,6 +1445,10 @@ QPushButton *DBFormDlg::createEditButton(int position, const QString &text, cons
 QLabel *DBFormDlg::createLabel(int position, const QString &text)
 {
     QHBoxLayout *layout = qobject_cast<QHBoxLayout *>(ui->gbButtons->layout());
+    if ( layout == NULL )
+    {
+        return NULL;
+    }
     if ( position < 0 || position > layout->count() )
     {
         return NULL;

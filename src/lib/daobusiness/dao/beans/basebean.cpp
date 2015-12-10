@@ -2376,7 +2376,15 @@ bool BaseBean::validate()
     if ( m_observer )
     {
         BaseBeanObserver *obs = qobject_cast<BaseBeanObserver *>(m_observer);
-        return obs->validate();
+        if ( obs != NULL )
+        {
+            return obs->validate();
+        }
+        else
+        {
+            QLogger::QLog_Warning(AlephERP::stLogOther, "BaseBean:: validate. Observador nulo");
+            return false;
+        }
     }
     else
     {
@@ -2399,7 +2407,14 @@ QString BaseBean::validateMessages()
     if ( m_observer )
     {
         BaseBeanObserver *obs = qobject_cast<BaseBeanObserver *>(m_observer);
-        returnExp = obs->validateMessages();
+        if ( obs != NULL )
+        {
+            returnExp = obs->validateMessages();
+        }
+        else
+        {
+            QLogger::QLog_Warning(AlephERP::stLogOther, "BaseBean::validateMessages: observador nulo.");
+        }
     }
     else
     {
@@ -2433,7 +2448,14 @@ QString BaseBean::validateHtmlMessages()
     if ( m_observer )
     {
         BaseBeanObserver *obs = qobject_cast<BaseBeanObserver *>(m_observer);
-        returnExp = obs->validateHtmlMessages();
+        if ( obs != NULL )
+        {
+            returnExp = obs->validateHtmlMessages();
+        }
+        else
+        {
+            QLogger::QLog_Warning(AlephERP::stLogOther, "BaseBean::validateHtmlMessages: observador nulo.");
+        }
     }
     else
     {
@@ -2457,7 +2479,15 @@ QWidget *BaseBean::focusWidgetOnBadValidate()
     if ( m_observer )
     {
         BaseBeanObserver *obs = qobject_cast<BaseBeanObserver *>(m_observer);
-        return obs->focusWidgetOnBadValidate();
+        if ( obs != NULL )
+        {
+            return obs->focusWidgetOnBadValidate();
+        }
+        else
+        {
+            QLogger::QLog_Warning(AlephERP::stLogOther, "BaseBean::focusWidgetOnBadValidate: observador nulo.");
+            return NULL;
+        }
     }
     else
     {

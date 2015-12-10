@@ -2080,13 +2080,16 @@ QString DBFieldMetadataPrivate::fieldName()
         if ( m_calculatedFieldName.isEmpty() )
         {
             BaseBeanMetadata *beanM = qobject_cast<BaseBeanMetadata *>(q_ptr->parent());
-            QString scriptName = QString("%1.%2.alias").arg(beanM->tableName()).arg(m_dbFieldName);
-            m_engine->setScript(m_fieldNameScript, scriptName);
-            QVariant scriptResult = m_engine->toVariant(m_engine->callQsFunction(QString("aliasScript")));
-            if ( m_engine->lastMessage().isEmpty() )
+            if ( beanM != NULL )
             {
-                result = scriptResult.toString();
-                m_calculatedFieldName = result;
+                QString scriptName = QString("%1.%2.alias").arg(beanM->tableName()).arg(m_dbFieldName);
+                m_engine->setScript(m_fieldNameScript, scriptName);
+                QVariant scriptResult = m_engine->toVariant(m_engine->callQsFunction(QString("aliasScript")));
+                if ( m_engine->lastMessage().isEmpty() )
+                {
+                    result = scriptResult.toString();
+                    m_calculatedFieldName = result;
+                }
             }
         }
         else
