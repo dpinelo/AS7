@@ -2123,7 +2123,7 @@ void BaseBeanMetadataPrivate::setConfig()
                 else if ( e.tagName() == QLatin1String("optionList") || e.tagName() == QLatin1String("optionsList") )
                 {
 #ifdef ALEPHERP_BARCODE
-                    if ( elementText == QLatin1String("allowedCodeBars") )
+                    if ( elementText == QLatin1String("allowedBarCode") )
                     {
                         optionList = DBBarCode::allowedBarCodes().join(",");
                     }

@@ -702,22 +702,22 @@ void DBLineEdit::showEvent(QShowEvent *event)
     }
 }
 
-void DBLineEdit::keyPressEvent(QKeyEvent * event)
+void DBLineEdit::keyPressEvent(QKeyEvent *event)
 {
     // Para ver si quien introduce los datos es un lector de código de barras, vamos a medir el tiempo entre pulsaciones
-    if ( codeBarReaderAllowed() && isBarCodeReaderEntry() )
+    if ( barCodeReaderAllowed() && isBarCodeReaderEntry(value().toString()) )
     {
         QLineEdit *obj = dynamic_cast<QLineEdit *>(this);
         AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(obj);
         // Al leer un código de barras podemos invocar esta función.
-        if ( scriptAfterCodeBarRead().isEmpty() )
+        if ( scriptAfterBarCodeRead().isEmpty() )
         {
             QString scriptName = QString("%1AfterCodeBarRead").arg(obj->objectName());
             thisForm->callQSMethod(scriptName, obj->text());
         }
         else
         {
-            thisForm->callQSMethod(scriptAfterCodeBarRead(), obj->text());
+            thisForm->callQSMethod(scriptAfterBarCodeRead(), obj->text());
         }
 
         emit barCodeReadReceived(value());

@@ -321,7 +321,7 @@ void DBBaseWidget::setWorkBean(BaseBeanPointer value)
     m_workBean = value;
 }
 
-bool DBBaseWidget::codeBarReaderAllowed() const
+bool DBBaseWidget::barCodeReaderAllowed() const
 {
     return m_barCodeReaderAllowed;
 }
@@ -341,14 +341,24 @@ void DBBaseWidget::setOnBarCodeReadNextFocus(bool value)
     m_onBarCodeReadNextFocus = value;
 }
 
-QString DBBaseWidget::scriptAfterCodeBarRead() const
+QString DBBaseWidget::scriptAfterBarCodeRead() const
 {
     return m_scriptAfterCodeBarRead;
 }
 
-void DBBaseWidget::setScriptAfterCodeBarRead(const QString &value)
+void DBBaseWidget::setScriptAfterBarCodeRead(const QString &value)
 {
     m_scriptAfterCodeBarRead = value;
+}
+
+QString DBBaseWidget::barCodeEndString() const
+{
+    return m_barCodeEndString;
+}
+
+void DBBaseWidget::setBarCodeEndString(const QString &value)
+{
+    m_barCodeEndString = value;
 }
 
 void DBBaseWidget::observerUnregistered()
@@ -728,8 +738,12 @@ void DBBaseWidget::showtMandatoryWildcardForLabel()
     }
 }
 
-bool DBBaseWidget::isBarCodeReaderEntry()
+bool DBBaseWidget::isBarCodeReaderEntry(const QString &text)
 {
+    if ( !m_barCodeEndString.isEmpty() )
+    {
+        return text.endsWith(m_barCodeEndString);
+    }
     if ( !m_previousKeyPress.isValid() || !m_barCodeReaderAllowed )
     {
         return false;

@@ -103,6 +103,8 @@ protected:
     bool m_onBarCodeReadNextFocus;
     /** Script a ejecutar tras leer un código de barras */
     QString m_scriptAfterCodeBarRead;
+    /** Código final de un código QR */
+    QString m_barCodeEndString;
     /** Bean de trabajo cuando este objeto se utiliza desde un QAbstractItemView */
     BaseBeanPointer m_workBean;
 
@@ -148,12 +150,14 @@ public:
     virtual BaseBeanPointer workBean() const;
     virtual void setWorkBean(BaseBeanPointer value);
 
-    virtual bool codeBarReaderAllowed() const;
+    virtual bool barCodeReaderAllowed() const;
     virtual void setBarCodeReaderAllowed(bool value);
     virtual bool onBarCodeReadNextFocus() const;
     virtual void setOnBarCodeReadNextFocus(bool value);
-    virtual QString scriptAfterCodeBarRead() const;
-    virtual void setScriptAfterCodeBarRead(const QString &value);
+    virtual QString scriptAfterBarCodeRead() const;
+    virtual void setScriptAfterBarCodeRead(const QString &value);
+    virtual QString barCodeEndString() const;
+    virtual void setBarCodeEndString(const QString &value);
 
     /** Establece el valor a mostrar en el control */
     virtual void setValue(const QVariant &value) = 0;
@@ -186,7 +190,7 @@ public:
 
     virtual void showtMandatoryWildcardForLabel();
 
-    virtual bool isBarCodeReaderEntry();
+    virtual bool isBarCodeReaderEntry(const QString &text);
 
     virtual void setFontAndColor();
 };

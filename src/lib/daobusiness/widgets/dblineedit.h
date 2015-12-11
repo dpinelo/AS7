@@ -103,11 +103,13 @@ class ALEPHERP_DLL_EXPORT DBLineEdit : public QLineEdit, public DBBaseWidget
     /** Si se llega al final del campo (length characteres) y esta propiedad está a true, se produce el salto al siguiente widget */
     Q_PROPERTY (bool focusNextOnEnd READ focusNextOnEnd WRITE setFocusNextOnEnd)
     /** Indica si este campo puede ser susceptible de recibir entradas de un lector de código de barras, y por tanto usar un comportamiento especial */
-    Q_PROPERTY (bool codeBarReaderAllowed READ codeBarReaderAllowed WRITE setBarCodeReaderAllowed)
+    Q_PROPERTY (bool barCodeReaderAllowed READ barCodeReaderAllowed WRITE setBarCodeReaderAllowed)
     /** Script a ejecutar tras lectura de código de barras */
-    Q_PROPERTY (QString scriptAfterCodeBarRead READ scriptAfterCodeBarRead WRITE setScriptAfterCodeBarRead)
+    Q_PROPERTY (QString scriptAfterBarCodeRead READ scriptAfterBarCodeRead WRITE setScriptAfterBarCodeRead)
     /** Si se ha recibido una lectura de un lector de código de barras, ¿nos vamos al siguiente item? */
     Q_PROPERTY (bool onBarCodeReadNextFocus READ onBarCodeReadNextFocus WRITE setOnBarCodeReadNextFocus)
+    /** Si la pistola nos envía un caracter terminador, aquí lo podemos cazar */
+    Q_PROPERTY (QString barCodeEndString READ barCodeEndString WRITE setBarCodeEndString)
     /** Ajusta el width del campo para que se visualice maxLength */
     Q_PROPERTY (bool automaticWidthBasedOnFieldMaxLength READ automaticWidthBasedOnFieldMaxLength WRITE setAutomaticWidthBasedOnFieldMaxLength)
 

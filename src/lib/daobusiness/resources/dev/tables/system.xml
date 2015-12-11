@@ -93,8 +93,7 @@
         <alias>Elemento padre</alias>
         <null>true</null>
         <pk>false</pk>
-        <type>string</type>
-        <length>250</length>
+        <type>int</type>
         <visiblegrid>false</visiblegrid>
         <relation>
             <table>alepherp_system</table>
