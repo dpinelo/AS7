@@ -1029,7 +1029,8 @@ static void windows_stack_trace(QFile &output)
         if (SymFromAddr(process, stackframe.AddrPC.Offset, &displacement, symbol))
         {
             QByteArray ba(symbol->Name, symbol->NameLen);
-            ba = ba.prepend(QString("[%1]: ").arg(i));
+            QString txt = QString("[%1]: ").arg(i);
+            ba = ba.prepend(txt.toUtf8());
             ba = ba.append("\n");
             output.write(ba);
         }
