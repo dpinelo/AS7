@@ -20,8 +20,8 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define APP_VERSION "1.3.3707"
+#define APP_VERSION "1.3.3752"
 #define APP_MAIN_VERSION "1.3"
-#define APP_REVISION "3707"
+#define APP_REVISION "3752"
 
 #endif // VERSION_H
