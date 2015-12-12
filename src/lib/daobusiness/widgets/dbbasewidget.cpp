@@ -742,7 +742,7 @@ bool DBBaseWidget::isBarCodeReaderEntry(const QString &text)
 {
     if ( text.isEmpty() )
     {
-        return;
+        return false;
     }
     if ( !m_barCodeEndString.isEmpty() )
     {

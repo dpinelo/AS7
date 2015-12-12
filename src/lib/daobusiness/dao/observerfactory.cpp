@@ -191,18 +191,21 @@ AbstractObserver *ObserverFactory::installDBFieldObserver(DBBaseWidget *baseWidg
         {
             AbstractObserver *observer = NULL;
             observer = fld->observer();
-            observer->installWidget(widget);
-            // El field es el fruto de un "padre" o un objeto derivado... hay que efectuar esta conexión
-            if ( bean->objectName() != fld->bean()->objectName() )
+            if ( observer != NULL )
             {
-                DBRelation *rel = qobject_cast<DBRelation *>(fld->bean()->owner());
-                if ( rel != NULL)
+                observer->installWidget(widget);
+                // El field es el fruto de un "padre" o un objeto derivado... hay que efectuar esta conexión
+                if ( bean->objectName() != fld->bean()->objectName() )
                 {
-                    connect(rel, SIGNAL(fatherLoaded(BaseBean*)), observer, SLOT(syncWidgetField(BaseBean*)));
-                    connect(rel, SIGNAL(brotherLoaded(BaseBean*)), observer, SLOT(syncWidgetField(BaseBean*)));
+                    DBRelation *rel = qobject_cast<DBRelation *>(fld->bean()->owner());
+                    if ( rel != NULL)
+                    {
+                        connect(rel, SIGNAL(fatherLoaded(BaseBean*)), observer, SLOT(syncWidgetField(BaseBean*)));
+                        connect(rel, SIGNAL(brotherLoaded(BaseBean*)), observer, SLOT(syncWidgetField(BaseBean*)));
+                    }
                 }
+                return observer;
             }
-            return observer;
         }
     }
     return NULL;
