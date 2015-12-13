@@ -294,6 +294,10 @@ public:
     template<typename T>
     QString viewIndicatorColumnOrder(T *tw)
     {
+        if ( tw == NULL )
+        {
+            return QString();
+        }
         QString key = QString("%1/%2").arg(KEY_ITEMVIEW_CONFIG).arg(tw->metaObject()->className());
         key = key + "/" + tw->objectName();
         key = key + "OrderIndicator";
@@ -305,6 +309,10 @@ public:
     template<typename T>
     QString viewIndicatorColumnSort(T *tw)
     {
+        if ( tw == NULL )
+        {
+            return QString();
+        }
         QString key = QString("%1/%2").arg(KEY_ITEMVIEW_CONFIG_ORDERS).arg(tw->metaObject()->className());
         key = key + "/" + tw->objectName();
         key = key + "SortIndicator";
@@ -322,6 +330,11 @@ public:
     template<typename T>
     void saveViewIndicatorColumnOrder(T *tw, const QString &columnName, const QString &columnOrder)
     {
+        if ( tw == NULL )
+        {
+            return;
+        }
+
         QString key = QString("%1/%2").arg(KEY_ITEMVIEW_CONFIG).arg(tw->metaObject()->className());
         key = key + "/" + tw->objectName();
         key = key + "OrderIndicator";
@@ -336,6 +349,11 @@ public:
     template<typename T>
     QStringList viewColumnsOrder(T *tw)
     {
+        if ( tw == NULL )
+        {
+            return QStringList();
+        }
+
         QString key = QString("%1/%2").arg(KEY_ITEMVIEW_CONFIG).arg(tw->metaObject()->className());
         key = key + "/" + tw->objectName();
         key = key + "Order";
@@ -347,6 +365,11 @@ public:
     template<typename T>
     QStringList viewColumnsSort(T *tw)
     {
+        if ( tw == NULL )
+        {
+            return QStringList();
+        }
+
         QString key = QString("%1/%2").arg(KEY_ITEMVIEW_CONFIG_ORDERS).arg(tw->metaObject()->className());
         key = key + "/" + tw->objectName();
         key = key + "Sort";
@@ -364,6 +387,11 @@ public:
     template<typename T>
     void saveViewColumnsOrder(T *tw, QStringList columnNames, QStringList columnOrder)
     {
+        if ( tw == NULL )
+        {
+            return;
+        }
+
         QString key = QString("%1/%2").arg(KEY_ITEMVIEW_CONFIG).arg(tw->metaObject()->className());
         key = key + "/" + tw->objectName();
         key = key + "Order";
@@ -378,6 +406,11 @@ public:
     template<typename T>
     void applyViewState(T *tw)
     {
+        if ( tw == NULL )
+        {
+            return;
+        }
+
         QString key = QString("%1/%2").arg(KEY_ITEMVIEW_CONFIG).arg(tw->metaObject()->className());
         key = key + "/" + tw->objectName();
 
@@ -401,6 +434,11 @@ public:
     template<typename T>
     void saveViewState(T *tw)
     {
+        if ( tw == NULL )
+        {
+            return;
+        }
+
         QList<QVariant> widths;
         QString key = QString("%1/%2").arg(KEY_ITEMVIEW_CONFIG).arg(tw->metaObject()->className());
         key = key + "/" + tw->objectName();

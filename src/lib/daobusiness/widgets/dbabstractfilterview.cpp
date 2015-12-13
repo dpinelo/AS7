@@ -666,8 +666,11 @@ void DBAbstractFilterView::cbFastFilterIndexChanged(int index)
     if ( d->m_itemView->inherits("QTableView") )
     {
         QTableView *tv = qobject_cast<QTableView *>(d->m_itemView);
-        int visibleIndex = tv->horizontalHeader()->visualIndex(modelIndex);
-        tv->horizontalHeader()->moveSection(visibleIndex, 0);
+        if ( tv != NULL )
+        {
+            int visibleIndex = tv->horizontalHeader()->visualIndex(modelIndex);
+            tv->horizontalHeader()->moveSection(visibleIndex, 0);
+        }
     }
     else if ( d->m_itemView->inherits("QTreeView") )
     {
@@ -686,14 +689,20 @@ void DBAbstractFilterView::cbFastFilterIndexChanged(int index)
     if ( d->m_itemView->inherits("QTableView") )
     {
         QTableView *tv = qobject_cast<QTableView *>(d->m_itemView);
-        tv->sortByColumn(modelIndex, Qt::AscendingOrder);
-        tv->horizontalHeader()->setSortIndicator(modelIndex, Qt::AscendingOrder);
+        if ( tv != NULL )
+        {
+            tv->sortByColumn(modelIndex, Qt::AscendingOrder);
+            tv->horizontalHeader()->setSortIndicator(modelIndex, Qt::AscendingOrder);
+        }
     }
     else if ( d->m_itemView->inherits("QTreeView") )
     {
         QTreeView *tv = qobject_cast<QTreeView *>(d->m_itemView);
-        tv->sortByColumn(modelIndex, Qt::AscendingOrder);
-        tv->header()->setSortIndicator(modelIndex, Qt::AscendingOrder);
+        if ( tv != NULL )
+        {
+            tv->sortByColumn(modelIndex, Qt::AscendingOrder);
+            tv->header()->setSortIndicator(modelIndex, Qt::AscendingOrder);
+        }
     }
     d->calculateSubTotals();
 }

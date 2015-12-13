@@ -260,6 +260,10 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
                 QComboBox *cb = new QComboBox(q_ptr);
                 QLabel *lbl = new QLabel(q_ptr);
                 QHBoxLayout *lay = qobject_cast<QHBoxLayout *>(q_ptr->ui->gbFilter->layout());
+                if ( lay == NULL )
+                {
+                    return;
+                }
                 cb->setObjectName(QString("cbStrongFilter%1").arg(fld->dbFieldName()));
                 lbl->setObjectName(QString("lblStrongFilter%1").arg(fld->dbFieldName()));
                 lay->insertWidget(i*2, lbl);
