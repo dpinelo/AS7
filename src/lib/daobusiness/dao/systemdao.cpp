@@ -928,7 +928,7 @@ AERPSystemObject * SystemDAO::systemObject(int idObject)
     }
 
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getLocalSystemDatabase()));
-    QString sql = QString("SELECT nombre, contenido, type, version, debug, on_init_debug, module, device FROM %1_system "
+    QString sql = QString("SELECT nombre, contenido, type, version, debug, on_init_debug, module, device, idorigin FROM %1_system "
                           "WHERE id = :id").arg(alephERPSettings->systemTablePrefix());
     qry->prepare(sql);
     qry->bindValue(":id", idObject);
@@ -1159,11 +1159,11 @@ QList<AERPSystemObject *> SystemDAO::remoteSystemObjects()
     QScopedPointer<QSqlQuery> qryDetailObject (new QSqlQuery(db));
 
     // Esta consulta nos permitirá obtener las máximas versiones de los objetos de sistema por tipo de dispositivo
-    sql = QString("SELECT nombre, type, max(version), device as max_version FROM %1_system "
-                  "GROUP BY nombre, type, device ORDER BY nombre").arg(alephERPSettings->systemTablePrefix());
+    sql = QString("SELECT nombre, type, max(version), device as max_version, idorigin FROM %1_system "
+                  "GROUP BY nombre, type, device, idorigin ORDER BY nombre").arg(alephERPSettings->systemTablePrefix());
     sqlSystemObject = QString("SELECT * FROM %1_system "
                               "WHERE nombre = :nombre AND type = :type AND version = :version AND "
-                              "device = :device").arg(alephERPSettings->systemTablePrefix());
+                              "device = :device AND idorigin = :idorigin").arg(alephERPSettings->systemTablePrefix());
     if ( !qryObjects->prepare(sql) )
     {
         SystemDAO::writeDbMessages(qryObjects.data());
@@ -1177,10 +1177,11 @@ QList<AERPSystemObject *> SystemDAO::remoteSystemObjects()
         {
             // Aquí comprobamos la versión actualmente en local
             qryDetailObject->prepare(sqlSystemObject);
-            qryDetailObject->bindValue(":nombre", qryObjects->value(0));
-            qryDetailObject->bindValue(":type", qryObjects->value(1));
-            qryDetailObject->bindValue(":version", qryObjects->value(2));
-            qryDetailObject->bindValue(":device", qryObjects->value(3));
+            qryDetailObject->bindValue(":nombre", qryObjects->value("nombre"));
+            qryDetailObject->bindValue(":type", qryObjects->value("type"));
+            qryDetailObject->bindValue(":version", qryObjects->value("version"));
+            qryDetailObject->bindValue(":device", qryObjects->value("device"));
+            qryDetailObject->bindValue(":idorigin", qryObjects->value("idorigin"));
             bool r2 = qryDetailObject->exec() && qryDetailObject->first();
             QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO: remoteSystemObjects: [%1]").arg(qryDetailObject->lastQuery()));
             if ( r2 )
@@ -1221,18 +1222,19 @@ QList<AERPSystemObject *> SystemDAO::remoteSystemObjects()
     return list;
 }
 
-bool SystemDAO::deleteSystemObject(const QString &name, const QString &type, const QString &device, int version, const QString &connectionName)
+bool SystemDAO::deleteSystemObject(const QString &name, const QString &type, const QString &device, int idOrigin, int version, const QString &connectionName)
 {
     bool result;
     SystemDAO::clearLastDbMessage();
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
     QString sql = QString("DELETE FROM %1_system WHERE nombre = :nombre AND type = :type AND "
-                          "version = :version AND device = :device").arg(alephERPSettings->systemTablePrefix());
+                          "version = :version AND device = :device AND idorigin = :idorigin").arg(alephERPSettings->systemTablePrefix());
     qry->prepare(sql);
     qry->bindValue(":nombre", name);
     qry->bindValue(":type", type);
     qry->bindValue(":version", version);
     qry->bindValue(":device", device);
+    qry->bindValue(":idorigin", idOrigin);
     result = qry->exec();
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO::deleteSystemObject: [%1]").arg(qry->lastQuery()));
     if ( !result )
@@ -1242,18 +1244,19 @@ bool SystemDAO::deleteSystemObject(const QString &name, const QString &type, con
     return result;
 }
 
-int SystemDAO::versionSystemObject(const QString &name, const QString &type, const QString &device, const QString &connectionName)
+int SystemDAO::versionSystemObject(const QString &name, const QString &type, const QString &device, int idOrigin, const QString &connectionName)
 {
     SystemDAO::clearLastDbMessage();
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
     QString sql = QString("SELECT max(version) as column1 FROM %1_system "
-                          "WHERE nombre = :nombre AND type = :type AND device = :device").arg(alephERPSettings->systemTablePrefix());
+                          "WHERE nombre = :nombre AND type = :type AND device = :device AND idorigin = :idorigin").arg(alephERPSettings->systemTablePrefix());
     int result = -1;
 
     qry->prepare(sql);
     qry->bindValue(":nombre", name);
     qry->bindValue(":type", type);
     qry->bindValue(":device", device);
+    qry->bindValue(":idorigin", idOrigin);
     if ( qry->exec() & qry->first() )
     {
         result = qry->value(0).toInt();
@@ -1406,15 +1409,16 @@ bool SystemDAO::checkSystemObjectsOnLocal(QString &failTable)
 
     // Obtenemos las versiones remotas de los objetos en sus máximas versiones, para el tipo de dispositivo
     // que ejecuta esta instancia.
-    sql = QString("SELECT nombre, type, max(version) as max_version, device FROM %1_system "
+    sql = QString("SELECT nombre, type, max(version) as max_version, device, idorigin FROM %1_system "
                   "WHERE (device='%2' or device like '%3.*' or device='*') "
-                  "GROUP BY nombre, type, device ORDER BY nombre, type, device").
+                  "GROUP BY nombre, type, device, idorigin "
+                  "ORDER BY nombre, type, device, idorigin").
             arg(alephERPSettings->systemTablePrefix()).
             arg(alephERPSettings->deviceTypeSize()).
             arg(alephERPSettings->deviceType());
     // Esta SQL obtiene un objeto en concreto.
     sqlSystemObject = QString("SELECT * FROM %1_system "
-                              "WHERE nombre = :nombre AND type = :type AND version = :version AND device=:device").
+                              "WHERE nombre=:nombre AND type=:type AND version=:version AND device=:device AND idorigin=:idorigin").
             arg(alephERPSettings->systemTablePrefix());
     if ( !qryObjects->prepare(sql) )
     {
@@ -1453,6 +1457,7 @@ bool SystemDAO::checkSystemObjectsOnLocal(QString &failTable)
             int localVersion = SystemDAO::versionSystemObject(qryObjects->record().value("nombre").toString(),
                                                               qryObjects->record().value("type").toString(),
                                                               qryObjects->record().value("device").toString(),
+                                                              qryObjects->record().value("idorigin").toInt(),
                                                               Database::localSystemDatabaseName());
             if ( localVersion == -1 ) {
                 return false;
@@ -1469,6 +1474,7 @@ bool SystemDAO::checkSystemObjectsOnLocal(QString &failTable)
                     if ( !SystemDAO::deleteSystemObject(qryObjects->record().value("nombre").toString(),
                                                         qryObjects->record().value("type").toString(),
                                                         qryObjects->record().value("device").toString(),
+                                                        qryObjects->record().value("idorigin").toInt(),
                                                         localVersion,
                                                         Database::localSystemDatabaseName()) )
                     {
@@ -1480,6 +1486,7 @@ bool SystemDAO::checkSystemObjectsOnLocal(QString &failTable)
                 qryDetailObject->bindValue(":type", qryObjects->record().value("type"));
                 qryDetailObject->bindValue(":version", qryObjects->record().value("max_version"));
                 qryDetailObject->bindValue(":device", qryObjects->record().value("device"));
+                qryDetailObject->bindValue(":idorigin", qryObjects->record().value("idorigin"));
                 bool r2 = qryDetailObject->exec();
                 QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO: checkSystemObjectsVersionOnLocal: [%1]").arg(qryDetailObject->lastQuery()));
                 if ( r2 )
@@ -1517,6 +1524,7 @@ bool SystemDAO::checkSystemObjectsOnLocal(QString &failTable)
                     }
                     else
                     {
+                        QLogger::QLog_Error(AlephERP::stLogDB, qryObjects->lastError().text());
                         failTable = qryObjects->record().value("nombre").toString();
                         SystemDAO::m_lastMessage = trUtf8("No existe el registro remoto con valores: Nombre: [%1], Tipo: [%2], Versión: [%3], Dispositivo: [%4]").
                                 arg(qryObjects->record().value("nombre").toString()).

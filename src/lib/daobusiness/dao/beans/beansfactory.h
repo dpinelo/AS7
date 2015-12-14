@@ -60,6 +60,7 @@ private:
     static QString m_lastError;
 
     static void insertMetadataBean(AERPSystemObject *object);
+    static bool hasDependObject(AERPSystemObject *object);
     static bool buildMetadataBeans();
     static bool buildUIWidgets();
     static bool buildScripts();

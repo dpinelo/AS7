@@ -81,8 +81,8 @@ public:
 
     static bool insertModule(const QString &id, const QString &name, const QString &description, const QString &showedText, const QString &iconName, bool enabled, const QString &tableCreationOptions, const QString &connectionName);
     static bool insertSystemObject(AERPSystemObject *systemObject, const QString &connectionName);
-    static bool deleteSystemObject(const QString &name, const QString &type, const QString &device, int version, const QString &connectionName);
-    static int versionSystemObject(const QString &name, const QString &type, const QString &device, const QString &connectionName = "");
+    static bool deleteSystemObject(const QString &name, const QString &type, const QString &device, int idOrigin, int version, const QString &connectionName);
+    static int versionSystemObject(const QString &name, const QString &type, const QString &device, int idOrigin, const QString &connectionName = "");
     static AERPSystemObject *systemObject(const QString &name, const QString &type, const QString &device, const QString &connection = SYSTEM_CONNECTION);
     static AERPSystemObject *systemObject(const QString &name, const QString &type);
     static AERPSystemObject *systemObject(int idObject);
