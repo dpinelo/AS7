@@ -191,6 +191,7 @@ public:
     virtual void showtMandatoryWildcardForLabel();
 
     virtual bool isBarCodeReaderEntry(const QString &text);
+    virtual QString barCodeEntry(const QString &text);
 
     virtual void setFontAndColor();
 };

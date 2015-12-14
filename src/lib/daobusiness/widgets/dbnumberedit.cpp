@@ -70,7 +70,7 @@ void DBNumberEdit::keyPressEvent(QKeyEvent *event)
     QLineEdit::keyPressEvent(event);
     if ( barCodeReaderAllowed() && isBarCodeReaderEntry(value().toString()) )
     {
-        emit barCodeReadReceived(value());
+        emit barCodeRead(value());
         if ( onBarCodeReadNextFocus() )
         {
             focusNextChild();

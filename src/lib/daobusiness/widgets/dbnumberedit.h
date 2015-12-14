@@ -137,7 +137,7 @@ signals:
     void valueEdited(const QVariant &value);
     void destroyed(QWidget *widget);
     void fieldNameChanged();
-    void barCodeReadReceived(const QVariant &value);
+    void barCodeRead(const QVariant &value);
 
 };
 

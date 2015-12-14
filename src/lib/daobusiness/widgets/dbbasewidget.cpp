@@ -746,6 +746,18 @@ bool DBBaseWidget::isBarCodeReaderEntry(const QString &text)
     }
     if ( !m_barCodeEndString.isEmpty() )
     {
+        if ( m_barCodeEndString == QLatin1Literal("\\t") )
+        {
+            return text.endsWith(QChar::Tabulation);
+        }
+        else if ( m_barCodeEndString == QLatin1Literal("\\n") )
+        {
+            return text.endsWith(QChar::LineFeed);
+        }
+        else if ( m_barCodeEndString == QLatin1Literal("\\r") )
+        {
+            return text.endsWith(QChar::CarriageReturn);
+        }
         return text.endsWith(m_barCodeEndString);
     }
     if ( !m_previousKeyPress.isValid() || !m_barCodeReaderAllowed )
@@ -755,6 +767,22 @@ bool DBBaseWidget::isBarCodeReaderEntry(const QString &text)
     int timeBetweenPress = m_previousKeyPress.msecsTo(QDateTime::currentDateTime());
     m_previousKeyPress = QDateTime::currentDateTime();
     return timeBetweenPress < alephERPSettings->humanKeyPressIntervalMsecs();
+}
+
+/**
+ * @brief DBBaseWidget::barCodeEntry
+ * Devuelve el código de barras leído sin tener en cuenta el terminador
+ * @param text
+ * @return
+ */
+QString DBBaseWidget::barCodeEntry(const QString &text)
+{
+    QString result = text;
+    if ( !m_barCodeEndString.isEmpty() && isBarCodeReaderEntry(text) )
+    {
+        result = text.left(text.size()-1);
+    }
+    return result;
 }
 
 void DBBaseWidget::setFontAndColor()

@@ -120,6 +120,7 @@ DBLineEdit::DBLineEdit(QWidget *parent) :
     // Efecto incómodo de line edit con máscara y vacío, se pincha y se queda el cursor a la mitad.
     d->m_return.installOn(this);
     connect(this, SIGNAL(textChanged(QString)), this, SLOT(emitValueEdited()));
+    connect(this, SIGNAL(textEdited(QString)), this, SLOT(checkBarCode(QString)));
 }
 
 DBLineEdit::~DBLineEdit()
@@ -534,6 +535,37 @@ void DBLineEdit::recalculateCounterField()
     fld->setValue(v);
 }
 
+void DBLineEdit::checkBarCode(const QString &txt)
+{
+    // Para ver si quien introduce los datos es un lector de código de barras, vamos a medir el tiempo entre pulsaciones
+    if ( barCodeReaderAllowed() && isBarCodeReaderEntry(txt) )
+    {
+        if ( !m_barCodeEndString.isEmpty() )
+        {
+            QSignalBlocker block(this);
+            setText(barCodeEntry(txt));
+        }
+        QLineEdit *obj = dynamic_cast<QLineEdit *>(this);
+        AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(obj);
+        // Al leer un código de barras podemos invocar esta función.
+        if ( scriptAfterBarCodeRead().isEmpty() )
+        {
+            QString scriptName = QString("%1AfterCodeBarRead").arg(obj->objectName());
+            thisForm->callQSMethod(scriptName, obj->text());
+        }
+        else
+        {
+            thisForm->callQSMethod(scriptAfterBarCodeRead(), obj->text());
+        }
+
+        emit barCodeRead(value());
+        if ( onBarCodeReadNextFocus() )
+        {
+            focusNextChild();
+        }
+    }
+}
+
 /*!
   Ajusta los parámetros de visualización de este Widget en función de lo definido en DBField m_field
   */
@@ -614,7 +646,12 @@ QVariant DBLineEdit::value()
     {
         return v;
     }
-    return QVariant(text());
+    QString txt = text();
+    if ( m_barCodeReaderAllowed && !m_barCodeEndString.isEmpty() )
+    {
+        txt = barCodeEntry(txt);
+    }
+    return QVariant(txt);
 }
 
 /**
@@ -704,29 +741,6 @@ void DBLineEdit::showEvent(QShowEvent *event)
 
 void DBLineEdit::keyPressEvent(QKeyEvent *event)
 {
-    // Para ver si quien introduce los datos es un lector de código de barras, vamos a medir el tiempo entre pulsaciones
-    if ( barCodeReaderAllowed() && isBarCodeReaderEntry(event->text()) )
-    {
-        QLineEdit *obj = dynamic_cast<QLineEdit *>(this);
-        AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(obj);
-        // Al leer un código de barras podemos invocar esta función.
-        if ( scriptAfterBarCodeRead().isEmpty() )
-        {
-            QString scriptName = QString("%1AfterCodeBarRead").arg(obj->objectName());
-            thisForm->callQSMethod(scriptName, obj->text());
-        }
-        else
-        {
-            thisForm->callQSMethod(scriptAfterBarCodeRead(), obj->text());
-        }
-
-        emit barCodeReadReceived(value());
-        if ( onBarCodeReadNextFocus() )
-        {
-            focusNextChild();
-        }
-    }
-
     if ( !d->m_completer.isNull() )
     {
         // ¿Debemos empezar a filtrar con el wildcard? Si es así, informémosle al modelo

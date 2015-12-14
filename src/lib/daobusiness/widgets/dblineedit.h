@@ -125,9 +125,9 @@ protected:
         DBBaseWidget::hideEvent(event);
         QWidget::hideEvent(event);
     }
-    virtual void focusInEvent(QFocusEvent * event);
-    virtual void focusOutEvent(QFocusEvent * event);
-    virtual void keyPressEvent(QKeyEvent * event);
+    virtual void focusInEvent(QFocusEvent *event);
+    virtual void focusOutEvent(QFocusEvent *event);
+    virtual void keyPressEvent(QKeyEvent *event);
     virtual bool eventFilter(QObject *watched, QEvent *event);
     virtual void resizeEvent(QResizeEvent *event);
     virtual void mouseReleaseEvent(QMouseEvent *event);
@@ -192,7 +192,7 @@ signals:
     void valueEdited(const QVariant &value);
     void destroyed(QWidget *widget);
     void fieldNameChanged();
-    void barCodeReadReceived(const QVariant &value);
+    void barCodeRead(const QVariant &value);
 
 public slots:
     virtual void setValue(const QVariant &value);
@@ -213,6 +213,7 @@ private slots:
     void showRecalculateButton();
     void hideRecalculateButton();
     void recalculateCounterField();
+    void checkBarCode(const QString &text);
 
 };
 
