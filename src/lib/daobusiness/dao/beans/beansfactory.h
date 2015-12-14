@@ -103,7 +103,7 @@ public:
     static bool end();
     static bool initSystemsBeans(QString &failedBean);
     static void cleanTempPath();
-    static bool refreshSystemObject(const QString &name, const QString &type);
+    static bool refreshSystemObject(const QString &name, const QString &type, int idOrigin);
     static bool isOnBatchMode();
     static QDateTime initOfBatchMode();
     static bool checkConsistencyMetadataDatabase(QVariantList &log);
@@ -151,7 +151,7 @@ public:
 
     static QString lastErrorMessage();
 
-    static bool updateSystemObject(const QString &type, const QString &objectName, const QString &content, int version, bool debugOnInit, bool debug);
+    static bool updateSystemObject(const QString &type, const QString &objectName, const QString &content, int version, bool debugOnInit, bool debug, int idOrigin);
 #ifdef ALEPHERP_DEVTOOLS
     static void updateModuleMetadata(const QString &module, const QString &path);
 #endif

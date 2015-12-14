@@ -368,6 +368,9 @@ bool ModulesDAOPrivate::importModuleFiles(const QString &xmlOrigin, const QStrin
                 QDomElement deviceElement =  elementFile.firstChildElement("device");
                 itemToImport["device"] = deviceElement.isNull() ? "*" : deviceElement.text();
 
+                QDomElement idOriginElement =  elementFile.firstChildElement("idOrigin");
+                itemToImport["idOrigin"] = idOriginElement.isNull() ? "*" : idOriginElement.text();
+
                 QFileInfo fi (moduleDirPath + "/" + itemToImport["fileName"]);
                 if ( fi.exists() )
                 {
@@ -391,6 +394,7 @@ bool ModulesDAOPrivate::importModuleFiles(const QString &xmlOrigin, const QStrin
                                     itemToImport["objectName"],
                                     itemToImport["type"],
                                     itemToImport["device"],
+                                    itemToImport["idOrigin"].toInt(),
                                     QString(BASE_CONNECTION));
                         if ( actualObject == NULL ||
                              actualObject->version() < itemToImport["version"].toInt() ||
@@ -899,15 +903,24 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
                 }
                 QString absoluteFileName = QString ("%1/%2").arg(path).arg(fileName);
                 file.setFileName(absoluteFileName);
-                QString lineModuleMetadata = QString("\n<file>\n  <objectName>%1</objectName>\n  <name>%2</name>\n  <version>%3</version>\n  <type>%4</type>\n"
-                                                     "  <debug>%5</debug>\n  <debugOnInit>%6</debugOnInit>\n  <device>%7</device>\n</file>\n").
+                QString lineModuleMetadata = QString("\n<file>\n"
+                                                     "  <objectName>%1</objectName>\n"
+                                                     "  <name>%2</name>\n"
+                                                     "  <version>%3</version>\n"
+                                                     "  <type>%4</type>\n"
+                                                     "  <debug>%5</debug>\n"
+                                                     "  <debugOnInit>%6</debugOnInit>\n"
+                                                     "  <device>%7</device>\n"
+                                                     "  <idOrigin>%7</idOrigin>\n"
+                                                     "</file>\n").
                                              arg(systemObject->name()).
                                              arg(fileName).
                                              arg(systemObject->version()).
                                              arg(systemObject->type()).
                                              arg((systemObject->debug() ? "true" : "false")).
                                              arg((systemObject->onInitDebug() ? "true" : "false")).
-                                             arg(systemObject->deviceTypes().join(","));
+                                             arg(systemObject->deviceTypes().join(",")).
+                                             arg(systemObject->idOrigin());
                 if ( moduleMetadatas.contains(systemObject->module()->id()) )
                 {
                     moduleMetadatas[systemObject->module()->id()] = QString("%1%2").arg(moduleMetadatas[systemObject->module()->id()]).arg(lineModuleMetadata);

@@ -1568,7 +1568,7 @@ void BaseBeanMetadataPrivate::setConfig()
             }
             else
             {
-                AERPSystemObject *systemObject = SystemDAO::systemObject(nodes.at(i).toElement().attribute("name"), "tableTemp");
+                AERPSystemObject *systemObject = SystemDAO::systemObject(nodes.at(i).toElement().attribute("name"), "tableTemp", 0);
                 if ( systemObject != NULL )
                 {
                     QDomDocument otherDocument;

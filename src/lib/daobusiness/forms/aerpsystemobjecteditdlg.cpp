@@ -146,9 +146,13 @@ bool AERPSystemObjectEditDlg::save()
     if ( b != NULL )
     {
         // Actualizamos el código que usa el programa.
-        BeansFactory::updateSystemObject(b->fieldValue("type").toString(), b->fieldValue("nombre").toString(),
-                                         b->fieldValue("contenido").toString(), b->fieldValue("version").toInt(),
-                                         b->fieldValue("on_init_debug").toBool(), b->fieldValue("debug").toBool());
+        BeansFactory::updateSystemObject(b->fieldValue("type").toString(),
+                                         b->fieldValue("nombre").toString(),
+                                         b->fieldValue("contenido").toString(),
+                                         b->fieldValue("version").toInt(),
+                                         b->fieldValue("on_init_debug").toBool(),
+                                         b->fieldValue("debug").toBool(),
+                                         b->fieldValue("idorigin").toInt());
         if ( EnvVars::instance()->var("exportSystemFiles").toString() == "true" )
         {
             QString path = EnvVars::instance()->var("pathSystemFiles").toString();

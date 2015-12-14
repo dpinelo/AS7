@@ -897,20 +897,20 @@ bool SystemDAO::insertSystemObject(AERPSystemObject *systemObject, const QString
     return result;
 }
 
-AERPSystemObject *SystemDAO::systemObject(const QString &name, const QString &type)
+AERPSystemObject *SystemDAO::systemObject(const QString &name, const QString &type, int idOrigin)
 {
     SystemDAO::clearLastDbMessage();
     if ( SystemDAO::m_systemObjectsLoaded )
     {
         foreach (AERPSystemObject *sy, SystemDAO::m_systemObjects)
         {
-            if ( sy->name() == name && sy->type() == type )
+            if ( sy->name() == name && sy->type() == type && sy->idOrigin() == idOrigin )
             {
                 return sy;
             }
         }
     }
-    return SystemDAO::systemObject(name, type, alephERPSettings->deviceType(), SYSTEM_CONNECTION);
+    return SystemDAO::systemObject(name, type, alephERPSettings->deviceType(), idOrigin, SYSTEM_CONNECTION);
 }
 
 AERPSystemObject * SystemDAO::systemObject(int idObject)
@@ -1269,29 +1269,30 @@ int SystemDAO::versionSystemObject(const QString &name, const QString &type, con
     return result;
 }
 
-AERPSystemObject *SystemDAO::systemObject(const QString &name, const QString &type, const QString &device, const QString &connection)
+AERPSystemObject *SystemDAO::systemObject(const QString &name, const QString &type, const QString &device, int idOrigin, const QString &connection)
 {
     SystemDAO::clearLastDbMessage();
     if ( SystemDAO::m_systemObjectsLoaded )
     {
         foreach (AERPSystemObject *sy, SystemDAO::m_systemObjects)
         {
-            if ( sy->name() == name && sy->type() == type && sy->deviceTypes().contains(device) )
+            if ( sy->name() == name && sy->type() == type && sy->deviceTypes().contains(device) && sy->idOrigin() == idOrigin )
             {
                 return sy;
             }
         }
     }
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
-    QString sql = QString("SELECT nombre, contenido, type, version, debug, on_init_debug, module, device FROM %1_system "
+    QString sql = QString("SELECT nombre, contenido, type, version, debug, on_init_debug, module, device, idorigin FROM %1_system "
                           "WHERE nombre = :nombre and type = :type and "
-                          "(device=:device or device='*' or device like '%2.*')").
+                          "(device=:device or device='*' or device like '%2.*') and idorigin=:idorigin").
             arg(alephERPSettings->systemTablePrefix()).
             arg(device);
     qry->prepare(sql);
     qry->bindValue(":nombre", name);
     qry->bindValue(":type", type);
     qry->bindValue(":device", alephERPSettings->deviceTypeSize());
+    qry->bindValue(":idorigin", idOrigin);
     bool result = qry->exec();
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO::systemObject: [%1]").arg(qry->lastQuery()));
     if ( !result )

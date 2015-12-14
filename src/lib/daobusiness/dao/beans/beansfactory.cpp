@@ -507,11 +507,11 @@ bool BeansFactory::unloadResources()
 /**
   Refresca el UI
   */
-bool BeansFactory::refreshSystemObject(const QString &name, const QString &type)
+bool BeansFactory::refreshSystemObject(const QString &name, const QString &type, int idOrigin)
 {
     bool result = false;
 
-    AERPSystemObject *object = SystemDAO::systemObject(name, type);
+    AERPSystemObject *object = SystemDAO::systemObject(name, type, idOrigin);
     if ( object != NULL )
     {
         QString fileName = QString("%1/%2").
@@ -1419,10 +1419,10 @@ void BeansFactory::processOrderMetadataTableNamesForInsertOrUpdate(BaseBeanMetad
   requieren de reinicialización del programa, salvo que se cambie un script, que
   será también actualizado por este objeto.
   */
-bool BeansFactory::updateSystemObject(const QString &type, const QString &objectName, const QString &content, int version, bool debugOnInit, bool debug)
+bool BeansFactory::updateSystemObject(const QString &type, const QString &objectName, const QString &content, int version, bool debugOnInit, bool debug, int idOrigin)
 {
     bool r = false;
-    AERPSystemObject *object = SystemDAO::systemObject(objectName, type);
+    AERPSystemObject *object = SystemDAO::systemObject(objectName, type, idOrigin);
     if ( object != NULL )
     {
         object->setContent(content);
@@ -1440,7 +1440,7 @@ bool BeansFactory::updateSystemObject(const QString &type, const QString &object
     else if ( type == "ui" )
     {
         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-        BeansFactory::refreshSystemObject(objectName, "ui");
+        BeansFactory::refreshSystemObject(objectName, "ui", idOrigin);
         CommonsFunctions::restoreOverrideCursor();
     }
     return r;
