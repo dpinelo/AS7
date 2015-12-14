@@ -483,13 +483,13 @@ void RelationBaseBeanModel::fieldBeanModified(BaseBean *bean, const QString &fie
 
 void RelationBaseBeanModel::dbStateBeanModified(BaseBean *bean, int state)
 {
-    Q_UNUSED(state)
     if ( bean != NULL )
     {
         // Se hace esto para que el modelo en filtro superior, sepa que esta fila ha cambiado, y debe actualizar
         for ( int i = 0 ; i < d->m_beans.size() ; i++ )
         {
-            if ( bean->objectName() == d->m_beans.at(i)->objectName() )
+            if ( bean->objectName() == d->m_beans.at(i)->objectName() &&
+                 (state == BaseBean::DELETED || state == BaseBean::TO_BE_DELETED) )
             {
                 emit layoutAboutToBeChanged();
                 emit layoutChanged();
