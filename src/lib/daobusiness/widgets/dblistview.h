@@ -39,14 +39,9 @@ class ALEPHERP_DLL_EXPORT DBListView : public QListView, public DBAbstractViewIn
     Q_OBJECT
     Q_DISABLE_COPY(DBListView)
 
-    /** ¿Se leen los datos de base de dato o del Bean del formulario que contiene este control? */
-    Q_PROPERTY(bool internalData READ internalData WRITE setInternalData)
-
-    /** Si los datos se leen de base de datos, entonces se introduce este tableName. Esta propiedad
-    está activa si internalData es false. */
+    /** Si los datos se leen de base de datos, entonces se introduce este tableName. */
     Q_PROPERTY (QString tableName READ tableName WRITE setTableName DESIGNABLE externalDataPropertyVisible)
-    /** Este filtro aplica a los datos que se leen de base de datos Esta propiedad
-    está activa si internalData es false. */
+    /** Este filtro aplica a los datos que se leen de base de datos */
     Q_PROPERTY (QString filter READ filter WRITE setFilter DESIGNABLE externalDataPropertyVisible)
 
     /** Campo en el que se almacenará el valor seleccionado. Esto tiene sentido si internalData es false,

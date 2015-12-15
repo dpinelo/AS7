@@ -42,9 +42,7 @@ class DBFrameButtonsPrivate
 public:
     /** Contiene todos los botones que se irán creando */
     QButtonGroup m_buttons;
-    /** Los datos se leen de base de datos o bien del bean del formulario que contiene a este control */
-    bool m_internalData;
-    /** Tabla de la que se leerán los datos, si internalData es false */
+    /** Tabla de la que se leerán los datos, si relationName está vacío */
     QString m_tableName;
     /** Campo que se mostrará en los botones */
     QString m_fieldView;
@@ -74,7 +72,6 @@ public:
 
     DBFrameButtonsPrivate(DBFrameButtons * qq) : q_ptr (qq)
     {
-        m_internalData = true;
         m_init = false;
         m_layoutButtons = NULL;
         m_columnButtonsCount = 1000;
@@ -109,16 +106,6 @@ DBFrameButtons::~DBFrameButtons()
     emit destroyed(this);
     delete d->m_layoutButtons;
     delete d;
-}
-
-bool DBFrameButtons::internalData() const
-{
-    return d->m_internalData;
-}
-
-void DBFrameButtons::setInternalData(bool value)
-{
-    d->m_internalData = value;
 }
 
 QString DBFrameButtons::tableName() const
@@ -240,7 +227,7 @@ void DBFrameButtons::setShowButtonText(bool value)
   */
 bool DBFrameButtons::internalDataPropertyVisible()
 {
-    if ( d->m_internalData )
+    if ( !m_relationName.isEmpty() )
     {
         return true;
     }
@@ -249,7 +236,7 @@ bool DBFrameButtons::internalDataPropertyVisible()
 
 bool DBFrameButtons::externalDataPropertyVisible()
 {
-    if ( !d->m_internalData )
+    if ( !d->m_tableName.isEmpty() )
     {
         return true;
     }
@@ -311,7 +298,7 @@ void DBFrameButtons::init()
                               QString::fromUtf8("DBFrameButtons::init: fieldView está vacío"));
     }
 
-    if ( !d->m_internalData || !d->m_tableName.isEmpty() )
+    if ( !d->m_tableName.isEmpty() )
     {
         if ( !BaseDAO::select(d->m_list, d->m_tableName, d->m_filter, d->m_order) )
         {

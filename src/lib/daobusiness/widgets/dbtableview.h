@@ -54,9 +54,6 @@ class ALEPHERP_DLL_EXPORT DBTableView : public QTableView, public DBAbstractView
     Q_OBJECT
     Q_DISABLE_COPY(DBTableView)
 
-    /** ¿Se leen los datos de base de datos o del Bean del formulario que contiene este control? */
-    Q_PROPERTY(bool internalData READ internalData WRITE setInternalData)
-
     /** Si los datos se leen de base de datos, entonces se introduce este tableName */
     Q_PROPERTY (QString tableName READ tableName WRITE setTableName DESIGNABLE externalDataPropertyVisible)
     /** Este filtro aplica a los datos que se leen de base de datos */

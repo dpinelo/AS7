@@ -46,9 +46,6 @@ class ALEPHERP_DLL_EXPORT DBFullScheduleView : public QAbstractItemView, public 
 {
     Q_OBJECT
 
-    /** ¿Se leen los datos de base de datos o del Bean del formulario que contiene este control? */
-    Q_PROPERTY(bool internalData READ internalData WRITE setInternalData)
-
     /** Si los datos se leen de base de datos, entonces se introduce este tableName */
     Q_PROPERTY (QString tableName READ tableName WRITE setTableName DESIGNABLE externalDataPropertyVisible)
     /** Este filtro aplica a los datos que se leen de base de datos */
@@ -125,8 +122,6 @@ public:
     virtual void setFilter(const QString &value);
     virtual QString order();
     void virtual setOrder(const QString &value);
-    virtual bool internalData();
-    virtual void setInternalData(bool value);
     virtual void setRelationFilter(const QString &name);
     virtual AlephERP::DBRecordStates visibleRecords();
     virtual void setVisibleRecords(AlephERP::DBRecordStates visibleRecords);

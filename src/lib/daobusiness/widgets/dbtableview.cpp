@@ -495,9 +495,9 @@ void DBTableView::refresh()
 BaseBeanSharedPointer DBTableView::addBean()
 {
     BaseBeanSharedPointer bean;
-    if ( !m_internalData )
+    if ( m_relationName.isEmpty() )
     {
-        qDebug() << "DBTableView::deleteSelectedsBean: LLamada a esta función sin estar configurada para usar datos internos.";
+        QLogger::QLog_Error(AlephERP::stLogOther, tr("DBTableView::deleteSelectedsBean: LLamada a esta función sin estar configurada para usar datos internos, es decir, sin haber indicado un relationName."));
     }
     else
     {
@@ -531,9 +531,9 @@ void DBTableView::deleteSelectedsBean()
     QModelIndexList list = selectionModel()->selectedIndexes();
     QList<int> deleteRows;
 
-    if ( !m_internalData )
+    if ( m_relationName.isEmpty() )
     {
-        qDebug() << "DBTableView::deleteSelectedsBean: LLamada a esta función sin estar configurada para usar datos internos.";
+        QLogger::QLog_Error(AlephERP::stLogOther, tr("DBTableView::deleteSelectedsBean: LLamada a esta función sin estar configurada para usar datos internos, es decir, sin haber indicado un relationName."));
         return;
     }
     if ( filterModel() )

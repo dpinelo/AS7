@@ -60,8 +60,6 @@ protected:
     /** Chivato que indicará si el modelo se ha pasado ya creado y externo (por setModel)
       o es interno */
     bool m_externalModel;
-    /** Los datos se leen de base de datos o bien del bean del formulario que contiene a este control */
-    bool m_internalData;
     /** Última celda en la que estuvo el cursor. Se usa para evitar hacer muchas llamadas al modelo */
     QModelIndex m_lastCell;
     QPointer<DBAbstractViewEventForwarder> m_eventForwarder;
@@ -114,8 +112,6 @@ public:
     virtual void setFilter(const QString &value);
     virtual QString order();
     void virtual setOrder(const QString &value);
-    virtual bool internalData();
-    virtual void setInternalData(bool value);
     virtual void setRelationFilter(const QString &name);
     virtual AlephERP::DBRecordStates visibleRecords();
     virtual void setVisibleRecords(AlephERP::DBRecordStates visibleRecords);

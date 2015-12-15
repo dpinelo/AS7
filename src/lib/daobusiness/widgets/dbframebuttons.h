@@ -56,13 +56,6 @@ class ALEPHERP_DLL_EXPORT DBFrameButtons : public QFrame, public DBBaseWidget
     Q_OBJECT
     Q_DISABLE_COPY(DBFrameButtons)
 
-    /**
-     * ¿Se leen los datos de base de datos o del Bean del formulario que contiene este control?
-     * Si se leen los datos de forma externa, estos datos se obtendrán de tableName, filter
-     * Si se leen los datos de forma interna, se leerán desde una relación asociada al bean en cuestión.
-     */
-    Q_PROPERTY(bool internalData READ internalData WRITE setInternalData)
-
     /** Si los datos se leen de las estructura externa del formulario, aquí se indica de donde */
     Q_PROPERTY(QString tableName READ tableName WRITE setTableName DESIGNABLE externalDataPropertyVisible)
     Q_PROPERTY(QString filter READ filter WRITE setFilter DESIGNABLE externalDataPropertyVisible)
@@ -128,8 +121,6 @@ public:
     explicit DBFrameButtons(QWidget * parent = 0 );
     ~DBFrameButtons();
 
-    bool internalData() const;
-    void setInternalData(bool value);
     QString fieldView() const;
     void setFieldView(const QString &value);
     QString imageField() const;

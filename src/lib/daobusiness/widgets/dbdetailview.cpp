@@ -76,7 +76,6 @@ DBDetailView::DBDetailView(QWidget *parent) :
 {
     ui->setupUi(this);
     m_thisWidget = ui->tableView;
-    m_internalData = true;
 
     installEventFilter(ui->tableView);
 

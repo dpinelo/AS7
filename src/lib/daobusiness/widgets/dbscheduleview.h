@@ -40,9 +40,6 @@ class ALEPHERP_DLL_EXPORT DBScheduleView : public AERPScheduleView, public DBAbs
 {
     Q_OBJECT
 
-    /** ¿Se leen los datos de base de datos o del Bean del formulario que contiene este control? */
-    Q_PROPERTY(bool internalData READ internalData WRITE setInternalData)
-
     /** Si los datos se leen de base de datos, entonces se introduce este tableName */
     Q_PROPERTY (QString tableName READ tableName WRITE setTableName DESIGNABLE externalDataPropertyVisible)
     /** Este filtro aplica a los datos que se leen de base de datos */

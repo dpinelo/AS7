@@ -56,7 +56,6 @@ DBAbstractViewInterface::DBAbstractViewInterface(QWidget *widget, QHeaderView *h
     m_thisWidget = widget;
     m_automaticName = true;
     m_externalModel = false;
-    m_internalData = false;
     m_metadata = NULL;
     m_eventForwarder = new DBAbstractViewEventForwarder;
     m_visibleRecords = AlephERP::DBRecordStates(AlephERP::Inserted | AlephERP::Existing);
@@ -538,7 +537,7 @@ bool DBAbstractViewInterface::setupInternalModel()
         else
         {
             // Internal data indica si los datos se leen de base de datos o si se leen desde beans en memoria
-            if ( !m_internalData )
+            if ( !m_tableName.isEmpty() )
             {
                 m_metadata = BeansFactory::metadataBean(m_tableName);
                 // El filtro aquí pasado es fuerte (se traduce en la SQL)
@@ -548,7 +547,7 @@ bool DBAbstractViewInterface::setupInternalModel()
                     m_sourceModel->setParent(m_thisWidget);
                 }
             }
-            else
+            else if ( !m_relationName.isEmpty() )
             {
                 AbstractObserver *obs = observer();
                 if ( obs != NULL )
@@ -620,22 +619,12 @@ void DBAbstractViewInterface::setSourceModel(QAbstractItemModel *model)
     QObject::connect(m_filterModel.data(), SIGNAL(layoutChanged()), m_thisWidget, SLOT(resetCursor()));
 }
 
-bool DBAbstractViewInterface::internalData()
-{
-    return m_internalData;
-}
-
-void DBAbstractViewInterface::setInternalData(bool value)
-{
-    m_internalData = value;
-}
-
 /*!
   Algunas propiedades serán visibles dependiendo de si internalData es true o no
   */
 bool DBAbstractViewInterface::internalDataPropertyVisible()
 {
-    if ( m_internalData )
+    if ( !m_relationName.isEmpty() )
     {
         return true;
     }
@@ -644,7 +633,7 @@ bool DBAbstractViewInterface::internalDataPropertyVisible()
 
 bool DBAbstractViewInterface::externalDataPropertyVisible()
 {
-    if ( !m_internalData )
+    if ( !m_tableName.isEmpty() )
     {
         return true;
     }

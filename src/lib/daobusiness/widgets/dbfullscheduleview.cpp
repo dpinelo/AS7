@@ -136,16 +136,6 @@ void DBFullScheduleView::setOrder(const QString &value)
     ui->dbScheduleView->setOrder(value);
 }
 
-bool DBFullScheduleView::internalData()
-{
-    return ui->dbScheduleView->internalData();
-}
-
-void DBFullScheduleView::setInternalData(bool value)
-{
-    ui->dbScheduleView->setInternalData(value);
-}
-
 void DBFullScheduleView::setRelationFilter(const QString &name)
 {
     ui->dbScheduleView->setRelationFilter(name);
