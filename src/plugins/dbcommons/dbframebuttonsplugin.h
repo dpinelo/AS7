@@ -20,7 +20,11 @@
 #ifndef DBFRAMEBUTTONSPLUGIN_H
 #define DBFRAMEBUTTONSPLUGIN_H
 
+#if (QT_VERSION < QT_VERSION_CHECK(5,5,0))
+#include <QDesignerCustomWidgetInterface>
+#else
 #include <QtUiPlugin/QDesignerCustomWidgetInterface>
+#endif
 #include "dbbaseplugin.h"
 
 class DBFrameButtonsPlugin: public DBBasePlugin

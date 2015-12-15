@@ -1,7 +1,11 @@
 #ifndef WWRICHTEXTEDITPLUGIN_H
 #define WWRICHTEXTEDITPLUGIN_H
 
+#if (QT_VERSION < QT_VERSION_CHECK(5,5,0))
+#include <QDesignerCustomWidgetInterface>
+#else
 #include <QtUiPlugin/QDesignerCustomWidgetInterface>
+#endif
 
 class QwwRichTextEditPlugin: public QObject, public QDesignerCustomWidgetInterface
 {

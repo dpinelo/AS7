@@ -2,7 +2,11 @@
 #define MENUTREEWIDGETPLUGIN_H
 
 #include <QtGui>
+#if (QT_VERSION < QT_VERSION_CHECK(5,5,0))
+#include <QDesignerCustomWidgetInterface>
+#else
 #include <QtUiPlugin/QDesignerCustomWidgetInterface>
+#endif
 
 class MenuTreeWidgetPlugin : public QObject, public QDesignerCustomWidgetInterface
 {

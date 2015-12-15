@@ -20,7 +20,11 @@
 #ifndef AERPBASEDIALOGPLUGIN_H
 #define AERPBASEDIALOGPLUGIN_H
 
+#if (QT_VERSION < QT_VERSION_CHECK(5,5,0))
+#include <QDesignerCustomWidgetInterface>
+#else
 #include <QtUiPlugin/QDesignerCustomWidgetInterface>
+#endif
 #include <alepherpdaobusiness.h>
 
 class AERPBaseDialogPlugin : public QObject, public QDesignerCustomWidgetInterface

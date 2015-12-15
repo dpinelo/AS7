@@ -21,7 +21,11 @@
 #define DBFILEUPLOADPLUGIN_H
 
 #include <QObject>
+#if (QT_VERSION < QT_VERSION_CHECK(5,5,0))
+#include <QDesignerCustomWidgetInterface>
+#else
 #include <QtUiPlugin/QDesignerCustomWidgetInterface>
+#endif
 #include "dbbaseplugin.h"
 
 class DBFileUploadPlugin : public DBBasePlugin

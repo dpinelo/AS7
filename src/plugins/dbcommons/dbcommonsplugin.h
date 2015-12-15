@@ -21,7 +21,11 @@
 #define DBCOMMONSPLUGIN_H
 
 #include <QObject>
+#if (QT_VERSION < QT_VERSION_CHECK(5,5,0))
+#include <QDesignerCustomWidgetCollectionInterface>
+#else
 #include <QtUiPlugin/QDesignerCustomWidgetCollectionInterface>
+#endif
 
 class DBCommonsPlugin : public QObject, public QDesignerCustomWidgetCollectionInterface
 {

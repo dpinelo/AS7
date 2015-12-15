@@ -20,7 +20,11 @@
 #ifndef PERPSCRIPTWIDGETPLUGIN_H
 #define PERPSCRIPTWIDGETPLUGIN_H
 
+#if (QT_VERSION < QT_VERSION_CHECK(5,5,0))
+#include <QDesignerCustomWidgetInterface>
+#else
 #include <QtUiPlugin/QDesignerCustomWidgetInterface>
+#endif
 
 /**
   Sólo existe por compatibilidad con instalaciones en otros clientes
