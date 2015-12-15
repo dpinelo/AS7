@@ -20,6 +20,7 @@
 #ifndef _DBCODEEDIT_PLUGIN_H_
 #define _DBCODEEDIT_PLUGIN_H_
 
+#include <QtGlobal>
 #if (QT_VERSION < QT_VERSION_CHECK(5,5,0))
 #include <QDesignerCustomWidgetInterface>
 #else

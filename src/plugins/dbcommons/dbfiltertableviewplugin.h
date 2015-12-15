@@ -20,6 +20,7 @@
 #ifndef DBFILTERTABLEVIEWPLUGIN_H
 #define DBFILTERTABLEVIEWPLUGIN_H
 
+#include <QtGlobal>
 #if (QT_VERSION < QT_VERSION_CHECK(5,5,0))
 #include <QDesignerCustomWidgetInterface>
 #else

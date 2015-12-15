@@ -20,6 +20,7 @@
 #ifndef DBTREEVIEWPLUGIN_H
 #define DBTREEVIEWPLUGIN_H
 
+#include <QtGlobal>
 #if (QT_VERSION < QT_VERSION_CHECK(5,5,0))
 #include <QDesignerCustomWidgetInterface>
 #else
