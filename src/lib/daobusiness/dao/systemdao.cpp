@@ -875,9 +875,9 @@ bool SystemDAO::insertSystemObject(AERPSystemObject *systemObject, const QString
     QSqlDatabase db = Database::getQDatabase(connectionName);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(db));
     QString sql = QString("INSERT INTO %1_system(idremote, nombre, contenido, type, version, debug, on_init_debug, module, idorigin, ispatch, patch, device) "
-                          "VALUES (:id, :nombre, :contenido, :type, :version, :debug, :on_init_debug, :module, :idorigin, :ispatch, :patch, :device)").arg(alephERPSettings->systemTablePrefix());
+                          "VALUES (:idremote, :nombre, :contenido, :type, :version, :debug, :on_init_debug, :module, :idorigin, :ispatch, :patch, :device)").arg(alephERPSettings->systemTablePrefix());
     qry->prepare(sql);
-    qry->bindValue(":idremote", systemObject->name());
+    qry->bindValue(":idremote", systemObject->id());
     qry->bindValue(":nombre", systemObject->name());
     qry->bindValue(":contenido", systemObject->content());
     qry->bindValue(":type", systemObject->type());

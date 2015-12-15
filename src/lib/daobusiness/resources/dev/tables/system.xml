@@ -91,7 +91,7 @@
     <field>
         <name>idorigin</name>
         <alias>Elemento padre</alias>
-        <null>true</null>
+        <null>false</null>
         <pk>false</pk>
         <type>int</type>
         <visiblegrid>false</visiblegrid>
