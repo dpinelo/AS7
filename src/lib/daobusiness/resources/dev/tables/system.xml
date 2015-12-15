@@ -95,6 +95,7 @@
         <pk>false</pk>
         <type>int</type>
         <visiblegrid>false</visiblegrid>
+        <default>0</default>
         <relation>
             <table>alepherp_system</table>
             <field>id</field>
