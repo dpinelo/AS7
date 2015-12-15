@@ -543,7 +543,8 @@ bool Database::createSystemTablesSQLite()
     QStringList sqls = SystemDAO::systemTablesSQLite.split(';');
     foreach ( QString sql, sqls )
     {
-        if ( !sql.isEmpty() && (sql.contains(QString("%1_system").arg(alephERPSettings->systemTablePrefix())) || sql.contains(QString("%1_modules").arg(alephERPSettings->systemTablePrefix()))) )
+        if ( !sql.isEmpty() && (sql.contains(QString("%1_system").arg(alephERPSettings->systemTablePrefix())) ||
+                                sql.contains(QString("%1_modules").arg(alephERPSettings->systemTablePrefix()))) )
         {
             QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("Database::createSystemTablesSQLite: [%1]").arg(sql));
             if ( !qry->exec(sql) )

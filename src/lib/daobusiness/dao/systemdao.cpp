@@ -189,7 +189,7 @@ QString SystemDAO::systemTablesPSQL = ""
                                       "CREATE TABLE alepherp_system"
                                       "("
                                       "  id serial,"
-                                      "  idorigin integer, "
+                                      "  idorigin integer DEFAULT 0 NOT NULL, "
                                       "  nombre character varying(250) NOT NULL,"
                                       "  contenido text,"
                                       "  \"type\" character varying(10) NOT NULL,"
@@ -429,7 +429,8 @@ QString SystemDAO::systemTablesSQLite = ""
                                         "CREATE TABLE alepherp_system"
                                         "("
                                         "  id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                                        "  idorigin integer, "
+                                        "  idorigin integer DEFAULT 0 NOT NULL, "
+                                        "  idremote integer, "
                                         "  nombre character varying(250) NOT NULL,"
                                         "  contenido text,"
                                         "  \"type\" character varying(10) NOT NULL,"
@@ -873,9 +874,10 @@ bool SystemDAO::insertSystemObject(AERPSystemObject *systemObject, const QString
     SystemDAO::clearLastDbMessage();
     QSqlDatabase db = Database::getQDatabase(connectionName);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(db));
-    QString sql = QString("INSERT INTO %1_system(nombre, contenido, type, version, debug, on_init_debug, module, idorigin, ispatch, patch, device) "
-                          "VALUES (:nombre, :contenido, :type, :version, :debug, :on_init_debug, :module, :idorigin, :ispatch, :patch, :device)").arg(alephERPSettings->systemTablePrefix());
+    QString sql = QString("INSERT INTO %1_system(idremote, nombre, contenido, type, version, debug, on_init_debug, module, idorigin, ispatch, patch, device) "
+                          "VALUES (:id, :nombre, :contenido, :type, :version, :debug, :on_init_debug, :module, :idorigin, :ispatch, :patch, :device)").arg(alephERPSettings->systemTablePrefix());
     qry->prepare(sql);
+    qry->bindValue(":idremote", systemObject->name());
     qry->bindValue(":nombre", systemObject->name());
     qry->bindValue(":contenido", systemObject->content());
     qry->bindValue(":type", systemObject->type());
@@ -929,7 +931,7 @@ AERPSystemObject * SystemDAO::systemObject(int idObject)
 
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getLocalSystemDatabase()));
     QString sql = QString("SELECT nombre, contenido, type, version, debug, on_init_debug, module, device, idorigin FROM %1_system "
-                          "WHERE id = :id").arg(alephERPSettings->systemTablePrefix());
+                          "WHERE idremote = :id").arg(alephERPSettings->systemTablePrefix());
     qry->prepare(sql);
     qry->bindValue(":id", idObject);
     bool result = qry->exec() & qry->first();
@@ -1027,7 +1029,7 @@ QList<AERPSystemObject *> SystemDAO::localSystemObjects()
         SystemDAO::m_systemObjects << SystemDAO::createInternalSystemObjects();
 
         QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(Database::localSystemDatabaseName())));
-        QString sql = QString("SELECT id, nombre, contenido, type, version, debug, on_init_debug, module, idorigin, ispatch, patch, device "
+        QString sql = QString("SELECT idremote, nombre, contenido, type, version, debug, on_init_debug, module, idorigin, ispatch, patch, device "
                               "FROM %1_system ORDER BY type, nombre").
                 arg(alephERPSettings->systemTablePrefix());
 
@@ -1044,7 +1046,9 @@ QList<AERPSystemObject *> SystemDAO::localSystemObjects()
                     AERPSystemObject *r = NULL;
                     foreach (AERPSystemObject *tmp, SystemDAO::m_systemObjects)
                     {
-                        if (tmp->name() == qry->record().value("nombre").toString() && tmp->type() == qry->record().value("type").toString())
+                        if (tmp->name() == qry->record().value("nombre").toString() &&
+                            tmp->type() == qry->record().value("type").toString() &&
+                            tmp->idOrigin() == qry->record().value("idorigin").toInt() )
                         {
                             r = tmp;
                         }
@@ -1062,7 +1066,7 @@ QList<AERPSystemObject *> SystemDAO::localSystemObjects()
                         r->setIdOrigin(qry->record().value("idorigin").toInt());
                         r->setIsPatch(qry->record().value("ispatch").toInt());
                         r->setPatch(qry->record().value("patch").toString());
-                        r->setId(qry->record().value("id").toInt());
+                        r->setId(qry->record().value("idremote").toInt());
                         r->setDeviceTypes(qry->record().value("device").toString().split(","));
                         SystemDAO::m_systemObjects << r;
                     }
@@ -1111,7 +1115,9 @@ QList<AERPSystemObject *> SystemDAO::localSystemObjectsForThisDevice()
                 // Veamos si este objeto actual, es mejor que el que está actualmente agregado a la lista de resultados
                 if ( actualObject->id() != resultObject->id() )
                 {
-                    if ( actualObject->name() == resultObject->name() && actualObject->type() == resultObject->type() )
+                    if ( actualObject->name() == resultObject->name() &&
+                         actualObject->type() == resultObject->type() &&
+                         actualObject->idOrigin() == resultObject->idOrigin() )
                     {
                         // Si el objeto que repasamos coincide plenamente con el tipo de dispositivo, sustituimos el de la lista definitivo
                         // Es decir, si se encuentra un tipo de objeto Android.320.480, siempre sustituirá a un Android.*, o un *
@@ -1527,11 +1533,12 @@ bool SystemDAO::checkSystemObjectsOnLocal(QString &failTable)
                     {
                         QLogger::QLog_Error(AlephERP::stLogDB, qryObjects->lastError().text());
                         failTable = qryObjects->record().value("nombre").toString();
-                        SystemDAO::m_lastMessage = trUtf8("No existe el registro remoto con valores: Nombre: [%1], Tipo: [%2], Versión: [%3], Dispositivo: [%4]").
+                        SystemDAO::m_lastMessage = trUtf8("No existe el registro remoto con valores: Nombre: [%1], Tipo: [%2], Versión: [%3], Dispositivo: [%4], IdOrigin: [%5]").
                                 arg(qryObjects->record().value("nombre").toString()).
                                 arg(qryObjects->record().value("type").toString()).
                                 arg(qryObjects->record().value("max_version").toInt()).
-                                arg(qryObjects->record().value("device").toString());
+                                arg(qryObjects->record().value("device").toString()).
+                                arg(qryObjects->record().value("idorigin").toInt());
                         QLogger::QLog_Error(AlephERP::stLogDB, SystemDAO::m_lastMessage);
                         return false;
                     }
