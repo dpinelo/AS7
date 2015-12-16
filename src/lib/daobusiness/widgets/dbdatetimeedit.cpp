@@ -225,10 +225,6 @@ void DBDateTimeEdit::applyFieldProperties()
     if ( !dataEditable() )
     {
         setFocusPolicy(Qt::NoFocus);
-        if ( qApp->focusWidget() == this )
-        {
-            focusNextChild();
-        }
     }
     else
     {
