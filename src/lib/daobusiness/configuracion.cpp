@@ -687,47 +687,56 @@ void AlephERPSettings::restoreToolBarActions(QToolBar *toolBar)
 void AlephERPSettings::restoreState(QMainWindow *window)
 {
     QList<QToolBar *> toolBars = window->findChildren<QToolBar *>();
-    // Creemos las barras de tareas que se hubieran creado antes
-    foreach (const QString & toolBarName, m_toolBars.split(';'))
+    if ( !window->property(AlephERP::stStaticToolBars).isValid() || !window->property(AlephERP::stStaticToolBars).toBool() )
     {
-        if ( !toolBarName.isEmpty() )
+        // Creemos las barras de tareas que se hubieran creado antes
+        foreach (const QString & toolBarName, m_toolBars.split(';'))
         {
-            bool found = false;
-            foreach (QToolBar *toolBar, toolBars)
+            if ( !toolBarName.isEmpty() )
             {
-                if ( toolBar->windowTitle() == toolBarName )
+                bool found = false;
+                foreach (QToolBar *toolBar, toolBars)
                 {
-                    found = true;
+                    if ( toolBar->windowTitle() == toolBarName )
+                    {
+                        found = true;
+                    }
                 }
-            }
-            if ( !found )
-            {
-                toolBars.append(window->QMainWindow::addToolBar(toolBarName));
+                if ( !found )
+                {
+                    toolBars.append(window->QMainWindow::addToolBar(toolBarName));
+                }
             }
         }
     }
 
     window->restoreState(m_mainWindowState);
 
-    foreach (QToolBar *tb, toolBars)
+    if ( !window->property(AlephERP::stStaticToolBars).isValid() || !window->property(AlephERP::stStaticToolBars).toBool() )
     {
-        if ( tb->objectName() != QString(AlephERP::stModuleToolBar) )
+        foreach (QToolBar *tb, toolBars)
         {
-            alephERPSettings->restoreToolBarActions(tb);
+            if ( tb->objectName() != QString(AlephERP::stModuleToolBar) )
+            {
+                alephERPSettings->restoreToolBarActions(tb);
+            }
         }
     }
 }
 
 void AlephERPSettings::saveState(QMainWindow *window)
 {
-    m_toolBars.clear();
-    m_toolBarActions.clear();
-    // Vamos a almacenar las barras de herramientas que hubiese creado el usuario
-    QList<QToolBar *> toolBars = window->findChildren<QToolBar *>();
-    foreach (QToolBar *tb, toolBars)
+    if ( !window->property(AlephERP::stStaticToolBars).isValid() || !window->property(AlephERP::stStaticToolBars).toBool() )
     {
-        m_toolBars.append(tb->windowTitle()).append(';');
-        alephERPSettings->saveToolBarActions(tb);
+        m_toolBars.clear();
+        m_toolBarActions.clear();
+        // Vamos a almacenar las barras de herramientas que hubiese creado el usuario
+        QList<QToolBar *> toolBars = window->findChildren<QToolBar *>();
+        foreach (QToolBar *tb, toolBars)
+        {
+            m_toolBars.append(tb->windowTitle()).append(';');
+            alephERPSettings->saveToolBarActions(tb);
+        }
     }
 
     m_mainWindowState = window->saveState();

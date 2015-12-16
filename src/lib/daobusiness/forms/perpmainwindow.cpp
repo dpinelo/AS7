@@ -1039,11 +1039,25 @@ void AERPMainWindow::init()
 
     d->m_signalMapper = new QSignalMapper(this);
     // Creamos entradas y acciones definidas en los metadatos a través de las entradas adecuadas.
-    if ( property(AlephERP::stStaticToolBars).isValid() && property(AlephERP::stStaticToolBars).toBool() )
+    if ( property(AlephERP::stStaticToolBars).isValid() )
+    {
+        if ( !property(AlephERP::stStaticToolBars).toBool() )
+        {
+            d->createModuleToolbarFromMetadata();
+        }
+    }
+    else
     {
         d->createModuleToolbarFromMetadata();
     }
-    if ( property(AlephERP::stStaticMenu).isValid() && property(AlephERP::stStaticMenu).toBool() )
+    if ( property(AlephERP::stStaticMenu).isValid() )
+    {
+        if ( !property(AlephERP::stStaticMenu).toBool() )
+        {
+            d->addActionsToMenuFromMetadata();
+        }
+    }
+    else
     {
         d->addActionsToMenuFromMetadata();
     }
@@ -1094,17 +1108,20 @@ void AERPMainWindow::init()
     alephERPSettings->restoreState(this);
 
     // Permitimos drag & drop de acciones en las barras de herramientas.
-    QList<QToolBar *> toolBars = findChildren<QToolBar *>();
-    foreach (QToolBar *tb, toolBars)
+    if ( !property(AlephERP::stStaticToolBars).isValid() || !property(AlephERP::stStaticToolBars).toBool() )
     {
-        QList<QToolButton *> toolButtons = tb->findChildren<QToolButton *>();
-        foreach (QToolButton *button, toolButtons)
+        QList<QToolBar *> toolBars = findChildren<QToolBar *>();
+        foreach (QToolBar *tb, toolBars)
         {
-            button->installEventFilter(this);
-        }
+            QList<QToolButton *> toolButtons = tb->findChildren<QToolButton *>();
+            foreach (QToolButton *button, toolButtons)
+            {
+                button->installEventFilter(this);
+            }
 
-        tb->setAcceptDrops(true);
-        tb->installEventFilter(this);
+            tb->setAcceptDrops(true);
+            tb->installEventFilter(this);
+        }
     }
 }
 
