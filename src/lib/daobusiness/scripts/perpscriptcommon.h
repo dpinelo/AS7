@@ -92,6 +92,7 @@ public:
     Q_INVOKABLE QScriptValue createBean(const QString &tableName);
     Q_INVOKABLE QScriptValue bean(const QString &tableName, const QString &where);
     Q_INVOKABLE QScriptValue beanByPk(const QString &tableName, const QVariant &value);
+    Q_INVOKABLE QScriptValue beanByField(const QString &tableName, const QString &fieldName, const QVariant &value);
     Q_INVOKABLE QScriptValue beans(const QString &tableName, const QString &where, const QString &order);
     Q_INVOKABLE QScriptValue sqlSelect(const QString &sql);
     Q_INVOKABLE QScriptValue sqlSelectFirst(const QString &sql);

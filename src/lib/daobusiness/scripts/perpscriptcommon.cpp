@@ -418,6 +418,10 @@ QScriptValue AERPScriptCommon::bean(const QString &tableName, const QString &whe
 {
     QScriptValue result (QScriptValue::UndefinedValue);
     BaseBean *bean = BeansFactory::instance()->newBaseBean(tableName);
+    if ( bean == NULL ) {
+        return result;
+    }
+
     if ( !BaseDAO::selectFirst(bean, where, "", Database::databaseConnectionForThisThread()) )
     {
         result = QScriptValue(QScriptValue::UndefinedValue);
@@ -438,10 +442,43 @@ QScriptValue AERPScriptCommon::beanByPk(const QString &tableName, const QVariant
 {
     QScriptValue result (QScriptValue::UndefinedValue);
     BaseBean *bean = BeansFactory::instance()->newBaseBean(tableName);
+    if ( bean == NULL ) {
+        return result;
+    }
+
     if ( !BaseDAO::selectByPk(value, bean) )
     {
         result = QScriptValue(QScriptValue::UndefinedValue);
         delete bean;
+    }
+    else
+    {
+        if ( engine() != NULL )
+        {
+            result = engine()->newQObject(bean, QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject);
+            // Esto es legacy code
+            result.setProperty("empty", false, QScriptValue::ReadOnly);
+        }
+    }
+    return result;
+}
+
+QScriptValue AERPScriptCommon::beanByField(const QString &tableName, const QString &fieldName, const QVariant &value)
+{
+    QScriptValue result (QScriptValue::UndefinedValue);
+    BaseBean *bean = BeansFactory::instance()->newBaseBean(tableName);
+    if ( bean == NULL ) {
+        return result;
+    }
+    DBField *fld = bean->field(fieldName);
+    if ( fld == NULL )
+    {
+        return result;
+    }
+    QString where = QString("%1=%2").arg(fieldName).arg(fld->metadata()->sqlValue(value));
+    if ( !BaseDAO::selectFirst(bean, where, "", Database::databaseConnectionForThisThread()) )
+    {
+        result = QScriptValue(QScriptValue::UndefinedValue);
     }
     else
     {
