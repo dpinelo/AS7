@@ -88,6 +88,8 @@ const char * AlephERP::stInited = "aerpInitedWidget";
 const qint64 AlephERP::warningCalculatedTime=100;
 const char * AlephERP::stScriptFunctions = "$FUNCTIONS";
 const char * AlephERP::stScriptAssociated = "$ASSOCIATEDSCRIPTS";
+const char * AlephERP::stStaticToolBars = "staticToolBars";
+const char * AlephERP::stStaticMenu = "staticMenu";
 
 #ifdef ALEPHERP_DEVTOOLS
 const char * AlephERP::stWebInspector = "aerpWebInspector";

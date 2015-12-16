@@ -1039,8 +1039,14 @@ void AERPMainWindow::init()
 
     d->m_signalMapper = new QSignalMapper(this);
     // Creamos entradas y acciones definidas en los metadatos a través de las entradas adecuadas.
-    d->createModuleToolbarFromMetadata();
-    d->addActionsToMenuFromMetadata();
+    if ( property(AlephERP::stStaticToolBars).isValid() && property(AlephERP::stStaticToolBars).toBool() )
+    {
+        d->createModuleToolbarFromMetadata();
+    }
+    if ( property(AlephERP::stStaticMenu).isValid() && property(AlephERP::stStaticMenu).toBool() )
+    {
+        d->addActionsToMenuFromMetadata();
+    }
     // Procesamos el conjunto de acciones existentes, mostrandolas según perfil, o añadiéndoles iconos.
     d->processActions();
 
