@@ -1223,15 +1223,17 @@ bool BeansFactory::checkConsistencyMetadata(QVariantList &log)
             // Comprobemos si las relaciones están bien construidas
             foreach ( DBRelationMetadata *rel, m->relations() )
             {
-                if ( m->module()->tableCreationOptions().testFlag(AlephERP::WithForeignKeys) )
+                if ( m->module()->tableCreationOptions().testFlag(AlephERP::WithForeignKeys) &&
+                     (rel->type() == DBRelationMetadata::MANY_TO_ONE ||
+                     rel->type() == DBRelationMetadata::ONE_TO_ONE) )
                 {
                     if ( !SystemDAO::checkIfForeignKeyExists(rel) )
                     {
                         QHash<QString, QVariant> tableErrors;
                         AlephERP::ConsistencyTableErrors flagErrors;
                         tableErrors["tablename"] = m->tableName();
-                        tableErrors["column"] = "Relations";
-                        tableErrors["error"] = trUtf8("La relación %1 en la tabla %2 no existe.").
+                        tableErrors["column"] = rel->name();
+                        tableErrors["error"] = trUtf8("La foreign key %1 en la tabla %2 no existe.").
                                                arg(rel->tableName()).
                                                arg(m->tableName());
                         flagErrors = AlephERP::ForeignKeyNotExists;

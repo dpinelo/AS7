@@ -29,6 +29,7 @@
 #include "aerpconsistencymetadatatabledlg.h"
 #include "ui_aerpconsistencymetadatatabledlg.h"
 #include "dao/beans/basebeanmetadata.h"
+#include "dao/beans/dbrelationmetadata.h"
 #include "dao/beans/beansfactory.h"
 #include "dao/database.h"
 #include "dao/basedao.h"
@@ -140,6 +141,26 @@ void AERPConsistencyMetadataTableDlg::fix()
                 else
                 {
                     ui->tableWidget->removeRow(row);
+                }
+            }
+            else if ( error.testFlag(AlephERP::ForeignKeyNotExists) )
+            {
+                DBRelationMetadata *rel = m->relation(ui->tableWidget->item(row, 1)->text());
+                if ( rel != NULL )
+                {
+                    QString sql = rel->sqlForeignKey(AlephERP::WithForeignKeys, Database::driverConnection());
+                    bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
+                    if (!result)
+                    {
+                        QString err = trUtf8("Ocurrió un error: %1").arg(BaseDAO::lastErrorMessage());
+                        CommonsFunctions::restoreOverrideCursor();
+                        QMessageBox::information(this, qApp->applicationName(), err, QMessageBox::Ok);
+                        CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+                    }
+                    else
+                    {
+                        ui->tableWidget->removeRow(row);
+                    }
                 }
             }
             else if ( error.testFlag(AlephERP::TableNotExists) )

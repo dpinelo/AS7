@@ -751,7 +751,7 @@ bool SystemDAO::checkIfTableExists(const QString &tableName, const QString &conn
 bool SystemDAO::checkIfForeignKeyExists(DBRelationMetadata *rel, const QString &connection)
 {
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
-    QString sql = QString("SELECT "
+    QString sql = QString("SELECT DISTINCT "
                           "tc.constraint_name, tc.table_name, kcu.column_name, "
                           "ccu.table_name AS foreign_table_name, "
                           "ccu.column_name AS foreign_column_name "
@@ -762,12 +762,20 @@ bool SystemDAO::checkIfForeignKeyExists(DBRelationMetadata *rel, const QString &
                           "JOIN information_schema.constraint_column_usage AS ccu "
                           "ON ccu.constraint_name = tc.constraint_name "
                           "WHERE constraint_type = 'FOREIGN KEY' "
-                          "AND tc.foreign_column_name='%1' "
-                          "AND tc.table_name='%2';").arg(rel->father()->sqlTableName()).arg(rel->sqlTableName());
+                          "AND ccu.table_name='%1' "
+                          "AND tc.table_name='%2' "
+                          "AND kcu.column_name='%3';").
+            arg(rel->sqlTableName()).
+            arg(rel->rootMetadata()->sqlTableName()).
+            arg(rel->rootFieldName());
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO::checkIfForeignKeyExists: [%1]").arg(sql));
     if ( qry->exec(sql) )
     {
         return qry->first();
+    }
+    else
+    {
+        SystemDAO::writeDbMessages(qry.data());
     }
     return false;
 }
