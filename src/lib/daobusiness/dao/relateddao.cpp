@@ -199,14 +199,12 @@ bool RelatedDAO::loadRelatedElements(BaseBean *bean)
         {
             element->setCardinality(AlephERP::PointToChild);
             element->setRelatedTableName(qry->record().value("relatedtablename").toString());
-            element->setRelatedPkey(qry->record().value("relatedpkey").toString());
             element->setRelatedDbOid(qry->record().value("relatedoid").toLongLong());
         }
         else
         {
             element->setCardinality(AlephERP::PointToMaster);
             element->setRelatedTableName(qry->record().value("mastertablename").toString());
-            element->setRelatedPkey(qry->record().value("masterpkey").toString());
             element->setRelatedDbOid(qry->record().value("masteroid").toLongLong());
         }
         element->setXml(qry->record().value("data").toString());
@@ -226,7 +224,6 @@ bool RelatedDAO::loadRelatedElements(BaseBean *bean)
             elem->setCardinality(AlephERP::PointToMaster);
             elem->setCategories(parentElement->categories());
             elem->setRelatedTableName(parentElement->rootBean()->metadata()->tableName());
-            elem->setRelatedPkey(parentElement->rootBean()->pkSerializedValue());
             elem->setRelatedDbOid(parentElement->rootBean()->dbOid());
             elem->setRelatedBean(parentElement->rootBean(), false);
             elem->setState(RelatedElement::UPDATE);

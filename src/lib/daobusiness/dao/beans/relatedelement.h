@@ -97,7 +97,6 @@ private:
     RelatedElementPrivate *d;
 
     void setRelatedTableName(const QString &value);
-    void setRelatedPkey(const QString &value);
     void setRelatedDbOid(qlonglong value);
 
 public:
