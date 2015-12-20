@@ -417,7 +417,7 @@ QString RelatedElement::toXml() const
 {
     QString xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
     xml += QString("<element>");
-    xml += QString("<timestamp><![CDATA[%1]]></timestamp>").arg(QDateTime::currentDateTime().toString());
+    xml += QString("<timestamp><![CDATA[%1]]></timestamp>").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss"));
     xml += QString("<user>%1</user>").arg(AERPLoggedUser::instance()->userName());
     xml += QString("<type>%1</type>").arg(stringType());
     xml += QString("<additionalInfo><![CDATA[%1]]></additionalInfo>").arg(additionalInfo());

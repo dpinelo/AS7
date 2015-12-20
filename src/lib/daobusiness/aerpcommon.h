@@ -120,6 +120,8 @@ public:
     static const qint64 warningCalculatedTime;
     static const char * stScriptFunctions;
     static const char * stScriptAssociated;
+    static const char * stStaticToolBars;
+    static const char * stStaticMenu;
 
     static const char * stLogDB;
     static const char * stLogScript;

@@ -132,10 +132,8 @@ bool RelatedDAO::saveRelatedElement(RelatedElementPointer element, const QString
         if ( element->state() == RelatedElement::INSERT || element->state() == RelatedElement::UPDATE )
         {
             qry->bindValue(":mastertablename", element->rootTableName());
-            qry->bindValue(":masterpkey", element->rootPkey());
             qry->bindValue(":masteroid", element->rootDbOid());
             qry->bindValue(":relatedtablename", element->relatedTableName());
-            qry->bindValue(":relatedpkey", element->relatedPkey());
             qry->bindValue(":relatedoid", element->relatedDbOid());
             qry->bindValue(":data", element->toXml());
             qry->bindValue(":relationtype", element->stringType());

@@ -54,12 +54,8 @@ class RelatedElement : public QObject, public QScriptable
     Q_PROPERTY(QString rootTableName READ rootTableName)
     /** OID del registro padre de esta relación */
     Q_PROPERTY(qlonglong rootDbOid READ rootDbOid)
-    /** La primary key que identifica al registro padre de la relación */
-    Q_PROPERTY(QString rootPkey READ rootPkey)
     /** Identifica a la tabla maestra u origen del registro relacionado */
     Q_PROPERTY(QString relatedTableName READ relatedTableName)
-    /** La primary key que identifica al registro hijo de la relación */
-    Q_PROPERTY(QString relatedPkey READ relatedPkey)
     /** OID del registro relacionado */
     Q_PROPERTY(qlonglong relatedDbOid READ relatedDbOid)
     /** Posible categoría en la que clasificar los elementos relacionados. Por ejemplo, "Impuestos" */
@@ -133,9 +129,7 @@ public:
     BaseBeanPointer relatedBean();
     void setRelatedBean(BaseBeanPointer related, bool takeOwnerShip = false);
     QString relatedTableName() const;
-    QString relatedPkey() const;
     QString rootTableName() const;
-    QString rootPkey() const;
     RelatedElementStates state();
     QString toXml() const;
     QString stringType() const;
