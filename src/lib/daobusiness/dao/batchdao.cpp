@@ -968,8 +968,8 @@ bool BatchDAOPrivate::synchronizeBatchRelations()
     QScopedPointer<QSqlQuery> qryLocalOid (new QSqlQuery(dbLocal));
     QString sqlMaxTs = QString("SELECT max(ts) FROM %1_relations").arg(alephERPSettings->systemTablePrefix());
     QString sqlRelations = QString("SELECT * FROM %1_relations WHERE ts > '%2' AND tablename='%3'");
-    QString sqlInsert = QString("INSERT INTO %1_relations (mastertablename, masterpkey, masteroid, relatedtablename, relatedpkey, relatedoid, relationtype, data)"
-                                "VALUES (:mastertablename, :masterpkey, :masteroid, :relatedtablename, :relatedpkey, :relatedoid, :relationtype, :data)").arg(alephERPSettings->systemTablePrefix());
+    QString sqlInsert = QString("INSERT INTO %1_relations (mastertablename, masteroid, relatedtablename, relatedoid, relationtype, data)"
+                                "VALUES (:mastertablename, :masteroid, :relatedtablename, :relatedoid, :relationtype, :data)").arg(alephERPSettings->systemTablePrefix());
     QString sqlLocalOid = QString("SELECT oid FROM %1 WHERE remoteoid=%2");
     QDateTime ts;
 
@@ -1048,12 +1048,10 @@ bool BatchDAOPrivate::synchronizeBatchRelations()
                             return false;
                         }
                         qryInsert->bindValue(":mastertablename", qryRelations->record().value("mastertablename"));
-                        qryInsert->bindValue(":masterpkey", qryRelations->record().value("masterpkey"));
                         qryInsert->bindValue(":masteroid", masterLocalOid);
                         if ( relatedLocalOid != -1 )
                         {
                             qryInsert->bindValue(":relatedtablename", qryRelations->record().value("relatedtablename"));
-                            qryInsert->bindValue(":relatedpkey", qryRelations->record().value("relatedpkey"));
                             qryInsert->bindValue(":relatedoid", relatedLocalOid);
                         }
                         qryInsert->bindValue(":relationtype", qryRelations->record().value("relationtype"));

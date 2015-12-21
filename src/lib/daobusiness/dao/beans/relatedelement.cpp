@@ -329,7 +329,6 @@ void RelatedElement::setDocument(AERPDocMngmntDocument *doc)
     // Obtenemos el pixmap del documento
     d->m_pixmap = CommonsFunctions::pixmapFromMimeType(doc->mimeType());
     d->m_relatedDbOid = doc->dbOid();
-    d->m_relatedPkey = QString("%1").arg(d->m_document->id());
     d->m_found = true;
     d->m_relatedIsLoaded = true;
 }
@@ -516,7 +515,6 @@ void RelatedElement::setXml(const QString &xml)
                             {
                                 d->m_pixmap = CommonsFunctions::pixmapFromMimeType(d->m_document->mimeType());
                                 d->m_relatedDbOid = d->m_document->dbOid();
-                                d->m_relatedPkey = QString("%1").arg(d->m_document->id());
                                 d->m_found = true;
                                 d->m_relatedIsLoaded = true;
                             }

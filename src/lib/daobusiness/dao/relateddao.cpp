@@ -109,13 +109,13 @@ bool RelatedDAO::saveRelatedElement(RelatedElementPointer element, const QString
     }
     if ( element->state() == RelatedElement::INSERT )
     {
-        sql = QString("INSERT INTO %1_relations (mastertablename, masterpkey, masteroid, relatedtablename, relatedpkey, relatedoid, relationtype, data)"
-                      "VALUES (:mastertablename, :masterpkey, :masteroid, :relatedtablename, :relatedpkey, :relatedoid, :relationtype, :data)").arg(alephERPSettings->systemTablePrefix());
+        sql = QString("INSERT INTO %1_relations (mastertablename, masteroid, relatedtablename, relatedoid, relationtype, data)"
+                      "VALUES (:mastertablename, :masteroid, :relatedtablename, :relatedoid, :relationtype, :data)").arg(alephERPSettings->systemTablePrefix());
     }
     else if ( element->state() == RelatedElement::UPDATE )
     {
-        sql = QString("UPDATE %1_relations SET mastertablename=:mastertablename, masterpkey=:masterpkey, masteroid=:masteroid, relatedtablename=:relatedtablename, "
-                      "relatedpkey=:relatedpkey, relatedoid=:relatedoid, relationtype=:relationtype, data=:data WHERE id=:id").arg(alephERPSettings->systemTablePrefix());
+        sql = QString("UPDATE %1_relations SET mastertablename=:mastertablename, masteroid=:masteroid, relatedtablename=:relatedtablename, "
+                      "relatedoid=:relatedoid, relationtype=:relationtype, data=:data WHERE id=:id").arg(alephERPSettings->systemTablePrefix());
     }
     else if ( element->state() == RelatedElement::TO_BE_DELETED )
     {
@@ -176,7 +176,7 @@ bool RelatedDAO::loadRelatedElements(BaseBean *bean)
         return true;
     }
     QScopedPointer<QSqlQuery> qry(new QSqlQuery(Database::getQDatabase()));
-    QString sql = QString("SELECT id, relationtype, data, masteroid, relatedoid, mastertablename, masterpkey, masteroid, relatedtablename, relatedpkey, relatedoid FROM %1_relations WHERE masteroid=:oid or relatedoid=:childoid ORDER by ts").arg(alephERPSettings->systemTablePrefix());
+    QString sql = QString("SELECT id, relationtype, data, masteroid, relatedoid, mastertablename, masteroid, relatedtablename, relatedoid FROM %1_relations WHERE masteroid=:oid or relatedoid=:childoid ORDER by ts").arg(alephERPSettings->systemTablePrefix());
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("RelatedDAO::loadRelatedElements: [%1]").arg(sql));
     if ( !qry->prepare(sql) )
     {

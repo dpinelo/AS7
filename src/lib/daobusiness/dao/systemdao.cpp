@@ -252,17 +252,11 @@ QString SystemDAO::systemTablesPSQL = ""
                                       "CREATE INDEX \"alepherp_relations_oid_idx\""
                                       "  ON \"alepherp_relations\" (masteroid);"
 
-                                      "CREATE INDEX \"alepherp_relations_pkey_idx\""
-                                      "  ON \"alepherp_relations\" (masterpkey);"
-
                                       "CREATE INDEX \"alepherp_relations_reltablename_idx\""
                                       "  ON \"alepherp_relations\" (relatedtablename);"
 
                                       "CREATE INDEX \"alepherp_relations_reloid_idx\""
                                       "  ON \"alepherp_relations\" (relatedoid);"
-
-                                      "CREATE INDEX \"alepherp_relations_relpkey_idx\""
-                                      "  ON \"alepherp_relations\" (relatedpkey);"
 
                                       "CREATE INDEX \"alepherp_relations_tablename_relationtype_idx\""
                                       "  ON \"alepherp_relations\" (relationtype);"
@@ -463,10 +457,8 @@ QString SystemDAO::systemTablesSQLite = ""
                                         "  id INTEGER PRIMARY KEY AUTOINCREMENT, "
                                         "  relationtype character varying(20), "
                                         "  mastertablename character varying(255), "
-                                        "  masterpkey character varying(1000), "
                                         "  masteroid integer, "
                                         "  relatedtablename character varying(255), "
-                                        "  relatedpkey character varying(1000), "
                                         "  relatedoid integer, "
                                         "  ts timestamp DEFAULT CURRENT_TIMESTAMP, "
                                         "  data text "
@@ -478,17 +470,11 @@ QString SystemDAO::systemTablesSQLite = ""
                                         "CREATE INDEX \"alepherp_relations_oid_idx\""
                                         "  ON \"alepherp_relations\" (masteroid);"
 
-                                        "CREATE INDEX \"alepherp_relations_pkey_idx\""
-                                        "  ON \"alepherp_relations\" (masterpkey);"
-
                                         "CREATE INDEX \"alepherp_relations_reltablename_idx\""
                                         "  ON \"alepherp_relations\" (relatedtablename);"
 
                                         "CREATE INDEX \"alepherp_relations_reloid_idx\""
                                         "  ON \"alepherp_relations\" (relatedoid);"
-
-                                        "CREATE INDEX \"alepherp_relations_relpkey_idx\""
-                                        "  ON \"alepherp_relations\" (relatedpkey);"
 
                                         "CREATE INDEX \"alepherp_relations_relationtype_idx\""
                                         "  ON \"alepherp_relations\" (relationtype);"
