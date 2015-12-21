@@ -1510,7 +1510,7 @@ bool SystemDAO::checkSystemObjectsOnLocal(QString &failTable)
                 qryDetailObject->bindValue(":type", qryObjects->record().value("type"));
                 qryDetailObject->bindValue(":version", qryObjects->record().value("max_version"));
                 qryDetailObject->bindValue(":device", qryObjects->record().value("device"));
-                qryDetailObject->bindValue(":idorigin", qryObjects->record().value("idorigin"));
+                qryDetailObject->bindValue(":idorigin", qryObjects->record().value("idorigin").toInt());
                 bool r2 = qryDetailObject->exec();
                 QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO: checkSystemObjectsVersionOnLocal: [%1]").arg(qryDetailObject->lastQuery()));
                 if ( r2 )

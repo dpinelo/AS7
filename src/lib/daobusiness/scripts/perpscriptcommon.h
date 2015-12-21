@@ -212,9 +212,9 @@ public:
     // ---------------------------------------------------------------------------
     // FORMULARIOS PARA COMUNICACIÓN DE DATOS O PETICIÓN DE INFORMACIÓN AL USUARIO
     // ---------------------------------------------------------------------------
-    Q_INVOKABLE int getInt(const QString &label, int value = 0,  int min = -2147483647, int max = 2147483647);
-    Q_INVOKABLE double getDouble(const QString &label, double value = 0,  double min = -2147483647, double max = 2147483647, int decimals = 2);
-    Q_INVOKABLE double getDouble(const QScriptValue &parent, const QString &label, double value = 0,  double min = -2147483647, double max = 2147483647, int decimals = 2);
+    Q_INVOKABLE int getInt(const QString &label, int value = 0, int cancelValue = 0,  int min = -2147483647, int max = 2147483647);
+    Q_INVOKABLE double getDouble(const QString &label, double value = 0, double cancelValue = 0, double min = -2147483647, double max = 2147483647, int decimals = 2);
+    Q_INVOKABLE double getDouble(const QScriptValue &parent, const QString &label, double value = 0, double cancelValue = 0, double min = -2147483647, double max = 2147483647, int decimals = 2);
     Q_INVOKABLE QString getText(const QString & label);
     Q_INVOKABLE QScriptValue getDate(const QString &label, const QDate &defaultDate = QDate::currentDate());
     Q_INVOKABLE QScriptValue getDateTime(const QString &label, const QDateTime &defaultDateTime = QDateTime::currentDateTime());

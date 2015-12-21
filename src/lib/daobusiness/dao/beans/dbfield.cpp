@@ -573,6 +573,19 @@ void DBField::setRelations(const QList<DBRelation *> rels)
     }
 }
 
+bool DBField::hasM1Relation() const
+{
+    // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
+    foreach (DBRelation *rel, d->m_relations)
+    {
+        if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 QString DBField::sqlEqual()
 {
     return sqlWhere("=");
@@ -2785,6 +2798,7 @@ bool DBField::insertFieldOnUpdateSql(BaseBean::DbBeanStates state)
     {
         return false;
     }
+
     return true;
 }
 
