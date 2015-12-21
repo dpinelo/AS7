@@ -923,7 +923,7 @@ void startCrashHandler(int signal)
 
     QString stackFile = alephERPSettings->dataPath() + QDir::separator() + ".stacktrace";
 
-    cmd = qApp->applicationDirPath() + QString("alepherp-ch -style Fusion -stackFile %1").arg(stackFile);
+    cmd = qApp->applicationDirPath() + QString("/alepherp-ch -style Fusion -stackFile %1").arg(stackFile);
 
     //C reates the stacktrace file
     output.setFileName(stackFile);

@@ -1200,6 +1200,8 @@ bool AERPScriptQsObject::createQsObject()
     {
         m_debugWindow = QPointer<QMainWindow> (m_debugger->standardWindow());
         m_debugWindow->setWindowModality(Qt::ApplicationModal);
+        Qt::WindowFlags f = m_debugWindow->windowFlags() | Qt::WindowStaysOnTopHint;
+        m_debugWindow->setWindowFlags(f);
         if ( onInitDebug() )
         {
             m_debugger->action(QScriptEngineDebugger::InterruptAction)->trigger();
