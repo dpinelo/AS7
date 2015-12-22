@@ -734,12 +734,15 @@ bool AERPBaseDialog::eventFilter (QObject *target, QEvent *event)
             if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return )
             {
                 focusNextChild();
-                qDebug() << qApp->focusWidget()->metaObject()->className();
-                // Los datetimeedit tienen varios controles anidados... hay que hacer este hack.
-                DBDateTimeEdit *de = qobject_cast<DBDateTimeEdit *>(target);
-                if ( de != NULL && QString(qApp->focusWidget()->metaObject()->className()) == "QToolButton" )
+                if ( qApp->focusWidget() != NULL )
                 {
-                    focusNextChild();
+                    qDebug() << qApp->focusWidget()->metaObject()->className();
+                    // Los datetimeedit tienen varios controles anidados... hay que hacer este hack.
+                    DBDateTimeEdit *de = qobject_cast<DBDateTimeEdit *>(target);
+                    if ( de != NULL && QString(qApp->focusWidget()->metaObject()->className()) == "QToolButton" )
+                    {
+                        focusNextChild();
+                    }
                 }
                 ev->accept();
                 return true;
