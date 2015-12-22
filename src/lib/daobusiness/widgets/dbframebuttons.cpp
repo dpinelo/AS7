@@ -82,6 +82,7 @@ public:
         m_showButtonText = true;
     }
     void addButton (const QString &texto, const QPixmap &pixmap);
+    void setDataEditable(bool value);
 };
 
 
@@ -220,6 +221,12 @@ bool DBFrameButtons::showButtonText() const
 void DBFrameButtons::setShowButtonText(bool value)
 {
     d->m_showButtonText = value;
+}
+
+void DBFrameButtons::setDataEditable(bool value)
+{
+    DBBaseWidget::setDataEditable(value);
+    d->setDataEditable(value);
 }
 
 /*!
@@ -406,6 +413,7 @@ void DBFrameButtonsPrivate::addButton(const QString &texto, const QPixmap &pixma
     button->setCheckable(true);
     button->setAttribute(Qt::WA_DeleteOnClose);
     button->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+    button->setEnabled(q_ptr->dataEditable());
     if ( m_buttonFixedHeight != -1 )
     {
         button->setFixedHeight(m_buttonFixedHeight);
@@ -432,6 +440,18 @@ void DBFrameButtonsPrivate::addButton(const QString &texto, const QPixmap &pixma
     m_layoutButtons->addWidget(button, m_lastButtonAdded.second, m_lastButtonAdded.first);
     // Hay que pasarle el id del botón. Siempre será el tamaño de la lista, más uno
     m_buttons.addButton(button, id);
+}
+
+void DBFrameButtonsPrivate::setDataEditable(bool value)
+{
+    foreach (QAbstractButton *btn, m_buttons.buttons())
+    {
+        QPushButton *pushButton = qobject_cast<QPushButton *>(btn);
+        if ( pushButton )
+        {
+            pushButton->setEnabled(value);
+        }
+    }
 }
 
 /*!
@@ -583,13 +603,10 @@ QVariant DBFrameButtons::value()
 */
 void DBFrameButtons::applyFieldProperties()
 {
-    QList<QPushButton *> buttons = findChildren<QPushButton *>();
-    foreach (QPushButton *pb, buttons)
-    {
-        pb->setEnabled(dataEditable());
-    }
+    d->setDataEditable(dataEditable());
     if ( !dataEditable() )
     {
+
         setFocusPolicy(Qt::NoFocus);
         if ( qApp->focusWidget() == this )
         {
