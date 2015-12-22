@@ -265,8 +265,6 @@ QScriptEngineDebugger *AERPScriptEngine::debugger()
             {
                 threadDebugger.setLocalData(new QScriptEngineDebugger());
                 threadDebugger.localData()->standardWindow()->setWindowModality(Qt::ApplicationModal);
-                Qt::WindowFlags f = threadDebugger.localData()->standardWindow()->windowFlags() | Qt::WindowStaysOnTopHint;
-                threadDebugger.localData()->standardWindow()->setWindowFlags(f);
                 threadDebugger.localData()->attachTo(AERPScriptEngine::instance());
                 return threadDebugger.localData();
             }

@@ -70,10 +70,6 @@ class ALEPHERP_DLL_EXPORT DBNumberEdit : public QLineEdit, public DBBaseWidget
     Q_PROPERTY (int sqlExecutionTimeout READ sqlExecutionTimeout WRITE setSqlExecutionTimeout)
     /** Es posible definir una expresión para que este objeto muestre un cálculo */
     Q_PROPERTY (QString calculatedExpression READ calculatedExpression WRITE setCalculatedExpression)
-    /** Indica si este campo puede ser susceptible de recibir entradas de un lector de código de barras, y por tanto usar un comportamiento especial */
-    Q_PROPERTY (bool barCodeReaderAllowed READ barCodeReaderAllowed WRITE setBarCodeReaderAllowed)
-    /** Si se ha recibido una lectura de un lector de código de barras, ¿nos vamos al siguiente item? */
-    Q_PROPERTY (bool onBarCodeReadNextFocus READ onBarCodeReadNextFocus WRITE setOnBarCodeReadNextFocus)
 
 private:
     DBNumberEditPrivate *d;
@@ -137,7 +133,6 @@ signals:
     void valueEdited(const QVariant &value);
     void destroyed(QWidget *widget);
     void fieldNameChanged();
-    void barCodeRead(const QVariant &value);
 
 };
 

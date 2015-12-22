@@ -68,14 +68,6 @@ public:
 void DBNumberEdit::keyPressEvent(QKeyEvent *event)
 {
     QLineEdit::keyPressEvent(event);
-    if ( barCodeReaderAllowed() && isBarCodeReaderEntry(value().toString()) )
-    {
-        emit barCodeRead(value());
-        if ( onBarCodeReadNextFocus() )
-        {
-            focusNextChild();
-        }
-    }
 }
 
 void DBNumberEdit::showEvent(QShowEvent *event)
