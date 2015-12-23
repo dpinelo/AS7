@@ -416,7 +416,7 @@ void DBDetailView::deleteRecord()
         BaseBeanSharedPointer bean = filterModel()->bean(index);
         beans << bean;
         AERPBaseDialog *containerDlg = CommonsFunctions::aerpParentDialog(this);
-        QScriptValue result = containerDlg->callQSMethod(QString("%1beforeDeleteChild").arg(m_relationName), bean.data());
+        QScriptValue result = containerDlg->callQSMethod(QString("%1BeforeDeleteChild").arg(m_relationName), bean.data());
         if ( !result.isUndefined() && !result.isNull() && result.isValid() )
         {
             if ( !result.toBool() )
