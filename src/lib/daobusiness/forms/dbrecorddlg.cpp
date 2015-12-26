@@ -167,6 +167,7 @@ public:
     bool m_advancedNavigation;
     QPointer<QListWidget> m_advancedNavigationWidget;
     QList<BeansOnNavigation> m_advancedNavigationBeans;
+    bool m_forceSaveToDb;
 
     DBRecordDlgPrivate(DBRecordDlg *qq) : q_ptr(qq)
     {
@@ -183,6 +184,7 @@ public:
         m_saveAndNewWithAllFieldsValidated = false;
         m_closing = false;
         m_advancedNavigation = false;
+        m_forceSaveToDb = false;
     }
 
     bool readBeanFromModel(const QModelIndex &idx, QString &message);
@@ -1347,7 +1349,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
 
     if ( d->m_bean.isNull() )
     {
-        if ( d->m_initContext )
+        if ( d->m_initContext && !d->m_forceSaveToDb )
         {
             AERPTransactionContext::instance()->discardContext(AERPTransactionContext::instance()->masterContext());
         }
@@ -1366,7 +1368,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
             d->m_bean->uncheckModifiedRelatedElements();
             d->m_sourceModel->removeRow(d->m_sourceIndex.row(), d->m_sourceParent);
         }
-        if ( d->m_initContext )
+        if ( d->m_initContext && !d->m_forceSaveToDb )
         {
             AERPTransactionContext::instance()->discardContext(AERPTransactionContext::instance()->masterContext());
         }
@@ -1461,7 +1463,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
             }
         }
     }
-    if ( d->m_initContext )
+    if ( d->m_initContext && !d->m_forceSaveToDb )
     {
         AERPTransactionContext::instance()->discardContext(AERPTransactionContext::instance()->masterContext());
     }
@@ -1772,7 +1774,7 @@ bool DBRecordDlg::save()
     {
         d->m_bean->emitEndEdit();
         // Sólo hacemos un commit si fue el record que inició el contexto
-        if ( d->m_initContext )
+        if ( d->m_initContext || d->m_forceSaveToDb )
         {
             /** Llamamos al evento justo antes de iniciar las transacciones */
             QScriptValue r = callQSMethod("beforeInitTransaction");
@@ -1792,10 +1794,10 @@ bool DBRecordDlg::save()
                 QMessageBox::warning(this, qApp->applicationName(),
                                      trUtf8("Se ha producido un error guardando los datos. \nEl error es: %1").
                                      arg(AERPTransactionContext::instance()->lastErrorMessage()), QMessageBox::Ok);
-                d->m_canClose = true;
-                return result;
+                d->m_canClose = false;
+                return false;
             }
-            else
+            else if ( !d->m_forceSaveToDb )
             {
                 AERPTransactionContext::instance()->discardContext(AERPTransactionContext::instance()->masterContext());
             }
@@ -1817,7 +1819,7 @@ bool DBRecordDlg::save()
         /** Se llama a una función que el programador QS puede definir en su formulario, tras guardarse el registro (pero no necesariamente
         en base de datos)!!!*/
         callQSMethod("beanSaved");
-        if ( d->m_initContext )
+        if ( d->m_initContext || d->m_forceSaveToDb )
         {
             /** Este método se invoca en el formulario, cuando todos los datos editados en este formulario, se
              * han guardado definitivamente en base de datos */
@@ -2500,6 +2502,16 @@ void DBRecordDlg::setVisibleButtons(DBRecordDlg::DBRecordButtons buttons)
 QModelIndex DBRecordDlg::recentInsertIndex() const
 {
     return d->m_filterIndex;
+}
+
+bool DBRecordDlg::forceSaveToDb() const
+{
+    return d->m_forceSaveToDb;
+}
+
+void DBRecordDlg::setForceSaveToDb(bool value)
+{
+    d->m_forceSaveToDb = value;
 }
 
 void DBRecordDlg::showOrHideRelatedElements()
