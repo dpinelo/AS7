@@ -380,6 +380,7 @@ void DBLineEdit::setValue(const QVariant &value)
         {
             blockSignals(false);
         }
+        update();
     }
 }
 
