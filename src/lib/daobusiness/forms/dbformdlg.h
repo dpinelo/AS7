@@ -133,7 +133,7 @@ public:
         EmailButton = 0x800,
         WizardButton = 0x1000,
         ViewButton = 0x2000,
-        ExportSpreadSheet = 0x3000
+        ExportSpreadSheet = 0x4000
     };
     Q_DECLARE_FLAGS(DBFormButtons, DBFormButton)
 

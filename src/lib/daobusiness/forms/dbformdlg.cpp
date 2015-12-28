@@ -1283,7 +1283,7 @@ void DBFormDlg::setVisibleButtons(DBFormDlg::DBFormButtons buttons)
     ui->pbOk->setVisible(buttons.testFlag(DBFormDlg::OkButton));
     ui->pbPrint->setVisible(buttons.testFlag(DBFormDlg::PrintButton));
     ui->pbWizard->setVisible(buttons.testFlag(DBFormDlg::WizardButton));
-    ui->pbExportSpreadSheet->setVisible(buttons.testFlag((DBFormDlg::ExportSpreadSheet)));
+    ui->pbExportSpreadSheet->setVisible(buttons.testFlag(DBFormDlg::ExportSpreadSheet));
     if ( d->m_metadata->canHaveRelatedElements() || d->m_metadata->canHaveRelatedDocuments() || d->m_metadata->canSendEmail() || d->m_metadata->showSomeRelationOnRelatedElementsModel() )
     {
         ui->pbRelatedElements->setVisible(buttons.testFlag(DBFormDlg::RelatedElementsButton));

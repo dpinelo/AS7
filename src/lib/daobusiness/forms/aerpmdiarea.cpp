@@ -54,8 +54,22 @@ void AERPMdiArea::paintEvent(QPaintEvent *paintEvent)
     QFontMetrics fm = painter.fontMetrics();
 
     QPixmap img(":/aplicacion/images/BolaAlephGris.png");
-    QPoint posImg = viewport()->rect().bottomRight() - QPoint(100 + 20 + fm.width("alephERP")+ 20, 120);
-    painter.drawPixmap(QRect(posImg, QSize(100, 100)), img);
+    // Si en el directorio del ejecutable, hay una imagen con nombre icon.png, utilizamos esta
+    QString mdiFilePath = qApp->applicationDirPath() + QDir::separator() + "mdiimage.png";
+    QFile fiMdiFile(mdiFilePath);
+    if ( fiMdiFile.exists() )
+    {
+        img = QPixmap(mdiFilePath);
+        QSize sz = img.size();
+        QPoint pos = QPoint(sz.width() + 100, sz.height() + 30);
+        QPoint posImg = viewport()->rect().bottomRight() - pos;
+        painter.drawPixmap(QRect(posImg, sz), img);
+    }
+    else
+    {
+        QPoint posImg = viewport()->rect().bottomRight() - QPoint(100 + 20 + fm.width("alephERP")+ 20, 120);
+        painter.drawPixmap(QRect(posImg, QSize(100, 100)), img);
 
-    painter.drawText(QRect(posImg + QPoint(120,0), QSize(20 + fm.width("alephERP") + 20, 100)), Qt::AlignLeft | Qt::AlignVCenter, "alephERP");
+        painter.drawText(QRect(posImg + QPoint(120,0), QSize(20 + fm.width("alephERP") + 20, 100)), Qt::AlignLeft | Qt::AlignVCenter, "alephERP");
+    }
 }

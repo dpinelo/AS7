@@ -1890,14 +1890,32 @@ void AERPScriptCommon::clearObjectCache()
     BaseDAO::clearAllCache();
 }
 
-int AERPScriptCommon::getInt(const QString &label, int value, int min, int max)
+int AERPScriptCommon::getInt(const QString &label, int value, int cancelValue, int min, int max)
 {
-    return QInputDialog::getInt(0, qApp->applicationName(), label, value, min, max);
+    bool ok;
+    int i = QInputDialog::getInt(0, qApp->applicationName(), label, value, min, max, 1, &ok);
+    if ( ok )
+    {
+        return i;
+    }
+    else
+    {
+        return cancelValue;
+    }
 }
 
-double AERPScriptCommon::getDouble(const QString &label, double value, double min, double max, int decimals)
+double AERPScriptCommon::getDouble(const QString &label, double value, double cancelValue, double min, double max, int decimals)
 {
-    return QInputDialog::getDouble(0, qApp->applicationName(), label, value, min, max, decimals);
+    bool ok;
+    double d = QInputDialog::getDouble(0, qApp->applicationName(), label, value, min, max, decimals, &ok);
+    if ( ok )
+    {
+        return d;
+    }
+    else
+    {
+        return cancelValue;
+    }
 }
 
 /**
@@ -1911,7 +1929,7 @@ double AERPScriptCommon::getDouble(const QString &label, double value, double mi
  * @param decimals
  * @return
  */
-double AERPScriptCommon::getDouble(const QScriptValue &parent, const QString &label, double value,  double min, double max, int decimals)
+double AERPScriptCommon::getDouble(const QScriptValue &parent, const QString &label, double value, double cancelValue, double min, double max, int decimals)
 {
     QWidget *widget = NULL;
     if ( parent.isQObject() )
@@ -1919,7 +1937,16 @@ double AERPScriptCommon::getDouble(const QScriptValue &parent, const QString &la
         QObject *obj = parent.toQObject();
         widget = qobject_cast<QWidget *>(obj);
     }
-    return QInputDialog::getDouble(widget, qApp->applicationName(), label, value, min, max, decimals);
+    bool ok;
+    double d = QInputDialog::getDouble(widget, qApp->applicationName(), label, value, min, max, decimals, &ok);
+    if ( ok )
+    {
+        return d;
+    }
+    else
+    {
+        return cancelValue;
+    }
 }
 
 QString AERPScriptCommon::getText(const QString &label)

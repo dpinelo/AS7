@@ -50,7 +50,6 @@ public:
     QStringList m_categories;
     QString m_xml;
     QString m_relatedTableName;
-    QString m_relatedPkey;
     qlonglong m_relatedDbOid;
     QDateTime m_timeStamp;
     QString m_user;
@@ -89,11 +88,6 @@ public:
 void RelatedElement::setRelatedTableName(const QString &value)
 {
     d->m_relatedTableName = value;
-}
-
-void RelatedElement::setRelatedPkey(const QString &value)
-{
-    d->m_relatedPkey = value;
 }
 
 void RelatedElement::setRelatedDbOid(qlonglong value)
@@ -195,15 +189,6 @@ QString RelatedElement::relatedTableName() const
     return d->m_relatedBean->metadata()->tableName();
 }
 
-QString RelatedElement::relatedPkey() const
-{
-    if ( d->m_relatedBean.isNull() )
-    {
-        return "";
-    }
-    return d->m_relatedBean->pkSerializedValue();
-}
-
 QString RelatedElement::rootTableName() const
 {
     if ( d->m_rootBean.isNull() )
@@ -213,18 +198,9 @@ QString RelatedElement::rootTableName() const
     return d->m_rootBean->metadata()->tableName();
 }
 
-QString RelatedElement::rootPkey() const
-{
-    if ( d->m_rootBean.isNull() )
-    {
-        return "";
-    }
-    return d->m_rootBean->pkSerializedValue();
-}
-
 BaseBeanPointer RelatedElement::relatedBean()
 {
-    if ( d->m_relatedPkey.isEmpty() || d->m_relatedTableName.isEmpty() )
+    if ( d->m_relatedTableName.isEmpty() )
     {
         return d->m_relatedBean;
     }
@@ -353,7 +329,6 @@ void RelatedElement::setDocument(AERPDocMngmntDocument *doc)
     // Obtenemos el pixmap del documento
     d->m_pixmap = CommonsFunctions::pixmapFromMimeType(doc->mimeType());
     d->m_relatedDbOid = doc->dbOid();
-    d->m_relatedPkey = QString("%1").arg(d->m_document->id());
     d->m_found = true;
     d->m_relatedIsLoaded = true;
 }
@@ -380,7 +355,6 @@ void RelatedElement::setRelatedBean(BaseBeanPointer related, bool takeOwnerShip)
         related->setParent(this);
     }
     d->m_relatedTableName = related->metadata()->tableName();
-    d->m_relatedPkey = related->pkSerializedValue();
     d->m_relatedDbOid = related->dbOid();
     // Leemos el pixmap del registro relacionado
     d->m_pixmap = related->metadata()->pixmap();
@@ -417,7 +391,7 @@ QString RelatedElement::toXml() const
 {
     QString xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
     xml += QString("<element>");
-    xml += QString("<timestamp><![CDATA[%1]]></timestamp>").arg(QDateTime::currentDateTime().toString());
+    xml += QString("<timestamp><![CDATA[%1]]></timestamp>").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss"));
     xml += QString("<user>%1</user>").arg(AERPLoggedUser::instance()->userName());
     xml += QString("<type>%1</type>").arg(stringType());
     xml += QString("<additionalInfo><![CDATA[%1]]></additionalInfo>").arg(additionalInfo());
@@ -541,7 +515,6 @@ void RelatedElement::setXml(const QString &xml)
                             {
                                 d->m_pixmap = CommonsFunctions::pixmapFromMimeType(d->m_document->mimeType());
                                 d->m_relatedDbOid = d->m_document->dbOid();
-                                d->m_relatedPkey = QString("%1").arg(d->m_document->id());
                                 d->m_found = true;
                                 d->m_relatedIsLoaded = true;
                             }

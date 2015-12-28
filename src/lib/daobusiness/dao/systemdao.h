@@ -27,6 +27,7 @@
 class ReportMetadata;
 class AERPSystemObject;
 class QSqlQuery;
+class DBRelationMetadata;
 
 /*!
   Esta clase contiene toda la lógica para almacenar el código de la lógica de negocio de la aplicación.
@@ -78,6 +79,7 @@ public:
     static bool createSystemTables(const QString &connectionName = "");
     static bool checkAlephERPSystemTables(QStringList &notExists, const QString &connectionName = "");
     static bool checkIfTableExists(const QString &tableName, const QString &connection = "");
+    static bool checkIfForeignKeyExists(DBRelationMetadata *rel, const QString &connection = "");
 
     static bool insertModule(const QString &id, const QString &name, const QString &description, const QString &showedText, const QString &iconName, bool enabled, const QString &tableCreationOptions, const QString &connectionName);
     static bool insertSystemObject(AERPSystemObject *systemObject, const QString &connectionName);

@@ -777,8 +777,17 @@ AERPMainWindow *AERPMainWindow::loadUi()
         uiName = "main.qmaindlg";
     }
 
-    QString fileName = QString("%1/%2.ui").
+    QString fileName;
+    if ( !fileName.endsWith(".ui") )
+    {
+        fileName = QString("%1/%2.ui").
                        arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).arg(uiName);
+    }
+    else
+    {
+        fileName = QString("%1/%2").
+                       arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).arg(uiName);
+    }
     QFile file (fileName);
 
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPMainWindow::loadUi: Se va a intentar cargar [%1]").arg(fileName));

@@ -61,7 +61,8 @@ void AERPTransactionContextProgressDlg::showDialog(const QString &contextName, Q
     dlg->setModal(true);
     dlg->setContextName(contextName);
     dlg->show();
-    CommonsFunctions::processEvents();
+    // Esta línea hace petar en ocasiones. Mejor la quitamos.
+    // CommonsFunctions::processEvents();
 }
 
 QString AERPTransactionContextProgressDlg::contextName() const

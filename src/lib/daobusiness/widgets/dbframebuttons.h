@@ -66,6 +66,8 @@ class ALEPHERP_DLL_EXPORT DBFrameButtons : public QFrame, public DBBaseWidget
       los datos que mostrarán los botones */
     Q_PROPERTY(QString relationName READ relationName WRITE setRelationName DESIGNABLE internalDataPropertyVisible)
     Q_PROPERTY(QString relationFilter READ relationFilter WRITE setRelationFilter DESIGNABLE internalDataPropertyVisible)
+    /** Indica si el control está en modo readOnly o no */
+    Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
 
     /** Orden que seguirán los botones al presentarse */
     Q_PROPERTY(QString order READ order WRITE setOrder)
@@ -143,6 +145,8 @@ public:
     void setButtonFixedWidth(int width);
     bool showButtonText() const;
     void setShowButtonText(bool value);
+
+    virtual void setDataEditable(bool value);
 
     AlephERP::ObserverType observerType(BaseBean *)
     {

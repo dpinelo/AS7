@@ -109,13 +109,13 @@ bool RelatedDAO::saveRelatedElement(RelatedElementPointer element, const QString
     }
     if ( element->state() == RelatedElement::INSERT )
     {
-        sql = QString("INSERT INTO %1_relations (mastertablename, masterpkey, masteroid, relatedtablename, relatedpkey, relatedoid, relationtype, data)"
-                      "VALUES (:mastertablename, :masterpkey, :masteroid, :relatedtablename, :relatedpkey, :relatedoid, :relationtype, :data)").arg(alephERPSettings->systemTablePrefix());
+        sql = QString("INSERT INTO %1_relations (mastertablename, masteroid, relatedtablename, relatedoid, relationtype, data)"
+                      "VALUES (:mastertablename, :masteroid, :relatedtablename, :relatedoid, :relationtype, :data)").arg(alephERPSettings->systemTablePrefix());
     }
     else if ( element->state() == RelatedElement::UPDATE )
     {
-        sql = QString("UPDATE %1_relations SET mastertablename=:mastertablename, masterpkey=:masterpkey, masteroid=:masteroid, relatedtablename=:relatedtablename, "
-                      "relatedpkey=:relatedpkey, relatedoid=:relatedoid, relationtype=:relationtype, data=:data WHERE id=:id").arg(alephERPSettings->systemTablePrefix());
+        sql = QString("UPDATE %1_relations SET mastertablename=:mastertablename, masteroid=:masteroid, relatedtablename=:relatedtablename, "
+                      "relatedoid=:relatedoid, relationtype=:relationtype, data=:data WHERE id=:id").arg(alephERPSettings->systemTablePrefix());
     }
     else if ( element->state() == RelatedElement::TO_BE_DELETED )
     {
@@ -132,10 +132,8 @@ bool RelatedDAO::saveRelatedElement(RelatedElementPointer element, const QString
         if ( element->state() == RelatedElement::INSERT || element->state() == RelatedElement::UPDATE )
         {
             qry->bindValue(":mastertablename", element->rootTableName());
-            qry->bindValue(":masterpkey", element->rootPkey());
             qry->bindValue(":masteroid", element->rootDbOid());
             qry->bindValue(":relatedtablename", element->relatedTableName());
-            qry->bindValue(":relatedpkey", element->relatedPkey());
             qry->bindValue(":relatedoid", element->relatedDbOid());
             qry->bindValue(":data", element->toXml());
             qry->bindValue(":relationtype", element->stringType());
@@ -178,7 +176,7 @@ bool RelatedDAO::loadRelatedElements(BaseBean *bean)
         return true;
     }
     QScopedPointer<QSqlQuery> qry(new QSqlQuery(Database::getQDatabase()));
-    QString sql = QString("SELECT id, relationtype, data, masteroid, relatedoid, mastertablename, masterpkey, masteroid, relatedtablename, relatedpkey, relatedoid FROM %1_relations WHERE masteroid=:oid or relatedoid=:childoid ORDER by ts").arg(alephERPSettings->systemTablePrefix());
+    QString sql = QString("SELECT id, relationtype, data, masteroid, relatedoid, mastertablename, masteroid, relatedtablename, relatedoid FROM %1_relations WHERE masteroid=:oid or relatedoid=:childoid ORDER by ts").arg(alephERPSettings->systemTablePrefix());
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("RelatedDAO::loadRelatedElements: [%1]").arg(sql));
     if ( !qry->prepare(sql) )
     {
@@ -201,14 +199,12 @@ bool RelatedDAO::loadRelatedElements(BaseBean *bean)
         {
             element->setCardinality(AlephERP::PointToChild);
             element->setRelatedTableName(qry->record().value("relatedtablename").toString());
-            element->setRelatedPkey(qry->record().value("relatedpkey").toString());
             element->setRelatedDbOid(qry->record().value("relatedoid").toLongLong());
         }
         else
         {
             element->setCardinality(AlephERP::PointToMaster);
             element->setRelatedTableName(qry->record().value("mastertablename").toString());
-            element->setRelatedPkey(qry->record().value("masterpkey").toString());
             element->setRelatedDbOid(qry->record().value("masteroid").toLongLong());
         }
         element->setXml(qry->record().value("data").toString());
@@ -228,7 +224,6 @@ bool RelatedDAO::loadRelatedElements(BaseBean *bean)
             elem->setCardinality(AlephERP::PointToMaster);
             elem->setCategories(parentElement->categories());
             elem->setRelatedTableName(parentElement->rootBean()->metadata()->tableName());
-            elem->setRelatedPkey(parentElement->rootBean()->pkSerializedValue());
             elem->setRelatedDbOid(parentElement->rootBean()->dbOid());
             elem->setRelatedBean(parentElement->rootBean(), false);
             elem->setState(RelatedElement::UPDATE);

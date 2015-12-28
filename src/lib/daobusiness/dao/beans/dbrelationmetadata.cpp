@@ -294,7 +294,7 @@ QString DBRelationMetadata::sqlForeignKeyName(AlephERP::CreationTableSqlOptions 
     }
     else
     {
-        foreignKeyName = QString("fk_%1_%2").arg(rootMetadata()->tableName()).arg(sqlTableName(dialect));
+        foreignKeyName = QString("fk_%1_%2").arg(rootFieldName()).arg(name());
         if ( dialect == QLatin1String("QIBASE") && foreignKeyName.size() > MAX_LENGTH_OBJECT_NAME_FIREBIRD )
         {
             foreignKeyName = QString("fk_%1").arg(alephERPSettings->uniqueId());
@@ -318,7 +318,7 @@ QString DBRelationMetadata::sqlForeignKey(AlephERP::CreationTableSqlOptions opti
 {
     QString sql;
     // Tabla relacionada
-    BaseBeanMetadata *f = BeansFactory::metadataBean(tableName());
+        BaseBeanMetadata *f = BeansFactory::metadataBean(tableName());
     // Tabla "padre" u origen
     BaseBeanMetadata *root = rootMetadata();
     if ( f != NULL )

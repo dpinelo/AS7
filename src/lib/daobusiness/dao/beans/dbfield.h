@@ -181,6 +181,7 @@ public:
     Q_INVOKABLE DBRelation *relation(const QString &relationName);
     void addRelation (DBRelation *rel);
     void setRelations(const QList<DBRelation *> rels);
+    bool hasM1Relation() const;
 
     QString sqlEqual();
 

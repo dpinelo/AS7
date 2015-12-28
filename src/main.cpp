@@ -81,7 +81,15 @@ int main(int argc, char *argv[])
     app.setApplicationName(QString::fromUtf8("AlephERP"));
     app.setOrganizationName(QString::fromUtf8("Aleph Sistemas de Información"));
     app.setOrganizationDomain("alephsistemas.es");
-    app.setWindowIcon(QIcon(":/aplicacion/images/BolaAleph.png"));
+
+    // Si en el directorio del ejecutable, hay una imagen con nombre icon.png, utilizamos esta
+    QString icoFilePath = qApp->applicationDirPath() + QDir::separator() + "icon.png";
+    QFile fiIco(icoFilePath);
+    if ( !fiIco.exists() )
+    {
+        icoFilePath = ":/aplicacion/images/BolaAleph.png";
+    }
+    app.setWindowIcon(QIcon(icoFilePath));
 
     // Establecemos el sistema de logs
     logger = QLogger::QLoggerManager::instance();
@@ -157,7 +165,14 @@ int main(int argc, char *argv[])
     setStyle();
 
     // Ventana de Splash.
-    AERPSplashScreen *splash = new AERPSplashScreen (QPixmap(":/aplicacion/images/splashscreenimg2.png"));
+    // Si en el directorio del ejecutable, hay una imagen con nombre splashscreen.png, utilizamos esta
+    QString splashFilePath = qApp->applicationDirPath() + QDir::separator() + "splashscreen.png";
+    QFile fiSplash(splashFilePath);
+    if ( !fiSplash.exists() )
+    {
+        splashFilePath = ":/aplicacion/images/splashscreenimg2.png";
+    }
+    AERPSplashScreen *splash = new AERPSplashScreen (QPixmap(splashFilePath));
     splash->setAttribute(Qt::WA_DeleteOnClose);
     splash->show();
     splash->showMessage(QObject::trUtf8("Cargando directorios con plugins..."));
@@ -923,7 +938,7 @@ void startCrashHandler(int signal)
 
     QString stackFile = alephERPSettings->dataPath() + QDir::separator() + ".stacktrace";
 
-    cmd = qApp->applicationDirPath() + QString("alepherp-ch -style Fusion -stackFile %1").arg(stackFile);
+    cmd = qApp->applicationDirPath() + QString("/alepherp-ch -style Fusion -stackFile %1").arg(stackFile);
 
     //C reates the stacktrace file
     output.setFileName(stackFile);

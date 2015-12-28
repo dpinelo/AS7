@@ -103,7 +103,7 @@ protected:
     bool m_onBarCodeReadNextFocus;
     /** Script a ejecutar tras leer un código de barras */
     QString m_scriptAfterCodeBarRead;
-    /** Código final de un código QR */
+    /** Código final de un código de barras */
     QString m_barCodeEndString;
     /** Bean de trabajo cuando este objeto se utiliza desde un QAbstractItemView */
     BaseBeanPointer m_workBean;
@@ -189,9 +189,6 @@ public:
     static QString aerpBaseDialogTableName(QWidget *widget);
 
     virtual void showtMandatoryWildcardForLabel();
-
-    virtual bool isBarCodeReaderEntry(const QString &text);
-    virtual QString barCodeEntry(const QString &text);
 
     virtual void setFontAndColor();
 };

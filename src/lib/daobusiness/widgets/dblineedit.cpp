@@ -120,7 +120,7 @@ DBLineEdit::DBLineEdit(QWidget *parent) :
     // Efecto incómodo de line edit con máscara y vacío, se pincha y se queda el cursor a la mitad.
     d->m_return.installOn(this);
     connect(this, SIGNAL(textChanged(QString)), this, SLOT(emitValueEdited()));
-    connect(this, SIGNAL(textEdited(QString)), this, SLOT(checkBarCode(QString)));
+    installEventFilter(this);
 }
 
 DBLineEdit::~DBLineEdit()
@@ -538,13 +538,8 @@ void DBLineEdit::recalculateCounterField()
 void DBLineEdit::checkBarCode(const QString &txt)
 {
     // Para ver si quien introduce los datos es un lector de código de barras, vamos a medir el tiempo entre pulsaciones
-    if ( barCodeReaderAllowed() && isBarCodeReaderEntry(txt) )
+    if ( barCodeReaderAllowed() )
     {
-        if ( !m_barCodeEndString.isEmpty() )
-        {
-            QSignalBlocker block(this);
-            setText(barCodeEntry(txt));
-        }
         QLineEdit *obj = dynamic_cast<QLineEdit *>(this);
         AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(obj);
         // Al leer un código de barras podemos invocar esta función.
@@ -558,7 +553,8 @@ void DBLineEdit::checkBarCode(const QString &txt)
             thisForm->callQSMethod(scriptAfterBarCodeRead(), obj->text());
         }
 
-        emit barCodeRead(value());
+        qDebug() << Q_FUNC_INFO << "código de barras detectado. se va a emitir señal " << txt;
+        emit barCodeRead(txt);
         if ( onBarCodeReadNextFocus() )
         {
             focusNextChild();
@@ -606,7 +602,7 @@ void DBLineEdit::applyFieldProperties()
     }
     if ( fld != NULL )
     {
-        if ( fld->metadata()->type() == QVariant::String )
+        if ( fld->metadata()->type() == QVariant::String && fld->length() > 0 )
         {
             setMaxLength(fld->length());
         }
@@ -647,10 +643,6 @@ QVariant DBLineEdit::value()
         return v;
     }
     QString txt = text();
-    if ( m_barCodeReaderAllowed && !m_barCodeEndString.isEmpty() )
-    {
-        txt = barCodeEntry(txt);
-    }
     return QVariant(txt);
 }
 
@@ -819,6 +811,31 @@ bool DBLineEdit::eventFilter(QObject *watched, QEvent *event)
     }
     if ( event->type() == QEvent::KeyPress )
     {
+        if ( watched == this )
+        {
+            // Si es un código de barras, debemos capturar la pulsación de la tecla finalizadora y tratarla...
+            // Vaya a ser que sea el terminador. Y además, evitamos que se propage
+            if ( m_barCodeReaderAllowed && !m_barCodeEndString.isEmpty() )
+            {
+                QKeyEvent *ev = static_cast<QKeyEvent *>(event);
+                if ( m_barCodeEndString == QLatin1Literal("\\t") )
+                {
+                    if ( ev->key() == Qt::Key_Tab )
+                    {
+                        checkBarCode(text());
+                        return true;
+                    }
+                }
+                else if ( m_barCodeEndString == QLatin1Literal("\\n") || m_barCodeEndString == QLatin1Literal("\\r") )
+                {
+                    if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return )
+                    {
+                        checkBarCode(text());
+                        return true;
+                    }
+                }
+            }
+        }
         if ( watched == d->m_completerItemView )
         {
             QKeyEvent *ev = static_cast<QKeyEvent *>(event);
@@ -862,6 +879,14 @@ void DBLineEdit::mouseReleaseEvent(QMouseEvent *event)
     if ( !inputMask().isEmpty() && displayText().trimmed().isEmpty() )
     {
         setCursorPosition(0);
+    }
+    if ( observer() )
+    {
+        DBField *fld = qobject_cast<DBField *>(observer()->entity());
+        if ( fld )
+        {
+            QLineEdit::setText(fld->displayValue());
+        }
     }
 }
 

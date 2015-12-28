@@ -89,6 +89,8 @@ class ALEPHERP_DLL_EXPORT DBRecordDlg : public AERPBaseDialog
     /** Con esta propiedad a true, se pone el formulario en modo de edición diferente. Si se navega a un registro, el formulario
      * se recarga y muestra el formulario adecuado para ese registro */
     Q_PROPERTY(bool advancedNavigation READ advancedNavigation WRITE setAdvancedNavigation)
+    /** Si esta propiedad se pone a true, fuerza la persistencia a base de datos. UTILIZAR CON CUIDADO. */
+    Q_PROPERTY(bool forceSaveToDb READ forceSaveToDb WRITE setForceSaveToDb)
 
 public:
 
@@ -156,6 +158,8 @@ public:
     virtual DBRecordButtons visibleButtons() const;
     virtual void setVisibleButtons(DBRecordButtons buttons);
     QModelIndex recentInsertIndex() const;
+    bool forceSaveToDb() const;
+    void setForceSaveToDb(bool value);
 
     Q_INVOKABLE virtual BaseBean *bean();
     Q_INVOKABLE virtual QString parentType();

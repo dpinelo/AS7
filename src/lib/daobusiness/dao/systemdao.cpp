@@ -26,6 +26,7 @@
 #include "dao/database.h"
 #include "dao/basedao.h"
 #include "dao/beans/basebeanmetadata.h"
+#include "dao/beans/dbrelationmetadata.h"
 #include "dao/beans/reportmetadata.h"
 #include "dao/beans/beansfactory.h"
 #include "dao/beans/aerpsystemobject.h"
@@ -234,10 +235,8 @@ QString SystemDAO::systemTablesPSQL = ""
                                       "  id serial, "
                                       "  relationtype character varying(20), "
                                       "  mastertablename character varying(255), "
-                                      "  masterpkey character varying(1000), "
                                       "  masteroid integer, "
                                       "  relatedtablename character varying(255), "
-                                      "  relatedpkey character varying(1000), "
                                       "  relatedoid integer, "
                                       "  ts timestamp without time zone DEFAULT now(), "
                                       "  data text, "
@@ -253,17 +252,11 @@ QString SystemDAO::systemTablesPSQL = ""
                                       "CREATE INDEX \"alepherp_relations_oid_idx\""
                                       "  ON \"alepherp_relations\" (masteroid);"
 
-                                      "CREATE INDEX \"alepherp_relations_pkey_idx\""
-                                      "  ON \"alepherp_relations\" (masterpkey);"
-
                                       "CREATE INDEX \"alepherp_relations_reltablename_idx\""
                                       "  ON \"alepherp_relations\" (relatedtablename);"
 
                                       "CREATE INDEX \"alepherp_relations_reloid_idx\""
                                       "  ON \"alepherp_relations\" (relatedoid);"
-
-                                      "CREATE INDEX \"alepherp_relations_relpkey_idx\""
-                                      "  ON \"alepherp_relations\" (relatedpkey);"
 
                                       "CREATE INDEX \"alepherp_relations_tablename_relationtype_idx\""
                                       "  ON \"alepherp_relations\" (relationtype);"
@@ -464,10 +457,8 @@ QString SystemDAO::systemTablesSQLite = ""
                                         "  id INTEGER PRIMARY KEY AUTOINCREMENT, "
                                         "  relationtype character varying(20), "
                                         "  mastertablename character varying(255), "
-                                        "  masterpkey character varying(1000), "
                                         "  masteroid integer, "
                                         "  relatedtablename character varying(255), "
-                                        "  relatedpkey character varying(1000), "
                                         "  relatedoid integer, "
                                         "  ts timestamp DEFAULT CURRENT_TIMESTAMP, "
                                         "  data text "
@@ -479,17 +470,11 @@ QString SystemDAO::systemTablesSQLite = ""
                                         "CREATE INDEX \"alepherp_relations_oid_idx\""
                                         "  ON \"alepherp_relations\" (masteroid);"
 
-                                        "CREATE INDEX \"alepherp_relations_pkey_idx\""
-                                        "  ON \"alepherp_relations\" (masterpkey);"
-
                                         "CREATE INDEX \"alepherp_relations_reltablename_idx\""
                                         "  ON \"alepherp_relations\" (relatedtablename);"
 
                                         "CREATE INDEX \"alepherp_relations_reloid_idx\""
                                         "  ON \"alepherp_relations\" (relatedoid);"
-
-                                        "CREATE INDEX \"alepherp_relations_relpkey_idx\""
-                                        "  ON \"alepherp_relations\" (relatedpkey);"
 
                                         "CREATE INDEX \"alepherp_relations_relationtype_idx\""
                                         "  ON \"alepherp_relations\" (relationtype);"
@@ -747,6 +732,38 @@ bool SystemDAO::checkIfTableExists(const QString &tableName, const QString &conn
     }
     bool result = tableList.contains(sqlTableName, Qt::CaseInsensitive);
     return result;
+}
+
+bool SystemDAO::checkIfForeignKeyExists(DBRelationMetadata *rel, const QString &connection)
+{
+    QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
+    QString sql = QString("SELECT DISTINCT "
+                          "tc.constraint_name, tc.table_name, kcu.column_name, "
+                          "ccu.table_name AS foreign_table_name, "
+                          "ccu.column_name AS foreign_column_name "
+                          "FROM "
+                          "information_schema.table_constraints AS tc "
+                          "JOIN information_schema.key_column_usage AS kcu "
+                          "ON tc.constraint_name = kcu.constraint_name "
+                          "JOIN information_schema.constraint_column_usage AS ccu "
+                          "ON ccu.constraint_name = tc.constraint_name "
+                          "WHERE constraint_type = 'FOREIGN KEY' "
+                          "AND ccu.table_name='%1' "
+                          "AND tc.table_name='%2' "
+                          "AND kcu.column_name='%3';").
+            arg(rel->sqlTableName()).
+            arg(rel->rootMetadata()->sqlTableName()).
+            arg(rel->rootFieldName());
+    QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO::checkIfForeignKeyExists: [%1]").arg(sql));
+    if ( qry->exec(sql) )
+    {
+        return qry->first();
+    }
+    else
+    {
+        SystemDAO::writeDbMessages(qry.data());
+    }
+    return false;
 }
 
 bool SystemDAO::insertModule(const QString &id, const QString &name, const QString &description, const QString &showedText, const QString &icon, bool enabled, const QString &tableCreationOptions, const QString &connectionName)
@@ -1493,7 +1510,7 @@ bool SystemDAO::checkSystemObjectsOnLocal(QString &failTable)
                 qryDetailObject->bindValue(":type", qryObjects->record().value("type"));
                 qryDetailObject->bindValue(":version", qryObjects->record().value("max_version"));
                 qryDetailObject->bindValue(":device", qryObjects->record().value("device"));
-                qryDetailObject->bindValue(":idorigin", qryObjects->record().value("idorigin"));
+                qryDetailObject->bindValue(":idorigin", qryObjects->record().value("idorigin").toInt());
                 bool r2 = qryDetailObject->exec();
                 QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO: checkSystemObjectsVersionOnLocal: [%1]").arg(qryDetailObject->lastQuery()));
                 if ( r2 )

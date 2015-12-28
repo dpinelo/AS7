@@ -56,6 +56,7 @@ public:
     DBDetailView::WorkModes m_workMode;
     bool m_showUnassignmentRecords;
     bool m_useDefaultShortcut;
+    bool m_promptForDelete;
 
     DBDetailViewPrivate(DBDetailView *qq) : q_ptr(qq)
     {
@@ -65,6 +66,7 @@ public:
         m_workMode = DBDetailView::WorkModes(DBDetailView::DirectDescents);
         m_showUnassignmentRecords = true;
         m_useDefaultShortcut = true;
+        m_promptForDelete = true;
     }
 };
 
@@ -265,6 +267,16 @@ bool DBDetailView::enableAtRowsEndNewRow()
     return d->m_inlineEdit;
 }
 
+bool DBDetailView::promptForDelete() const
+{
+    return d->m_promptForDelete;
+}
+
+void DBDetailView::setPromptForDelete(bool value)
+{
+    d->m_promptForDelete = value;
+}
+
 void DBDetailView::setReadOnlyColumns(const QString &value)
 {
     DBAbstractViewInterface::setReadOnlyColumns(value);
@@ -317,11 +329,11 @@ void DBDetailView::editRecord(const QString &action)
         QScriptValue result;
         if ( openType == AlephERP::Insert )
         {
-            result = containerDlg->callQSMethod(QString("%1beforeAddChild").arg(m_relationName));
+            result = containerDlg->callQSMethod(QString("%1BeforeAddChild").arg(m_relationName));
         }
         else if ( openType == AlephERP::Update )
         {
-            result = containerDlg->callQSMethod(QString("%1beforeEditChild").arg(m_relationName));
+            result = containerDlg->callQSMethod(QString("%1BeforeEditChild").arg(m_relationName));
         }
         if ( !result.isUndefined() && !result.isNull() && result.isValid() )
         {
@@ -416,7 +428,7 @@ void DBDetailView::deleteRecord()
         BaseBeanSharedPointer bean = filterModel()->bean(index);
         beans << bean;
         AERPBaseDialog *containerDlg = CommonsFunctions::aerpParentDialog(this);
-        QScriptValue result = containerDlg->callQSMethod(QString("%1beforeDeleteChild").arg(m_relationName), bean.data());
+        QScriptValue result = containerDlg->callQSMethod(QString("%1BeforeDeleteChild").arg(m_relationName), bean.data());
         if ( !result.isUndefined() && !result.isNull() && result.isValid() )
         {
             if ( !result.toBool() )
@@ -428,8 +440,17 @@ void DBDetailView::deleteRecord()
 
     QString mensaje = trUtf8("¿Está seguro de querer borrar el/los registro/s seleccionado/s?");
 
-    int ret = QMessageBox::information(this, qApp->applicationName(), mensaje,
+    int ret;
+    if ( d->m_promptForDelete )
+    {
+        ret = QMessageBox::information(this, qApp->applicationName(), mensaje,
                                        QMessageBox::Yes | QMessageBox::No );
+    }
+    else
+    {
+        ret = QMessageBox::Yes;
+    }
+
     if ( ret == QMessageBox::Yes )
     {
         foreach (const QModelIndex &index, rows)
@@ -575,8 +596,16 @@ void DBDetailView::removeExisting()
     }
     QString mensaje = trUtf8("¿Está seguro de querer desasigar el registro? No será borrado, simplemente se eliminará la relación con el registro actual.");
 
-    int ret = QMessageBox::information(this, qApp->applicationName(), mensaje,
+    int ret;
+    if ( d->m_promptForDelete )
+    {
+        ret = QMessageBox::information(this, qApp->applicationName(), mensaje,
                                        QMessageBox::Yes | QMessageBox::No );
+    }
+    else
+    {
+        ret = QMessageBox::Yes;
+    }
     if ( ret == QMessageBox::Yes )
     {
         BaseBeanSharedPointerList list;
