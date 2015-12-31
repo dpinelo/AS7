@@ -95,7 +95,6 @@ public:
     bool m_canDefrostModel;
     QPersistentModelIndex m_currentIndex;
     QModelIndex m_recentInsertIndex;
-    bool m_operationCanceled;
 
     DBFormDlgPrivate(DBFormDlg *qq) : q_ptr(qq)
     {
@@ -105,7 +104,6 @@ public:
         m_selectedBean = NULL;
         m_openSuccess = false;
         m_canDefrostModel = true;
-        m_operationCanceled = false;
     }
 
     bool isPrintButtonVisible();
@@ -121,8 +119,16 @@ public:
  */
 bool DBFormDlgPrivate::isPrintButtonVisible()
 {
-    QList<ReportMetadata *> reports = ReportRun::availableReports(m_metadata->tableName());
-    return reports.size() > 0;
+    if ( m_metadata->viewForTable().isEmpty() )
+    {
+        QList<ReportMetadata *> reports = ReportRun::availableReports(m_metadata->tableName());
+        return reports.size() > 0;
+    }
+    else
+    {
+        QList<ReportMetadata *> reports = ReportRun::availableReports(m_metadata->viewForTable());
+        return reports.size() > 0;
+    }
 }
 
 bool DBFormDlgPrivate::isEmailButtonVisible()
@@ -1609,7 +1615,15 @@ void DBFormDlg::printRecord()
         return;
     }
 
-    QList<ReportMetadata *> reports = ReportRun::availableReports(d->m_metadata->tableName());
+    QList<ReportMetadata *> reports;
+    if ( d->m_metadata->viewForTable().isEmpty() )
+    {
+        reports = ReportRun::availableReports(d->m_metadata->tableName());
+    }
+    else
+    {
+        reports = ReportRun::availableReports(d->m_metadata->viewForTable());
+    }
     if ( reports.size() == 0 )
     {
         return;
@@ -1818,70 +1832,7 @@ void DBFormDlg::exportSpreadSheet()
     {
         return;
     }
-    FilterBaseBeanModel *filterModel = d->m_itemView->filterModel();
-    QStringList displayTypes;
-
-    foreach (AERPSpreadSheetIface *iface, AERPSpreadSheet::ifaces())
-    {
-        if ( iface->canWriteFiles() )
-        {
-            displayTypes << iface->displayType();
-        }
-    }
-
-    bool ok;
-    QString displayType = QInputDialog::getItem(this,
-                                                qApp->applicationName(),
-                                                trUtf8("Seleccione el formato al que desea exportar la información."),
-                                                displayTypes,
-                                                0,
-                                                false,
-                                                &ok);
-    if ( !ok )
-    {
-        return;
-    }
-
-    QString writeTo = QFileDialog::getExistingDirectory(this, trUtf8("Seleccione el directorio en el que guardar los datos"), QDir::homePath());
-    if ( writeTo.isEmpty() )
-    {
-        return;
-    }
-    AERPSpreadSheetIface *iface;
-    foreach (AERPSpreadSheetIface *i, AERPSpreadSheet::ifaces())
-    {
-        if ( i->displayType() == displayType )
-        {
-            iface = i;
-            break;
-        }
-    }
-    writeTo.append("/").append(d->m_metadata->alias()).append(".").append(iface->type());
-
-    QProgressDialog dlg;
-    d->m_operationCanceled = false;
-    dlg.setMaximum(d->m_itemView->filterModel()->rowCount());
-    dlg.setMinimum(0);
-    dlg.setLabelText(trUtf8("Exportando información... Por favor, espere."));
-    dlg.setWindowTitle(trUtf8("%1 - Exportando datos").arg(qApp->applicationName()));
-    dlg.setWindowModality(Qt::WindowModal);
-    connect(&dlg, SIGNAL(canceled()), this, SLOT(operationCanceled()));
-    connect(filterModel, SIGNAL(rowProcessed(int)), &dlg, SLOT(setValue(int)));
-    dlg.show();
-    qApp->processEvents();
-
-    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-    bool r = filterModel->exportToSpreadSheet(writeTo, iface->type());
-    CommonsFunctions::restoreOverrideCursor();
-    if ( !r )
-    {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error exportando los datos. \nEl error es: %1").arg(filterModel->lastErrorMessage()));
-    }
-}
-
-void DBFormDlg::operationCanceled()
-{
-    d->m_operationCanceled = true;
+    AERPSpreadSheetUtil::instance()->exportSpreadSheet(d->m_itemView->filterModel(), this);
 }
 
 /**
@@ -1931,5 +1882,3 @@ void DBFormDlg::showContextMenu(const QPoint &point)
     }
     contextMenu.exec(globalPos);
 }
-
-

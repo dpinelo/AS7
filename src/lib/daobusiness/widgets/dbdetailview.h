@@ -103,6 +103,8 @@ class ALEPHERP_DLL_EXPORT DBDetailView : public QWidget, public DBAbstractViewIn
     Q_PROPERTY (bool atRowsEndNewRow READ atRowsEndNewRow WRITE setAtRowsEndNewRow DESIGNABLE enableAtRowsEndNewRow)
     /** Columnas adicionales que se desean visualizar, y no necesariamente están en los metadatos */
     Q_PROPERTY (QString visibleColumns READ visibleColumns WRITE setVisibleColumns)
+    /** Pide confirmación para la eliminación de un registro */
+    Q_PROPERTY (bool promptForDelete READ promptForDelete WRITE setPromptForDelete)
 
     friend class DBDetailViewPrivate;
 
@@ -158,7 +160,8 @@ public:
         DeleteButton = 0x004,
         ViewButton = 0x008,
         InsertExistingButton = 0x010,
-        RemoveExistingButton = 0x020
+        RemoveExistingButton = 0x020,
+        ExportSpreadSheetButton = 0x040
     };
     Q_DECLARE_FLAGS(Buttons, Button)
 
@@ -198,6 +201,9 @@ public:
     virtual void setAtRowsEndNewRow(bool value);
     bool enableAtRowsEndNewRow();
 
+    bool promptForDelete() const;
+    void setPromptForDelete(bool value);
+
     virtual void setReadOnlyColumns(const QString &value);
     virtual void setVisibleColumns(const QString &value);
 
@@ -229,6 +235,7 @@ public slots:
     {
         DBAbstractViewInterface::resetCursor();
     }
+    virtual void exportSpreadSheet();
 
 protected slots:
     virtual void editRecord(const QString &action = "view");

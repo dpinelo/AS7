@@ -40,14 +40,11 @@
         <string>Pulse aquí para añadir un nuevo registro.</string>
        </property>
        <property name="text">
-        <string>Añadir (F2)</string>
+        <string>Añadir</string>
        </property>
        <property name="icon">
         <iconset resource="../resources/resources.qrc">
          <normaloff>:/generales/images/edit_add.png</normaloff>:/generales/images/edit_add.png</iconset>
-       </property>
-       <property name="shortcut">
-        <string>F2</string>
        </property>
       </widget>
      </item>
@@ -80,14 +77,11 @@
         <string>Pulse aquí para editar el registro seleccionado.</string>
        </property>
        <property name="text">
-        <string>Modificar (F3)</string>
+        <string>Modificar</string>
        </property>
        <property name="icon">
         <iconset resource="../resources/resources.qrc">
          <normaloff>:/generales/images/edit_edit.png</normaloff>:/generales/images/edit_edit.png</iconset>
-       </property>
-       <property name="shortcut">
-        <string>F3</string>
        </property>
       </widget>
      </item>
@@ -129,14 +123,11 @@
         <string>Pulse aquí para borrar el registro seleccionado.</string>
        </property>
        <property name="text">
-        <string>Borrar (F5)</string>
+        <string>Borrar</string>
        </property>
        <property name="icon">
         <iconset resource="../resources/resources.qrc">
          <normaloff>:/generales/images/edit_remove.png</normaloff>:/generales/images/edit_remove.png</iconset>
-       </property>
-       <property name="shortcut">
-        <string>F5</string>
        </property>
       </widget>
      </item>
@@ -154,6 +145,17 @@
        <property name="icon">
         <iconset resource="../resources/resources.qrc">
          <normaloff>:/generales/images/up.png</normaloff>:/generales/images/up.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbExportSpreadSheet">
+       <property name="text">
+        <string>Exportar</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/generales/images/excel.png</normaloff>:/generales/images/excel.png</iconset>
        </property>
       </widget>
      </item>
@@ -195,6 +197,7 @@
   <tabstop>pbView</tabstop>
   <tabstop>pbDelete</tabstop>
   <tabstop>pbRemoveExisting</tabstop>
+  <tabstop>pbExportSpreadSheet</tabstop>
   <tabstop>tableView</tabstop>
  </tabstops>
  <resources>

@@ -10,9 +10,10 @@ win32 {
         #FIREBIRDPATH=/usr
         #ADDITIONALLIBS=/home/david/src/alepherp/build.win32
         #FIREBIRDPATH=C:/Users/David/programacion/Firebird-2.5.2.26540
-        ADDITIONALLIBS=D:/programacion/alepherp/libraries/build.32b
+        #ADDITIONALLIBS=D:/programacion/alepherp/libraries/build.32b
         #FIREBIRDPATH=C:/Users/David/programacion/Firebird-2.5.2.26540
         #ADDITIONALLIBS=C:/Users/david/src/alepherp/libraries/win32/gcc
+        ADDITIONALLIBS=C:/Users/d_pin/Documents/src/libraries/build.32b
     }
     win64-g++ {
         FIREBIRDPATH=/usr

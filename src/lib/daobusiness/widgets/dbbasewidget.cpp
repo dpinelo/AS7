@@ -758,5 +758,4 @@ void DBBaseWidget::setFontAndColor()
         widget->setFont(font);
         widget->setStyleSheet(QStringLiteral("color: #cccccc"));
     }
-
 }

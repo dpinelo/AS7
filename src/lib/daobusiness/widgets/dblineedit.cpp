@@ -380,7 +380,6 @@ void DBLineEdit::setValue(const QVariant &value)
         {
             blockSignals(false);
         }
-        update();
     }
 }
 
@@ -603,7 +602,7 @@ void DBLineEdit::applyFieldProperties()
     }
     if ( fld != NULL )
     {
-        if ( fld->metadata()->type() == QVariant::String )
+        if ( fld->metadata()->type() == QVariant::String && fld->length() > 0 )
         {
             setMaxLength(fld->length());
         }
@@ -880,6 +879,14 @@ void DBLineEdit::mouseReleaseEvent(QMouseEvent *event)
     if ( !inputMask().isEmpty() && displayText().trimmed().isEmpty() )
     {
         setCursorPosition(0);
+    }
+    if ( observer() )
+    {
+        DBField *fld = qobject_cast<DBField *>(observer()->entity());
+        if ( fld )
+        {
+            QLineEdit::setText(fld->displayValue());
+        }
     }
 }
 

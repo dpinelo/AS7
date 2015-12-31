@@ -189,7 +189,6 @@ protected slots:
     void showHelp();
     void view();
     void exportSpreadSheet();
-    void operationCanceled();
     void showContextMenu(const QPoint &point);
 
 private slots:

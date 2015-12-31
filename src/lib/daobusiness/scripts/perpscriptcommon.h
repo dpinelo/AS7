@@ -252,7 +252,7 @@ public:
     Q_INVOKABLE QScriptValue chooseRecordFromComboBox(const QString &tableName, const QString &fieldToShow, const QString &where = "", const QString &order = "", const QString &label = "");
     Q_INVOKABLE QScriptValue chooseRecordsFromTable(const QString &tableName, const QString &where = "", const QString &order = "", const QString &label = "", bool userEnvVars = true);
     Q_INVOKABLE QScriptValue chooseRecordFromTable(const QString &tableName, const QString &where = "", const QString &order = "", const QString &label = "", bool userEnvVars = true);
-    Q_INVOKABLE QScriptValue chooseChildFromComboBox(BaseBean *bean, const QString &relationName, const QString &fieldToShow, const QString &label = "");
+    Q_INVOKABLE QScriptValue chooseChildFromComboBox(BaseBean *bean, const QString &relationName, const QString &fieldToShow, const QString &label = "", const QString &filter = "");
 
     // ------------------------------------------------
     // TRABAJO CON HOJAS DE CÁLCULOS

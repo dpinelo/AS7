@@ -28,9 +28,28 @@
 class AERPSpreadSheetPrivate;
 class AERPSheetPrivate;
 class AERPCellPrivate;
+class FilterBaseBeanModel;
 
 class AERPSheet;
 class AERPCell;
+
+class ALEPHERP_DLL_EXPORT AERPSpreadSheetUtil : public QObject
+{
+    Q_OBJECT
+
+private:
+    explicit AERPSpreadSheetUtil(QObject *parent);
+    bool m_operationCanceled;
+
+public:
+    virtual ~AERPSpreadSheetUtil();
+
+    static AERPSpreadSheetUtil *instance();
+
+public slots:
+    void exportSpreadSheet(FilterBaseBeanModel *filterModel, QWidget *uiParent);
+    void operationCanceled();
+};
 
 /**
  * @brief The AERPSpreadSheet class
