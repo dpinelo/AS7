@@ -272,7 +272,7 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
             }
             else
             {
-                DBObject *obj = field->bean()->navigateThroughProperties(fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString(), true);
+                DBObject *obj = fld->bean()->navigateThroughProperties(fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString(), true);
                 if (obj != NULL)
                 {
                     field = qobject_cast<DBField *>(obj);
