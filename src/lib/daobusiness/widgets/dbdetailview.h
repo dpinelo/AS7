@@ -160,7 +160,8 @@ public:
         DeleteButton = 0x004,
         ViewButton = 0x008,
         InsertExistingButton = 0x010,
-        RemoveExistingButton = 0x020
+        RemoveExistingButton = 0x020,
+        ExportSpreadSheetButton = 0x040
     };
     Q_DECLARE_FLAGS(Buttons, Button)
 
@@ -234,6 +235,7 @@ public slots:
     {
         DBAbstractViewInterface::resetCursor();
     }
+    virtual void exportSpreadSheet();
 
 protected slots:
     virtual void editRecord(const QString &action = "view");

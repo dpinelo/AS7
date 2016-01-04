@@ -141,7 +141,15 @@ void ReportRun::setBean(BaseBeanPointer bean)
     // Si el bean sólo tiene un único informe seleccionado, lo asociamos a este motor
     if ( d->m_bean )
     {
-        QList<ReportMetadata *> reports = ReportRun::availableReports(bean->metadata()->tableName());
+        QList<ReportMetadata *> reports;
+        if ( bean->metadata()->viewForTable().isEmpty() )
+        {
+            reports = ReportRun::availableReports(bean->metadata()->tableName());
+        }
+        else
+        {
+            reports = ReportRun::availableReports(bean->metadata()->viewForTable());
+        }
         if ( reports.size() == 1 )
         {
             d->m_reportName = reports.at(0)->name();
@@ -225,7 +233,14 @@ QList<ReportMetadata *> ReportRun::availableReports()
     }
     else
     {
-        list = ReportRun::availableReports(d->m_bean->metadata()->tableName());
+        if ( d->m_bean->metadata()->viewForTable().isEmpty() )
+        {
+            list = ReportRun::availableReports(d->m_bean->metadata()->tableName());
+        }
+        else
+        {
+            list = ReportRun::availableReports(d->m_bean->metadata()->viewForTable());
+        }
     }
     return list;
 }
@@ -533,7 +548,15 @@ bool ReportRunPrivate::prepareReport()
         if ( m_reportName.isEmpty() )
         {
             // ¿El bean tiene definido más de un informe? Si es así, tendremos que preguntar qué informe queremos enviar
-            QList<ReportMetadata *> metadatas = BeansFactory::metadataReportsByLinkedTo(m_bean->metadata()->tableName());
+            QList<ReportMetadata *> metadatas;
+            if ( m_bean->metadata()->viewForTable().isEmpty() )
+            {
+                metadatas = BeansFactory::metadataReportsByLinkedTo(m_bean->metadata()->tableName());
+            }
+            else
+            {
+                metadatas = BeansFactory::metadataReportsByLinkedTo(m_bean->metadata()->viewForTable());
+            }
             if ( metadatas.size() == 0 )
             {
                 m_lastErrorMessage = QObject::trUtf8("No hay definido ningún informe para %1").arg(m_bean->metadata()->alias());

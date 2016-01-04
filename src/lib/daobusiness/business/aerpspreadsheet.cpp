@@ -21,6 +21,8 @@
 #include <QtGlobal>
 #include <QDebug>
 #include "globales.h"
+#include "models/filterbasebeanmodel.h"
+#include "dao/beans/basebeanmetadata.h"
 
 QList<AERPSpreadSheetIface *> AERPSpreadSheet::m_ifaces;
 
@@ -1007,3 +1009,115 @@ void AERPCell::fromScriptValue(const QScriptValue &object, AERPCell *&out)
     out = qobject_cast<AERPCell *>(object.toQObject());
 }
 
+AERPSpreadSheetUtil::AERPSpreadSheetUtil(QObject *parent) :
+    QObject(parent)
+{
+    m_operationCanceled = false;
+}
+
+AERPSpreadSheetUtil::~AERPSpreadSheetUtil()
+{
+
+}
+
+AERPSpreadSheetUtil *AERPSpreadSheetUtil::instance()
+{
+    static AERPSpreadSheetUtil *singleton;
+    if ( singleton == NULL )
+    {
+        singleton = new AERPSpreadSheetUtil(qApp);
+    }
+    return singleton;
+}
+
+void AERPSpreadSheetUtil::operationCanceled()
+{
+    m_operationCanceled = true;
+}
+
+void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QWidget *uiParent)
+{
+    if ( filterModel == NULL )
+    {
+        return;
+    }
+    BaseBeanMetadata *metadata = filterModel->metadata();
+    if ( metadata == NULL )
+    {
+        return;
+    }
+    QStringList displayTypes;
+
+    foreach (AERPSpreadSheetIface *iface, AERPSpreadSheet::ifaces())
+    {
+        if ( iface->canWriteFiles() )
+        {
+            displayTypes << iface->displayType();
+        }
+    }
+
+    bool ok;
+    QString displayType = QInputDialog::getItem(uiParent,
+                                                qApp->applicationName(),
+                                                trUtf8("Seleccione el formato al que desea exportar la información."),
+                                                displayTypes,
+                                                0,
+                                                false,
+                                                &ok);
+    if ( !ok )
+    {
+        return;
+    }
+
+    QString writeTo = QFileDialog::getExistingDirectory(uiParent,
+                                                        trUtf8("Seleccione el directorio en el que guardar los datos"),
+                                                        QDir::homePath());
+    if ( writeTo.isEmpty() )
+    {
+        return;
+    }
+    AERPSpreadSheetIface *iface = NULL;
+    foreach (AERPSpreadSheetIface *i, AERPSpreadSheet::ifaces())
+    {
+        if ( i->displayType() == displayType )
+        {
+            iface = i;
+            break;
+        }
+    }
+    if ( iface == NULL )
+    {
+        QMessageBox::warning(uiParent,
+                             qApp->applicationName(),
+                             trUtf8("Ha ocurrido un error exportando los datos. \nNo tiene configurado ningún plugin."));
+        return;
+    }
+    writeTo.append("/").
+            append(QDateTime::currentDateTime().toString("yyyyMMddHHmm")).
+            append("-").
+            append(metadata->alias()).
+            append(".").
+            append(iface->type());
+
+    QProgressDialog dlg;
+    m_operationCanceled = false;
+    dlg.setMaximum(filterModel->rowCount());
+    dlg.setMinimum(0);
+    dlg.setLabelText(trUtf8("Exportando información... Por favor, espere."));
+    dlg.setWindowTitle(trUtf8("%1 - Exportando datos").arg(qApp->applicationName()));
+    dlg.setWindowModality(Qt::WindowModal);
+    connect(&dlg, SIGNAL(canceled()), this, SLOT(operationCanceled()));
+    connect(filterModel, SIGNAL(rowProcessed(int)), &dlg, SLOT(setValue(int)));
+    dlg.show();
+    qApp->processEvents();
+
+    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+    bool r = filterModel->exportToSpreadSheet(writeTo, iface->type());
+    CommonsFunctions::restoreOverrideCursor();
+    if ( !r )
+    {
+        QMessageBox::warning(uiParent,
+                             qApp->applicationName(),
+                             trUtf8("Ha ocurrido un error exportando los datos. \nEl error es: %1").arg(filterModel->lastErrorMessage()));
+    }
+}

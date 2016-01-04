@@ -36,6 +36,7 @@
 #include "dao/observerfactory.h"
 #include "models/relationbasebeanmodel.h"
 #include "models/filterbasebeanmodel.h"
+#include "business/aerpspreadsheet.h"
 #include "forms/dbrecorddlg.h"
 #include "forms/dbsearchdlg.h"
 #include "widgets/dbtableview.h"
@@ -100,6 +101,7 @@ DBDetailView::DBDetailView(QWidget *parent) :
     connect(ui->pbDelete, SIGNAL(clicked()), this, SLOT(deleteRecord()));
     connect(ui->pbAddExisting, SIGNAL(clicked()), this, SLOT(addExisting()));
     connect(ui->pbRemoveExisting, SIGNAL(clicked()), this, SLOT(removeExisting()));
+    connect(ui->pbExportSpreadSheet, SIGNAL(clicked()), this, SLOT(exportSpreadSheet()));
 }
 
 DBDetailView::~DBDetailView()
@@ -201,6 +203,7 @@ void DBDetailView::setVisibleButtons(DBDetailView::Buttons buttons)
     else if (ui->pbView->isVisible()) setFocusProxy(ui->pbView);
     else if (ui->pbDelete->isVisible()) setFocusProxy(ui->pbDelete);
     else if (ui->pbRemoveExisting->isVisible()) setFocusProxy(ui->pbRemoveExisting);
+    ui->pbExportSpreadSheet->setVisible(d->m_visibleButtons.testFlag(DBDetailView::ExportSpreadSheetButton));
 }
 
 DBDetailView::WorkModes DBDetailView::workMode()
@@ -844,6 +847,11 @@ void DBDetailView::saveColumnsOrder(const QStringList &order, const QStringList 
 void DBDetailView::saveColumnsOrder()
 {
     ui->tableView->saveColumnsOrder();
+}
+
+void DBDetailView::exportSpreadSheet()
+{
+    AERPSpreadSheetUtil::instance()->exportSpreadSheet(filterModel(), this);
 }
 
 void DBDetailView::sortByColumn(const QString &field, Qt::SortOrder order)

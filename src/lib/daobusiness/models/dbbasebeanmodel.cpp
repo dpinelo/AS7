@@ -900,6 +900,10 @@ void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
 void DBBaseBeanModel::fieldBaseBeanModified(BaseBean *bean, const QString &dbFieldName, const QVariant &value)
 {
     Q_UNUSED(value)
+    if ( d->m_refreshing || isLoadingData() )
+    {
+        return;
+    }
     for ( int i = 0 ; i < d->m_vectorBean.size() ; i++ )
     {
         if ( !d->m_vectorBean.at(i).isNull() )
@@ -998,7 +1002,10 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
     {
         valueData = "";
     }
-
+    if ( d->m_refreshing || isLoadingData() )
+    {
+        return valueData;
+    }
     int column = item.column();
     int row = item.row();
 
@@ -1121,7 +1128,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
 
 bool DBBaseBeanModel::setData ( const QModelIndex & index, const QVariant & value, int role )
 {
-    if ( !index.isValid() || d->m_metadata == NULL )
+    if ( !index.isValid() || d->m_metadata == NULL || d->m_refreshing || isLoadingData() )
     {
         return false;
     }
@@ -1174,6 +1181,11 @@ bool DBBaseBeanModel::removeRows (int row, int count, const QModelIndex & parent
 
     bool result = true;
     QString contextName = AlephERP::stDeleteContext;
+
+    if ( d->m_refreshing || isLoadingData() )
+    {
+        return false;
+    }
 
     bool reloadingWasActive = false;
     if ( timerId() != -1 )
@@ -1236,6 +1248,15 @@ BaseBeanSharedPointer DBBaseBeanModel::bean (const QModelIndex &index)
     BaseBeanSharedPointer bean;
     bool beansHasBeenFetched = false;
 
+    // ¿Se está refrescando el modelo? Si es así, ojo, no permitimos hacer nada
+    if ( d->m_refreshing || isLoadingData() )
+    {
+        QLogger::QLog_Warning(AlephERP::stLogDB, QString("DBBaseBeanModel::bean: Bean solicitado en una operación de refresco. No devolvemos nada."));
+        qWarning() << Q_FUNC_INFO
+                   << "Bean solicitado en una operación de refresco. No devolvemos nada.";
+        return bean;
+    }
+
     if ( !index.isValid() )
     {
         return bean;
@@ -1288,6 +1309,15 @@ Obtiene un conjunto de beans del modelo. Esta función optimiza las consultas a 
 BaseBeanSharedPointerList DBBaseBeanModel::beans(const QModelIndexList &list)
 {
     BaseBeanSharedPointerList result, beansToReload;
+
+    // ¿Se está refrescando el modelo? Si es así, ojo, no permitimos hacer nada
+    if ( d->m_refreshing || isLoadingData() )
+    {
+        QLogger::QLog_Warning(AlephERP::stLogDB, QString("DBBaseBeanModel::beans: Bean solicitado en una operación de refresco. No devolvemos nada."));
+        qWarning() << Q_FUNC_INFO
+                   << "Beans solicitados en una operación de refresco. No devolvemos nada.";
+        return result;
+    }
 
     foreach ( QModelIndex index, list )
     {
@@ -1427,6 +1457,10 @@ BaseBeanMetadata *DBBaseBeanModel::metadata() const
 */
 QModelIndex DBBaseBeanModel::indexByPk(const QVariant &value)
 {
+    if ( d->m_refreshing || isLoadingData() )
+    {
+        return QModelIndex();
+    }
     QVariantMap values = value.toMap();
     for ( int i = 0 ; i < d->m_vectorBean.size() ; i++ )
     {
@@ -1461,7 +1495,11 @@ void DBBaseBeanModel::setDeleteFromDB(bool value)
 
 void DBBaseBeanModel::refresh(bool force)
 {
-    if ( !d->m_metadata || !alephERPSettings->modelsRefresh() )
+    if ( !d->m_metadata )
+    {
+        return;
+    }
+    if ( !force && !alephERPSettings->modelsRefresh() )
     {
         return;
     }
@@ -1496,6 +1534,10 @@ void DBBaseBeanModel::refresh(bool force)
 
 bool DBBaseBeanModel::commit()
 {
+    if ( d->m_refreshing )
+    {
+        return false;
+    }
     // Ahora se produce la transacción de borrado
     d->m_errorOnDelete = false;
     if ( !AERPTransactionContext::instance()->isContextEmpty(AlephERP::stDeleteContext) )

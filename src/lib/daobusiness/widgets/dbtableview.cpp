@@ -44,6 +44,7 @@
 #include "models/aerpmoviedelegate.h"
 #include "models/aerpitemdelegate.h"
 #include "globales.h"
+#include "business/aerpspreadsheet.h"
 #include "dbnumberedit.h"
 
 class DBTableViewPrivate
@@ -870,4 +871,9 @@ void DBTableView::applyRowSpan()
             }
         }
     }
+}
+
+void DBTableView::exportSpreadSheet()
+{
+    AERPSpreadSheetUtil::instance()->exportSpreadSheet(filterModel(), this);
 }

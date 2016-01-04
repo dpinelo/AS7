@@ -214,6 +214,7 @@ public slots:
     {
         AERPBackgroundAnimation::hideAnimation();
     }
+    virtual void exportSpreadSheet();
 
 signals:
     void valueEdited(const QVariant &value);

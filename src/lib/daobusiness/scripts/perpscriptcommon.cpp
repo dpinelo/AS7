@@ -1780,14 +1780,23 @@ QScriptValue AERPScriptCommon::chooseRecordFromTable(const QString &tableName, c
  * @param label
  * @return
  */
-QScriptValue AERPScriptCommon::chooseChildFromComboBox(BaseBean *bean, const QString &relationName, const QString &fieldToShow, const QString &label)
+QScriptValue AERPScriptCommon::chooseChildFromComboBox(BaseBean *bean, const QString &relationName,
+                                                       const QString &fieldToShow, const QString &label, const QString &filter)
 {
     if ( engine() == NULL )
     {
         qDebug() << "AERPScriptCommon::chooseChildFromComboBox: El engine es null";
         return QScriptValue(QScriptValue::NullValue);
     }
-    BaseBeanPointerList beans = bean->relationChildren(relationName);
+    BaseBeanPointerList beans;
+    if ( filter.isEmpty() )
+    {
+        beans = bean->relationChildren(relationName);
+    }
+    else
+    {
+        beans = bean->relationChildrenByFilter(relationName, filter);
+    }
     QStringList showedStrings;
     QString alias;
     foreach (BaseBeanPointer bean, beans)
