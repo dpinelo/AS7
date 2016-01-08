@@ -799,30 +799,33 @@ void DBFormDlg::insertChild()
             {
                 d->m_recentInsertIndex = childIdx;
                 QVariant vBean = childIdx.data(AlephERP::BaseBeanRole);
-                BaseBeanPointer bean = (BaseBean *)(vBean.value<void *>());
-                if ( bean )
+                if ( vBean.isValid() )
                 {
-                    if ( QString(sourceModel->metaObject()->className()) == "TreeBaseBeanModel" )
+                    BaseBeanPointer bean = (BaseBean *)(vBean.value<void *>());
+                    if ( bean )
                     {
-                        // Los modelos en árbol hacen cosas raras con los filtros... no andan finos. Mejor invalidamos.
-                        model->invalidate();
-                    }
-                    CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
-                    d->m_dlg = new DBRecordDlg(bean, AlephERP::Insert, this);
-                    CommonsFunctions::restoreOverrideCursor();
-                    if ( d->m_dlg->openSuccess() && d->m_dlg->init() )
-                    {
-                        d->m_itemView->disableRestoreSaveState();
-                        connect(d->m_dlg.data(), SIGNAL(accepted()), this, SLOT(recordDlgClosed()));
-                        connect(d->m_dlg.data(), SIGNAL(rejected()), this, SLOT(recordDlgCanceled()));
-                        d->m_dlg->setModal(true);
-                        d->m_dlg->setCanChangeModality(true);
-                        d->m_dlg->exec();
-                        return;
-                    }
-                    else
-                    {
-                        delete d->m_dlg;
+                        if ( QString(sourceModel->metaObject()->className()) == "TreeBaseBeanModel" )
+                        {
+                            // Los modelos en árbol hacen cosas raras con los filtros... no andan finos. Mejor invalidamos.
+                            model->invalidate();
+                        }
+                        CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
+                        d->m_dlg = new DBRecordDlg(bean, AlephERP::Insert, this);
+                        CommonsFunctions::restoreOverrideCursor();
+                        if ( d->m_dlg->openSuccess() && d->m_dlg->init() )
+                        {
+                            d->m_itemView->disableRestoreSaveState();
+                            connect(d->m_dlg.data(), SIGNAL(accepted()), this, SLOT(recordDlgClosed()));
+                            connect(d->m_dlg.data(), SIGNAL(rejected()), this, SLOT(recordDlgCanceled()));
+                            d->m_dlg->setModal(true);
+                            d->m_dlg->setCanChangeModality(true);
+                            d->m_dlg->exec();
+                            return;
+                        }
+                        else
+                        {
+                            delete d->m_dlg;
+                        }
                     }
                 }
             }

@@ -332,8 +332,8 @@ void DBAbstractFilterView::reSort()
     if ( filterModel() )
     {
         filterModel()->invalidate();
-        int sortColumn;
-        Qt::SortOrder sort;
+        int sortColumn = 0;
+        Qt::SortOrder sort = Qt::AscendingOrder;
         QTableView *tv = qobject_cast<QTableView *>(d->m_itemView);
         if ( tv != NULL )
         {
@@ -942,7 +942,7 @@ BaseBeanPointer DBAbstractFilterView::selectedBean()
 {
     BaseBeanPointer bean;
     QModelIndex currentIndex = d->m_itemView->currentIndex();
-    if ( currentIndex.isValid () )
+    if ( currentIndex.isValid() && currentIndex.data(AlephERP::BaseBeanRole).isValid() )
     {
         bean = static_cast<BaseBean *>(currentIndex.data(AlephERP::BaseBeanRole).value<void *>());
     }

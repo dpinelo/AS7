@@ -240,11 +240,14 @@ void AERPInlineEditItemDelegate::setModelData(QWidget *editor, QAbstractItemMode
     {
         DBLineEdit *le = qobject_cast<DBLineEdit *> (editor);
         QVariant vBean = index.data(AlephERP::BaseBeanRole);
-        BaseBean *b = static_cast<BaseBean *>(vBean.value<void *>());
-        le->setWorkBean(b);
-        if ( le != NULL )
+        if ( vBean.isValid() )
         {
-            model->setData(index, le->finalValue());
+            BaseBean *b = static_cast<BaseBean *>(vBean.value<void *>());
+            le->setWorkBean(b);
+            if ( le != NULL )
+            {
+                model->setData(index, le->finalValue());
+            }
         }
     }
 }
@@ -272,7 +275,7 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
             }
             else
             {
-                DBObject *obj = field->bean()->navigateThroughProperties(fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString(), true);
+                DBObject *obj = fld->bean()->navigateThroughProperties(fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString(), true);
                 if (obj != NULL)
                 {
                     field = qobject_cast<DBField *>(obj);

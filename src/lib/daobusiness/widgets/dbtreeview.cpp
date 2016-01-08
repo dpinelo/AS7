@@ -457,13 +457,16 @@ QVariant DBTreeView::value()
     {
         QModelIndex idx = selectionModel()->currentIndex();
         QVariant vItem = idx.data(AlephERP::BaseBeanRole);
-        BaseBean *bean = static_cast<BaseBean *>(vItem.value<void *>());
-        if ( bean )
+        if ( vItem.isValid() )
         {
-            DBField *fld = bean->field(this->m_fieldName);
-            if ( fld != NULL )
+            BaseBean *bean = static_cast<BaseBean *>(vItem.value<void *>());
+            if ( bean )
             {
-                value = fld->value();
+                DBField *fld = bean->field(this->m_fieldName);
+                if ( fld != NULL )
+                {
+                    value = fld->value();
+                }
             }
         }
     }

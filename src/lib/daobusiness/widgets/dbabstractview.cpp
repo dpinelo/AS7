@@ -409,10 +409,13 @@ bool DBAbstractViewInterface::currentIndexOnNewRow()
     if ( itemView && itemView->currentIndex().isValid() )
     {
         QVariant vBean = itemView->currentIndex().data(AlephERP::BaseBeanRole);
-        BaseBean *b = (BaseBean *)(vBean.value<void *>());
-        if ( b != NULL )
+        if ( vBean.isValid() )
         {
-            return b->dbState() == BaseBean::INSERT && !b->modified();
+            BaseBean *b = (BaseBean *)(vBean.value<void *>());
+            if ( b != NULL )
+            {
+                return b->dbState() == BaseBean::INSERT && !b->modified();
+            }
         }
     }
     return false;

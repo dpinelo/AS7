@@ -1199,39 +1199,42 @@ QMimeData *BaseBeanModel::mimeData(const QModelIndexList &indexes) const
             if (index.isValid())
             {
                 QVariant vBean = index.data(AlephERP::BaseBeanRole);
-                BaseBean *b = static_cast<BaseBean *>(vBean.value<void *>());
-                if ( b != NULL )
+                if ( vBean.isValid() )
                 {
-                    bool firstItem = true;
-                    if ( firstRow )
+                    BaseBean *b = static_cast<BaseBean *>(vBean.value<void *>());
+                    if ( b != NULL )
                     {
-                        foreach (DBFieldMetadata *fld, b->metadata()->fields())
+                        bool firstItem = true;
+                        if ( firstRow )
                         {
-                            if ( fld->visibleGrid() )
+                            foreach (DBFieldMetadata *fld, b->metadata()->fields())
                             {
-                                if ( !text.isEmpty() )
+                                if ( fld->visibleGrid() )
+                                {
+                                    if ( !text.isEmpty() )
+                                    {
+                                        text = text.append(';');
+                                    }
+                                    text = text.append(fld->fieldName());
+                                }
+                            }
+                            text = text.append("\n");
+                            firstRow = false;
+                        }
+                        foreach (DBField *fld, b->fields())
+                        {
+                            if ( fld->metadata()->visibleGrid() )
+                            {
+                                if ( !firstItem )
                                 {
                                     text = text.append(';');
                                 }
-                                text = text.append(fld->fieldName());
+                                text = text.append(fld->displayValue());
+                                firstItem = false;
                             }
                         }
                         text = text.append("\n");
-                        firstRow = false;
                     }
-                    foreach (DBField *fld, b->fields())
-                    {
-                        if ( fld->metadata()->visibleGrid() )
-                        {
-                            if ( !firstItem )
-                            {
-                                text = text.append(';');
-                            }
-                            text = text.append(fld->displayValue());
-                            firstItem = false;
-                        }
-                    }
-                    text = text.append("\n");
                 }
             }
             addedRows.append(index.row());
@@ -1369,13 +1372,16 @@ void BaseBeanModel::removeInsertedRows(const QModelIndex &parent)
         if ( idx.data(AlephERP::RowFetchedRole).toBool() )
         {
             QVariant vBean = idx.data(AlephERP::BaseBeanRole);
-            BaseBean *b = static_cast<BaseBean *>(vBean.value<void *>());
-            if ( b != NULL )
+            if ( vBean.isValid() )
             {
-                if ( b->dbState() == BaseBean::INSERT )
+                BaseBean *b = static_cast<BaseBean *>(vBean.value<void *>());
+                if ( b != NULL )
                 {
-                    removeRow(row, parent);
-                    i = 0;
+                    if ( b->dbState() == BaseBean::INSERT )
+                    {
+                        removeRow(row, parent);
+                        i = 0;
+                    }
                 }
             }
         }
