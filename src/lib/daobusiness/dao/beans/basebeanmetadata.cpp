@@ -527,6 +527,10 @@ void BaseBeanMetadata::setAlias(const QString &alias)
 
 QString BaseBeanMetadata::alias() const
 {
+    if ( d->m_alias.isEmpty() )
+    {
+        return d->m_tableName;
+    }
     return d->m_alias;
 }
 
