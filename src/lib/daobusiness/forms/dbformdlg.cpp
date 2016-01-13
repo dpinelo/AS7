@@ -1326,7 +1326,13 @@ void DBFormDlg::fromScriptValue(const QScriptValue &object, DBFormDlg * &out)
  * @param img Imagen (formato :/img/imagen.png
  * @return El botón creado
  */
-QPushButton *DBFormDlg::createPushButton(int position, const QString &text, const QString &toolTip, const QString &img, const QString &methodNameToInvokeOnClicked, int width, int height)
+QPushButton *DBFormDlg::createPushButton(int position,
+                                         const QString &text,
+                                         const QString &toolTip,
+                                         const QString &img,
+                                         const QString &methodNameToInvokeOnClicked,
+                                         int width,
+                                         int height)
 {
     QHBoxLayout *layout = qobject_cast<QHBoxLayout *>(ui->gbButtons->layout());
     if ( layout == NULL )

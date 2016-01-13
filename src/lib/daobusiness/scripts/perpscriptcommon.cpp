@@ -66,6 +66,7 @@
 #include "forms/logindlg.h"
 #include "forms/changepassworddlg.h"
 #include "forms/perpmainwindow.h"
+#include "forms/dbrecorddlg.h"
 #include "scripts/perpscriptengine.h"
 #include "reports/reportrun.h"
 #include "widgets/dbtableview.h"
@@ -1825,6 +1826,30 @@ QScriptValue AERPScriptCommon::chooseChildFromComboBox(BaseBean *bean, const QSt
     BaseBeanPointer selectedBean = beans.at(showedStrings.indexOf(selectedValue));
     QScriptValue scriptValue = engine()->newQObject(selectedBean.data(), QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject);
     return scriptValue;
+}
+
+/**
+ * @brief AERPScriptCommon::openRecordDialog
+ * Abre para edición o vista un registro pasado como parámetro
+ * @param bean registro a editar
+ * @param openType Tipo de apertura
+ * @param parent
+ * @return
+ */
+void AERPScriptCommon::openRecordDialog(BaseBean *bean, AlephERP::FormOpenType openType, QWidget *parent)
+{
+    if ( bean == NULL )
+    {
+        return;
+    }
+    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+    QScopedPointer<DBRecordDlg> dlg(new DBRecordDlg(bean, openType, parent));
+    CommonsFunctions::restoreOverrideCursor();
+    if ( dlg->openSuccess() && dlg->init() )
+    {
+        dlg->setModal(true);
+        dlg->exec();
+    }
 }
 
 QScriptValue AERPScriptCommon::openSpreadSheet(const QString &file, const QString &type)

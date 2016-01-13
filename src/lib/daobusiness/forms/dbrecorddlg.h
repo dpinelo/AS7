@@ -129,12 +129,14 @@ public:
     explicit DBRecordDlg(QWidget *parent = 0, Qt::WindowFlags fl = 0);
     DBRecordDlg(BaseBeanPointer bean,
                 AlephERP::FormOpenType openType,
-                QWidget* parent = 0, Qt::WindowFlags fl = 0);
+                QWidget* parent = 0,
+                Qt::WindowFlags fl = 0);
     DBRecordDlg(FilterBaseBeanModel *model,
                 QItemSelectionModel *idx,
                 const QHash<QString, QVariant> &fieldValueToSetOnNewBean,
                 AlephERP::FormOpenType openType,
-                QWidget* parent = 0, Qt::WindowFlags fl = 0);
+                QWidget* parent = 0,
+                Qt::WindowFlags fl = 0);
     ~DBRecordDlg();
 
     bool isWindowModified();
