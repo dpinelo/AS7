@@ -885,7 +885,20 @@ void DBLineEdit::mouseReleaseEvent(QMouseEvent *event)
         DBField *fld = qobject_cast<DBField *>(observer()->entity());
         if ( fld )
         {
+            int cursorPos = cursorPosition();
+            int selStart = -1, selLength = -1;
+            if ( hasSelectedText() )
+            {
+                selStart = selectionStart();
+                selLength = selectedText().length();
+            }
             QLineEdit::setText(fld->displayValue());
+            // This order is very important.
+            setCursorPosition(cursorPos);
+            if ( selStart != -1 )
+            {
+                setSelection(selStart, selLength);
+            }
         }
     }
 }
