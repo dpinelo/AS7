@@ -1530,6 +1530,28 @@ QString AERPScriptCommon::httpGet(const QString &scheme, const QString &host, co
     return result;
 }
 
+QString AERPScriptCommon::httpGet(const QString &strUrl, const QString &userName, const QString &password, bool usePreemptiveAuthentication)
+{
+    QString result;
+    QByteArray empty;
+    QUrl url(strUrl);
+    url.setUserName(userName);
+    url.setPassword(password);
+
+    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+    d_ptr->m_conn.setUsePreemptiveAuthentication(usePreemptiveAuthentication);
+    if ( d_ptr->m_conn.makeHttpConnection(result, url, empty) )
+    {
+        qDebug() << "AERPScriptCommon::httpGet: " << result;
+    }
+    else
+    {
+        d_ptr->m_lastError = d_ptr->m_conn.lastError();
+    }
+    CommonsFunctions::restoreOverrideCursor();
+    return result;
+}
+
 /**
  * @brief AERPScriptCommon::sendEmail
  * Envía un correo electrónico según la configuración del sistema en las variables de entorno.

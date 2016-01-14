@@ -157,6 +157,7 @@ public:
     // -----------------------------------------------
     Q_INVOKABLE QString httpGet(const QString &scheme, const QString &host, const QString &path, const QScriptValue &queryList,
                                 const QString &userName = "", const QString &password = "", int port = 80, bool usePreemptiveAuthentication = false);
+    Q_INVOKABLE QString httpGet(const QString &strUrl, const QString &userName = "", const QString &password = "", bool usePreemptiveAuthentication = false);
     Q_INVOKABLE bool sendEmail(const QString &to, const QString &cc, const QString &bcc, const QString &subject, const QString &body);
 
     // -----------------------------------------------
