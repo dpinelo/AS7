@@ -987,7 +987,7 @@ bool BaseDAO::select(BaseBeanSharedPointerList &beans, const QString &tableName,
                 {
                     // Ojo: Nos saltamos campos calculados
                     DBFieldMetadata *fld = metadata->field(i);
-                    if ( (!fld->calculated() || (fld->calculated() && fld->calculatedSaveOnDb())) && !fld->memo() )
+                    if ( fld->isOnDb() && !fld->memo() )
                     {
                         beans.last()->setInternalFieldValue(i, qry->value(j), true);
                         beans.last()->setOldValue(i, qry->value(j));
@@ -1060,7 +1060,7 @@ bool BaseDAO::select(QList<BaseBean *> &beans, const QString &tableName,
             {
                 // Ojo: Nos saltamos campos calculados
                 DBFieldMetadata *fld = metadata->field(i);
-                if ( (!fld->calculated() || (fld->calculated() && fld->calculatedSaveOnDb())) && !fld->memo() )
+                if ( fld->isOnDb() && !fld->memo() )
                 {
                     beans.last()->setInternalFieldValue(i, qry->value(j), true);
                     beans.last()->setOldValue(i, qry->value(j));
@@ -1265,7 +1265,7 @@ bool BaseDAO::selectFirst(BaseBean *bean, const QString &where, const QString &o
                 {
                     // Ojo: Nos saltamos campos calculados
                     DBFieldMetadata *fld = bean->field(i)->metadata();
-                    if ( (!fld->calculated() || (fld->calculated() && fld->calculatedSaveOnDb())) && !fld->memo() )
+                    if ( fld->isOnDb() && !fld->memo() )
                     {
                         bean->setInternalFieldValue(i, qry->value(j), true);
                         bean->setOldValue(i, qry->value(j));
@@ -1399,7 +1399,7 @@ bool BaseDAO::selectSeveralByPk(BaseBeanSharedPointerList &beans, QVariantList l
                 {
                     // Ojo: Nos saltamos campos calculados
                     DBFieldMetadata *fld = metadata->field(i);
-                    if ( (!fld->calculated() || (fld->calculated() && fld->calculatedSaveOnDb())) && !fld->memo() )
+                    if ( fld->isOnDb() && !fld->memo() )
                     {
                         beans.last()->setInternalFieldValue(i, qry->value(j), true);
                         beans.last()->setOldValue(i, qry->value(j));
@@ -1534,7 +1534,7 @@ bool BaseDAO::selectByPk(const QVariant &id, BaseBean *bean, const QString &conn
                 {
                     // Ojo: Nos saltamos campos calculados
                     DBFieldMetadata *fld = bean->field(i)->metadata();
-                    if ( (!fld->calculated() || (fld->calculated() && fld->calculatedSaveOnDb())) && !fld->memo() )
+                    if ( fld->isOnDb() && !fld->memo() )
                     {
                         bean->setInternalFieldValue(i, qry->value(j), true);
                         bean->setOldValue(i, qry->value(j));
@@ -1631,7 +1631,7 @@ bool BaseDAO::selectByOid(qlonglong oid, BaseBean *bean, const QString &connecti
                 {
                     // Ojo: Nos saltamos campos calculados
                     DBFieldMetadata *fld = bean->field(i)->metadata();
-                    if ( (!fld->calculated() || (fld->calculated() && fld->calculatedSaveOnDb())) && !fld->memo() )
+                    if ( fld->isOnDb() && !fld->memo() )
                     {
                         bean->setInternalFieldValue(i, qry->value(j), true);
                         bean->setOldValue(i, qry->value(j));
@@ -1698,7 +1698,7 @@ QString BaseDAO::sqlSelectFieldsClausule(const QList<DBFieldMetadata *> &fields,
     // Construimos ahora la zona del select, a partir de los fields pasados
     foreach ( DBFieldMetadata *field, fields )
     {
-        if ( (!field->calculated() || (field->calculated() && field->calculatedSaveOnDb())) && !field->memo() )
+        if ( fld->isOnDb() && !field->memo() )
         {
             if ( sqlFields.isEmpty() )
             {

@@ -475,7 +475,7 @@ QStringList TreeBaseBeanModelPrivate::levelRetreivedFields(int level, const QStr
     BaseBeanMetadata *m = m_levelInfo.at(level).metadata;
     foreach (DBFieldMetadata *fld, m->fields())
     {
-        if ( (!fld->calculated() || fld->calculatedSaveOnDb() || fld->serial()) && !fld->memo() )
+        if ( (fld->isOnDb() || fld->serial()) && !fld->memo() )
         {
             list << QString("%1.%2 AS vf%3%2").arg(prefix).arg(fld->dbFieldName()).arg(level);
         }
@@ -798,7 +798,7 @@ void TreeBaseBeanModelPrivate::replaceBean(BeanTreeItemPointer item, BaseBeanSha
             {
                 if ( fld->metadata()->visibleGrid() )
                 {
-                    if ( !fld->metadata()->calculated() || fld->metadata()->calculatedSaveOnDb() )
+                    if ( fld->metadata()->isOnDb() )
                     {
                         if ( fld->value() != bean->fieldValue(fld->metadata()->dbFieldName()) )
                         {

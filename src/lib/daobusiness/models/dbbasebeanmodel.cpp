@@ -383,7 +383,14 @@ void DBBaseBeanModelPrivate::extractOrder()
         QList<DBFieldMetadata *> flds = m_metadata->pkFields();
         if ( flds.size() > 0 )
         {
-            m_order = QString("%1 ASC").arg(flds.at(0)->dbFieldName());
+            for ( int i = 0 ; i < flds.size() ; ++i )
+            {
+                if ( flds.at(i)->isOnDb() )
+                {
+                    m_order = QString("%1 ASC").arg(flds.at(0)->dbFieldName());
+                    return;
+                }
+            }
         }
     }
 }

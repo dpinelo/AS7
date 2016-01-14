@@ -1123,7 +1123,7 @@ void FilterBaseBeanModel::sort (int column, Qt::SortOrder order)
                 return;
             }
             DBFieldMetadata *fld = visibleFlds.at(column);
-            if ( fld == NULL || (fld->calculated() && !fld->calculatedSaveOnDb()) )
+            if ( fld == NULL || !fld->isOnDb() )
             {
                 if ( model->rowCount() > alephERPSettings->strongFilterRowCountLimit() )
                 {

@@ -1215,6 +1215,15 @@ void DBFieldMetadata::setDependOnFieldsToCalc(const QStringList &data)
     d->m_dependOnFieldsToCalc = data;
 }
 
+bool DBFieldMetadata::isOnDb() const
+{
+    if ( !d->m_calculated )
+    {
+        return true;
+    }
+    return d->m_calculatedSaveOnDB;
+}
+
 void DBFieldMetadata::setXmlDefinition(const QString &value)
 {
     d->m_xmlDefinition = value;

@@ -934,7 +934,7 @@ QString BaseBeanModel::sqlSelectFieldsClausule(BaseBeanMetadata *metadata, QList
     QList<DBFieldMetadata *> pkFields = metadata->pkFields();
     foreach ( DBFieldMetadata *field, fields )
     {
-        if ( (!field->calculated() || (field->calculated() && field->calculatedSaveOnDb())) || field->hasCounterDefinition() )
+        if ( field->isOnDb() || field->hasCounterDefinition() )
         {
             if ( field->visibleGrid() || pkFields.contains(field) )
             {

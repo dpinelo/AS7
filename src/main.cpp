@@ -94,17 +94,18 @@ int main(int argc, char *argv[])
     // Establecemos el sistema de logs
     logger = QLogger::QLoggerManager::instance();
     QStringList loggerModules;
+    QString dateTimeTs = QDateTime::currentDateTime().toString("yyyy-MM-dd-HH-mm");
     loggerModules << AlephERP::stLogDB;
-    logger->addDestination(QString("alepherp-bbdd.log"), loggerModules, alephERPSettings->logLevel());
+    logger->addDestination(QString("%1-alepherp-bbdd.log").arg(dateTimeTs), loggerModules, alephERPSettings->logLevel());
     loggerModules.clear();
     loggerModules << AlephERP::stLogScript;
-    logger->addDestination(QString("alepherp-script.log"), loggerModules, alephERPSettings->logLevel());
+    logger->addDestination(QString("%1-alepherp-script.log").arg(dateTimeTs), loggerModules, alephERPSettings->logLevel());
     loggerModules.clear();
     loggerModules << AlephERP::stLogOther;
-    logger->addDestination(QString("alepherp-other.log"), loggerModules, alephERPSettings->logLevel());
+    logger->addDestination(QString("%1-alepherp-other.log").arg(dateTimeTs), loggerModules, alephERPSettings->logLevel());
     loggerModules.clear();
     loggerModules << AlephERP::stLogJob;
-    logger->addDestination(QString("alepherp-job.log"), loggerModules, alephERPSettings->logLevel());
+    logger->addDestination(QString("%1-alepherp-job.log").arg(dateTimeTs), loggerModules, alephERPSettings->logLevel());
 #ifdef ALEPHERP_LOCALMODE
     loggerModules.clear();
     loggerModules << AlephERP::stLogOther;

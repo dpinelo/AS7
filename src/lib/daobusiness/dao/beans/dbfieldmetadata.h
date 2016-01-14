@@ -340,6 +340,8 @@ class ALEPHERP_DLL_EXPORT DBFieldMetadata : public QObject, public QScriptable
     Q_PROPERTY(QStringList dependOnFieldsToCalc READ dependOnFieldsToCalc WRITE setDependOnFieldsToCalc)
     /** Indica si este metadato tiene algún cálculo para valor por defecto */
     Q_PROPERTY(bool hasDefaultValue READ hasDefaultValue)
+    /** Indica si este campo se almacena en base de datos */
+    Q_PROPERTY(bool isOnDb READ isOnDb)
 
 private:
     Q_DISABLE_COPY(DBFieldMetadata)
@@ -485,6 +487,7 @@ public:
     Qt::Alignment alignment() const;
     QStringList dependOnFieldsToCalc() const;
     void setDependOnFieldsToCalc(const QStringList &data);
+    bool isOnDb() const;
 
     QString ddlCreationTable(const AlephERP::CreationTableSqlOptions &options, const QString &dialect);
 

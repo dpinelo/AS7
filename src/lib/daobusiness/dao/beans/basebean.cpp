@@ -3774,7 +3774,7 @@ void BaseBean::copyValues(BaseBeanPointer otherBean, const QStringList &fields)
             DBField *otherFld = otherBean->field(fld->metadata()->dbFieldName());
             if ( otherFld != NULL && otherFld->metadata()->type() == fld->metadata()->type() &&
                     !fld->metadata()->serial() &&
-                    (!otherFld->metadata()->calculated() || (otherFld->metadata()->calculated() && otherFld->metadata()->calculatedSaveOnDb()) ))
+                    otherFld->metadata()->isOnDb() )
             {
                 fld->setValue(otherFld->value());
             }
@@ -3880,7 +3880,7 @@ QString BaseBean::hash(bool useRawValue)
     QString totalData;
     foreach ( DBField *fld, d->m_fields )
     {
-        if ( !fld->metadata()->calculated() || (fld->metadata()->calculated() && fld->metadata()->calculatedSaveOnDb()) )
+        if ( fld->metadata()->isOnDb() )
         {
             totalData = QString("%1%2;").arg(totalData).arg(fld->sqlValue(true, "", useRawValue));
         }
@@ -3901,7 +3901,7 @@ QString BaseBean::rawHash()
     QString totalData;
     foreach ( DBField *fld, d->m_fields )
     {
-        if ( !fld->metadata()->calculated() || (fld->metadata()->calculated() && fld->metadata()->calculatedSaveOnDb()) )
+        if ( fld->metadata()->isOnDb() )
         {
             totalData = QString("%1%2;").arg(totalData).arg(fld->metadata()->sqlValue(fld->rawValue()));
         }

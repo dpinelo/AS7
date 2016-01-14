@@ -4213,7 +4213,7 @@ QString BaseBeanMetadata::sqlCreateTable(AlephERP::CreationTableSqlOptions optio
 
     foreach ( DBFieldMetadata *field, fields() )
     {
-        if ( !field->calculated() || ( field->calculated() && field->calculatedSaveOnDb()) )
+        if ( field->isOnDb() )
         {
             if ( !fieldsSql.isEmpty() )
             {
