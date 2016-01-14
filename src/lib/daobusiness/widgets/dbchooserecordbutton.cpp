@@ -640,6 +640,10 @@ void DBChooseRecordButton::updateFields()
 {
     BaseBeanPointer dialogBean = beanFromContainer();
 
+    if ( dialogBean.isNull() )
+    {
+        return;
+    }
     foreach ( QString item, d->m_replaceFields )
     {
         QStringList items = item.split(QRegExp(QStringLiteral(";|,")));

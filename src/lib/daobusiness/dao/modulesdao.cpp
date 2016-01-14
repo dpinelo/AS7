@@ -1231,7 +1231,7 @@ bool ModulesDAO::exportData(const QList<BaseBeanMetadata *> metadatasToExport, c
                     emit exportDataTableProgress(count);
                     foreach (DBField *fld, bean->fields())
                     {
-                        if ( fld->metadata()->isOnDb()) )
+                        if ( fld->metadata()->isOnDb() )
                         {
                             QString content = fld->metadata()->type() == QVariant::String ?
                                               QString("<![CDATA[%1]]>").arg(fld->sqlValue(false)) : fld->sqlValue(false);

@@ -1698,7 +1698,7 @@ QString BaseDAO::sqlSelectFieldsClausule(const QList<DBFieldMetadata *> &fields,
     // Construimos ahora la zona del select, a partir de los fields pasados
     foreach ( DBFieldMetadata *field, fields )
     {
-        if ( fld->isOnDb() && !field->memo() )
+        if ( field->isOnDb() && !field->memo() )
         {
             if ( sqlFields.isEmpty() )
             {
