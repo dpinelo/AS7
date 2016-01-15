@@ -286,7 +286,8 @@ AERPBeanInspectorModel::AERPBeanInspectorModel(QObject *parent) :
                                << "includeOnCopy"
                                << "linkToFather"
                                << "linkDialogReadOnly"
-                               << "showOnRelatedModels";
+                               << "showOnRelatedModels"
+                               << "allSignalsBlocked";
 }
 
 AERPBeanInspectorModel::~AERPBeanInspectorModel()

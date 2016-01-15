@@ -3678,6 +3678,11 @@ bool BaseBean::blockAllSignals(bool value)
     return previuos;
 }
 
+bool BaseBean::allSignalsBlocked() const
+{
+    return d->m_allSignalsBlocked;
+}
+
 DBField *BaseBean::fieldForRole(int role)
 {
     foreach (DBField *f, d->m_fields)
