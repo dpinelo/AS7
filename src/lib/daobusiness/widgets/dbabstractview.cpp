@@ -720,7 +720,6 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
         qWarning() << "DBAbstractViewInterface::itemClicked: Índice y modelo no coinciden.";
         return;
     }
-    DBRecordDlg *recordDlg = qobject_cast<DBRecordDlg *>(CommonsFunctions::aerpParentDialog(m_thisWidget));
     if ( !filterModel() )
     {
         return;
@@ -764,6 +763,7 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
         openType = AlephERP::ReadOnly;
     }
     // Vemos si el formulario principal está en modo navegación especial
+    DBRecordDlg *recordDlg = qobject_cast<DBRecordDlg *>(CommonsFunctions::aerpParentDialog(m_thisWidget));
     if ( recordDlg != NULL && recordDlg->advancedNavigation() )
     {
         BaseBeanSharedPointer b = filterModel()->bean(itemViewSelectionModel()->currentIndex());

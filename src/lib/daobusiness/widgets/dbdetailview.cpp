@@ -305,7 +305,6 @@ QItemSelectionModel *DBDetailView::itemViewSelectionModel()
 void DBDetailView::editRecord(const QString &action)
 {
     AlephERP::FormOpenType openType = AlephERP::Insert;
-    AERPBaseDialog *containerDlg = CommonsFunctions::aerpParentDialog(this);
 
     if ( !filterModel() )
     {
@@ -327,6 +326,7 @@ void DBDetailView::editRecord(const QString &action)
 
     filterModel()->freezeModel();
 
+    AERPBaseDialog *containerDlg = CommonsFunctions::aerpParentDialog(this);
     if ( containerDlg != NULL )
     {
         QScriptValue result;
@@ -431,12 +431,15 @@ void DBDetailView::deleteRecord()
         BaseBeanSharedPointer bean = filterModel()->bean(index);
         beans << bean;
         AERPBaseDialog *containerDlg = CommonsFunctions::aerpParentDialog(this);
-        QScriptValue result = containerDlg->callQSMethod(QString("%1BeforeDeleteChild").arg(m_relationName), bean.data());
-        if ( !result.isUndefined() && !result.isNull() && result.isValid() )
+        if ( containerDlg != NULL )
         {
-            if ( !result.toBool() )
+            QScriptValue result = containerDlg->callQSMethod(QString("%1BeforeDeleteChild").arg(m_relationName), bean.data());
+            if ( !result.isUndefined() && !result.isNull() && result.isValid() )
             {
-                return;
+                if ( !result.toBool() )
+                {
+                    return;
+                }
             }
         }
     }
@@ -539,7 +542,16 @@ void DBDetailView::addExisting()
             }
             filter = QString("%1oid NOT IN (%2)").arg(filter).arg(filterNotInclude);
         }
-
+        // El programador Qs podrá también modificar o agregar algo al filtro... máxima versatilidad
+        AERPBaseDialog *containerDlg = CommonsFunctions::aerpParentDialog(this);
+        if ( containerDlg != NULL )
+        {
+            QScriptValue result = containerDlg->callQSMethod(QString("%1BeforeOpenSearch").arg(m_relationName), filter);
+            if ( result.isValid() && result.isString() )
+            {
+                filter = result.toString();
+            }
+        }
         if ( !filter.isEmpty() )
         {
             dlg->setFilterData(filter);

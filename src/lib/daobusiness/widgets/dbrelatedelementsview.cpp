@@ -918,7 +918,6 @@ void DBRelatedElementsView::itemClicked(const QModelIndex &idx)
         return;
     }
 
-    DBRecordDlg *recordDlg = qobject_cast<DBRecordDlg *>(CommonsFunctions::aerpParentDialog(this));
     AlephERP::FormOpenType openType;
     // Si es un check el contenido de la celda, no abrimos nada
     Qt::ItemFlags flags = d->m_model->flags(idx);
@@ -954,6 +953,7 @@ void DBRelatedElementsView::itemClicked(const QModelIndex &idx)
             }
         }
     }
+    DBRecordDlg *recordDlg = qobject_cast<DBRecordDlg *>(CommonsFunctions::aerpParentDialog(this));
     // Vemos si el formulario principal está en modo navegación especial
     if ( recordDlg != NULL && recordDlg->advancedNavigation() )
     {

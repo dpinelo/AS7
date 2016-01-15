@@ -1710,6 +1710,10 @@ QScriptValue AERPScriptCommon::chooseRecordFromComboBox(const QString &tableName
     {
         return QScriptValue(QScriptValue::NullValue);
     }
+    if ( beans.size() == 0 )
+    {
+        return QScriptValue(QScriptValue::NullValue);
+    }
     QStringList showedStrings;
     foreach (BaseBeanSharedPointer bean, beans)
     {
