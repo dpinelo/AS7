@@ -456,17 +456,13 @@ QVariant DBTreeView::value()
     if ( filterModel() )
     {
         QModelIndex idx = selectionModel()->currentIndex();
-        QVariant vItem = idx.data(AlephERP::BaseBeanRole);
-        if ( vItem.isValid() )
+        BaseBeanSharedPointer bean = filterModel()->bean(idx);
+        if ( !bean.isNull() )
         {
-            BaseBean *bean = static_cast<BaseBean *>(vItem.value<void *>());
-            if ( bean )
+            DBField *fld = bean->field(this->m_fieldName);
+            if ( fld != NULL )
             {
-                DBField *fld = bean->field(this->m_fieldName);
-                if ( fld != NULL )
-                {
-                    value = fld->value();
-                }
+                value = fld->value();
             }
         }
     }

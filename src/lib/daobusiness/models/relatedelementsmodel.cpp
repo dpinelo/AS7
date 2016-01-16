@@ -401,7 +401,7 @@ BaseBeanMetadata *RelatedElementsModel::metadata() const
     return NULL;
 }
 
-BaseBeanSharedPointer RelatedElementsModel::bean(const QModelIndex &idx)
+BaseBeanSharedPointer RelatedElementsModel::bean(const QModelIndex &idx) const
 {
     if (!idx.isValid())
     {

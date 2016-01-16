@@ -212,7 +212,6 @@ public:
         MouseCursorRole = Qt::UserRole + 102,
         RawValueRole = Qt::UserRole + 103,
         DBFieldNameRole = Qt::UserRole + 104,
-        BaseBeanRole = Qt::UserRole + 105,
         ReplaceWildCards = Qt::UserRole + 106,
         SortRole = Qt::UserRole + 107,
         ScheduleTitleRole = Qt::UserRole + 108,

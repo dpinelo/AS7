@@ -79,7 +79,7 @@ public:
     bool insertRows(int row, int count, const QModelIndex & parent = QModelIndex());
 
     // Funciones propias
-    BaseBeanSharedPointer bean (const QModelIndex &index);
+    BaseBeanSharedPointer bean (const QModelIndex &index) const;
     BaseBeanSharedPointerList beans(const QModelIndexList &list);
     BaseBeanSharedPointer beanToBeEdited (const QModelIndex &index);
     BaseBeanSharedPointer beanToBeEdited (int row);

@@ -780,6 +780,13 @@ void DBFormDlg::insertChild()
     QItemSelectionModel *selectionModel = d->m_itemView->selectionModel();
     // El selection model anterior, se refiere al modelo FilterBaseBeanModel
     BaseBeanModel *sourceModel = d->m_itemView->sourceModel();
+    if ( sourceModel == NULL )
+    {
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             tr("ATENCIÓN: Ha ocurrido un error inesperado. Cierre el formulario y vuelva a intentarlo."));
+        return;
+    }
     if ( selectionModel->selectedIndexes().size() > 0 )
     {
         // Debemos trabajar con el sourceModel. ¿Porqué? La secuencia que ocurre es:
@@ -798,34 +805,30 @@ void DBFormDlg::insertChild()
             if ( childIdx.isValid() )
             {
                 d->m_recentInsertIndex = childIdx;
-                QVariant vBean = childIdx.data(AlephERP::BaseBeanRole);
-                if ( vBean.isValid() )
+                BaseBeanSharedPointer bean = sourceModel->bean(childIdx);
+                if ( bean )
                 {
-                    BaseBeanPointer bean = (BaseBean *)(vBean.value<void *>());
-                    if ( bean )
+                    if ( QString(sourceModel->metaObject()->className()) == "TreeBaseBeanModel" )
                     {
-                        if ( QString(sourceModel->metaObject()->className()) == "TreeBaseBeanModel" )
-                        {
-                            // Los modelos en árbol hacen cosas raras con los filtros... no andan finos. Mejor invalidamos.
-                            model->invalidate();
-                        }
-                        CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
-                        d->m_dlg = new DBRecordDlg(bean, AlephERP::Insert, this);
-                        CommonsFunctions::restoreOverrideCursor();
-                        if ( d->m_dlg->openSuccess() && d->m_dlg->init() )
-                        {
-                            d->m_itemView->disableRestoreSaveState();
-                            connect(d->m_dlg.data(), SIGNAL(accepted()), this, SLOT(recordDlgClosed()));
-                            connect(d->m_dlg.data(), SIGNAL(rejected()), this, SLOT(recordDlgCanceled()));
-                            d->m_dlg->setModal(true);
-                            d->m_dlg->setCanChangeModality(true);
-                            d->m_dlg->exec();
-                            return;
-                        }
-                        else
-                        {
-                            delete d->m_dlg;
-                        }
+                        // Los modelos en árbol hacen cosas raras con los filtros... no andan finos. Mejor invalidamos.
+                        model->invalidate();
+                    }
+                    CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
+                    d->m_dlg = new DBRecordDlg(bean.data(), AlephERP::Insert, this);
+                    CommonsFunctions::restoreOverrideCursor();
+                    if ( d->m_dlg->openSuccess() && d->m_dlg->init() )
+                    {
+                        d->m_itemView->disableRestoreSaveState();
+                        connect(d->m_dlg.data(), SIGNAL(accepted()), this, SLOT(recordDlgClosed()));
+                        connect(d->m_dlg.data(), SIGNAL(rejected()), this, SLOT(recordDlgCanceled()));
+                        d->m_dlg->setModal(true);
+                        d->m_dlg->setCanChangeModality(true);
+                        d->m_dlg->exec();
+                        return;
+                    }
+                    else
+                    {
+                        delete d->m_dlg;
                     }
                 }
             }

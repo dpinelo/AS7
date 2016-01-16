@@ -77,8 +77,8 @@ public:
     virtual QVariant headerData(DBFieldMetadata *fld, int section, Qt::Orientation orientation, int role) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
-    virtual BaseBeanSharedPointer bean(int row);
-    virtual BaseBeanSharedPointer bean(const QModelIndex &index) = 0;
+    virtual BaseBeanSharedPointer bean(int row) const;
+    virtual BaseBeanSharedPointer bean(const QModelIndex &index) const = 0;
     virtual BaseBeanSharedPointerList beans(const QModelIndexList &list) = 0;
     virtual BaseBeanSharedPointerList beansToBeEdited(const QModelIndexList &list);
     virtual BaseBeanSharedPointer beanToBeEdited(int row);

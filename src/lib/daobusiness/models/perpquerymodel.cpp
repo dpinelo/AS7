@@ -653,7 +653,7 @@ BaseBeanSharedPointerList AERPQueryModel::beans(const QModelIndexList &list)
     return BaseBeanSharedPointerList();
 }
 
-BaseBeanSharedPointer AERPQueryModel::bean(const QModelIndex &index)
+BaseBeanSharedPointer AERPQueryModel::bean(const QModelIndex &index) const
 {
     Q_UNUSED(index)
     return BaseBeanSharedPointer();

@@ -1250,7 +1250,7 @@ bool DBBaseBeanModel::removeRows (int row, int count, const QModelIndex & parent
   Devuelve el bean correspondiente al índice index. Antes de devolverlo comprueba
   que el bean esté actualizado, esto es lo recupera de base de datos.
 */
-BaseBeanSharedPointer DBBaseBeanModel::bean (const QModelIndex &index)
+BaseBeanSharedPointer DBBaseBeanModel::bean (const QModelIndex &index) const
 {
     BaseBeanSharedPointer bean;
     bool beansHasBeenFetched = false;

@@ -261,18 +261,22 @@ bool DBTableView::viewportEvent(QEvent *event)
     {
         QHelpEvent *helpEvent = static_cast<QHelpEvent*>(event);
         QModelIndex index = indexAt(helpEvent->pos());
-        if ( index.isValid() )
+        if ( index.isValid() && filterModel() != NULL )
         {
-            DBField *fld = static_cast<DBField *>(index.data(AlephERP::DBFieldRole).value<void *>());
-            if ( fld == NULL || !fld->hasToolTip() )
+            BaseBeanSharedPointer bean = filterModel()->bean(index);
+            if ( !bean.isNull() )
             {
-                QSize sizeHint = itemDelegate(index)->sizeHint(viewOptions(), index);
-                QRect rItem(0, 0, sizeHint.width(), sizeHint.height());
-                QRect rVisual = visualRect(index);
-                if (rItem.width() <= rVisual.width())
+                DBField *fld = bean->field(index.data(AlephERP::DBFieldNameRole).toString());
+                if ( fld == NULL || !fld->hasToolTip() )
                 {
-                    QToolTip::hideText();
-                    return true;
+                    QSize sizeHint = itemDelegate(index)->sizeHint(viewOptions(), index);
+                    QRect rItem(0, 0, sizeHint.width(), sizeHint.height());
+                    QRect rVisual = visualRect(index);
+                    if (rItem.width() <= rVisual.width())
+                    {
+                        QToolTip::hideText();
+                        return true;
+                    }
                 }
             }
         }
@@ -343,25 +347,28 @@ void DBTableView::setModel(QAbstractItemModel *mdl)
     m_externalModel = true;
     setSourceModel(mdl);
     QTableView::setModel(filterModel());
-    QAbstractItemModel *tmp = filterModel()->sourceModel();
-    if ( tmp->property(AlephERP::stBaseBeanModel).toBool() )
+    if ( filterModel() != NULL )
     {
-        BaseBeanModel *metadataModel = qobject_cast<BaseBeanModel *>(filterModel()->sourceModel());
-        if ( metadataModel != NULL )
+        QAbstractItemModel *tmp = filterModel()->sourceModel();
+        if ( tmp->property(AlephERP::stBaseBeanModel).toBool() )
         {
-            if ( QString(metadataModel->metaObject()->className()) != "RelationBaseBeanModel" )
+            BaseBeanModel *metadataModel = qobject_cast<BaseBeanModel *>(filterModel()->sourceModel());
+            if ( metadataModel != NULL )
             {
-                // Animación en espera de carga de los items... Pero ojo: Sólo si no hay un itemDelegate
-                for (int i = 0 ; i < metadataModel->columnCount() ; i++)
+                if ( QString(metadataModel->metaObject()->className()) != "RelationBaseBeanModel" )
                 {
-                    if ( itemDelegateForColumn(i) == NULL )
+                    // Animación en espera de carga de los items... Pero ojo: Sólo si no hay un itemDelegate
+                    for (int i = 0 ; i < metadataModel->columnCount() ; i++)
                     {
-                        setItemDelegate(d->m_movieDelegate);
+                        if ( itemDelegateForColumn(i) == NULL )
+                        {
+                            setItemDelegate(d->m_movieDelegate);
+                        }
                     }
                 }
+                m_metadata = filterModel()->metadata();
+                prepareColumns();
             }
-            m_metadata = filterModel()->metadata();
-            prepareColumns();
         }
     }
     setCanMoveRows(d->m_canMoveRows);

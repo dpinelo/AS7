@@ -92,8 +92,8 @@ public:
     bool insertRows(int row, int count, const QModelIndex & parent = QModelIndex());
 
     // Estas funciones ya son propias
-    BaseBeanSharedPointer bean (const QModelIndex &index);
-    BaseBeanSharedPointer bean (int row);
+    BaseBeanSharedPointer bean (const QModelIndex &index) const;
+    BaseBeanSharedPointer bean (int row) const;
     BaseBeanSharedPointerList beans(const QModelIndexList &list);
 
     BaseBeanMetadata * metadata() const;
