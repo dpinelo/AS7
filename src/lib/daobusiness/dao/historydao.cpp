@@ -52,7 +52,7 @@ QString HistoryDAO::createData(BaseBean *bean)
     QList<DBField *> flds = bean->fields();
     foreach ( DBField *fld, flds )
     {
-        if ( !fld->metadata()->calculated() || fld->metadata()->calculatedSaveOnDb() )
+        if ( fld->metadata()->isOnDb() )
         {
             QString initCData, endCData;
             if ( fld->metadata()->type() == QVariant::String )

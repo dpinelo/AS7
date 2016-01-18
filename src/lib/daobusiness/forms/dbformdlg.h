@@ -164,11 +164,20 @@ public slots:
     void disableStaticModel() { defrostModel(); }
 
     QScriptValue callQSMethod(const QString &method);
-    QPushButton *createPushButton(int position, const QString &text, const QString &toolTip = "",
-                                  const QString &img = "", const QString &methodNameToInvokeOnClicked = "",
-                                  int width = -1, int height = -1);
-    QPushButton *createEditButton(int position, const QString &text, const QString &toolTip, const QString &img,
-                                  DBFormButtons editType, const QString &uiCode, const QString &qsCode);
+    QPushButton *createPushButton(int position,
+                                  const QString &text,
+                                  const QString &toolTip = "",
+                                  const QString &img = "",
+                                  const QString &methodNameToInvokeOnClicked = "",
+                                  int width = -1,
+                                  int height = -1);
+    QPushButton *createEditButton(int position,
+                                  const QString &text,
+                                  const QString &toolTip,
+                                  const QString &img,
+                                  DBFormButtons editType,
+                                  const QString &uiCode,
+                                  const QString &qsCode);
     QLabel *createLabel(int position, const QString &text);
 
 protected slots:

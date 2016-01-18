@@ -92,7 +92,7 @@ QString DBAbstractFilterViewPrivate::initSortForModel()
             // Los campos MEMO no se incluyen en la ordenación, ya que por defecto y por rendimiento, no se obtienen
             // en la consulta que ejecuta los modelos
             if ( fld != NULL &&
-                 (!fld->calculated() || fld->calculatedSaveOnDb()) &&
+                 fld->isOnDb() &&
                  !fld->memo() &&
                  fld->dbFieldName() != columnClickedOrder )
             {
@@ -123,7 +123,7 @@ QString DBAbstractFilterViewPrivate::initSortForModel()
             QList<DBFieldMetadata *> fields = m_metadata->fields();
             foreach ( DBFieldMetadata *fld, fields )
             {
-                if ( fld->visibleGrid() && (!fld->calculated() || (fld->calculated() && fld->calculatedSaveOnDb())) )
+                if ( fld->visibleGrid() && fld->isOnDb() )
                 {
                     sort = QString("%1 DESC").arg(fld->dbFieldName());
                     break;

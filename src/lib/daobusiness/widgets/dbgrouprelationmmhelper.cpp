@@ -99,6 +99,10 @@ void DBGroupRelationMMHelperPrivate::clearCheckBoxes()
 void DBGroupRelationMMHelperPrivate::setCheckBoxStates()
 {
     BaseBeanPointer bean = q_ptr->beanFromContainer();
+    if ( bean.isNull() )
+    {
+        return;
+    }
     BaseBeanPointerList children = bean->relationChildren(q_ptr->relationName());
     QList<QCheckBox *> checks = q_ptr->findChildren<QCheckBox *>();
 
@@ -208,6 +212,10 @@ void DBGroupRelationMMHelper::checkBoxClicked()
     {
         qlonglong oid = chk->property("oid").toLongLong();
         BaseBeanPointer bean = beanFromContainer();
+        if ( bean.isNull() )
+        {
+            return;
+        }
         BaseBeanSharedPointer otherBean;
 
         foreach (BaseBeanSharedPointer b, d->m_otherBeans)

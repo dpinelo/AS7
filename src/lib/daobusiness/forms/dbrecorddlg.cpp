@@ -711,6 +711,7 @@ bool DBRecordDlg::init(bool doConnections)
     {
         return false;
     }
+
     setTableName(d->m_bean->metadata()->tableName());
     d->m_helpUrl = d->m_bean->metadata()->helpUrl();
 

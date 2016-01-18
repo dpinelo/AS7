@@ -147,7 +147,7 @@ void DBLabel::openLink()
         return;
     }
     DBField *fld = qobject_cast<DBField *>(observer()->entity());
-    if ( fld->bean() != beanFromContainer() )
+    if ( fld != NULL && fld->bean() != beanFromContainer() )
     {
         QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(fld->bean().data(), AlephERP::ReadOnly, this));
         if ( dlg->openSuccess() && dlg->init() )

@@ -119,7 +119,7 @@ void DBTableViewColumnOrderForm::init()
             d->m_header->hideSection(iLogicalColumn);
         }
         DBFieldMetadata *fld = sourceModel->metadata()->field(value.toString());
-        if ( !fld->calculated() || ( fld->calculated() && fld->calculatedSaveOnDb() ) )
+        if ( fld->isOnDb() )
         {
             QString textOrder = TEXT_ORDER_ASC;
             // Esto sirve para leer las ordenaciones que hubiese ahora mismo

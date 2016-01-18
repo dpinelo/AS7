@@ -1122,7 +1122,7 @@ QString BatchDAOPrivate::calculateHash(const QString &tableName, const QSqlRecor
     QString totalData;
     foreach ( DBFieldMetadata *fld, m->fields() )
     {
-        if ( !fld->calculated() || (fld->calculated() && fld->calculatedSaveOnDb()) )
+        if ( fld->isOnDb() )
         {
             totalData = QString("%1%2;").arg(totalData).arg(fld->sqlValue(rec.value(fld->dbFieldName())));
         }
@@ -1250,7 +1250,7 @@ QString BatchDAOPrivate::sqlSelectFieldsClausule(const QList<DBFieldMetadata *> 
     // Construimos ahora la zona del select, a partir de los fields pasados
     foreach ( DBFieldMetadata *field, fields )
     {
-        if ( (!field->calculated() || (field->calculated() && field->calculatedSaveOnDb())) )
+        if ( field->isOnDb() )
         {
             if ( !alias.isEmpty() )
             {

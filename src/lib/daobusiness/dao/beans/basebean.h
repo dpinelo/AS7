@@ -139,6 +139,7 @@ class ALEPHERP_DLL_EXPORT BaseBean : public DBObject
     Q_PROPERTY(bool readOnly READ readOnly WRITE setReadOnly)
     Q_PROPERTY(QString hash READ hash)
     Q_PROPERTY(QString rawHash READ hash)
+    Q_PROPERTY(bool allSignalsBlocked READ allSignalsBlocked)
 
     /** BaseDAO utiliza unas funciones específicas de DBField y BaseBean para así saber
       cuándo la lectura de un dato se ha producid por lectura de base de datos, de modo
@@ -387,6 +388,7 @@ public:
     static int maxCountBeans();
 
     bool blockAllSignals(bool value);
+    bool allSignalsBlocked() const;
 
     DBField *fieldForRole(int role);
     QString scheduleTitle();

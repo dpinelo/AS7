@@ -421,7 +421,7 @@ void DBSearchDlgPrivate::initTableModel()
     QString firstVisible, initOrder;
     foreach (DBFieldMetadata *fld, m_metadata->fields())
     {
-        if ( firstVisible.isEmpty() && fld->visibleGrid() && (!fld->calculated() || fld->calculatedSaveOnDb()))
+        if ( firstVisible.isEmpty() && fld->visibleGrid() && fld->isOnDb() )
         {
             firstVisible = fld->dbFieldName();
         }

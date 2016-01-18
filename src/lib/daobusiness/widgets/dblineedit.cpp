@@ -323,14 +323,17 @@ void DBLineEdit::executeScriptAfterChooseFromCompleter()
 {
     QWidget *obj = dynamic_cast<QWidget *>(this);
     AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(obj);
-    if ( d->m_scriptAfterChooseFromCompleter.isEmpty() )
+    if ( thisForm != NULL )
     {
-        QString scriptName = QString("%1AfterChooseFromCompleter").arg(obj->objectName());
-        thisForm->callQSMethod(scriptName);
-    }
-    else
-    {
-        thisForm->callMethod(d->m_scriptAfterChooseFromCompleter);
+        if ( d->m_scriptAfterChooseFromCompleter.isEmpty() )
+        {
+            QString scriptName = QString("%1AfterChooseFromCompleter").arg(obj->objectName());
+            thisForm->callQSMethod(scriptName);
+        }
+        else
+        {
+            thisForm->callMethod(d->m_scriptAfterChooseFromCompleter);
+        }
     }
 }
 
@@ -542,6 +545,10 @@ void DBLineEdit::checkBarCode(const QString &txt)
     {
         QLineEdit *obj = dynamic_cast<QLineEdit *>(this);
         AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(obj);
+        if ( thisForm == NULL )
+        {
+            return;
+        }
         // Al leer un código de barras podemos invocar esta función.
         if ( scriptAfterBarCodeRead().isEmpty() )
         {
@@ -885,7 +892,20 @@ void DBLineEdit::mouseReleaseEvent(QMouseEvent *event)
         DBField *fld = qobject_cast<DBField *>(observer()->entity());
         if ( fld )
         {
+            int cursorPos = cursorPosition();
+            int selStart = -1, selLength = -1;
+            if ( hasSelectedText() )
+            {
+                selStart = selectionStart();
+                selLength = selectedText().length();
+            }
             QLineEdit::setText(fld->displayValue());
+            // This order is very important.
+            setCursorPosition(cursorPos);
+            if ( selStart != -1 )
+            {
+                setSelection(selStart, selLength);
+            }
         }
     }
 }

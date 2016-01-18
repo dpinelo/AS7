@@ -157,6 +157,7 @@ public:
     // -----------------------------------------------
     Q_INVOKABLE QString httpGet(const QString &scheme, const QString &host, const QString &path, const QScriptValue &queryList,
                                 const QString &userName = "", const QString &password = "", int port = 80, bool usePreemptiveAuthentication = false);
+    Q_INVOKABLE QString httpGet(const QString &strUrl, const QString &userName = "", const QString &password = "", bool usePreemptiveAuthentication = false);
     Q_INVOKABLE bool sendEmail(const QString &to, const QString &cc, const QString &bcc, const QString &subject, const QString &body);
 
     // -----------------------------------------------
@@ -253,6 +254,9 @@ public:
     Q_INVOKABLE QScriptValue chooseRecordsFromTable(const QString &tableName, const QString &where = "", const QString &order = "", const QString &label = "", bool userEnvVars = true);
     Q_INVOKABLE QScriptValue chooseRecordFromTable(const QString &tableName, const QString &where = "", const QString &order = "", const QString &label = "", bool userEnvVars = true);
     Q_INVOKABLE QScriptValue chooseChildFromComboBox(BaseBean *bean, const QString &relationName, const QString &fieldToShow, const QString &label = "", const QString &filter = "");
+    Q_INVOKABLE void openRecordDialog(BaseBean *bean,
+                                      AlephERP::FormOpenType openType,
+                                      QWidget* parent = 0);
 
     // ------------------------------------------------
     // TRABAJO CON HOJAS DE CÁLCULOS

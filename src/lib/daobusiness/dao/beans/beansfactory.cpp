@@ -1110,7 +1110,7 @@ bool BeansFactory::checkConsistencyMetadataDatabase(QVariantList &log)
                                         flagErrors = AlephERP::DbFieldNameDuplicate;
                                     }
                                 }
-                                if ( !fld->calculated() || fld->calculatedSaveOnDb() )
+                                if ( fld->isOnDb() )
                                 {
                                     if ( !columnTypes.contains(fld->dbFieldName()) )
                                     {

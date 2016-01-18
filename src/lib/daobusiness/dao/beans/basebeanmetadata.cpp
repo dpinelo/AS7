@@ -527,6 +527,10 @@ void BaseBeanMetadata::setAlias(const QString &alias)
 
 QString BaseBeanMetadata::alias() const
 {
+    if ( d->m_alias.isEmpty() )
+    {
+        return d->m_tableName;
+    }
     return d->m_alias;
 }
 
@@ -2449,12 +2453,12 @@ void BaseBeanMetadataPrivate::setConfig()
     }
     else
     {
-        QMessageBox::critical(0, qApp->applicationName(), QObject::trUtf8("El archivo XML de sistema <b>%1</b> no es correcto. "
-                              "El programa no funcionará. Consulte con <i>Aleph Sistemas de Información</i>.").arg(m_tableName),
-                              QMessageBox::Ok);
         QLogger::QLog_Error(AlephERP::stLogOther, QString::fromUtf8("-------------------------------------------------------------------------------------------------------"));
         QLogger::QLog_Error(AlephERP::stLogOther, QString::fromUtf8("BaseBeanMetadata: setConfig(): FILE: [%1]. ERROR: Line: [%2] Column: [%3]. ERROR [%4] ").arg(m_tableName).arg(errorLine).arg(errorColumn).arg(errorString));
         QLogger::QLog_Error(AlephERP::stLogOther, QString::fromUtf8("-------------------------------------------------------------------------------------------------------"));
+        QMessageBox::critical(0, qApp->applicationName(), QObject::trUtf8("El archivo XML de sistema <b>%1</b> no es correcto. "
+                              "El programa no funcionará. Consulte con <i>Aleph Sistemas de Información</i>.").arg(m_tableName),
+                              QMessageBox::Ok);
     }
 }
 
@@ -4209,7 +4213,7 @@ QString BaseBeanMetadata::sqlCreateTable(AlephERP::CreationTableSqlOptions optio
 
     foreach ( DBFieldMetadata *field, fields() )
     {
-        if ( !field->calculated() || ( field->calculated() && field->calculatedSaveOnDb()) )
+        if ( field->isOnDb() )
         {
             if ( !fieldsSql.isEmpty() )
             {

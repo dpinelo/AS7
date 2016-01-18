@@ -2545,7 +2545,7 @@ bool DBField::validate()
     // Comprobemos que no se excede la longitud establecida
     if ( metadata()->type() == QVariant::String )
     {
-        if ( !metadata()->calculated() || (metadata()->calculated() && metadata()->calculatedSaveOnDb()) )
+        if ( metadata()->isOnDb() )
         {
             result = result & d->checkLength();
         }

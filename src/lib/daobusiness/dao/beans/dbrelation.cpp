@@ -1869,14 +1869,9 @@ BaseBeanPointer DBRelation::father(bool retrieveOnDemand)
                 QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("DBRelation::father: No existen los metadatos: [%1]").arg(d->m->tableName()));
                 return NULL;
             }
+            bool previous = d->m_father->blockAllSignals(d->m_allSignalsBlocked);
             d->m_father->setParent(this);
-            d->m_father->blockAllSignals(d->m_allSignalsBlocked);
             d->m_canDeleteFather = true;
-            if ( d->m_father.isNull() )
-            {
-                QLogger::QLog_Error(AlephERP::stLogOther, QString("DBRelation::father: No existe la tabla [%1]").arg(d->m->tableName()));
-                return d->m_father.data();
-            }
             if (!ownBean->actualContext().isEmpty())
             {
                 AERPTransactionContext::instance()->addToContext(ownBean->actualContext(), d->m_father.data());
@@ -1891,6 +1886,7 @@ BaseBeanPointer DBRelation::father(bool retrieveOnDemand)
             }
             connect(d->m_father.data(), SIGNAL(destroyed()), this, SLOT(fatherHasBeenDeleted()));
             connect(d->m_father.data(), SIGNAL(beanModified(bool)), this, SIGNAL(fatherModified(bool)));
+            d->m_father->blockAllSignals(previous);
         }
         if ( retrieveOnDemand && !d->m_fatherLoaded )
         {

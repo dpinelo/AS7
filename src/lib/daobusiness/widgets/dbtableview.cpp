@@ -113,6 +113,10 @@ DBTableView::~DBTableView()
 
 AlephERP::ObserverType DBTableView::observerType(BaseBean *bean)
 {
+    if ( bean == NULL )
+    {
+        return AlephERP::DbRelation;
+    }
     DBObject *obj = bean->navigateThroughProperties(m_relationName);
     if ( obj != NULL )
     {
