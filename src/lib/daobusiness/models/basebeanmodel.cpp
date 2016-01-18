@@ -1190,40 +1190,36 @@ QMimeData *BaseBeanModel::mimeData(const QModelIndexList &indexes) const
                 BaseBeanSharedPointer b = bean(index);
                 if ( !b.isNull() )
                 {
-                    BaseBean *b = static_cast<BaseBean *>(vBean.value<void *>());
-                    if ( b != NULL )
+                    bool firstItem = true;
+                    if ( firstRow )
                     {
-                        bool firstItem = true;
-                        if ( firstRow )
+                        foreach (DBFieldMetadata *fld, b->metadata()->fields())
                         {
-                            foreach (DBFieldMetadata *fld, b->metadata()->fields())
+                            if ( fld->visibleGrid() )
                             {
-                                if ( fld->visibleGrid() )
-                                {
-                                    if ( !text.isEmpty() )
-                                    {
-                                        text = text.append(';');
-                                    }
-                                    text = text.append(fld->fieldName());
-                                }
-                            }
-                            text = text.append("\n");
-                            firstRow = false;
-                        }
-                        foreach (DBField *fld, b->fields())
-                        {
-                            if ( fld->metadata()->visibleGrid() )
-                            {
-                                if ( !firstItem )
+                                if ( !text.isEmpty() )
                                 {
                                     text = text.append(';');
                                 }
-                                text = text.append(fld->displayValue());
-                                firstItem = false;
+                                text = text.append(fld->fieldName());
                             }
                         }
                         text = text.append("\n");
+                        firstRow = false;
                     }
+                    foreach (DBField *fld, b->fields())
+                    {
+                        if ( fld->metadata()->visibleGrid() )
+                        {
+                            if ( !firstItem )
+                            {
+                                text = text.append(';');
+                            }
+                            text = text.append(fld->displayValue());
+                            firstItem = false;
+                        }
+                    }
+                    text = text.append("\n");
                 }
             }
             addedRows.append(index.row());
@@ -1363,14 +1359,10 @@ void BaseBeanModel::removeInsertedRows(const QModelIndex &parent)
             BaseBeanSharedPointer b = bean(idx);
             if ( !b.isNull() )
             {
-                BaseBean *b = static_cast<BaseBean *>(vBean.value<void *>());
-                if ( b != NULL )
+                if ( b->dbState() == BaseBean::INSERT )
                 {
-                    if ( b->dbState() == BaseBean::INSERT )
-                    {
-                        removeRow(row, parent);
-                        i = 0;
-                    }
+                    removeRow(row, parent);
+                    i = 0;
                 }
             }
         }

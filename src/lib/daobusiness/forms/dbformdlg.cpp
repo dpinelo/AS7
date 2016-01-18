@@ -814,7 +814,7 @@ void DBFormDlg::insertChild()
                         model->invalidate();
                     }
                     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
-                    d->m_dlg = new DBRecordDlg(bean, AlephERP::Insert, this);
+                    d->m_dlg = new DBRecordDlg(bean.data(), AlephERP::Insert, this);
                     CommonsFunctions::restoreOverrideCursor();
                     if ( d->m_dlg->openSuccess() && d->m_dlg->init() )
                     {
