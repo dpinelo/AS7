@@ -586,7 +586,7 @@ void RelationBaseBeanModel::intermediateRelationModified()
 /*!
   Devuelve el bean ubicado en la fila row
 */
-BaseBeanSharedPointer RelationBaseBeanModel::bean (int row)
+BaseBeanSharedPointer RelationBaseBeanModel::bean (int row) const
 {
     QModelIndex idx = index(row, 0);
     BaseBeanSharedPointer b = bean(idx);
@@ -606,7 +606,7 @@ BaseBeanSharedPointerList RelationBaseBeanModel::beans(const QModelIndexList &li
 /*!
   Devuelve el bean asociado a la fila index.row()
 */
-BaseBeanSharedPointer RelationBaseBeanModel::bean (const QModelIndex &index)
+BaseBeanSharedPointer RelationBaseBeanModel::bean (const QModelIndex &index) const
 {
     if ( index.isValid() && (index.row() > -1 && index.row() < d->m_beans.size()) )
     {

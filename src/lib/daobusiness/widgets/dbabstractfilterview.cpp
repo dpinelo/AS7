@@ -942,9 +942,9 @@ BaseBeanPointer DBAbstractFilterView::selectedBean()
 {
     BaseBeanPointer bean;
     QModelIndex currentIndex = d->m_itemView->currentIndex();
-    if ( currentIndex.isValid() && currentIndex.data(AlephERP::BaseBeanRole).isValid() )
+    if ( currentIndex.isValid() && filterModel() )
     {
-        bean = static_cast<BaseBean *>(currentIndex.data(AlephERP::BaseBeanRole).value<void *>());
+        bean = filterModel()->bean(currentIndex).data();
     }
     return bean;
 }

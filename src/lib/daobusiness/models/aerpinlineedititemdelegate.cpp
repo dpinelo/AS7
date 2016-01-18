@@ -32,6 +32,8 @@
 #include "dao/beans/basebeanmetadata.h"
 #include "dao/beans/dbrelation.h"
 #include "dao/beans/dbrelationmetadata.h"
+#include "models/filterbasebeanmodel.h"
+#include "models/basebeanmodel.h"
 #include "forms/dbrecorddlg.h"
 #include "forms/dbsearchdlg.h"
 #include "scripts/perpscript.h"
@@ -239,11 +241,23 @@ void AERPInlineEditItemDelegate::setModelData(QWidget *editor, QAbstractItemMode
     else if ( d->m_type == "DBLineEdit" )
     {
         DBLineEdit *le = qobject_cast<DBLineEdit *> (editor);
-        QVariant vBean = index.data(AlephERP::BaseBeanRole);
-        if ( vBean.isValid() )
+        if ( le != NULL )
         {
-            BaseBean *b = static_cast<BaseBean *>(vBean.value<void *>());
-            le->setWorkBean(b);
+            BaseBeanSharedPointer b;
+            FilterBaseBeanModel *filterModel = qobject_cast<FilterBaseBeanModel *>(model);
+            BaseBeanModel *beanModel = qobject_cast<BaseBeanModel *>(model);
+            if ( filterModel != NULL )
+            {
+                b = filterModel->bean(index);
+            }
+            else if ( beanModel != NULL )
+            {
+                b = beanModel->bean(index);
+            }
+            if ( !b.isNull() )
+            {
+                le->setWorkBean(b.data());
+            }
             if ( le != NULL )
             {
                 model->setData(index, le->finalValue());

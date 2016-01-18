@@ -669,12 +669,12 @@ QModelIndex RelatedElementsRecordModel::parent(const QModelIndex &child) const
     return QModelIndex();
 }
 
-BaseBeanSharedPointer RelatedElementsRecordModel::bean(const QModelIndex &index)
+BaseBeanSharedPointer RelatedElementsRecordModel::bean(const QModelIndex &index) const
 {
     return RelatedElementsRecordModel::bean(index.row());
 }
 
-BaseBeanSharedPointer RelatedElementsRecordModel::bean(int row)
+BaseBeanSharedPointer RelatedElementsRecordModel::bean(int row) const
 {
     BaseBeanSharedPointer bean;
     /* TODO

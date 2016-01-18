@@ -406,16 +406,12 @@ void DBAbstractViewInterface::setIsOnInit(bool value)
 bool DBAbstractViewInterface::currentIndexOnNewRow()
 {
     QAbstractItemView *itemView = qobject_cast<QAbstractItemView *>(m_thisWidget);
-    if ( itemView && itemView->currentIndex().isValid() )
+    if ( itemView && itemView->currentIndex().isValid() && filterModel() )
     {
-        QVariant vBean = itemView->currentIndex().data(AlephERP::BaseBeanRole);
-        if ( vBean.isValid() )
+        BaseBeanSharedPointer bean = filterModel()->bean(itemView->currentIndex());
+        if ( !bean.isNull() )
         {
-            BaseBean *b = (BaseBean *)(vBean.value<void *>());
-            if ( b != NULL )
-            {
-                return b->dbState() == BaseBean::INSERT && !b->modified();
-            }
+            return bean->dbState() == BaseBean::INSERT && !bean->modified();
         }
     }
     return false;
@@ -724,12 +720,13 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
     {
         return;
     }
-    QVariant vField = filterModel()->data(idx, AlephERP::DBFieldRole);
-    DBField *fld = NULL;
-    if ( vField.isValid() )
+    BaseBeanSharedPointer bean = filterModel()->bean(idx);
+    if ( bean.isNull() )
     {
-        fld = (DBField *)(vField.value<void *>());
+        return;
     }
+    QString fieldName = idx.data(AlephERP::DBFieldNameRole).toString();
+    DBField *fld = bean->field(fieldName);
     if ( fld == NULL )
     {
         return;

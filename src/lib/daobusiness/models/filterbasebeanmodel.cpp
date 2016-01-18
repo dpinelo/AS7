@@ -397,7 +397,7 @@ bool FilterBaseBeanModelPrivate::filterAcceptsRow(int sourceRow, const QModelInd
     TreeBaseBeanModel *treeSource = qobject_cast<TreeBaseBeanModel *>(q_ptr->sourceModel());
     RelationBaseBeanModel *relationModel = qobject_cast<RelationBaseBeanModel *> (q_ptr->sourceModel());
     BaseBeanMetadata *metadata = model->metadata();
-    BaseBeanPointer bean;
+    BaseBeanSharedPointer bean;
 
     if ( model == NULL || model->metadata() == NULL )
     {
@@ -447,13 +447,7 @@ bool FilterBaseBeanModelPrivate::filterAcceptsRow(int sourceRow, const QModelInd
 
     // Si obtenemos el bean antes, al ser esta función llamada para TODAS las filas, se obtendrían todos los beans del tirón
     // lo que supone una penalización importante en el rendimiento.
-    QVariant vBean = model->data(index, AlephERP::BaseBeanRole);
-    if ( !vBean.isValid() )
-    {
-        return false;
-    }
-    bean = static_cast<BaseBean *>(vBean.value<void *>());
-
+    bean = model->bean(index);
     if ( bean.isNull() )
     {
         return false;
@@ -471,7 +465,7 @@ bool FilterBaseBeanModelPrivate::filterAcceptsRow(int sourceRow, const QModelInd
     // Si se puede aplicar un filtro QS, forzosamente debemo stener el bean... por eso esta llamada va aquí
     if ( qsCanApplyFilter() )
     {
-        if (!qsFilterAcceptsRow(bean, sourceParent))
+        if (!qsFilterAcceptsRow(bean.data(), sourceParent))
         {
             m_acceptedRows[m_states][dbOid] = false;
             return false;
@@ -509,7 +503,7 @@ bool FilterBaseBeanModelPrivate::filterAcceptsRow(int sourceRow, const QModelInd
     m_acceptedRows[m_states][dbOid] = true;
     if ( treeSource == NULL )
     {
-        if ( !checkFilterForBean(bean, m_filter.value(-1)) )
+        if ( !checkFilterForBean(bean.data(), m_filter.value(-1)) )
         {
             m_acceptedRows[m_states][dbOid] = false;
             return false;
@@ -710,11 +704,11 @@ bool FilterBaseBeanModelPrivate::qsFilterAcceptsRow(BaseBeanPointer beanRow, con
         argList.append(val);
         if ( sourceParent.isValid() )
         {
-            QVariant vBean = sourceParent.data(AlephERP::BaseBeanRole);
-            if ( vBean.isValid() )
+            BaseBeanModel *model = qobject_cast<BaseBeanModel *>(q_ptr->sourceModel());
+            BaseBeanSharedPointer beanParent = model->bean(sourceParent);
+            if ( !beanParent.isNull() )
             {
-                BaseBean *beanParent = static_cast<BaseBean *>(vBean.value<void *>());
-                QScriptValue valParent = m_engine->createScriptValue(beanParent);
+                QScriptValue valParent = m_engine->createScriptValue(beanParent.data());
                 argList.append(valParent);
             }
         }

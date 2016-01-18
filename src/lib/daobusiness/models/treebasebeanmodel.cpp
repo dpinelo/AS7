@@ -817,19 +817,6 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
             return QVariant::fromValue((void *) b->field(idx.column()));
         }
 
-    case AlephERP::BaseBeanRole:
-        if ( !b.isNull() )
-        {
-            return QVariant::fromValue((void *) b.data());
-        }
-        else
-        {
-            if (d->fetchBean(item))
-            {
-                return QVariant::fromValue((void *)item->bean().data());
-            }
-        }
-
     case AlephERP::PrimaryKeyRole:
         if ( !b.isNull() )
         {
@@ -1122,7 +1109,7 @@ bool TreeBaseBeanModel::setData(const QModelIndex &idx, const QVariant &value, i
     return BaseBeanModel::setData(idx, value, role);
 }
 
-BaseBeanSharedPointer TreeBaseBeanModel::bean(const QModelIndex &idx)
+BaseBeanSharedPointer TreeBaseBeanModel::bean(const QModelIndex &idx) const
 {
     if (!idx.isValid())
     {
