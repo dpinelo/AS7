@@ -32,6 +32,7 @@
 #include <aerpcommon.h>
 #include "widgets/dbbasewidget.h"
 #include "dao/beans/basebean.h"
+#include "forms/dbsearchdlg.h"
 
 class DBChooseRecordButtonPrivate;
 
@@ -105,6 +106,8 @@ class ALEPHERP_DLL_EXPORT DBChooseRecordButton : public QPushButton, public DBBa
       }
     */
     Q_PROPERTY(QString scriptBeforeInsert READ scriptBeforeInsert WRITE setScriptBeforeInsert)
+    /** Permite controlar los botones que mostrará el formulario de búsqueda que se abre al pinchar este botón */
+    Q_PROPERTY (DBSearchDlg::DBSearchButtons dbSearchButtons READ dbSearchButtons WRITE setDbSearchButtons)
 
     friend class DBChooseRecordButtonPrivate;
 
@@ -124,20 +127,16 @@ public:
     explicit DBChooseRecordButton(QWidget *parent = 0);
     ~DBChooseRecordButton();
 
-    QString tableName();
+    QString tableName() const;
     void setTableName(const QString &value);
-    QString fieldsToGet ();
-    void setFieldsToGet(const QString &value);
-    QString controlsToAssignValue();
-    void setControlsToAssignValue(const QString &value);
-    QString searchFilter();
+    QString searchFilter() const;
     void setSearchFilter(const QString &value);
-    QString searchFieldName();
+    QString searchFieldName() const;
     void setSearchFieldName(const QString &value);
     void setFieldName(const QString &name);
-    QString scriptExecuteAfterChoose();
+    QString scriptExecuteAfterChoose() const;
     void setScriptExecuteAfterChoose(const QString &script);
-    QStringList replaceFields();
+    QStringList replaceFields() const;
     void setReplaceFields(const QStringList &value);
     QString scriptBeforeInsert() const;
     void setScriptBeforeInsert(const QString &value);
@@ -145,10 +144,12 @@ public:
     void setScriptBeforeExecute(const QString &value);
     QVariantMap defaultValues() const;
     void setDefaultValues(const QVariantMap &value);
-    BaseBean * beanSearchList();
+    BaseBean * beanSearchList() const;
     void setBeanSearchList(BaseBean *bean);
     QString scriptAfterClear() const;
     void setScriptAfterClear(const QString &value);
+    DBSearchDlg::DBSearchButtons dbSearchButtons() const;
+    void setDbSearchButtons(DBSearchDlg::DBSearchButtons buttons);
 
     AlephERP::ObserverType observerType(BaseBean *)
     {

@@ -63,6 +63,7 @@ public:
     QAction *m_actionClear;
     QAction *m_actionEdit;
     QString m_searchFieldName;
+    DBSearchDlg::DBSearchButtons m_dbSearchButtons;
 
     DBChooseRecordButton *q_ptr;
 
@@ -79,6 +80,7 @@ public:
         m_actionEdit->setIcon(QIcon(":/generales/images/edit_edit.png"));
         QObject::connect(m_actionClear, SIGNAL(triggered()), q_ptr, SLOT(clear()));
         QObject::connect(m_actionEdit, SIGNAL(triggered()), q_ptr, SLOT(editRecord()));
+        m_dbSearchButtons = (DBSearchDlg::DBSearchButtons) DBSearchDlg::Ok | DBSearchDlg::Close | DBSearchDlg::EditRecord | DBSearchDlg::NewRecord;
     }
 
     BaseBeanPointer selectedBean();
@@ -174,7 +176,7 @@ DBChooseRecordButton::~DBChooseRecordButton()
     delete d;
 }
 
-QString DBChooseRecordButton::tableName()
+QString DBChooseRecordButton::tableName() const
 {
     return d->m_tableName;
 }
@@ -203,7 +205,7 @@ void DBChooseRecordButton::setSearchFilter(const QString &value)
     d->m_searchFilter = DBBaseWidget::processSqlWhere(value);
 }
 
-QString DBChooseRecordButton::searchFieldName()
+QString DBChooseRecordButton::searchFieldName() const
 {
     return d->m_searchFieldName;
 }
@@ -213,12 +215,12 @@ void DBChooseRecordButton::setSearchFieldName(const QString &value)
     d->m_searchFieldName = value;
 }
 
-QString DBChooseRecordButton::searchFilter()
+QString DBChooseRecordButton::searchFilter() const
 {
     return d->m_searchFilter;
 }
 
-QString DBChooseRecordButton::scriptExecuteAfterChoose()
+QString DBChooseRecordButton::scriptExecuteAfterChoose() const
 {
     return d->m_scriptExecuteAfterChoose;
 }
@@ -228,7 +230,7 @@ void DBChooseRecordButton::setScriptExecuteAfterChoose(const QString &script)
     d->m_scriptExecuteAfterChoose = script;
 }
 
-QStringList DBChooseRecordButton::replaceFields()
+QStringList DBChooseRecordButton::replaceFields() const
 {
     return d->m_replaceFields;
 }
@@ -269,7 +271,7 @@ void DBChooseRecordButton::setDefaultValues(const QVariantMap &value)
     d->m_defaultValues = value;
 }
 
-BaseBean * DBChooseRecordButton::beanSearchList()
+BaseBean * DBChooseRecordButton::beanSearchList() const
 {
     return d->m_masterBean.data();
 }
@@ -287,6 +289,16 @@ QString DBChooseRecordButton::scriptAfterClear() const
 void DBChooseRecordButton::setScriptAfterClear(const QString &value)
 {
     d->m_scriptAfterClear = value;
+}
+
+DBSearchDlg::DBSearchButtons DBChooseRecordButton::dbSearchButtons() const
+{
+    return d->m_dbSearchButtons;
+}
+
+void DBChooseRecordButton::setDbSearchButtons(DBSearchDlg::DBSearchButtons buttons)
+{
+    d->m_dbSearchButtons = buttons;
 }
 
 void DBChooseRecordButton::showEvent(QShowEvent *event)
@@ -376,6 +388,7 @@ void DBChooseRecordButton::buttonClicked()
     if ( !tableName.isEmpty() )
     {
         QPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName, this));
+        dlg->setVisibleButtons(d->m_dbSearchButtons);
         if ( !d->m_masterBean.isNull() )
         {
             dlg->setMasterBean(d->m_masterBean);

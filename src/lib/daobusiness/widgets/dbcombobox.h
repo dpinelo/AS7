@@ -109,6 +109,7 @@ public:
     explicit DBComboBox(QWidget * parent = 0);
     ~DBComboBox();
 
+
     AlephERP::ObserverType observerType(BaseBean *)
     {
         return AlephERP::DbField;
