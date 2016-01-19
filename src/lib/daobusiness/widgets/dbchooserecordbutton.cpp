@@ -388,7 +388,6 @@ void DBChooseRecordButton::buttonClicked()
     if ( !tableName.isEmpty() )
     {
         QPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName, this));
-        dlg->setVisibleButtons(d->m_dbSearchButtons);
         if ( !d->m_masterBean.isNull() )
         {
             dlg->setMasterBean(d->m_masterBean);
@@ -411,15 +410,19 @@ void DBChooseRecordButton::buttonClicked()
             if ( dlgBeanRelation != NULL )
             {
                 DBSearchDlg::DBSearchButtons buttons (DBSearchDlg::Ok | DBSearchDlg::Close);
-                if ( !dlgBeanRelation->metadata()->readOnly() )
+                if ( !dlgBeanRelation->metadata()->readOnly() && d->m_dbSearchButtons.testFlag(DBSearchDlg::EditRecord) )
                 {
                     buttons |= DBSearchDlg::EditRecord;
                 }
-                if ( dlgBeanRelation->metadata()->allowedInsertChild() )
+                if ( dlgBeanRelation->metadata()->allowedInsertChild() && d->m_dbSearchButtons.testFlag(DBSearchDlg::NewRecord) )
                 {
                     buttons |= DBSearchDlg::NewRecord;
                 }
                 dlg->setVisibleButtons(buttons);
+            }
+            else
+            {
+                dlg->setVisibleButtons(d->m_dbSearchButtons);
             }
             // Pasamos los valores por defecto de la búsqueda
             QMapIterator<QString, QVariant>it(d->m_defaultValues);
