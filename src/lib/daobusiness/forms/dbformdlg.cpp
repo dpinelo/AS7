@@ -830,6 +830,8 @@ void DBFormDlg::insertChild()
                     {
                         delete d->m_dlg;
                     }
+                    // Los modelos en árbol hacen cosas raras con los filtros... no andan finos. Mejor invalidamos.
+                    model->invalidate();
                 }
             }
         }
