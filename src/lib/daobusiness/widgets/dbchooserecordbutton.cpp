@@ -340,20 +340,25 @@ void DBChooseRecordButton::buttonClicked()
     AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(this);
     if ( thisForm != NULL )
     {
+        QScriptValue result = QScriptValue::UndefinedValue;
         if ( d->m_scriptBeforeExecute.isEmpty() )
         {
             QString scriptName;
             if ( !m_fieldName.isEmpty() )
             {
                 scriptName = QString("%1BeforeChoose").arg(m_fieldName);
-                thisForm->callQSMethod(scriptName, args);
+                result = thisForm->callQSMethod(scriptName, args);
             }
             scriptName = QString("%1BeforeChoose").arg(objectName());
-            thisForm->callQSMethod(scriptName, args);
+            result = thisForm->callQSMethod(scriptName, args);
         }
         else
         {
-            thisForm->callQSMethod(d->m_scriptBeforeExecute, args);
+            result = thisForm->callQSMethod(d->m_scriptBeforeExecute, args);
+        }
+        if ( !result.isUndefined() && !result.isNull() && result.isValid() && !result.toBool() )
+        {
+            return;
         }
     }
 

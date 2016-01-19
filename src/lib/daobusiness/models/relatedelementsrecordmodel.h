@@ -87,8 +87,8 @@ public:
     QModelIndex parent(const QModelIndex &child) const;
 
     // Estas funciones ya son propias
-    BaseBeanSharedPointer bean (const QModelIndex &index) const;
-    BaseBeanSharedPointer bean (int row) const;
+    BaseBeanSharedPointer bean (const QModelIndex &index, bool reloadIfNeeded = true) const;
+    BaseBeanSharedPointer bean (int row, bool reloadIfNeeded = true) const;
     BaseBeanSharedPointerList beans(const QModelIndexList &list);
     RelatedElement *element (int row);
     RelatedElement *element (const QModelIndex &index);

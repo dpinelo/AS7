@@ -669,13 +669,14 @@ QModelIndex RelatedElementsRecordModel::parent(const QModelIndex &child) const
     return QModelIndex();
 }
 
-BaseBeanSharedPointer RelatedElementsRecordModel::bean(const QModelIndex &index) const
+BaseBeanSharedPointer RelatedElementsRecordModel::bean(const QModelIndex &index, bool reloadIfNeeded) const
 {
-    return RelatedElementsRecordModel::bean(index.row());
+    return RelatedElementsRecordModel::bean(index.row(), reloadIfNeeded);
 }
 
-BaseBeanSharedPointer RelatedElementsRecordModel::bean(int row) const
+BaseBeanSharedPointer RelatedElementsRecordModel::bean(int row, bool reloadIfNeeded) const
 {
+    Q_UNUSED(reloadIfNeeded)
     BaseBeanSharedPointer bean;
     /* TODO
     if ( d->m_elements.size() == 0 ) {

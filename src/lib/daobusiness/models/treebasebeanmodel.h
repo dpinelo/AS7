@@ -95,7 +95,7 @@ public:
     virtual QVariant data(const QModelIndex &idx, int role) const;
     virtual bool setData(const QModelIndex & idx, const QVariant & value, int role);
 
-    virtual BaseBeanSharedPointer bean(const QModelIndex &index) const;
+    virtual BaseBeanSharedPointer bean(const QModelIndex &index, bool reloadIfNeeded = true) const;
     virtual BaseBeanSharedPointerList beans(const QModelIndexList &list);
     QModelIndex index(const BaseBeanSharedPointer &bean);
     QModelIndex indexByPk(const QVariant &pk);

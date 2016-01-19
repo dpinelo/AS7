@@ -864,10 +864,10 @@ void BaseBeanModel::setCheckedItem(int row, bool checked)
     setCheckedItem(idx, checked);
 }
 
-BaseBeanSharedPointer BaseBeanModel::bean(int row) const
+BaseBeanSharedPointer BaseBeanModel::bean(int row, bool reloadIfNeeded) const
 {
     QModelIndex idx = index(row, 0);
-    return bean(idx);
+    return bean(idx, reloadIfNeeded);
 }
 
 BaseBeanSharedPointerList BaseBeanModel::beansToBeEdited(const QModelIndexList &listIdx)
