@@ -14,14 +14,12 @@ public:
     BaseBeanSharedPointerList m_otherBeans;
     int m_columnCount;
     /** Último botón añadido: primera item: columna, segundo item: fila */
-    QPair<int, int> m_lastButtonAdded;
 
     DBGroupRelationMMHelperPrivate(DBGroupRelationMMHelper *qq) : q_ptr(qq)
     {
         m_inited = false;
         m_columnCount = 1000;
-        m_lastButtonAdded.first = -1;
-        m_lastButtonAdded.second = -1;    }
+    }
 
     void init();
     void clearCheckBoxes();
@@ -55,31 +53,26 @@ void DBGroupRelationMMHelperPrivate::init()
     }
     QGridLayout *lay = new QGridLayout(q_ptr);
 
+    int column = 0;
+    int row = 0;
+
     if ( BaseDAO::select(m_otherBeans, m_otherTableName) )
     {
         foreach (BaseBeanSharedPointer bean, m_otherBeans)
         {
-            if ( m_lastButtonAdded.first == -1 && m_lastButtonAdded.second == -1 )
-            {
-                m_lastButtonAdded.first = 0;
-                m_lastButtonAdded.second = 0;
-            }
-            else if ( m_lastButtonAdded.first > m_columnCount )
-            {
-                m_lastButtonAdded.first = 0;
-                m_lastButtonAdded.second = m_lastButtonAdded.second + 1;
-            }
-            else
-            {
-                m_lastButtonAdded.first = m_lastButtonAdded.first + 1;
-            }
-
             QCheckBox *chk = new QCheckBox();
             chk->setText(bean->fieldValue(m_otherFieldName).toString());
             chk->setProperty("oid", bean->dbOid());
-            lay->addWidget(chk, m_lastButtonAdded.second, m_lastButtonAdded.first);
+            lay->addWidget(chk, row, column);
             QObject::connect(chk, SIGNAL(clicked(bool)), q_ptr, SLOT(checkBoxClicked()));
-        }
+
+            column++;
+            if ( column >= m_columnCount )
+            {
+                column = 0;
+                row++;
+            }
+       }
     }
     q_ptr->setLayout(lay);
     m_inited = true;
@@ -91,8 +84,6 @@ void DBGroupRelationMMHelperPrivate::clearCheckBoxes()
     {
         delete q_ptr->layout();
     }
-    m_lastButtonAdded.first = -1;
-    m_lastButtonAdded.second = -1;
     m_otherBeans.clear();
 }
 
@@ -106,18 +97,18 @@ void DBGroupRelationMMHelperPrivate::setCheckBoxStates()
     BaseBeanPointerList children = bean->relationChildren(q_ptr->relationName());
     QList<QCheckBox *> checks = q_ptr->findChildren<QCheckBox *>();
 
-    foreach (BaseBeanPointer child, children)
+    foreach (QCheckBox *chk, checks)
     {
-        foreach (QCheckBox *chk, checks)
+        if ( chk->property("oid").isValid() )
         {
-            if ( chk->property("oid").isValid() )
+            foreach (BaseBeanPointer child, children)
             {
                 qlonglong oid = chk->property("oid").toLongLong();
                 BaseBeanPointer father = child->father(m_otherTableName);
-                if ( !father.isNull() )
+                if ( !father.isNull() && oid == father->dbOid() )
                 {
                     QSignalBlocker bl(chk);
-                    chk->setChecked(oid == father->dbOid());
+                    chk->setChecked(true);
                 }
             }
         }

@@ -174,8 +174,8 @@ public:
     /** Regla de validación específica en QScript */
     QString m_validationRuleScript;
     /** Indica si este campo se crea en los DBSearchDlg generados automáticamente */
-    bool m_includeOnGeneratedSearchDlg;
-    bool m_includeOnGeneratedRecordDlg;
+    QVariant m_includeOnGeneratedSearchDlg;
+    QVariant m_includeOnGeneratedRecordDlg;
     /** El programador QS puede describir un formato específico de visualización de los field. Lo hará mediante
       una función QS definida en los metadatos de la tabla y que se encuentra aquí */
     QString m_displayValueScript;
@@ -264,8 +264,6 @@ public:
         m_onInitDebug = false;
         m_reloadFromDBAfterSave = false;
         m_unique = false;
-        m_includeOnGeneratedSearchDlg = false;
-        m_includeOnGeneratedRecordDlg = true;
         m_counterDefinition.userCanModified = false;
         m_counterDefinition.calculateOnlyOnInsert = false;
         m_counterDefinition.useTrailingZeros = true;
@@ -443,7 +441,7 @@ void DBFieldMetadata::setReloadFromDBAfterSave(bool v)
     d->m_reloadFromDBAfterSave = v;
 }
 
-bool DBFieldMetadata::includeOnGeneratedRecordDlg() const
+QVariant DBFieldMetadata::includeOnGeneratedRecordDlg() const
 {
     return d->m_includeOnGeneratedRecordDlg;
 }
@@ -453,7 +451,7 @@ void DBFieldMetadata::setIncludeOnGeneratedRecordDlg(bool v)
     d->m_includeOnGeneratedRecordDlg = v;
 }
 
-bool DBFieldMetadata::includeOnGeneratedSearchDlg() const
+QVariant DBFieldMetadata::includeOnGeneratedSearchDlg() const
 {
     return d->m_includeOnGeneratedSearchDlg;
 }

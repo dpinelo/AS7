@@ -363,26 +363,26 @@ void DBChooseRecordButton::buttonClicked()
     }
 
     DBRelation *dlgBeanRelation = relation();
-    if ( dlgBeanRelation != NULL )
+    if ( !d->m_tableName.isEmpty() )
     {
-        tableName = dlgBeanRelation->metadata()->tableName();
-        childColumnName = dlgBeanRelation->metadata()->childFieldName();
-        filter = m_relationFilter;
-        if ( !d->m_searchFilter.isEmpty() )
-        {
-            if ( !filter.isEmpty() )
-            {
-                filter = QString("%1 AND").arg(filter);
-            }
-            filter = QString("%1 %2").arg(filter).arg(d->m_searchFilter);
-        }
+        tableName = d->m_tableName;
+        filter = d->m_searchFilter;
     }
     else
     {
-        if ( !d->m_tableName.isEmpty() )
+        if ( dlgBeanRelation != NULL )
         {
-            tableName = d->m_tableName;
-            filter = d->m_searchFilter;
+            tableName = dlgBeanRelation->metadata()->tableName();
+            childColumnName = dlgBeanRelation->metadata()->childFieldName();
+            filter = m_relationFilter;
+            if ( !d->m_searchFilter.isEmpty() )
+            {
+                if ( !filter.isEmpty() )
+                {
+                    filter = QString("%1 AND").arg(filter);
+                }
+                filter = QString("%1 %2").arg(filter).arg(d->m_searchFilter);
+            }
         }
         else
         {
