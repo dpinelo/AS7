@@ -1760,13 +1760,17 @@ bool DBRecordDlg::save()
             }
         }
     }
+
     if ( !beforeSave() )
     {
         return false;
     }
-    /** Llamamos a una función que puede definirse en el formulario QS, a ejecutar antes de insertar. Si devuelve false,
-      cancela la operación de guardar. Puede parecer redundante que se llame después a validate, pero busca cierta cohesión
-      en el código QS: Por ejemplo, esta función se puede utilizar para dar un valor a una columna según determinadas acciones del usuario. */
+
+    /**
+     * Llamamos a una función que puede definirse en el formulario QS, a ejecutar antes de insertar. Si devuelve false,
+     * cancela la operación de guardar. Puede parecer redundante que se llame después a validate, pero busca cierta cohesión
+     * en el código QS: Por ejemplo, esta función se puede utilizar para dar un valor a una columna según determinadas acciones del usuario.
+     */
     QScriptValue r = callQSMethod("beforeSave");
     if ( r.isValid() && !r.isNull() )
     {
@@ -1784,6 +1788,7 @@ bool DBRecordDlg::save()
     {
         qsValidate = r.toBool();
     }
+
     /** Llamamos a la validación interna según las reglas definidas en el archivo de tabla. */
     if ( qsValidate && validate() )
     {
@@ -1802,6 +1807,7 @@ bool DBRecordDlg::save()
                 }
             }
             AERPTransactionContextProgressDlg::showDialog(AERPTransactionContext::instance()->masterContext(), this);
+            // No necesitamos descartar el contexto ahora, ya que éste será automáticamente descartado en el closeEvent
             result = AERPTransactionContext::instance()->commit(AERPTransactionContext::instance()->masterContext(), false);
             AERPTransactionContext::instance()->waitCommitToEnd(AERPTransactionContext::instance()->masterContext());
             if ( !result )
@@ -1811,10 +1817,6 @@ bool DBRecordDlg::save()
                                      arg(AERPTransactionContext::instance()->lastErrorMessage()), QMessageBox::Ok);
                 d->m_canClose = false;
                 return false;
-            }
-            else if ( !d->m_forceSaveToDb )
-            {
-                AERPTransactionContext::instance()->discardContext(AERPTransactionContext::instance()->masterContext());
             }
             if ( wasInsert && d->isPrintButtonVisible() )
             {
@@ -1831,13 +1833,18 @@ bool DBRecordDlg::save()
         }
         d->m_beanIsValid = true;
         setWindowModified(false);
-        /** Se llama a una función que el programador QS puede definir en su formulario, tras guardarse el registro (pero no necesariamente
-        en base de datos)!!!*/
+
+        /**
+         * Se llama a una función que el programador QS puede definir en su formulario, tras guardarse el registro
+         * (pero no necesariamente en base de datos)!!!
+         */
         callQSMethod("beanSaved");
         if ( d->m_initContext || d->m_forceSaveToDb )
         {
-            /** Este método se invoca en el formulario, cuando todos los datos editados en este formulario, se
-             * han guardado definitivamente en base de datos */
+            /**
+             * Este método se invoca en el formulario, cuando todos los datos editados en este formulario, se
+             * han guardado definitivamente en base de datos
+             */
             callQSMethod("transactionCommit");
         }
         d->m_userSaveData = true;
