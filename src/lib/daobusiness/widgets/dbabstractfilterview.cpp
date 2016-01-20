@@ -684,7 +684,16 @@ void DBAbstractFilterView::cbFastFilterIndexChanged(int index)
     }
     clearFilter();
     d->m_modelFilter->resetFilter();
-    d->m_order = fldOnCombo->dbFieldName() + " ASC";
+    if ( fldOnCombo->isOnDb() )
+    {
+        d->m_order = fldOnCombo->dbFieldName() + " ASC";
+    }
+    else
+    {
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             tr("Este es un campo calculado. Las operaciones de ordenación y búsqueda por él pueden ser muy lentas. Por defecto, no se podrá ordenar por él."));
+    }
     prepareFilterControlsAndFilter();
     if ( d->m_itemView->inherits("QTableView") )
     {
