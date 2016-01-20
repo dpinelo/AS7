@@ -1118,7 +1118,11 @@ void FilterBaseBeanModel::sort (int column, Qt::SortOrder order)
                 return;
             }
             DBFieldMetadata *fld = visibleFlds.at(column);
-            if ( fld == NULL || !fld->isOnDb() )
+            if ( fld == NULL )
+            {
+                return;
+            }
+            if ( !fld->isOnDb() )
             {
                 if ( model->rowCount() > alephERPSettings->strongFilterRowCountLimit() )
                 {
@@ -1135,13 +1139,16 @@ void FilterBaseBeanModel::sort (int column, Qt::SortOrder order)
                 model->setCanEmitDataChanged(canEmitDataChanged);
                 return;
             }
-            orderClausule = QString("%1 %2").arg(visibleFlds.at(column)->dbFieldName()).
-                            arg(order == Qt::AscendingOrder ? "ASC" : "DESC");
-            if ( orderClausule != model->internalOrderClausule() )
+            else
             {
-                CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-                model->setInternalOrderClausule(orderClausule, true);
-                CommonsFunctions::restoreOverrideCursor();
+                orderClausule = QString("%1 %2").arg(visibleFlds.at(column)->dbFieldName()).
+                                arg(order == Qt::AscendingOrder ? "ASC" : "DESC");
+                if ( orderClausule != model->internalOrderClausule() )
+                {
+                    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+                    model->setInternalOrderClausule(orderClausule, true);
+                    CommonsFunctions::restoreOverrideCursor();
+                }
             }
         }
         else
