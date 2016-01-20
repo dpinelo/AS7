@@ -309,14 +309,17 @@ void DBAbstractViewInterface::saveColumnsOrder()
         {
             // Almacenamos la columna clickeada
             DBFieldMetadata *field = fields.at(iSectionOrder);
-            QString strSort = h->sortIndicatorOrder() == Qt::AscendingOrder ? "ASC" : "DESC";
-            if ( className() == "DBTableView" )
+            if ( field->isOnDb() )
             {
-                alephERPSettings->saveViewIndicatorColumnOrder<QTableView>(dynamic_cast<QTableView*>(this), field->dbFieldName(), strSort);
-            }
-            else if ( className() == "DBTreeView" )
-            {
-                alephERPSettings->saveViewIndicatorColumnOrder<QTreeView>(dynamic_cast<QTreeView*>(this), field->dbFieldName(), strSort);
+                QString strSort = h->sortIndicatorOrder() == Qt::AscendingOrder ? "ASC" : "DESC";
+                if ( className() == "DBTableView" )
+                {
+                    alephERPSettings->saveViewIndicatorColumnOrder<QTableView>(dynamic_cast<QTableView*>(this), field->dbFieldName(), strSort);
+                }
+                else if ( className() == "DBTreeView" )
+                {
+                    alephERPSettings->saveViewIndicatorColumnOrder<QTreeView>(dynamic_cast<QTreeView*>(this), field->dbFieldName(), strSort);
+                }
             }
 
             for (int iVisibleIndex = 0 ; iVisibleIndex < h->count() ; iVisibleIndex++)
@@ -325,39 +328,42 @@ void DBAbstractViewInterface::saveColumnsOrder()
                 if ( AERP_CHECK_INDEX_OK(iLogicalIndex, fields) )
                 {
                     DBFieldMetadata *field = fields.at(iLogicalIndex);
-                    if ( sorts.isEmpty() )
+                    if ( field->isOnDb() )
                     {
-                        if ( iSectionOrder == iLogicalIndex )
+                        if ( sorts.isEmpty() )
                         {
-                            finalOrders << field->dbFieldName();
-                            finalSorts << (h->sortIndicatorOrder() == Qt::AscendingOrder ? "ASC" : "DESC");
-                        }
-                    }
-                    else
-                    {
-                        if ( orders.contains(field->dbFieldName()) )
-                        {
-                            int idx = orders.indexOf(field->dbFieldName());
-                            finalOrders << field->dbFieldName();
                             if ( iSectionOrder == iLogicalIndex )
                             {
+                                finalOrders << field->dbFieldName();
                                 finalSorts << (h->sortIndicatorOrder() == Qt::AscendingOrder ? "ASC" : "DESC");
-                            }
-                            else
-                            {
-                                finalSorts << sorts.at(idx);
                             }
                         }
                         else
                         {
-                            finalOrders << field->dbFieldName();
-                            if ( iSectionOrder == iLogicalIndex )
+                            if ( orders.contains(field->dbFieldName()) )
                             {
-                                finalSorts << (h->sortIndicatorOrder() == Qt::AscendingOrder ? "ASC" : "DESC");
+                                int idx = orders.indexOf(field->dbFieldName());
+                                finalOrders << field->dbFieldName();
+                                if ( iSectionOrder == iLogicalIndex )
+                                {
+                                    finalSorts << (h->sortIndicatorOrder() == Qt::AscendingOrder ? "ASC" : "DESC");
+                                }
+                                else
+                                {
+                                    finalSorts << sorts.at(idx);
+                                }
                             }
                             else
                             {
-                                finalSorts << "ASC";
+                                finalOrders << field->dbFieldName();
+                                if ( iSectionOrder == iLogicalIndex )
+                                {
+                                    finalSorts << (h->sortIndicatorOrder() == Qt::AscendingOrder ? "ASC" : "DESC");
+                                }
+                                else
+                                {
+                                    finalSorts << "ASC";
+                                }
                             }
                         }
                     }
