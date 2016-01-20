@@ -106,18 +106,18 @@ void DBGroupRelationMMHelperPrivate::setCheckBoxStates()
     BaseBeanPointerList children = bean->relationChildren(q_ptr->relationName());
     QList<QCheckBox *> checks = q_ptr->findChildren<QCheckBox *>();
 
-    foreach (BaseBeanPointer child, children)
+    foreach (QCheckBox *chk, checks)
     {
-        foreach (QCheckBox *chk, checks)
+        if ( chk->property("oid").isValid() )
         {
-            if ( chk->property("oid").isValid() )
+            foreach (BaseBeanPointer child, children)
             {
                 qlonglong oid = chk->property("oid").toLongLong();
                 BaseBeanPointer father = child->father(m_otherTableName);
-                if ( !father.isNull() )
+                if ( !father.isNull() && oid == father->dbOid() )
                 {
                     QSignalBlocker bl(chk);
-                    chk->setChecked(oid == father->dbOid());
+                    chk->setChecked(true);
                 }
             }
         }
