@@ -1111,6 +1111,20 @@ AlephERP::FormOpenType DBRecordDlg::openType() const
     return d->m_openType;
 }
 
+void DBRecordDlg::setOpenType(AlephERP::FormOpenType &type)
+{
+    setReadOnly(type == AlephERP::ReadOnly);
+    ui->pbSave->setVisible(type != AlephERP::ReadOnly);
+    ui->pbSaveAndNew->setVisible(type != AlephERP::ReadOnly);
+    ui->pbSaveAndClose->setVisible(type != AlephERP::ReadOnly);
+#ifdef ALEPHERP_DOC_MANAGEMENT
+    if ( !d->m_documentWidget.isNull() )
+    {
+        d->m_documentWidget->setDataEditable(type != AlephERP::ReadOnly);
+    }
+#endif
+}
+
 bool DBRecordDlg::advancedNavigation() const
 {
     return d->m_advancedNavigation;

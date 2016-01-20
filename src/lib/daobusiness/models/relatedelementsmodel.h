@@ -57,7 +57,7 @@ public:
     virtual bool isLinkColumn(int column) const;
     virtual BaseBeanMetadata *metadata() const;
 
-    virtual BaseBeanSharedPointer bean(const QModelIndex &index) const;
+    virtual BaseBeanSharedPointer bean(const QModelIndex &index, bool reloadIfNeeded = true) const;
     virtual BaseBeanSharedPointerList beans(const QModelIndexList &list);
 
 signals:

@@ -85,7 +85,7 @@ class ALEPHERP_DLL_EXPORT DBRecordDlg : public AERPBaseDialog
     /** Nombre de la transacción de base de datos en la que se encuentran las acciones actuales */
     Q_PROPERTY(QString contextName READ contextName)
     /** Indica en qué modo se ha abierto el formulario */
-    Q_PROPERTY(AlephERP::FormOpenType openType READ openType)
+    Q_PROPERTY(AlephERP::FormOpenType openType READ openType WRITE setOpenType)
     /** Con esta propiedad a true, se pone el formulario en modo de edición diferente. Si se navega a un registro, el formulario
      * se recarga y muestra el formulario adecuado para ese registro */
     Q_PROPERTY(bool advancedNavigation READ advancedNavigation WRITE setAdvancedNavigation)
@@ -155,6 +155,7 @@ public:
     void setSaveAndNewWithAllFieldsValidated(bool value);
     QString contextName() const;
     AlephERP::FormOpenType openType() const;
+    void setOpenType(AlephERP::FormOpenType &type);
     bool advancedNavigation() const;
     void setAdvancedNavigation(bool value);
     virtual DBRecordButtons visibleButtons() const;

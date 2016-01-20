@@ -83,7 +83,9 @@ class ALEPHERP_DLL_EXPORT DBChooseRecordButton : public QPushButton, public DBBa
      * estableciendo un searchFilter determinado, o unos valores por defecto de búsqueda predefinidos para el usuario (defaultValues).
      * Aquí se almacena el nombre de la función que se invocará para hacer esto. Si esta función estuviera vacía, se invocará
      * a una función miembro fieldNameScriptBeforeExecute del formulario que contiene este control.
-     * A esa función se le pasará como parámetro este mismo botón. */
+     * A esa función se le pasará como parámetro este mismo botón. Las dos propiedades hacen lo mismo, pero scriptBeforeExecute
+       estatá DEPRECATED por mantenimibilidad de nombres*/
+    Q_PROPERTY (QString scriptExecuteBeforeChoose READ scriptBeforeExecute WRITE setScriptBeforeExecute)
     Q_PROPERTY(QString scriptBeforeExecute READ scriptBeforeExecute WRITE setScriptBeforeExecute)
     /** Después de realizar una búsqueda, puede ser interesante ejecutar un determinado script. Es script será una función
       miembro del DBRecord que será invocada, y aquí se especifica el nombre sin parámetros. Esta función deberá tener

@@ -1109,7 +1109,7 @@ bool TreeBaseBeanModel::setData(const QModelIndex &idx, const QVariant &value, i
     return BaseBeanModel::setData(idx, value, role);
 }
 
-BaseBeanSharedPointer TreeBaseBeanModel::bean(const QModelIndex &idx) const
+BaseBeanSharedPointer TreeBaseBeanModel::bean(const QModelIndex &idx, bool reloadIfNeeded) const
 {
     if (!idx.isValid())
     {

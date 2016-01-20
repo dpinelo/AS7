@@ -1250,7 +1250,7 @@ bool DBBaseBeanModel::removeRows (int row, int count, const QModelIndex & parent
   Devuelve el bean correspondiente al índice index. Antes de devolverlo comprueba
   que el bean esté actualizado, esto es lo recupera de base de datos.
 */
-BaseBeanSharedPointer DBBaseBeanModel::bean (const QModelIndex &index) const
+BaseBeanSharedPointer DBBaseBeanModel::bean (const QModelIndex &index, bool reloadIfNeeded) const
 {
     BaseBeanSharedPointer bean;
     bool beansHasBeenFetched = false;
@@ -1291,7 +1291,9 @@ BaseBeanSharedPointer DBBaseBeanModel::bean (const QModelIndex &index) const
         // Evitamos una recarga innecesaria. Hay que poner una marca de tiempo
         if ( !isFrozenModel() )
         {
-            if ( !beansHasBeenFetched && bean->loadTime().msecsTo(QDateTime::currentDateTime()) > alephERPSettings->timeBetweenReloads() )
+            if ( !beansHasBeenFetched &&
+                 reloadIfNeeded &&
+                 bean->loadTime().msecsTo(QDateTime::currentDateTime()) > alephERPSettings->timeBetweenReloads() )
             {
                 BaseDAO::reloadBeanFromDB(bean);
             }

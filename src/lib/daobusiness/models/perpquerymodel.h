@@ -68,7 +68,7 @@ public:
     virtual BaseBeanSharedPointer bean (QModelIndex &index, bool onlyVisibleData);
     BaseBeanSharedPointerList beans(const QModelIndexList &list);
 
-    virtual BaseBeanSharedPointer bean(const QModelIndex &index) const;
+    virtual BaseBeanSharedPointer bean(const QModelIndex &index, bool reloadIfNeeded = true) const;
     virtual BaseBeanMetadata * metadata() const;
     virtual QModelIndex indexByPk(const QVariant &value);
 

@@ -447,7 +447,8 @@ bool FilterBaseBeanModelPrivate::filterAcceptsRow(int sourceRow, const QModelInd
 
     // Si obtenemos el bean antes, al ser esta función llamada para TODAS las filas, se obtendrían todos los beans del tirón
     // lo que supone una penalización importante en el rendimiento.
-    bean = model->bean(index);
+    // IMPORTANTE el hecho de resaltar que llamamos al bean sin forzar un reload del mismo, para hacer filtrados más eficientes.
+    bean = model->bean(index, false);
     if ( bean.isNull() )
     {
         return false;

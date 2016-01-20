@@ -1182,7 +1182,7 @@ QList<AERPSystemObject *> SystemDAO::remoteSystemObjects()
     QScopedPointer<QSqlQuery> qryDetailObject (new QSqlQuery(db));
 
     // Esta consulta nos permitirá obtener las máximas versiones de los objetos de sistema por tipo de dispositivo
-    sql = QString("SELECT nombre, type, max(version), device as max_version, idorigin FROM %1_system "
+    sql = QString("SELECT nombre, type, max(version) as version, device, idorigin FROM %1_system "
                   "GROUP BY nombre, type, device, idorigin ORDER BY nombre").arg(alephERPSettings->systemTablePrefix());
     sqlSystemObject = QString("SELECT * FROM %1_system "
                               "WHERE nombre = :nombre AND type = :type AND version = :version AND "
