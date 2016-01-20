@@ -362,6 +362,7 @@ void DBChooseRecordButton::buttonClicked()
         }
     }
 
+    DBRelation *dlgBeanRelation = relation();
     if ( !d->m_tableName.isEmpty() )
     {
         tableName = d->m_tableName;
@@ -369,7 +370,6 @@ void DBChooseRecordButton::buttonClicked()
     }
     else
     {
-        DBRelation *dlgBeanRelation = relation();
         if ( dlgBeanRelation != NULL )
         {
             tableName = dlgBeanRelation->metadata()->tableName();
