@@ -68,7 +68,7 @@ class ALEPHERP_DLL_EXPORT DBChooseRecordButton : public QPushButton, public DBBa
      * También se puede utilizar el método addDefaultValue */
     Q_PROPERTY(QVariantMap defaultValues READ defaultValues WRITE setDefaultValues)
     /** Acceso al bean que el usuario ha seleccionado al realizar la búsqueda */
-    Q_PROPERTY(QScriptValue selectedBean READ selectedBean)
+    Q_PROPERTY(QScriptValue selectedBean READ selectedBean WRITE setSelectedBean)
     /** Tras escoger un registro, es posible sobreescribir fields del bean del diálogo que contiene al DBChooseRecordButton.
       Aquí se establece la asignación de qué fields del bean escogido sobreescriben al del bean del diálogo */
     Q_PROPERTY(QStringList replaceFields READ replaceFields WRITE setReplaceFields STORED true DESIGNABLE true)
