@@ -555,6 +555,41 @@ QScriptValue AERPScriptCommon::sqlSelect(const QString &sql)
     return result;
 }
 
+/**
+ * @brief AERPScriptCommon::sqlSelectFirstColumn
+ * Lanza una consulta SQL a base de datos, para obtener el valor de la primera columna del primer registro
+ * idImpuesto = AERPScriptCommon.sqlSelectFirstColumn("SELECT id FROM impuestos WHERE pordefecto=true AND idempresa=" + bean.idempresa.value);
+ * @param sql
+ * @return
+ */
+QVariant AERPScriptCommon::sqlSelectFirstColumn(const QString &sql)
+{
+    QVariant result;
+    if ( engine() )
+    {
+        QString defSql = sql;
+        if ( !defSql.toLower().contains("limit 1") )
+        {
+            defSql.append(" LIMIT 1");
+        }
+        QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase()));
+        QLogger::QLog_Debug(AlephERP::stLogScript, QString::fromUtf8("AERPScriptCommon: sqlSelectFirstColumn: [%1]").arg(sql));
+        if ( qry->exec(sql) )
+        {
+            if ( qry->first() )
+            {
+                result = qry->value(0);
+            }
+        }
+        else
+        {
+            result = QString("ERROR: %1").arg(qry->lastError().text());
+            QLogger::QLog_Error(AlephERP::stLogScript, QString::fromUtf8("AERPScriptCommon: sqlSelect: [%1]").arg(qry->lastError().text()));
+        }
+    }
+    return result;
+}
+
 /*!
   Permite desde Javascript invocar una sentencia SQL arbitraria.
   \return true Si todo ha ido correctamente.
