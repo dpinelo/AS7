@@ -171,8 +171,9 @@ void AERPBaseDialog::showWaitAnimation(bool value, const QString message)
   asociado. Caso de ser un formulario de búsqueda, se indicará mediante searchDlg.
   Devuelve los widgets creados organizados por filas.
   */
-QHash<int, QWidgetList> AERPBaseDialog::setupWidgetFromBaseBeanMetadata(BaseBeanMetadata *metadata, QGridLayout *layoutDestiny,
-        bool showVisibleGridOnly, bool searchDlg)
+QHash<int, QWidgetList> AERPBaseDialog::setupWidgetFromBaseBeanMetadata(BaseBeanMetadata *metadata,
+                                                                        QGridLayout *layoutDestiny,
+                                                                        bool searchDlg)
 {
     QHash<int, QWidgetList> rowWidgets;
     if ( layoutDestiny == NULL )
@@ -181,11 +182,11 @@ QHash<int, QWidgetList> AERPBaseDialog::setupWidgetFromBaseBeanMetadata(BaseBean
     }
     if ( searchDlg )
     {
-        rowWidgets = d->setupDBSearchDlg(metadata, showVisibleGridOnly);
+        rowWidgets = d->setupDBSearchDlg(metadata);
     }
     else
     {
-        rowWidgets = d->setupDBRecordDlg(metadata, showVisibleGridOnly);
+        rowWidgets = d->setupDBRecordDlg(metadata);
     }
     QHashIterator<int, QWidgetList> it(rowWidgets);
     int maxItemsPerRow = 0;
@@ -210,7 +211,7 @@ QHash<int, QWidgetList> AERPBaseDialog::setupWidgetFromBaseBeanMetadata(BaseBean
     return rowWidgets;
 }
 
-QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBRecordDlg(BaseBeanMetadata *metadata, bool showVisibleGridOnly)
+QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBRecordDlg(BaseBeanMetadata *metadata)
 {
     QHash<int, QWidgetList> rowWidgets;
     int row = 0;
@@ -225,73 +226,70 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBRecordDlg(BaseBeanMetadata
                 rel = r;
             }
         }
-        if ( fld->includeOnGeneratedRecordDlg() )
+        if ( fld->visibleGrid() || rel != NULL || (fld->includeOnGeneratedRecordDlg().isValid() && fld->includeOnGeneratedRecordDlg().toBool()) )
         {
-            if ( !showVisibleGridOnly || fld->visibleGrid() || rel != NULL )
-            {
-                QWidgetList widList;
+            QWidgetList widList;
 
-                if ( rel != NULL )
+            if ( rel != NULL )
+            {
+                BaseBeanMetadata *relTable = BeansFactory::metadataBean(rel->tableName());
+                if ( !fld->serial() && relTable != NULL )
                 {
-                    BaseBeanMetadata *relTable = BeansFactory::metadataBean(rel->tableName());
-                    if ( !fld->serial() && relTable != NULL )
-                    {
-                        DBChooseRecordButton *cr = new DBChooseRecordButton(q_ptr);
-                        cr->setText(relTable->alias());
-                        widList.append(cr);
-                    }
+                    DBChooseRecordButton *cr = new DBChooseRecordButton(q_ptr);
+                    cr->setText(relTable->alias());
+                    widList.append(cr);
                 }
-                else if ( !fld->optionsList().isEmpty() )
+            }
+            else if ( !fld->optionsList().isEmpty() )
+            {
+                DBComboBox *cb = new DBComboBox(q_ptr);
+                cb->setFieldName(fld->dbFieldName());
+                widList.append(qobject_cast<DBComboBox *>(cb));
+            }
+            else
+            {
+                if ( !fld->serial() && (fld->type() == QVariant::Int || fld->type() == QVariant::Double) )
                 {
-                    DBComboBox *cb = new DBComboBox(q_ptr);
-                    cb->setFieldName(fld->dbFieldName());
-                    widList.append(qobject_cast<DBComboBox *>(cb));
+                    DBNumberEdit *ne = new DBNumberEdit(q_ptr);
+                    ne->setDecimalPlaces(fld->partD());
+                    widList.append(qobject_cast<QWidget *>(ne));
                 }
-                else
+                else if ( fld->type() == QVariant::String && !fld->memo() )
                 {
-                    if ( !fld->serial() && (fld->type() == QVariant::Int || fld->type() == QVariant::Double) )
-                    {
-                        DBNumberEdit *ne = new DBNumberEdit(q_ptr);
-                        ne->setDecimalPlaces(fld->partD());
-                        widList.append(qobject_cast<QWidget *>(ne));
-                    }
-                    else if ( fld->type() == QVariant::String && !fld->memo() )
-                    {
-                        DBLineEdit *le = new DBLineEdit(q_ptr);
-                        widList.append(qobject_cast<QWidget *>(le));
-                    }
-                    else if ( fld->type() == QVariant::String && fld->memo() )
-                    {
-                        DBTextEdit *te = new DBTextEdit(q_ptr);
-                        widList.append(qobject_cast<QWidget *>(te));
-                    }
-                    else if ( fld->type() == QVariant::Date || fld->type() == QVariant::DateTime )
-                    {
-                        DBDateTimeEdit *de = new DBDateTimeEdit(q_ptr);
-                        de->setCalendarPopup(true);
-                        widList.append(qobject_cast<QWidget *>(de));
-                    }
-                    else if ( fld->type() == QVariant::Pixmap )
-                    {
-                        DBFileUpload *fu = new DBFileUpload(q_ptr);
-                        widList.append(qobject_cast<QWidget *>(fu));
-                    }
+                    DBLineEdit *le = new DBLineEdit(q_ptr);
+                    widList.append(qobject_cast<QWidget *>(le));
                 }
-                if ( widList.size() > 0 )
+                else if ( fld->type() == QVariant::String && fld->memo() )
                 {
-                    DBBaseWidget *baseWid = dynamic_cast<DBBaseWidget *>(widList.at(0));
-                    baseWid->setFieldName(fld->dbFieldName());
-                    if ( !fld->readOnly() )
-                    {
-                        baseWid->setDataEditable(true);
-                    }
-                    widList.at(0)->setObjectName(QString("db_%1").arg(fld->dbFieldName()));
-                    QLabel *lbl = new QLabel(q_ptr);
-                    lbl->setText(fld->fieldName());
-                    widList.prepend(lbl);
-                    rowWidgets[row] = widList;
-                    row++;
+                    DBTextEdit *te = new DBTextEdit(q_ptr);
+                    widList.append(qobject_cast<QWidget *>(te));
                 }
+                else if ( fld->type() == QVariant::Date || fld->type() == QVariant::DateTime )
+                {
+                    DBDateTimeEdit *de = new DBDateTimeEdit(q_ptr);
+                    de->setCalendarPopup(true);
+                    widList.append(qobject_cast<QWidget *>(de));
+                }
+                else if ( fld->type() == QVariant::Pixmap )
+                {
+                    DBFileUpload *fu = new DBFileUpload(q_ptr);
+                    widList.append(qobject_cast<QWidget *>(fu));
+                }
+            }
+            if ( widList.size() > 0 )
+            {
+                DBBaseWidget *baseWid = dynamic_cast<DBBaseWidget *>(widList.at(0));
+                baseWid->setFieldName(fld->dbFieldName());
+                if ( !fld->readOnly() )
+                {
+                    baseWid->setDataEditable(true);
+                }
+                widList.at(0)->setObjectName(QString("db_%1").arg(fld->dbFieldName()));
+                QLabel *lbl = new QLabel(q_ptr);
+                lbl->setText(fld->fieldName());
+                widList.prepend(lbl);
+                rowWidgets[row] = widList;
+                row++;
             }
         }
     }
@@ -301,14 +299,18 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBRecordDlg(BaseBeanMetadata
 /*!
   Construye un formulario de búsqueda automático
   */
-QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBSearchDlg(BaseBeanMetadata *metadata, bool showVisibleGridOnly)
+QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBSearchDlg(BaseBeanMetadata *metadata)
 {
     QHash<int, QWidgetList> rowWidgets;
     int row = 0;
 
     foreach (DBFieldMetadata *fld, metadata->fields())
     {
-        if ( fld->includeOnGeneratedSearchDlg() || (showVisibleGridOnly && fld->visibleGrid()) )
+        if ( fld->includeOnGeneratedSearchDlg().isValid() && !fld->includeOnGeneratedSearchDlg().toBool() )
+        {
+            continue;
+        }
+        if ( fld->includeOnGeneratedSearchDlg().toBool() || fld->visibleGrid() )
         {
             QWidgetList widList;
             QList<DBRelationMetadata *> relations = fld->relations(AlephERP::ManyToOne);

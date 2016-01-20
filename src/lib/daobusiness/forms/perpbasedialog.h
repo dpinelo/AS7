@@ -51,8 +51,9 @@ private:
     Q_PROPERTY(QScriptValue thisForm READ thisForm)
 
 protected:
-    QHash<int, QWidgetList> setupWidgetFromBaseBeanMetadata(BaseBeanMetadata *metadata, QGridLayout *layoutDestiny,
-                                         bool showVisibleGridOnly = false, bool searchDlg = false);
+    QHash<int, QWidgetList> setupWidgetFromBaseBeanMetadata(BaseBeanMetadata *metadata,
+                                                            QGridLayout *layoutDestiny,
+                                                            bool searchDlg = false);
     void setOpenSuccess(bool value);
 
     AERPScriptQsObject *aerpQsEngine();

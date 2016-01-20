@@ -66,8 +66,8 @@ public:
         m_engine->deleteLater();
     }
 
-    QHash<int, QWidgetList> setupDBRecordDlg(BaseBeanMetadata *metadata, bool showVisibleGridOnly);
-    QHash<int, QWidgetList> setupDBSearchDlg(BaseBeanMetadata *metadata, bool showVisibleGridOnly);
+    QHash<int, QWidgetList> setupDBRecordDlg(BaseBeanMetadata *metadata);
+    QHash<int, QWidgetList> setupDBSearchDlg(BaseBeanMetadata *metadata);
     QComboBox * createComboOperators(const QString &fld);
 };
 

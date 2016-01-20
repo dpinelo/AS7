@@ -264,7 +264,7 @@ class ALEPHERP_DLL_EXPORT DBFieldMetadata : public QObject, public QScriptable
     Q_PROPERTY(bool reloadFromDBAfterSave READ reloadFromDBAfterSave WRITE setReloadFromDBAfterSave)
     /** Indica si este campo se crea como widget en los DBSearchDlg generados automáticamente y no mediante
       widgets de tipo .search.ui */
-    Q_PROPERTY(bool includeOnGeneratedSearchDlg READ includeOnGeneratedSearchDlg WRITE setIncludeOnGeneratedSearchDlg)
+    Q_PROPERTY(QVariant includeOnGeneratedSearchDlg READ includeOnGeneratedSearchDlg)
     /** El programador QS puede describir un formato específico de visualización de los field. Lo hará mediante
       una función QS definida en los metadatos de la tabla y que se encuentra aquí. Debe definirse asi:
     <displayValueScript>
@@ -444,9 +444,9 @@ public:
     void setBackgroundColor(const QColor &color);
     bool reloadFromDBAfterSave() const;
     void setReloadFromDBAfterSave(bool v);
-    bool includeOnGeneratedRecordDlg() const;
+    QVariant includeOnGeneratedRecordDlg() const;
     void setIncludeOnGeneratedRecordDlg(bool v);
-    bool includeOnGeneratedSearchDlg() const;
+    QVariant includeOnGeneratedSearchDlg() const;
     void setIncludeOnGeneratedSearchDlg(bool v);
     QString displayValueScript() const;
     void setDisplayValueScript(QString v);

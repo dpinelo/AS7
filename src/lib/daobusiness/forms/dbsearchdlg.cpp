@@ -607,7 +607,7 @@ void DBSearchDlgPrivate::setupWidget()
         delete layout;
     }
     layout = new QGridLayout();
-    QHash<int, QWidgetList> widgets = q_ptr->setupWidgetFromBaseBeanMetadata(m_metadata, qobject_cast<QGridLayout *>(layout), true, true);
+    QHash<int, QWidgetList> widgets = q_ptr->setupWidgetFromBaseBeanMetadata(m_metadata, qobject_cast<QGridLayout *>(layout), true);
     if ( widgets.keys().size() > 0 )
     {
         q_ptr->ui->gbSearchFields->setVisible(true);
