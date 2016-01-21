@@ -2338,7 +2338,7 @@ bool BaseDAO::remove(BaseBean *bean, const QString &idTransaction, const QString
 bool BaseDAO::removeReference(BaseBean *bean, DBRelation *relation, const QString &connectionName)
 {
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
-    QString sql = QString("UPDATE %1 SET %2=0 WHERE %2=:id").
+    QString sql = QString("UPDATE %1 SET %2=null WHERE %2=:id").
                   arg(relation->metadata()->tableName()).
                   arg(relation->metadata()->childFieldName());
     if ( !qry->prepare(sql) )
