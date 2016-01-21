@@ -58,7 +58,8 @@ public:
     bool m_showUnassignmentRecords;
     bool m_useDefaultShortcut;
     bool m_promptForDelete;
-    int m_newSourceRow;
+    int m_newRow;
+    QModelIndex m_newRowParent;
 
     DBDetailViewPrivate(DBDetailView *qq) : q_ptr(qq)
     {
@@ -69,7 +70,7 @@ public:
         m_showUnassignmentRecords = true;
         m_useDefaultShortcut = true;
         m_promptForDelete = true;
-        m_newSourceRow = -1;
+        m_newRow = -1;
     }
 
     BaseBeanSharedPointer insertRow();
@@ -428,7 +429,7 @@ void DBDetailView::editRecord(const QString &action)
         {
             if ( openType == AlephERP::Insert )
             {
-                filterModel()->removeRow(d->m_newSourceRow);
+                filterModel()->removeRow(d->m_newRow, d->m_newRowParent);
             }
         }
     }
@@ -978,7 +979,8 @@ BaseBeanSharedPointer DBDetailViewPrivate::insertRow()
     BaseBeanSharedPointer b;
     FilterBaseBeanModel *filterModel = q_ptr->filterModel();
     QItemSelectionModel *selectionModel = q_ptr->ui->tableView->selectionModel();
-    if ( filterModel == NULL )
+
+    if ( filterModel == NULL || selectionModel == NULL )
     {
         return b;
     }
@@ -987,25 +989,11 @@ BaseBeanSharedPointer DBDetailViewPrivate::insertRow()
     {
         return b;
     }
-    // Es mejor insertar directamente el modelo padre, ya que insertar en el filtro
-    // suele dar problemas
+    m_newRow = filterModel->rowCount();
 
-    // Debemos trabajar con el sourceModel. ¿Porqué? La secuencia que ocurre es:
-    // 1.- Se obtiene el selectedIndex del selectionModel que apunta al FilterBaseBeanModel
-    // 2.- Se inserta un nuevo registro
-    // 3.- Se produce el invalidado del modelo, e internamente se recrea la estructura mapToSource
-    // 4.- El selectedIndex obtenido en el paso 1 ya no es válido, apunta a otro sitio, y nos quedamos sin
-    //     padre para el registro (útil en caso de registros en árbol)
-
-    if ( sourceModel->metaObject()->className() == QString("DBBaseBeanModel") || sourceModel->metaObject()->className() == QString("RelationBaseBeanModel") )
-    {
-        m_newSourceRow = sourceModel->rowCount();
-    }
-    QModelIndex sourceParent;
     if ( sourceModel->metaObject()->className() == QString("TreeBaseBeanModel") )
     {
-        sourceParent = filterModel->mapToSource(selectionModel->currentIndex());
-        if ( !sourceParent.isValid() )
+        if ( !selectionModel->currentIndex().isValid() )
         {
             CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
             QMessageBox::warning(q_ptr,
@@ -1015,11 +1003,13 @@ BaseBeanSharedPointer DBDetailViewPrivate::insertRow()
             CommonsFunctions::restoreOverrideCursor();
             return b;
         }
-        m_newSourceRow = sourceModel->rowCount(sourceParent);
+        m_newRow = filterModel->rowCount(selectionModel->currentIndex());
+        m_newRowParent = selectionModel->currentIndex();
     }
-    if ( m_newSourceRow > -1 && !sourceModel->insertRow(m_newSourceRow, sourceParent) )
+
+    if ( m_newRow > -1 && !filterModel->insertRow(m_newRow, m_newRowParent) )
     {
-        m_newSourceRow = -1;
+        m_newRow = -1;
         QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.\nEl error es: %1").arg(sourceModel->property(AlephERP::stLastErrorMessage).toString());
         sourceModel->setProperty(AlephERP::stLastErrorMessage, "");
         CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
@@ -1031,9 +1021,8 @@ BaseBeanSharedPointer DBDetailViewPrivate::insertRow()
         return b;
     }
 
-    QModelIndex recentInsertSourceIndex = sourceModel->index(m_newSourceRow, 0, sourceParent);
-
-    b = sourceModel->beanToBeEdited(recentInsertSourceIndex);
+    QModelIndex recentInsertIndex = filterModel->index(m_newRow, 0, m_newRowParent);
+    b = filterModel->beanToBeEdited(recentInsertIndex);
     if ( b.isNull() )
     {
         QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.");
@@ -1046,12 +1035,10 @@ BaseBeanSharedPointer DBDetailViewPrivate::insertRow()
         return b;
     }
 
-    filterModel->invalidate();
-    QModelIndex filterIndex = filterModel->mapFromSource(recentInsertSourceIndex);
-    if ( filterIndex.isValid() )
+    if ( recentInsertIndex.isValid() )
     {
-        selectionModel->setCurrentIndex(filterIndex, QItemSelectionModel::Rows);
-        selectionModel->select(filterIndex, QItemSelectionModel::Rows);
+        selectionModel->setCurrentIndex(recentInsertIndex, QItemSelectionModel::Rows);
+        selectionModel->select(recentInsertIndex, QItemSelectionModel::Rows);
     }
     return b;
 }
