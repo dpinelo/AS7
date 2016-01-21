@@ -297,6 +297,9 @@ class ALEPHERP_DLL_EXPORT DBFieldMetadata : public QObject, public QScriptable
     Q_PROPERTY(bool link READ link WRITE setLink)
     /** La anterior apertura puede hacerse en modo lectura o escritura */
     Q_PROPERTY(bool linkOpenReadOnly READ linkOpenReadOnly WRITE setLinkOpenReadOnly)
+    /** El field puede presentar un abrir para abrir el registro de una relación M1 definida en el registro que muestra el grid. Aquí
+     * se especifica esa relación */
+    Q_PROPERTY(QString linkRelation READ linkRelation WRITE setLinkRelation)
     /** Para la presentación de los registros en abstracts views, puede ser interesante proporcionar un Tooltip adicional, que permita al usuario
       obtener datos interesantes. Este tooltip se calcula mediante una función de script, que se define aquí */
     Q_PROPERTY(QString toolTipScript READ toolTipScript WRITE setToolTipScript)
@@ -458,6 +461,8 @@ public:
     void setLink(bool value);
     bool linkOpenReadOnly() const;
     void setLinkOpenReadOnly(bool value);
+    QString linkRelation() const;
+    void setLinkRelation(const QString &relationName);
     QString toolTipScript() const;
     void setToolTipScript(const QString &value);
     StringExpression toolTipStringExpression() const;

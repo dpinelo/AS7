@@ -2247,6 +2247,7 @@ void BaseBeanMetadataPrivate::setConfig()
                 {
                     field->setLink((elementText == QLatin1String("true") ? true : false));
                     field->setLinkOpenReadOnly(( e.attribute("openReadOnly", "false") == QLatin1String("true") ? true : false));
+                    field->setLinkRelation(e.attribute(("relation")));
                 }
                 else if ( e.tagName() == QLatin1String("toolTipScript") )
                 {

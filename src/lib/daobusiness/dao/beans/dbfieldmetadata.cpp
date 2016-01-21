@@ -195,6 +195,7 @@ public:
     bool m_link;
     /** La anterior apertura puede hacerse en modo lectura o escritura */
     bool m_linkOpenReadOnly;
+    QString m_linkRelation;
     /** Para la presentación de los registros en abstracts views, puede ser interesante proporcionar un Tooltip adicional, que permita al usuario
       obtener datos interesantes. Este tooltip se calcula mediante una función de script, que se define aquí */
     QString m_toolTipScript;
@@ -884,6 +885,16 @@ bool DBFieldMetadata::linkOpenReadOnly() const
 void DBFieldMetadata::setLinkOpenReadOnly(bool value)
 {
     d->m_linkOpenReadOnly = value;
+}
+
+QString DBFieldMetadata::linkRelation() const
+{
+    return d->m_linkRelation;
+}
+
+void DBFieldMetadata::setLinkRelation(const QString &relationName)
+{
+    d->m_linkRelation = relationName;
 }
 
 QString DBFieldMetadata::toolTipScript() const

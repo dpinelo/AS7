@@ -778,26 +778,30 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
     else
     {
         // Y ahora creamos el formulario que presentará los datos de este bean.
-        QHash<QString, QVariant> none;
         QApplication::setOverrideCursor(Qt::WaitCursor);
-        QPointer<DBRecordDlg> dlg;
-        if ( filterModel()->metadata()->tableName() != fld->bean()->metadata()->tableName() )
+        BaseBeanPointer beanToEdit = bean.data();
+        if ( beanToEdit )
         {
-            dlg = new DBRecordDlg(fld->bean(), openType, m_thisWidget);
+            if ( !fld->metadata()->linkRelation().isEmpty() )
+            {
+                beanToEdit = beanToEdit->father(fld->metadata()->linkRelation());
+                if ( beanToEdit.isNull() )
+                {
+                    QLogger::QLog_Warning(AlephERP::stLogOther, QObject::tr("DBAbstractViewInterface::itemClicked: No existe la relación %1").arg(fld->metadata()->linkRelation()));
+                    return;
+                }
+            }
+            QPointer<DBRecordDlg> dlg = new DBRecordDlg(beanToEdit, openType, m_thisWidget);
+            QApplication::restoreOverrideCursor();
+            if ( dlg->openSuccess() && dlg->init() )
+            {
+                // Guardar los datos de los hijos agregados, será responsabilidad del bean padre
+                // que se está editando
+                dlg->setModal(true);
+                dlg->exec();
+            }
+            delete dlg;
         }
-        else
-        {
-            dlg = new DBRecordDlg(filterModel(), view->selectionModel(), none, openType, m_thisWidget);
-        }
-        QApplication::restoreOverrideCursor();
-        if ( dlg->openSuccess() && dlg->init() )
-        {
-            // Guardar los datos de los hijos agregados, será responsabilidad del bean padre
-            // que se está editando
-            dlg->setModal(true);
-            dlg->exec();
-        }
-        delete dlg;
     }
 }
 
