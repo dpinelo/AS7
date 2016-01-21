@@ -91,6 +91,8 @@ class ALEPHERP_DLL_EXPORT DBRecordDlg : public AERPBaseDialog
     Q_PROPERTY(bool advancedNavigation READ advancedNavigation WRITE setAdvancedNavigation)
     /** Si esta propiedad se pone a true, fuerza la persistencia a base de datos. UTILIZAR CON CUIDADO. */
     Q_PROPERTY(bool forceSaveToDb READ forceSaveToDb WRITE setForceSaveToDb)
+    /** Indica si este registro presenta los botones de navegación */
+    Q_PROPERTY(bool canNavigate READ canNavigate WRITE setCanNavigate)
 
 public:
 
@@ -131,12 +133,6 @@ public:
                 AlephERP::FormOpenType openType,
                 QWidget* parent = 0,
                 Qt::WindowFlags fl = 0);
-    DBRecordDlg(FilterBaseBeanModel *model,
-                QItemSelectionModel *idx,
-                const QHash<QString, QVariant> &fieldValueToSetOnNewBean,
-                AlephERP::FormOpenType openType,
-                QWidget* parent = 0,
-                Qt::WindowFlags fl = 0);
     ~DBRecordDlg();
 
     bool isWindowModified();
@@ -160,9 +156,10 @@ public:
     void setAdvancedNavigation(bool value);
     virtual DBRecordButtons visibleButtons() const;
     virtual void setVisibleButtons(DBRecordButtons buttons);
-    QModelIndex recentInsertIndex() const;
     bool forceSaveToDb() const;
     void setForceSaveToDb(bool value);
+    bool canNavigate() const;
+    void setCanNavigate(bool value);
 
     Q_INVOKABLE virtual BaseBean *bean();
     Q_INVOKABLE virtual QString parentType();

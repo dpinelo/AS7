@@ -41,11 +41,6 @@ AERPSystemObjectEditDlg::AERPSystemObjectEditDlg(BaseBeanPointer bean, AlephERP:
 {
 }
 
-AERPSystemObjectEditDlg::AERPSystemObjectEditDlg(FilterBaseBeanModel *model, QItemSelectionModel *idx, const QHash<QString, QVariant> &fieldValueToSetOnNewBean, AlephERP::FormOpenType openType, QWidget *parent, Qt::WindowFlags fl) :
-    DBRecordDlg(model, idx, fieldValueToSetOnNewBean, openType, parent, fl), d(new AERPSystemObjectEditDlgPrivate)
-{
-}
-
 AERPSystemObjectEditDlg::~AERPSystemObjectEditDlg()
 {
     delete d;

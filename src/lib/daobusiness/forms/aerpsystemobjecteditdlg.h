@@ -41,9 +41,6 @@ public:
     AERPSystemObjectEditDlg(BaseBeanPointer bean,
                             AlephERP::FormOpenType openType,
                             QWidget* parent = 0, Qt::WindowFlags fl = 0);
-    AERPSystemObjectEditDlg(FilterBaseBeanModel *model, QItemSelectionModel *idx, const QHash<QString, QVariant> &fieldValueToSetOnNewBean,
-                            AlephERP::FormOpenType openType,
-                            QWidget* parent = 0, Qt::WindowFlags fl = 0);
     ~AERPSystemObjectEditDlg();
 
 protected:

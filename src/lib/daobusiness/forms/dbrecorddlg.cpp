@@ -92,25 +92,6 @@ public:
     DBRecordDlg *q_ptr;
     /** BaseBean que se edita */
     BaseBeanPointer m_bean;
-    /** Esto es un hack un poco raro... que tengo que estudiar. Los modelos sobre los que este formulario
-      se puede basar, devuelven BaseBeanSharedPointer. Pero hay un caso raro o curiosos: Pongamos un modelo,
-      un DBBaseBeanModel que muestra al usuario los resultados de una vista: tvw_presupuestos. Sin embargo,
-      lo que el usuario edita no es la vista, es la tabla presupuestos. tvw_presupuestos y presupuestos
-      son "table" que tienen sendos metadatos diferentes. Sin embargo, al pedir al DBBaseBeanModel el bean
-      a editar, mediante la función "beanToBeEdited", este modelo que internamente maneja beans de tipo
-      tvw_presupuestos, devuelve un bean presupuesto contenido en un QSharedPointer. Esta referencia se
-      destruye inmediatamente al terminar el método beanToBeEdited (y en este formulario, al terminar el
-      método readBeanFromModel), ya que este formulario no utiliza QSharedPointer, sino QWeakPointer.
-      Solución, guardar (que no utilizar) esa referencia al bean que devuelve el modelo, para que la asignación
-      que readBeanFromModel a weakPointer no se vuelva cero. Un poco cutre... */
-    BaseBeanSharedPointer m_beanFromModel;
-    /** QModelIndex del modelo que apunta al bean que se está editando*/
-    QModelIndex m_filterIndex;
-    QModelIndex m_sourceIndex;
-    /** En un modelo en árbol, el padre index que contiene al bean que se está editando. Este índice
-    será el que proporcione el modelo que presenta la vista (generalmente, FilterBaseBeanModel) */
-    QModelIndex m_filterParent;
-    QModelIndex m_sourceParent;
     /** Widget principal */
     QPointer<QWidget> m_widget;
     /** Indica si el usuario ha guardado los datos o ha cancelado la edición */
@@ -121,23 +102,14 @@ public:
     QPointer<BaseBeanObserver> m_observer;
     /** Número de bloqueo del registro */
     int m_lockId;
-    /** Modelo sobre el que opera el formulario */
-    QPointer<FilterBaseBeanModel> m_filterModel;
-    /** Modelo fuente del formulario */
-    QPointer<BaseBeanModel> m_sourceModel;
-    /** Modelo de selección para mantener sincronía */
-    QPointer<QItemSelectionModel> m_selectionModel;
     QPointer<QSignalMapper> m_signalMapper;
     /** Se determina si al pulsar el botón de cerrar se pregunta o no */
     bool m_closeButtonAskForSave;
     /** Si el desarrollador pone m_closeButtonAskForSave, necesitamos saber de alguna manera
       si el bean que el usuario ha ido introduciendo es valido: sin esta propiedad, el evento
-      closeEvent se cargaria el bean. El bean sera válido si el desarrollador llama
+      closeEvent se cargaria el bean. El bean será válido si el desarrollador llama
       a closeButtonAskForSave = false y m_beanIsValid = true */
     bool m_beanIsValid;
-    /** Es posible que se precargen algunos valores adicionales a los nuevos beans que se generan, y que
-      no tienen necesariamente que venir de valores precalculados, sino por ejemplo, de filtros establecidos por el usuario */
-    QHash<QString, QVariant> m_filterFieldValuesOnNewBean;
     /** Indicará si este formulario de edición inició las ediciones */
     bool m_initContext;
     /** Variable chivata del método save que indica si podemos guardar */
@@ -168,6 +140,7 @@ public:
     QPointer<QListWidget> m_advancedNavigationWidget;
     QList<BeansOnNavigation> m_advancedNavigationBeans;
     bool m_forceSaveToDb;
+    bool m_canNavigate;
 
     DBRecordDlgPrivate(DBRecordDlg *qq) : q_ptr(qq)
     {
@@ -185,6 +158,7 @@ public:
         m_closing = false;
         m_advancedNavigation = false;
         m_forceSaveToDb = false;
+        m_canNavigate = false;
     }
 
     bool readBeanFromModel(const QModelIndex &idx, QString &message);
@@ -200,144 +174,6 @@ public:
     BeansOnNavigation navigationWidgetSelectCurrentBean();
 };
 
-bool DBRecordDlgPrivate::readBeanFromModel(int row, QString &message)
-{
-    if ( m_filterModel.isNull() )
-    {
-        return false;
-    }
-    QModelIndex idx = m_filterModel->index(row, 0);
-    return readBeanFromModel(idx, message);
-}
-
-bool DBRecordDlgPrivate::readBeanFromModel(const QModelIndex &idx, QString &message)
-{
-    if ( m_filterModel.isNull() )
-    {
-        return false;
-    }
-    m_beanFromModel = m_filterModel->beanToBeEdited(idx);
-    m_bean = m_beanFromModel.data();
-    if ( m_bean.isNull() )
-    {
-        return false;
-    }
-    if ( m_openType == AlephERP::Update )
-    {
-        if ( !m_bean->checkAccess('r') )
-        {
-            message = QObject::trUtf8("No tiene permisos para acceder a este registro.");
-            return false;
-        }
-        if ( !m_bean->checkAccess('w') )
-        {
-            message = QObject::trUtf8("Sólo tiene permisos para visualizar este registro.");
-            m_openType = AlephERP::ReadOnly;
-        }
-    }
-    message.clear();
-    return true;
-}
-
-bool DBRecordDlgPrivate::insertRow(QItemSelectionModel *selectionModel)
-{
-    // Es mejor insertar directamente el modelo padre, ya que insertar en el filtro
-    // suele dar problemas
-    int newSourceRow = -1;
-
-    if ( m_filterModel.isNull() || m_sourceModel.isNull() )
-    {
-        return false;
-    }
-
-    // Debemos trabajar con el sourceModel. ¿Porqué? La secuencia que ocurre es:
-    // 1.- Se obtiene el selectedIndex del selectionModel que apunta al FilterBaseBeanModel
-    // 2.- Se inserta un nuevo registro
-    // 3.- Se produce el invalidado del modelo, e internamente se recrea la estructura mapToSource
-    // 4.- El selectedIndex obtenido en el paso 1 ya no es válido, apunta a otro sitio, y nos quedamos sin
-    // padre para el registro (útil en caso de registros en árbol)
-
-    if ( m_sourceModel->metaObject()->className() == QString("DBBaseBeanModel") || m_sourceModel->metaObject()->className() == QString("RelationBaseBeanModel") )
-    {
-        newSourceRow = m_sourceModel->rowCount();
-    }
-    if ( m_sourceModel->metaObject()->className() == QString("TreeBaseBeanModel") )
-    {
-        m_sourceParent = m_filterModel->mapToSource(selectionModel->currentIndex());
-        if ( !m_sourceParent.isValid() )
-        {
-            CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
-            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::trUtf8("Debe seleccionar un registro del que colgará el que desea insertar."), QMessageBox::Ok);
-            CommonsFunctions::restoreOverrideCursor();
-            return false;
-        }
-        newSourceRow = m_sourceModel->rowCount(m_sourceParent);
-    }
-    if ( newSourceRow > -1 && !m_sourceModel->insertRow(newSourceRow, m_sourceParent) )
-    {
-        QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.\nEl error es: %1").arg(m_sourceModel->property(AlephERP::stLastErrorMessage).toString());
-        m_sourceModel->setProperty(AlephERP::stLastErrorMessage, "");
-        CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
-        QMessageBox::warning(q_ptr, qApp->applicationName(), message, QMessageBox::Ok);
-        CommonsFunctions::restoreOverrideCursor();
-        return false;
-    }
-
-    m_sourceIndex = m_sourceModel->index(newSourceRow, 0, m_sourceParent);
-
-    /* OJO A ESTE CASO: Ejemplo: DBFormDlg apunta a tvw_facturasprov. Sin embargo, el bean
-     que se va a editar es de tipo "facturasprov". De darnos el bean correcto a editar se
-     encarga la función beanToBeEdited del modelo. Sin embargo, en este caso concreto, nos
-     devolverá una instancia BaseBeanSharedPointer de un bean de tipo "facturasprov"
-     específicamente creado para ser editado. Sin embargo, el modelo trabaja internamente
-     con beans de tipo tvw_facturasprov. Esto significa que el bean facturasprov será "único",
-     es decir, sólo habrá una referencia a él. Por tanto, si inmediatamente se convierte a
-     weak reference, será inmediatamente borrado. Por eso hacemos el truco de mantenerlo
-     almacenado durante la vida de este formulario. Es decir, esto directamente no funciona:
-    m_bean = mdl->beanToBeEdited(sourceIdx).toWeakRef(); */
-    m_beanFromModel = m_sourceModel->beanToBeEdited(m_sourceIndex);
-    m_bean = m_beanFromModel.data();
-    if ( m_bean.isNull() )
-    {
-        QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.");
-        CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
-        QMessageBox::warning(q_ptr, qApp->applicationName(), message, QMessageBox::Ok);
-        CommonsFunctions::restoreOverrideCursor();
-        return false;
-    }
-    setFilterFieldValuesOnNewBean();
-
-    m_filterModel->invalidate();
-    if ( m_sourceParent.isValid() )
-    {
-        m_filterParent = m_filterModel->mapFromSource(m_sourceParent);
-    }
-    m_filterIndex = m_filterModel->mapFromSource(m_sourceIndex);
-    if ( m_filterIndex.isValid() )
-    {
-        selectionModel->setCurrentIndex(m_filterIndex, QItemSelectionModel::Rows);
-        selectionModel->select(m_filterIndex, QItemSelectionModel::Rows);
-    }
-    return true;
-}
-
-/** Se establecen los valores precargados en el bean */
-void DBRecordDlgPrivate::setFilterFieldValuesOnNewBean()
-{
-    if ( m_bean.isNull() )
-    {
-        return;
-    }
-    QHashIterator<QString, QVariant> it (m_filterFieldValuesOnNewBean);
-    while ( it.hasNext() )
-    {
-        it.next();
-        m_bean->setFieldValue(it.key(), it.value());
-    }
-    m_bean->uncheckModifiedFields();
-    m_bean->uncheckModifiedRelatedElements();
-}
-
 /**
  * @brief DBRecordDlgPrivate::isPrintButtonVisible
  * Determina si el botón de imprimir documentos es visible. Será visible cuando existe algún ReportMetadata
@@ -350,10 +186,6 @@ bool DBRecordDlgPrivate::isPrintButtonVisible()
         return false;
     }
     if ( m_bean->dbState() == BaseBean::INSERT )
-    {
-        return false;
-    }
-    if ( !m_filterModel.isNull() && !m_sourceModel.isNull() && QString(m_sourceModel->metaObject()->className()) == "TreeBaseBeanModel" )
     {
         return false;
     }
@@ -593,116 +425,32 @@ DBRecordDlg::DBRecordDlg(BaseBeanPointer bean,
         ui->pbDocuments->setVisible(false);
     }
     ui->pbSaveAndNew->setVisible(false);
-    setOpenSuccess(true);
-}
-
-/*!
-  El DBRecordDlg es el formulario de edición de los beans. Se le pasa el modelo del que deberá
-  obtener el bean, según el selectionModel pasado.
-  */
-DBRecordDlg::DBRecordDlg(FilterBaseBeanModel *model,
-                         QItemSelectionModel *selectionModel,
-                         const QHash<QString, QVariant> &fieldValueToSetOnNewBean,
-                         AlephERP::FormOpenType openType,
-                         QWidget* parent,
-                         Qt::WindowFlags fl) :
-    AERPBaseDialog(parent, fl),
-    ui(new Ui::DBRecordDlg),
-    d(new DBRecordDlgPrivate(this))
-{
-    d->m_filterModel = model;
-    if ( d->m_filterModel )
-    {
-        d->m_sourceModel = qobject_cast<BaseBeanModel *>(d->m_filterModel->sourceModel());
-    }
-    d->m_selectionModel = selectionModel;
-    // Este chivato indica si el registro lo guardará este formulario en base de datos o no
-    d->m_openType = openType;
-    d->m_filterFieldValuesOnNewBean = fieldValueToSetOnNewBean;
-    ui->setupUi(this);
-
-    if ( d->m_openType == AlephERP::Update || d->m_openType == AlephERP::ReadOnly )
-    {
-        QString message;
-        QModelIndexList list = ( d->m_selectionModel.isNull() ? QModelIndexList() : d->m_selectionModel->selectedRows());
-        if ( list.size() == 0 )
-        {
-            // Vamos a probar a mirar, si el ámbito de selección es otro...
-            list = ( d->m_selectionModel.isNull() ? QModelIndexList() : d->m_selectionModel->selectedIndexes() );
-            if ( list.size() == 0 )
-            {
-                CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
-                QMessageBox::warning(this, qApp->applicationName(), trUtf8("No existe ningún registro seleccionado."), QMessageBox::Ok);
-                CommonsFunctions::restoreOverrideCursor();
-                setOpenSuccess(false);
-                reject();
-                return;
-            }
-        }
-        // TODO: VER CON DETALLE. Estas dos líneas, estaban justo después del if que hace el readBeanFromModel, y de repente, empezó
-        // a cascar el programa... raro raro.
-        if ( !d->m_selectionModel.isNull() )
-        {
-            d->m_selectionModel->select(list.at(0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-            d->m_selectionModel->setCurrentIndex(list.at(0), QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-        }
-        if ( !d->readBeanFromModel(list.at(0), message) )
-        {
-            CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
-            QMessageBox::warning(this, qApp->applicationName(), message.isEmpty() ? trUtf8("Ha ocurrido un error seleccionando los datos.") : message, QMessageBox::Ok);
-            CommonsFunctions::restoreOverrideCursor();
-            setOpenSuccess(false);
-            reject();
-            return;
-        }
-        else if ( !message.isEmpty() )
-        {
-            QMessageBox::warning(this, qApp->applicationName(), message, QMessageBox::Ok);
-        }
-    }
-    else if ( d->m_openType == AlephERP::Insert )
-    {
-        if ( !d->insertRow(selectionModel) )
-        {
-            setOpenSuccess(false);
-            reject();
-            return;
-        }
-    }
-    // Si se pulsa Guardar, se pondrá esto a true
-    ui->pbPrint->setVisible(d->isPrintButtonVisible());
-    ui->pbEmail->setVisible(d->isEmailButtonVisible());
-    if ( d->m_openType == AlephERP::Insert )
-    {
-        ui->pbHistory->setVisible(false);
-        ui->pbDocuments->setVisible(false);
-    }
-    if ( d->m_openType == AlephERP::Insert || (!d->m_sourceModel.isNull() && QString(d->m_sourceModel->metaObject()->className()) == "TreeBaseBeanModel") )
-    {
-        ui->pbFirst->setVisible(false);
-        ui->pbLast->setVisible(false);
-        ui->pbNext->setVisible(false);
-        ui->pbPrevious->setVisible(false);
-        ui->chkNavigateSavingChanges->setVisible(false);
-        ui->pbDocuments->setVisible(false);
-        ui->pbSaveAndNew->setVisible(false);
-    }
-    d->m_signalMapper = new QSignalMapper(this);
-    d->m_signalMapper->setMapping(ui->pbNext, QString("next"));
-    d->m_signalMapper->setMapping(ui->pbPrevious, QString("previous"));
-    d->m_signalMapper->setMapping(ui->pbLast, QString("last"));
-    d->m_signalMapper->setMapping(ui->pbFirst, QString("first"));
-    connect (ui->pbNext, SIGNAL(clicked()), d->m_signalMapper, SLOT(map()));
-    connect (ui->pbPrevious, SIGNAL(clicked()), d->m_signalMapper, SLOT(map()));
-    connect (ui->pbFirst, SIGNAL(clicked()), d->m_signalMapper, SLOT(map()));
-    connect (ui->pbLast, SIGNAL(clicked()), d->m_signalMapper, SLOT(map()));
-    connect (d->m_signalMapper, SIGNAL(mapped(const QString &)), this, SLOT(navigate(const QString &)));
-    connect (ui->pbRelatedElements, SIGNAL(clicked()), this, SLOT(showOrHideRelatedElements()));
-#ifdef ALEPHERP_DOC_MANAGEMENT
-    connect (ui->pbDocuments, SIGNAL(clicked()), this, SLOT(showOrHideDocuments()));
-#endif
 
     setOpenSuccess(true);
+    if ( d->m_openType == AlephERP::Insert && !d->m_bean->checkAccess('w') )
+    {
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             tr("No tiene permisos para insertar este registro."));
+        setOpenSuccess(false);
+    }
+    else if ( d->m_openType == AlephERP::Update )
+    {
+        if ( !d->m_bean->checkAccess('r') )
+        {
+            QMessageBox::warning(this,
+                                 qApp->applicationName(),
+                                 tr("No tiene permisos para acceder a este registro."));
+            setOpenSuccess(false);
+        }
+        if ( !d->m_bean->checkAccess('w') )
+        {
+            QMessageBox::warning(this,
+                                 qApp->applicationName(),
+                                 tr("Sólo tiene permisos para visualizar este registro."));
+            d->m_openType = AlephERP::ReadOnly;
+        }
+    }
 }
 
 bool DBRecordDlg::init(bool doConnections)
@@ -1115,7 +863,7 @@ void DBRecordDlg::setOpenType(AlephERP::FormOpenType &type)
 {
     setReadOnly(type == AlephERP::ReadOnly);
     ui->pbSave->setVisible(type != AlephERP::ReadOnly);
-    ui->pbSaveAndNew->setVisible(type != AlephERP::ReadOnly);
+    ui->pbSaveAndNew->setVisible(type != AlephERP::ReadOnly && d->m_canNavigate);
     ui->pbSaveAndClose->setVisible(type != AlephERP::ReadOnly);
 #ifdef ALEPHERP_DOC_MANAGEMENT
     if ( !d->m_documentWidget.isNull() )
@@ -1376,12 +1124,11 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
 
     if ( !d->m_closeButtonAskForSave )
     {
-        if ( !d->m_sourceModel.isNull() && d->m_openType == AlephERP::Insert && !d->m_beanIsValid )
+        if ( d->m_openType == AlephERP::Insert && !d->m_beanIsValid )
         {
             d->m_bean->restoreValues(true);
             d->m_bean->uncheckModifiedFields();
             d->m_bean->uncheckModifiedRelatedElements();
-            d->m_sourceModel->removeRow(d->m_sourceIndex.row(), d->m_sourceParent);
         }
         if ( d->m_initContext && !d->m_forceSaveToDb )
         {
@@ -1429,10 +1176,6 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
                 // Si cancelamos insertando, indicamos que NO se han introducido cambios, para que no se guarden
                 d->m_bean->uncheckModifiedFields();
                 d->m_bean->uncheckModifiedRelatedElements();
-                if ( !d->m_sourceModel.isNull() )
-                {
-                    d->m_sourceModel->removeRow(d->m_sourceIndex.row(), d->m_sourceParent);
-                }
 #ifdef ALEPHERP_DOC_MANAGEMENT
                 // ¿Se han insertado Documentos y no se quieren conservar?
                 if ( !d->m_documentWidget.isNull() )
@@ -1472,10 +1215,6 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
             // Si cancelamos insertando, indicamos que NO se han introducido cambios, para que no se guarden
             d->m_bean->uncheckModifiedFields();
             d->m_bean->uncheckModifiedRelatedElements();
-            if ( !d->m_sourceModel.isNull() )
-            {
-                d->m_sourceModel->removeRow(d->m_sourceIndex.row(), d->m_sourceParent);
-            }
         }
     }
     if ( d->m_initContext && !d->m_forceSaveToDb )
@@ -1873,10 +1612,7 @@ void DBRecordDlg::setWindowModified(bool value)
     }
     ui->pbSave->setEnabled(valueToSet);
     ui->pbSaveAndClose->setEnabled(valueToSet);
-    if ( !d->m_filterModel.isNull() )
-    {
-        ui->pbSaveAndNew->setEnabled(valueToSet);
-    }
+    ui->pbSaveAndNew->setEnabled(valueToSet && d->m_canNavigate);
     QDialog::setWindowModified(valueToSet);
 }
 
@@ -1896,6 +1632,7 @@ BaseBean * DBRecordDlg::bean()
 
 void DBRecordDlg::navigate(const QString &direction)
 {
+    /*
     // Llamamos a una función de QS justo antes de navegar
     QScriptValueList args;
     args.append(QScriptValue(direction));
@@ -1946,22 +1683,6 @@ void DBRecordDlg::navigate(const QString &direction)
                 {
                     save();
                 }
-                else
-                {
-                    if ( d->m_openType == AlephERP::Insert )
-                    {
-                        d->m_sourceModel->removeRow(d->m_sourceIndex.row(), d->m_sourceParent);
-                        d->m_openType = AlephERP::Update;
-                    }
-                }
-            }
-        }
-        else
-        {
-            if ( d->m_openType == AlephERP::Insert )
-            {
-                d->m_sourceModel->removeRow(d->m_sourceIndex.row(), d->m_sourceParent);
-                d->m_openType = AlephERP::Update;
             }
         }
     }
@@ -1999,7 +1720,7 @@ void DBRecordDlg::navigate(const QString &direction)
         {
             setReadOnly(false);
             ui->pbSave->setVisible(true);
-            ui->pbSaveAndNew->setVisible(true);
+            ui->pbSaveAndNew->setVisible(d->m_canNavigate);
             ui->pbSaveAndClose->setVisible(true);
 #ifdef ALEPHERP_DOC_MANAGEMENT
             if ( !d->m_documentWidget.isNull() )
@@ -2031,6 +1752,7 @@ void DBRecordDlg::navigate(const QString &direction)
         reject();
         return;
     }
+    */
 }
 
 /**
@@ -2040,6 +1762,7 @@ void DBRecordDlg::navigate(const QString &direction)
  */
 void DBRecordDlg::navigateBean(BaseBeanPointer bean, AlephERP::FormOpenType openType)
 {
+    /*
     // Esta función no se puede llamar desde el motor QS, ya que lo destruye.
     if ( engine() != NULL || bean.isNull() || d->m_bean.isNull() )
     {
@@ -2083,22 +1806,6 @@ void DBRecordDlg::navigateBean(BaseBeanPointer bean, AlephERP::FormOpenType open
                 {
                     save();
                 }
-                else
-                {
-                    if ( d->m_openType == AlephERP::Insert )
-                    {
-                        d->m_sourceModel->removeRow(d->m_sourceIndex.row(), d->m_sourceParent);
-                        d->m_openType = AlephERP::Update;
-                    }
-                }
-            }
-        }
-        else
-        {
-            if ( d->m_openType == AlephERP::Insert )
-            {
-                d->m_sourceModel->removeRow(d->m_sourceIndex.row(), d->m_sourceParent);
-                d->m_openType = AlephERP::Update;
             }
         }
     }
@@ -2125,7 +1832,6 @@ void DBRecordDlg::navigateBean(BaseBeanPointer bean, AlephERP::FormOpenType open
     }
     CommonsFunctions::processEvents();
 
-    d->m_beanFromModel = BaseBeanSharedPointer();
     d->m_bean = bean->clone(this);
     d->m_openType = openType;
     aerpQsEngine()->reset();
@@ -2141,6 +1847,7 @@ void DBRecordDlg::navigateBean(BaseBeanPointer bean, AlephERP::FormOpenType open
     alephERPSettings->applyAnimatedDimensionForm(this);
 
     CommonsFunctions::restoreOverrideCursor();
+    */
 }
 
 /**
@@ -2194,6 +1901,7 @@ QModelIndex DBRecordDlgPrivate::nextIndex(const QModelIndex actual, const QStrin
 {
     QModelIndex next;
 
+    /*
     if ( m_filterModel.isNull() )
     {
         return next;
@@ -2227,6 +1935,7 @@ QModelIndex DBRecordDlgPrivate::nextIndex(const QModelIndex actual, const QStrin
             next = m_filterModel->index(m_filterModel->rowCount() - 1, actual.column());
         }
     }
+    */
     return next;
 }
 
@@ -2362,17 +2071,14 @@ void DBRecordDlg::saveRecord()
 {
     if ( save() )
     {
-        if ( !d->m_filterModel.isNull() && !(!d->m_sourceModel.isNull() && QString(d->m_sourceModel->metaObject()->className()) == "TreeBaseBeanModel") )
+        if ( d->m_bean )
         {
-            if ( d->m_filterModel->rowCount() > 1 && d->m_bean )
-            {
-                ui->pbFirst->setVisible(true);
-                ui->pbNext->setVisible(true);
-                ui->pbPrevious->setVisible(true);
-                ui->pbLast->setVisible(true);
-                ui->chkNavigateSavingChanges->setVisible(true);
-                ui->pbDocuments->setVisible(!d->m_bean->metadata()->repositoryPathScript().isEmpty());
-            }
+            ui->pbFirst->setVisible(d->m_canNavigate);
+            ui->pbNext->setVisible(d->m_canNavigate);
+            ui->pbPrevious->setVisible(d->m_canNavigate);
+            ui->pbLast->setVisible(d->m_canNavigate);
+            ui->chkNavigateSavingChanges->setVisible(d->m_canNavigate);
+            ui->pbDocuments->setVisible(!d->m_bean->metadata()->repositoryPathScript().isEmpty());
         }
         d->m_openType = AlephERP::Update;
         lock();
@@ -2385,6 +2091,7 @@ void DBRecordDlg::saveRecord()
   */
 void DBRecordDlg::saveAndNew()
 {
+    /*
     if ( save() )
     {
         if ( !d->m_bean.isNull() )
@@ -2420,6 +2127,7 @@ void DBRecordDlg::saveAndNew()
             }
         }
     }
+    */
 }
 
 /**
@@ -2505,13 +2213,13 @@ DBRecordDlg::DBRecordButtons DBRecordDlg::visibleButtons() const
 
 void DBRecordDlg::setVisibleButtons(DBRecordDlg::DBRecordButtons buttons)
 {
-    ui->pbFirst->setVisible(buttons.testFlag(DBRecordDlg::First));
-    ui->pbPrevious->setVisible(buttons.testFlag(DBRecordDlg::Previous));
-    ui->pbNext->setVisible(buttons.testFlag(DBRecordDlg::Next));
-    ui->pbLast->setVisible(buttons.testFlag(DBRecordDlg::Last));
+    ui->pbFirst->setVisible(buttons.testFlag(DBRecordDlg::First) && d->m_canNavigate);
+    ui->pbPrevious->setVisible(buttons.testFlag(DBRecordDlg::Previous) && d->m_canNavigate);
+    ui->pbNext->setVisible(buttons.testFlag(DBRecordDlg::Next) && d->m_canNavigate);
+    ui->pbLast->setVisible(buttons.testFlag(DBRecordDlg::Last) && d->m_canNavigate);
     ui->pbSave->setVisible(buttons.testFlag(DBRecordDlg::Save));
     ui->pbSaveAndClose->setVisible(buttons.testFlag(DBRecordDlg::SaveAndClose));
-    ui->pbSaveAndNew->setVisible(buttons.testFlag(DBRecordDlg::SaveAndNew));
+    ui->pbSaveAndNew->setVisible(buttons.testFlag(DBRecordDlg::SaveAndNew) && d->m_canNavigate);
     ui->pbHistory->setVisible(buttons.testFlag(DBRecordDlg::History));
     ui->pbEditScript->setVisible(buttons.testFlag(DBRecordDlg::Script));
     ui->pbPrint->setVisible(buttons.testFlag(DBRecordDlg::Print));
@@ -2519,11 +2227,6 @@ void DBRecordDlg::setVisibleButtons(DBRecordDlg::DBRecordButtons buttons)
     ui->pbRelatedElements->setVisible(buttons.testFlag(DBRecordDlg::RelatedItems));
     ui->pbDocuments->setVisible(buttons.testFlag(DBRecordDlg::Documents));
     ui->pbHelp->setVisible(buttons.testFlag(DBRecordDlg::Help));
-}
-
-QModelIndex DBRecordDlg::recentInsertIndex() const
-{
-    return d->m_filterIndex;
 }
 
 bool DBRecordDlg::forceSaveToDb() const
@@ -2534,6 +2237,16 @@ bool DBRecordDlg::forceSaveToDb() const
 void DBRecordDlg::setForceSaveToDb(bool value)
 {
     d->m_forceSaveToDb = value;
+}
+
+bool DBRecordDlg::canNavigate() const
+{
+    return d->m_canNavigate;
+}
+
+void DBRecordDlg::setCanNavigate(bool value)
+{
+    d->m_canNavigate = value;
 }
 
 void DBRecordDlg::showOrHideRelatedElements()

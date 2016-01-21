@@ -202,8 +202,8 @@ protected slots:
 
 private slots:
     void specialEdit(const QString code);
-    void recordDlgClosed();
-    void recordDlgCanceled();
+    void recordDlgClosed(bool userSaveData);
+    void recordDlgCanceled(bool userSaveData);
 
 signals:
     void sigSplashInfo(const QString &);

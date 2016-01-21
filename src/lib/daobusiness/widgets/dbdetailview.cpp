@@ -58,6 +58,7 @@ public:
     bool m_showUnassignmentRecords;
     bool m_useDefaultShortcut;
     bool m_promptForDelete;
+    int m_newSourceRow;
 
     DBDetailViewPrivate(DBDetailView *qq) : q_ptr(qq)
     {
@@ -68,7 +69,10 @@ public:
         m_showUnassignmentRecords = true;
         m_useDefaultShortcut = true;
         m_promptForDelete = true;
+        m_newSourceRow = -1;
     }
+
+    BaseBeanSharedPointer insertRow();
 };
 
 DBDetailView::DBDetailView(QWidget *parent) :
@@ -375,10 +379,24 @@ void DBDetailView::editRecord(const QString &action)
     }
     else
     {
+        BaseBeanSharedPointer bean;
+        if ( openType == AlephERP::Insert )
+        {
+            bean = d->insertRow();
+        }
+        else
+        {
+            bean = filterModel()->beanToBeEdited(ui->tableView->selectionModel()->currentIndex());
+        }
+        if ( bean.isNull() )
+        {
+            QMessageBox::warning(this,
+                                 qApp->applicationName(),
+                                 tr("Ha ocurrido un error inesperado."));
+            return;
+        }
         // Y ahora creamos el formulario que presentará los datos de este bean
-        QPointer<DBRecordDlg> dlg = new DBRecordDlg(filterModel(),
-                                                    ui->tableView->selectionModel(),
-                                                    QHash<QString, QVariant>(),
+        QPointer<DBRecordDlg> dlg = new DBRecordDlg(bean.data(),
                                                     openType,
                                                     this);
         if ( dlg->openSuccess() && dlg->init() )
@@ -388,23 +406,31 @@ void DBDetailView::editRecord(const QString &action)
             dlg->setModal(true);
             dlg->exec();
         }
-        if ( dlg->userSaveData() )
+        bool userSaveData = dlg->userSaveData();
+        delete dlg;
+        if ( userSaveData )
         {
             if ( containerDlg != NULL )
             {
                 if ( openType == AlephERP::Insert )
                 {
-                    containerDlg->callQSMethod(QString("%1AddedChild").arg(m_relationName), dlg->bean());
+                    containerDlg->callQSMethod(QString("%1AddedChild").arg(m_relationName), bean.data());
                 }
                 else if ( openType == AlephERP::Update )
                 {
-                    containerDlg->callQSMethod(QString("%1EditedChild").arg(m_relationName), dlg->bean());
+                    containerDlg->callQSMethod(QString("%1EditedChild").arg(m_relationName), bean.data());
                 }
-                containerDlg->callQSMethod(QString("%1ModifiedChild").arg(m_relationName), dlg->bean());
-                emit userEditedData(dlg->bean());
+                containerDlg->callQSMethod(QString("%1ModifiedChild").arg(m_relationName), bean.data());
+                emit userEditedData(bean.data());
             }
         }
-        delete dlg;
+        else
+        {
+            if ( openType == AlephERP::Insert )
+            {
+                filterModel()->removeRow(d->m_newSourceRow);
+            }
+        }
     }
     filterModel()->defrostModel();
 }
@@ -945,4 +971,87 @@ void DBDetailView::enableButtonsDependsOnSelection()
         ui->pbEdit->setEnabled(true);
         ui->pbView->setEnabled(true);
     }
+}
+
+BaseBeanSharedPointer DBDetailViewPrivate::insertRow()
+{
+    BaseBeanSharedPointer b;
+    FilterBaseBeanModel *filterModel = q_ptr->filterModel();
+    QItemSelectionModel *selectionModel = q_ptr->ui->tableView->selectionModel();
+    if ( filterModel == NULL )
+    {
+        return b;
+    }
+    BaseBeanModel *sourceModel = qobject_cast<BaseBeanModel *>(filterModel->sourceModel());
+    if ( sourceModel == NULL )
+    {
+        return b;
+    }
+    // Es mejor insertar directamente el modelo padre, ya que insertar en el filtro
+    // suele dar problemas
+
+    // Debemos trabajar con el sourceModel. ¿Porqué? La secuencia que ocurre es:
+    // 1.- Se obtiene el selectedIndex del selectionModel que apunta al FilterBaseBeanModel
+    // 2.- Se inserta un nuevo registro
+    // 3.- Se produce el invalidado del modelo, e internamente se recrea la estructura mapToSource
+    // 4.- El selectedIndex obtenido en el paso 1 ya no es válido, apunta a otro sitio, y nos quedamos sin
+    //     padre para el registro (útil en caso de registros en árbol)
+
+    if ( sourceModel->metaObject()->className() == QString("DBBaseBeanModel") || sourceModel->metaObject()->className() == QString("RelationBaseBeanModel") )
+    {
+        m_newSourceRow = sourceModel->rowCount();
+    }
+    QModelIndex sourceParent;
+    if ( sourceModel->metaObject()->className() == QString("TreeBaseBeanModel") )
+    {
+        sourceParent = filterModel->mapToSource(selectionModel->currentIndex());
+        if ( !sourceParent.isValid() )
+        {
+            CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
+            QMessageBox::warning(q_ptr,
+                                 qApp->applicationName(),
+                                 QObject::trUtf8("Debe seleccionar un registro del que colgará el que desea insertar."),
+                                 QMessageBox::Ok);
+            CommonsFunctions::restoreOverrideCursor();
+            return b;
+        }
+        m_newSourceRow = sourceModel->rowCount(sourceParent);
+    }
+    if ( m_newSourceRow > -1 && !sourceModel->insertRow(m_newSourceRow, sourceParent) )
+    {
+        m_newSourceRow = -1;
+        QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.\nEl error es: %1").arg(sourceModel->property(AlephERP::stLastErrorMessage).toString());
+        sourceModel->setProperty(AlephERP::stLastErrorMessage, "");
+        CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
+        QMessageBox::warning(q_ptr,
+                             qApp->applicationName(),
+                             message,
+                             QMessageBox::Ok);
+        CommonsFunctions::restoreOverrideCursor();
+        return b;
+    }
+
+    QModelIndex recentInsertSourceIndex = sourceModel->index(m_newSourceRow, 0, sourceParent);
+
+    b = sourceModel->beanToBeEdited(recentInsertSourceIndex);
+    if ( b.isNull() )
+    {
+        QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.");
+        CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
+        QMessageBox::warning(q_ptr,
+                             qApp->applicationName(),
+                             message,
+                             QMessageBox::Ok);
+        CommonsFunctions::restoreOverrideCursor();
+        return b;
+    }
+
+    filterModel->invalidate();
+    QModelIndex filterIndex = filterModel->mapFromSource(recentInsertSourceIndex);
+    if ( filterIndex.isValid() )
+    {
+        selectionModel->setCurrentIndex(filterIndex, QItemSelectionModel::Rows);
+        selectionModel->select(filterIndex, QItemSelectionModel::Rows);
+    }
+    return b;
 }

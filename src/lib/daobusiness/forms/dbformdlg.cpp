@@ -94,7 +94,7 @@ public:
     QString m_helpUrl;
     bool m_canDefrostModel;
     QPersistentModelIndex m_currentIndex;
-    QModelIndex m_recentInsertIndex;
+    QModelIndex m_recentInsertSourceIndex;
 
     DBFormDlgPrivate(DBFormDlg *qq) : q_ptr(qq)
     {
@@ -110,6 +110,8 @@ public:
     bool isEmailButtonVisible();
     bool hasWizard();
     bool checkConditionsForRemoteOnTree(const QModelIndex &idx);
+    BaseBeanSharedPointer insertRow();
+    void setFilterFieldValuesOnNewBean(BaseBeanSharedPointer b);
 };
 
 /**
@@ -237,6 +239,116 @@ bool DBFormDlgPrivate::checkConditionsForRemoteOnTree(const QModelIndex &idx)
     }
     m_lastMessage = QObject::trUtf8("No se permite el borrado en cascada de registros. Es decir, debe usted seleccionar un elemento final del árbol (una hoja) para borrar.");
     return false;
+}
+
+BaseBeanSharedPointer DBFormDlgPrivate::insertRow()
+{
+    BaseBeanSharedPointer b;
+    if ( m_itemView.isNull() )
+    {
+        return b;
+    }
+    FilterBaseBeanModel *filterModel = m_itemView->filterModel();
+    QItemSelectionModel *selectionModel = m_itemView->selectionModel();
+    if ( filterModel == NULL )
+    {
+        return b;
+    }
+    BaseBeanModel *sourceModel = qobject_cast<BaseBeanModel *>(filterModel->sourceModel());
+    if ( sourceModel == NULL )
+    {
+        return b;
+    }
+    // Es mejor insertar directamente el modelo padre, ya que insertar en el filtro
+    // suele dar problemas
+    int newSourceRow = -1;
+
+    // Debemos trabajar con el sourceModel. ¿Porqué? La secuencia que ocurre es:
+    // 1.- Se obtiene el selectedIndex del selectionModel que apunta al FilterBaseBeanModel
+    // 2.- Se inserta un nuevo registro
+    // 3.- Se produce el invalidado del modelo, e internamente se recrea la estructura mapToSource
+    // 4.- El selectedIndex obtenido en el paso 1 ya no es válido, apunta a otro sitio, y nos quedamos sin
+    //     padre para el registro (útil en caso de registros en árbol)
+
+    if ( sourceModel->metaObject()->className() == QString("DBBaseBeanModel") || sourceModel->metaObject()->className() == QString("RelationBaseBeanModel") )
+    {
+        newSourceRow = sourceModel->rowCount();
+    }
+    QModelIndex sourceParent;
+    if ( sourceModel->metaObject()->className() == QString("TreeBaseBeanModel") )
+    {
+        sourceParent = filterModel->mapToSource(selectionModel->currentIndex());
+        if ( !sourceParent.isValid() )
+        {
+            CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
+            QMessageBox::warning(q_ptr,
+                                 qApp->applicationName(),
+                                 QObject::trUtf8("Debe seleccionar un registro del que colgará el que desea insertar."),
+                                 QMessageBox::Ok);
+            CommonsFunctions::restoreOverrideCursor();
+            return b;
+        }
+        newSourceRow = sourceModel->rowCount(sourceParent);
+    }
+    if ( newSourceRow > -1 && !sourceModel->insertRow(newSourceRow, sourceParent) )
+    {
+        QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.\nEl error es: %1").arg(sourceModel->property(AlephERP::stLastErrorMessage).toString());
+        sourceModel->setProperty(AlephERP::stLastErrorMessage, "");
+        CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
+        QMessageBox::warning(q_ptr,
+                             qApp->applicationName(),
+                             message,
+                             QMessageBox::Ok);
+        CommonsFunctions::restoreOverrideCursor();
+        return b;
+    }
+
+    m_recentInsertSourceIndex = sourceModel->index(newSourceRow, 0, sourceParent);
+
+    b = sourceModel->beanToBeEdited(m_recentInsertSourceIndex);
+    if ( b.isNull() )
+    {
+        QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.");
+        CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
+        QMessageBox::warning(q_ptr,
+                             qApp->applicationName(),
+                             message,
+                             QMessageBox::Ok);
+        CommonsFunctions::restoreOverrideCursor();
+        return b;
+    }
+    setFilterFieldValuesOnNewBean(b);
+
+    filterModel->invalidate();
+    QModelIndex filterIndex = filterModel->mapFromSource(m_recentInsertSourceIndex);
+    if ( filterIndex.isValid() )
+    {
+        selectionModel->setCurrentIndex(filterIndex, QItemSelectionModel::Rows);
+        selectionModel->select(filterIndex, QItemSelectionModel::Rows);
+    }
+    return b;
+}
+
+void DBFormDlgPrivate::setFilterFieldValuesOnNewBean(BaseBeanSharedPointer bean)
+{
+    if ( bean.isNull() )
+    {
+        return;
+    }
+    FilterBaseBeanModel *filterModel = m_itemView->filterModel();
+    if ( filterModel == NULL )
+    {
+        return;
+    }
+    QHash<QString, QVariant> m = q_ptr->filterValuesToSetOnBean();
+    QHashIterator<QString, QVariant> it (m);
+    while ( it.hasNext() )
+    {
+        it.next();
+        bean->setFieldValue(it.key(), it.value());
+    }
+    bean->uncheckModifiedFields();
+    bean->uncheckModifiedRelatedElements();
 }
 
 DBFormDlg::DBFormDlg(QWidget *parent, Qt::WindowFlags f)
@@ -656,11 +768,6 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     AlephERP::FormOpenType openType;
     QString functionName;
 
-    if ( !d->m_dlg.isNull() )
-    {
-        return;
-    }
-
     d->m_canDefrostModel = false;
     d->m_itemView->freezeModel();
 
@@ -691,14 +798,30 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
         }
     }
 
-    FilterBaseBeanModel *model = d->m_itemView->filterModel();;
-    QItemSelectionModel *selectionModel = d->m_itemView->selectionModel();;
-    QHash<QString, QVariant> filterValuesToSet = this->filterValuesToSetOnBean();
+    FilterBaseBeanModel *model = d->m_itemView->filterModel();
+    QItemSelectionModel *selectionModel = d->m_itemView->selectionModel();
+    BaseBeanSharedPointer bean;
+    if ( openType == AlephERP::Update )
+    {
+        bean = model->beanToBeEdited(selectionModel->currentIndex());
+    }
+    else
+    {
+        bean = d->insertRow();
+    }
+    if ( bean.isNull() )
+    {
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             tr("Ha ocurrido un error inesperado"));
+        return;
+    }
     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
+    QPointer<DBRecordDlg> dlg;
     if ( d->m_metadata->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
     {
 #if defined(ALEPHERP_ADVANCED_EDIT) && defined (ALEPHERP_DEVTOOLS)
-        d->m_dlg = new AERPSystemObjectEditDlg(model, selectionModel, filterValuesToSet, openType, this);
+        dlg = new AERPSystemObjectEditDlg(bean.data(), openType, this);
 #else
         d->m_canDefrostModel = true;
         d->m_itemView->defrostModel();
@@ -707,33 +830,37 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     }
     else
     {
-        d->m_dlg = new DBRecordDlg(model, selectionModel, filterValuesToSet, openType, this);
+        dlg = new DBRecordDlg(bean.data(), openType, this);
     }
     CommonsFunctions::restoreOverrideCursor();
     if ( !uiCode.isEmpty() )
     {
-        d->m_dlg->setUiCode(uiCode);
+        dlg->setUiCode(uiCode);
     }
     if ( !qsCode.isEmpty() )
     {
-        d->m_dlg->setQsCode(qsCode);
+        dlg->setQsCode(qsCode);
     }
-    if ( d->m_dlg->openSuccess() && d->m_dlg->init() )
+    if ( dlg->openSuccess() && dlg->init() )
     {
-        if ( openType == AlephERP::Insert )
-        {
-            d->m_recentInsertIndex = d->m_dlg->recentInsertIndex();
-        }
         d->m_itemView->disableRestoreSaveState();
-        connect(d->m_dlg.data(), SIGNAL(accepted()), this, SLOT(recordDlgClosed()));
-        connect(d->m_dlg.data(), SIGNAL(rejected()), this, SLOT(recordDlgCanceled()));
-        d->m_dlg->setModal(true);
-        d->m_dlg->setCanChangeModality(true);
-        d->m_dlg->exec();
+        dlg->setModal(true);
+        dlg->setCanChangeModality(true);
+        int ret = dlg->exec();
+        bool userSaveData = dlg->userSaveData();
+        delete dlg;
+        if ( ret == QDialog::Accepted )
+        {
+            recordDlgClosed(userSaveData);
+        }
+        else if ( ret == QDialog::Rejected )
+        {
+            recordDlgCanceled(userSaveData);
+        }
     }
     else
     {
-        delete d->m_dlg;
+        delete dlg;
         d->m_canDefrostModel = true;
         if ( !d->m_mainWindow->isVisibleRelatedWidget() )
         {
@@ -750,12 +877,7 @@ void DBFormDlg::insertChild()
 {
     QString functionName = "beforeInsert";
 
-    if ( !d->m_dlg.isNull() )
-    {
-        return;
-    }
-
-    d->m_recentInsertIndex = QModelIndex();
+    d->m_recentInsertSourceIndex = QModelIndex();
     d->m_canDefrostModel = false;
     d->m_itemView->freezeModel();
 
@@ -804,7 +926,7 @@ void DBFormDlg::insertChild()
             QModelIndex childIdx = sourceParentIdx.child(row, 0);
             if ( childIdx.isValid() )
             {
-                d->m_recentInsertIndex = childIdx;
+                d->m_recentInsertSourceIndex = childIdx;
                 BaseBeanSharedPointer bean = sourceModel->bean(childIdx);
                 if ( bean )
                 {
@@ -814,21 +936,25 @@ void DBFormDlg::insertChild()
                         model->invalidate();
                     }
                     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
-                    d->m_dlg = new DBRecordDlg(bean.data(), AlephERP::Insert, this);
+                    QPointer<DBRecordDlg> dlg = new DBRecordDlg(bean.data(), AlephERP::Insert, this);
                     CommonsFunctions::restoreOverrideCursor();
-                    if ( d->m_dlg->openSuccess() && d->m_dlg->init() )
+                    if ( dlg->openSuccess() && dlg->init() )
                     {
                         d->m_itemView->disableRestoreSaveState();
-                        connect(d->m_dlg.data(), SIGNAL(accepted()), this, SLOT(recordDlgClosed()));
-                        connect(d->m_dlg.data(), SIGNAL(rejected()), this, SLOT(recordDlgCanceled()));
-                        d->m_dlg->setModal(true);
-                        d->m_dlg->setCanChangeModality(true);
-                        d->m_dlg->exec();
+                        dlg->setModal(true);
+                        dlg->setCanChangeModality(true);
+                        int ret = dlg->exec();
+                        bool userSaveData = dlg->userSaveData();
+                        delete dlg;
+                        if ( ret == QDialog::Accepted )
+                        {
+                            recordDlgClosed(userSaveData);
+                        }
+                        else
+                        {
+                            recordDlgCanceled(userSaveData);
+                        }
                         return;
-                    }
-                    else
-                    {
-                        delete d->m_dlg;
                     }
                     // Los modelos en árbol hacen cosas raras con los filtros... no andan finos. Mejor invalidamos.
                     model->invalidate();
@@ -887,15 +1013,15 @@ void DBFormDlg::wizard()
     }
 }
 
-void DBFormDlg::recordDlgClosed()
+void DBFormDlg::recordDlgClosed(bool userSaveData)
 {
-    emit afterEdit(d->m_dlg->userSaveData());
-    if (!d->m_dlg->userSaveData())
+    emit afterEdit(userSaveData);
+    if (!userSaveData)
     {
         BaseBeanModel *sourceModel = d->m_itemView->sourceModel();
-        if ( d->m_recentInsertIndex.isValid() )
+        if ( d->m_recentInsertSourceIndex.isValid() )
         {
-            sourceModel->removeRow(d->m_recentInsertIndex.row(), d->m_recentInsertIndex.parent());
+            sourceModel->removeRow(d->m_recentInsertSourceIndex.row(), d->m_recentInsertSourceIndex.parent());
         }
         else
         {
@@ -904,7 +1030,6 @@ void DBFormDlg::recordDlgClosed()
     }
     d->m_itemView->enableRestoreSaveState();
     d->m_itemView->reSort();
-    d->m_dlg->deleteLater();
     // Forzamos un refresco del modelo
     setBeanOnRelatedWidget();
     if ( !d->m_mainWindow->isVisibleRelatedWidget() )
@@ -915,12 +1040,12 @@ void DBFormDlg::recordDlgClosed()
     CommonsFunctions::processEvents();
 }
 
-void DBFormDlg::recordDlgCanceled()
+void DBFormDlg::recordDlgCanceled(bool userSaveData)
 {
-    recordDlgClosed();
-    if ( d->m_recentInsertIndex.isValid() )
+    recordDlgClosed(userSaveData);
+    if ( d->m_recentInsertSourceIndex.isValid() )
     {
-        d->m_itemView->filterModel()->removeRow(d->m_recentInsertIndex.row(), d->m_recentInsertIndex.parent());
+        d->m_itemView->filterModel()->removeRow(d->m_recentInsertSourceIndex.row(), d->m_recentInsertSourceIndex.parent());
         d->m_itemView->filterModel()->invalidate();
     }
 }
@@ -931,11 +1056,6 @@ void DBFormDlg::recordDlgCanceled()
  */
 void DBFormDlg::deleteRecord(void)
 {
-    if ( !d->m_dlg.isNull() )
-    {
-        return;
-    }
-
     // Desde este momentos, dejamos estático el modelo del DBForm
     // La función de script beforeDelete puede modificar la estructura interna de beans (marcando por ejemplo a borrar
     // elementos relacionados). Por ello, es importante que el bean que se pase al script beforeDelete sea el mismo
@@ -1115,11 +1235,6 @@ void DBFormDlg::deleteRecord(void)
 */
 void DBFormDlg::search(void)
 {
-    if ( !d->m_dlg.isNull() )
-    {
-        return;
-    }
-
     d->m_canDefrostModel = true;
     d->m_itemView->freezeModel();
 
@@ -1139,11 +1254,6 @@ void DBFormDlg::search(void)
 
 void DBFormDlg::copy()
 {
-    if ( !d->m_dlg.isNull() )
-    {
-        return;
-    }
-
     QItemSelectionModel *selModel = d->m_itemView->selectionModel();
     FilterBaseBeanModel *mdl = qobject_cast<FilterBaseBeanModel *>(selModel == NULL ? NULL : const_cast<QAbstractItemModel *>(selModel->model()));
     if ( selModel == NULL || mdl == NULL) {
@@ -1483,18 +1593,15 @@ QLabel *DBFormDlg::createLabel(int position, const QString &text)
   */
 void DBFormDlg::refreshFilterTableView()
 {
-    if ( d->m_dlg.isNull() )
+    if ( d->m_canDefrostModel && !AERPTransactionContext::instance()->doingCommit() )
     {
-        if ( d->m_canDefrostModel && !AERPTransactionContext::instance()->doingCommit() )
+        if ( d->m_mainWindow && !d->m_mainWindow->isVisibleRelatedWidget() )
         {
-            if ( d->m_mainWindow && !d->m_mainWindow->isVisibleRelatedWidget() )
-            {
-                d->m_itemView->defrostModel();
-            }
-            if ( d->m_currentIndex.isValid() && d->m_itemView->itemView()->selectionModel() != NULL )
-            {
-                d->m_itemView->itemView()->selectionModel()->setCurrentIndex(d->m_currentIndex, QItemSelectionModel::ToggleCurrent);
-            }
+            d->m_itemView->defrostModel();
+        }
+        if ( d->m_currentIndex.isValid() && d->m_itemView->itemView()->selectionModel() != NULL )
+        {
+            d->m_itemView->itemView()->selectionModel()->setCurrentIndex(d->m_currentIndex, QItemSelectionModel::ToggleCurrent);
         }
     }
     if ( d->m_metadata->canHaveRelatedElements() ||
@@ -1624,11 +1731,6 @@ QHash<QString, QVariant> DBFormDlg::filterValuesToSetOnBean()
  */
 void DBFormDlg::printRecord()
 {
-    if ( !d->m_dlg.isNull() )
-    {
-        return;
-    }
-
     QList<ReportMetadata *> reports;
     if ( d->m_metadata->viewForTable().isEmpty() )
     {
@@ -1684,11 +1786,6 @@ void DBFormDlg::printRecord()
 void DBFormDlg::emailRecord()
 {
 #ifdef ALEPHERP_SMTP_SUPPORT
-    if ( !d->m_dlg.isNull() )
-    {
-        return;
-    }
-
     BaseBeanPointer bean = selectedBean();
     if ( bean.isNull() )
     {
@@ -1793,19 +1890,30 @@ void DBFormDlg::view()
 {
     AlephERP::FormOpenType openType = AlephERP::ReadOnly;
 
-    if ( !d->m_dlg.isNull() )
+    if ( !d->m_itemView )
     {
         return;
     }
 
     FilterBaseBeanModel *model = d->m_itemView->filterModel();;
-    QItemSelectionModel *selectionModel = d->m_itemView->selectionModel();;
-    QHash<QString, QVariant> filterValuesToSet = this->filterValuesToSetOnBean();
+    QItemSelectionModel *selectionModel = d->m_itemView->selectionModel();
+
+    if ( selectionModel->currentIndex().isValid() )
+    {
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             tr("Debe seleccionar un registro a visualizar."));
+        return;
+    }
+
+    model->freezeModel();
     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
+    BaseBeanSharedPointer bean = model->beanToBeEdited(selectionModel->currentIndex());
+    QPointer<DBRecordDlg> dlg;
     if ( d->m_metadata->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
     {
 #if defined(ALEPHERP_ADVANCED_EDIT) && defined (ALEPHERP_DEVTOOLS)
-        d->m_dlg = new AERPSystemObjectEditDlg(model, selectionModel, filterValuesToSet, openType, this);
+        dlg = new AERPSystemObjectEditDlg(bean.data(), openType, this);
 #else
         d->m_canDefrostModel = true;
         if ( !d->m_mainWindow->isVisibleRelatedWidget() )
@@ -1817,20 +1925,24 @@ void DBFormDlg::view()
     }
     else
     {
-        d->m_dlg = new DBRecordDlg(model, selectionModel, filterValuesToSet, openType, this);
+        dlg = new DBRecordDlg(bean.data(), openType, this);
     }
     CommonsFunctions::restoreOverrideCursor();
-    if ( d->m_dlg->openSuccess() && d->m_dlg->init() )
+    if ( dlg->openSuccess() && dlg->init() )
     {
-        connect(d->m_dlg.data(), SIGNAL(accepted()), this, SLOT(recordDlgClosed()));
-        connect(d->m_dlg.data(), SIGNAL(rejected()), this, SLOT(recordDlgClosed()));
-        d->m_dlg->setModal(true);
-        d->m_dlg->setCanChangeModality(true);
-        d->m_dlg->exec();
-    }
-    else
-    {
-        delete d->m_dlg;
+        dlg->setModal(true);
+        dlg->setCanChangeModality(true);
+        int ret = dlg->exec();
+        bool userSaveData = dlg->userSaveData();
+        delete dlg;
+        if ( ret == QDialog::Accepted )
+        {
+            recordDlgClosed(userSaveData);
+        }
+        else
+        {
+            recordDlgCanceled(userSaveData);
+        }
     }
 }
 
