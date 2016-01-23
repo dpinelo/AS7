@@ -112,6 +112,7 @@ public:
     bool checkConditionsForRemoteOnTree(const QModelIndex &idx);
     BaseBeanSharedPointer insertRow();
     void setFilterFieldValuesOnNewBean(BaseBeanSharedPointer b);
+    QModelIndex rowIndexSelected();
 };
 
 /**
@@ -292,7 +293,7 @@ BaseBeanSharedPointer DBFormDlgPrivate::insertRow()
     }
     if ( newSourceRow > -1 && !sourceModel->insertRow(newSourceRow, sourceParent) )
     {
-        QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.\nEl error es: %1").arg(sourceModel->property(AlephERP::stLastErrorMessage).toString());
+        QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.\nEl error es: %1.").arg(sourceModel->property(AlephERP::stLastErrorMessage).toString());
         sourceModel->setProperty(AlephERP::stLastErrorMessage, "");
         CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
         QMessageBox::warning(q_ptr,
@@ -351,6 +352,20 @@ void DBFormDlgPrivate::setFilterFieldValuesOnNewBean(BaseBeanSharedPointer bean)
     bean->uncheckModifiedRelatedElements();
 }
 
+QModelIndex DBFormDlgPrivate::rowIndexSelected()
+{
+    QItemSelectionModel *selectionModel = m_itemView->selectionModel();
+    if ( selectionModel == NULL )
+    {
+        return QModelIndex();
+    }
+    if ( selectionModel->selectedRows().isEmpty() )
+    {
+        return QModelIndex();
+    }
+    return selectionModel->selectedRows().first();
+}
+
 DBFormDlg::DBFormDlg(QWidget *parent, Qt::WindowFlags f)
     : QWidget( parent, f ), ui(new Ui::DBFormDlg), d(new DBFormDlgPrivate(this))
 {
@@ -378,7 +393,7 @@ bool DBFormDlg::construct(const QString &tableName)
     else
     {
         qDebug() << "No existe la tabla: " << tableName;
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("No existe la tabla %1").arg(tableName), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), trUtf8("No existe la tabla %1.").arg(tableName), QMessageBox::Ok);
         close();
         return false;
     }
@@ -775,6 +790,12 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     {
         openType = AlephERP::Update;
         functionName = "beforeEdit";
+        if ( !d->rowIndexSelected().isValid() )
+        {
+            QMessageBox::warning(this,
+                                 qApp->applicationName(),
+                                 tr("Debe seleccionar un registro a editar."));
+        }
     }
     else
     {
@@ -799,11 +820,10 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     }
 
     FilterBaseBeanModel *model = d->m_itemView->filterModel();
-    QItemSelectionModel *selectionModel = d->m_itemView->selectionModel();
     BaseBeanSharedPointer bean;
     if ( openType == AlephERP::Update )
     {
-        bean = model->beanToBeEdited(selectionModel->currentIndex());
+        bean = model->beanToBeEdited(d->rowIndexSelected());
     }
     else
     {
@@ -813,7 +833,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     {
         QMessageBox::warning(this,
                              qApp->applicationName(),
-                             tr("Ha ocurrido un error inesperado"));
+                             tr("Ha ocurrido un error inesperado. Cierre el formulario y vuelva a intentarlo."));
         return;
     }
     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1098,7 +1118,7 @@ void DBFormDlg::deleteRecord(void)
     if ( indexes.isEmpty() )
     {
         QMessageBox::warning(this, qApp->applicationName(),
-                             trUtf8("Debe seleccionar algún registro para borrar"),
+                             trUtf8("Debe seleccionar algún registro para borrar."),
                              QMessageBox::Ok);
         d->m_canDefrostModel = true;
         if ( !!d->m_mainWindow->isVisibleRelatedWidget() )
@@ -1189,7 +1209,7 @@ void DBFormDlg::deleteRecord(void)
                 {
                     QMessageBox::warning(this, qApp->applicationName(),
                                          QString::fromUtf8("Ha ocurrido un error. No se ha podido borrar el registro. "
-                                                           "<br/><i>Error</i>: %1").arg(AERPTransactionContext::instance()->lastErrorMessage()),
+                                                           "<br/><i>Error</i>: %1.").arg(AERPTransactionContext::instance()->lastErrorMessage()),
                                          QMessageBox::Ok);
                     sourceModel->rollback();
                     d->m_canDefrostModel = true;
@@ -1207,7 +1227,7 @@ void DBFormDlg::deleteRecord(void)
         {
             QMessageBox::warning(this, qApp->applicationName(),
                                  QString::fromUtf8("Ha ocurrido un error. No se ha podido borrar el registro. "
-                                                   "<br/><i>Error</i>: %1").arg(AERPTransactionContext::instance()->lastErrorMessage()),
+                                                   "<br/><i>Error</i>: %1.").arg(AERPTransactionContext::instance()->lastErrorMessage()),
                                  QMessageBox::Ok);
             sourceModel->rollback();
             emit afterDelete(false);
@@ -1290,7 +1310,7 @@ void DBFormDlg::copy()
                         {
                             if ( !mdl->lastErrorMessage().isEmpty() )
                             {
-                                QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error al intentar agregar copiar el registro. \nEl error es: %1").arg(mdl->lastErrorMessage()));
+                                QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error al intentar agregar copiar el registro. \nEl error es: %1.").arg(mdl->lastErrorMessage()));
                                 mdl->setProperty(AlephERP::stLastErrorMessage, "");
                             }
                             return;
@@ -1353,7 +1373,7 @@ void DBFormDlg::copy()
     else
     {
         QMessageBox::warning(this, qApp->applicationName(),
-                             trUtf8("Debe seleccionar algún registro para copiar"), QMessageBox::Ok);
+                             trUtf8("Debe seleccionar algún registro para copiar."), QMessageBox::Ok);
     }
     d->m_canDefrostModel = true;
     if ( !d->m_mainWindow->isVisibleRelatedWidget() )
@@ -1890,15 +1910,14 @@ void DBFormDlg::view()
 {
     AlephERP::FormOpenType openType = AlephERP::ReadOnly;
 
-    if ( !d->m_itemView )
+    FilterBaseBeanModel *model = d->m_itemView->filterModel();;
+
+    if ( !d->m_itemView || model == NULL )
     {
         return;
     }
 
-    FilterBaseBeanModel *model = d->m_itemView->filterModel();;
-    QItemSelectionModel *selectionModel = d->m_itemView->selectionModel();
-
-    if ( selectionModel->currentIndex().isValid() )
+    if ( !d->rowIndexSelected().isValid() )
     {
         QMessageBox::warning(this,
                              qApp->applicationName(),
@@ -1908,7 +1927,7 @@ void DBFormDlg::view()
 
     model->freezeModel();
     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
-    BaseBeanSharedPointer bean = model->beanToBeEdited(selectionModel->currentIndex());
+    BaseBeanSharedPointer bean = model->beanToBeEdited(d->rowIndexSelected());
     QPointer<DBRecordDlg> dlg;
     if ( d->m_metadata->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
     {
