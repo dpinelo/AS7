@@ -70,6 +70,7 @@ public:
     QHash<QString, QString> m_creationSqlView;
     /** Nombre bonito de la tabla */
     QString m_alias;
+    bool m_canNavigate;
     /** Módulo al que pertenece el bean */
     QPointer<AERPSystemModule> m_module;
     /** Listado de los fields que admite este bean */
@@ -323,6 +324,7 @@ public:
         m_readOnly = false;
         m_localCache = false;
         m_static = false;
+        m_canNavigate = true;
     }
 
     void importHeritanceElementsOnDom(QDomDocument &document, QDomDocument &otherDocument, QDomNode inheritNode);
@@ -390,6 +392,16 @@ void BaseBeanMetadata::setTableName(const QString &value)
 {
     d->m_tableName = value;
     d->m_dbObjectType = BaseDAO::databaseObjectType(this);
+}
+
+bool BaseBeanMetadata::canNavigate() const
+{
+    return d->m_canNavigate
+}
+
+void BaseBeanMetadata::setCanNavigate(bool value)
+{
+    d->m_canNavigate = value;
 }
 
 QString BaseBeanMetadata::sqlTableName(const QString &dialect)
@@ -1615,6 +1627,11 @@ void BaseBeanMetadataPrivate::setConfig()
         if ( !n.isNull() )
         {
             m_alias = QObject::trUtf8(checkWildCards(n).toUtf8());
+        }
+        n = root.firstChildElement("canNavigate");
+        if ( !n.isNull() )
+        {
+            m_canNavigate = QObject::trUtf8(checkWildCards(n).toUtf8());
         }
         n = root.firstChildElement("schema");
         if ( !n.isNull() )

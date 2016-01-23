@@ -947,6 +947,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     {
         dlg->setQsCode(qsCode);
     }
+    dlg->setCanNavigate(true);
     if ( dlg->openSuccess() && dlg->init() )
     {
         d->m_itemView->disableRestoreSaveState();

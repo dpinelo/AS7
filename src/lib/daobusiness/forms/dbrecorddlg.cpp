@@ -2191,7 +2191,16 @@ bool DBRecordDlg::canNavigate() const
 
 void DBRecordDlg::setCanNavigate(bool value)
 {
+    if ( d->m_bean.isNull() )
+    {
+        return;
+    }
     d->m_canNavigate = value;
+    if ( !d->m_bean->metadata()->canNavigate() )
+    {
+        d->m_canNavigate = false;
+    }
+    setVisibleButtons(visibleButtons());
 }
 
 void DBRecordDlg::showOrHideRelatedElements()

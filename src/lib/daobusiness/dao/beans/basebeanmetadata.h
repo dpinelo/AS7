@@ -104,6 +104,8 @@ class ALEPHERP_DLL_EXPORT BaseBeanMetadata : public QObject, public QScriptable
     Q_PROPERTY(QString xml READ xml WRITE setXml)
     /** Tabla de la base de datos a la que hace referencia */
     Q_PROPERTY(QString tableName READ tableName WRITE setTableName)
+    /** Indica si el formulario de registros que edita estos datos permite la navegación por registros o no */
+    Q_PROPERTY(bool canNavigate READ canNavigate WRITE setCanNavigate)
     /** Devuelve el nombre de la tabla para su inclusión en una sentencia SQL, incluyendo el esquema */
     Q_PROPERTY(QString sqlTableName READ sqlTableName)
     /** Esquema de la base de datos, en el que se encuentra la tabla. Si no se especifica nada, se entiende
@@ -484,6 +486,8 @@ public:
     void setXml (const QString &value);
     QString tableName() const;
     void setTableName(const QString &value);
+    bool canNavigate() const;
+    void setCanNavigate(bool value);
     QString sqlTableName(const QString &dialect = "");
     QString schema() const;
     void setSchema(const QString &value);

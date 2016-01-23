@@ -70,11 +70,6 @@ class ALEPHERP_DLL_EXPORT DBFormDlg : public QWidget, public QScriptable
     /** Widget con los registros */
     Q_PROPERTY (QWidget* dbRecordsView READ dbRecordsView)
     Q_PROPERTY (QString tableName READ tableName)
-    /** Devuelve el siguiente bean al seleccionado para navegación */
-    Q_PROPERTY (BaseBeanSharedPointer nextBean READ nextBean)
-    Q_PROPERTY (BaseBeanSharedPointer previousBean READ previousBean)
-    Q_PROPERTY (BaseBeanSharedPointer firstBean READ firstBean)
-    Q_PROPERTY (BaseBeanSharedPointer lastBean READ lastBean)
 
     friend class DBFormDlgPrivate;
 
@@ -148,10 +143,6 @@ public:
     QWidget *dbRecordsView() const;
 
     BaseBeanPointer selectedBean();
-    BaseBeanPointer nextBean();
-    BaseBeanPointer previousBean();
-    BaseBeanPointer firstBean();
-    BaseBeanPointer lastBean();
 
     bool openSuccess();
     bool checkPermissionsToOpen();
@@ -188,6 +179,11 @@ public slots:
                                   const QString &uiCode,
                                   const QString &qsCode);
     QLabel *createLabel(int position, const QString &text);
+
+    BaseBeanPointer nextBean();
+    BaseBeanPointer previousBean();
+    BaseBeanPointer firstBean();
+    BaseBeanPointer lastBean();
 
 protected slots:
     void edit();
