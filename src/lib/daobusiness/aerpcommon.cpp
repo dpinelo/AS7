@@ -90,6 +90,10 @@ const char * AlephERP::stScriptFunctions = "$FUNCTIONS";
 const char * AlephERP::stScriptAssociated = "$ASSOCIATEDSCRIPTS";
 const char * AlephERP::stStaticToolBars = "staticToolBars";
 const char * AlephERP::stStaticMenu = "staticMenu";
+const char * AlephERP::stNextBean = "nextBean";
+const char * AlephERP::stPreviousBean = "previousBean";
+const char * AlephERP::stFirstBean = "firstBean";
+const char * AlephERP::stLastBean = "lastBean";
 
 #ifdef ALEPHERP_DEVTOOLS
 const char * AlephERP::stWebInspector = "aerpWebInspector";

@@ -113,6 +113,7 @@ public:
     BaseBeanSharedPointer insertRow();
     void setFilterFieldValuesOnNewBean(BaseBeanSharedPointer b);
     QModelIndex rowIndexSelected();
+    BaseBeanPointer nextIndex(const QString &direction);
 };
 
 /**
@@ -366,6 +367,71 @@ QModelIndex DBFormDlgPrivate::rowIndexSelected()
     return selectionModel->selectedRows().first();
 }
 
+BaseBeanPointer DBFormDlgPrivate::nextIndex(const QString &direction)
+{
+    QModelIndex next;
+
+    FilterBaseBeanModel *filterModel = m_itemView->filterModel();
+    QItemSelectionModel *selectionModel = m_itemView->selectionModel();;
+
+    if ( filterModel == NULL || selectionModel == NULL )
+    {
+        return BaseBeanPointer();
+    }
+    QModelIndex actual;
+    QModelIndexList selectedIndexes = selectionModel->selectedIndexes();
+    if ( selectedIndexes.size() > 0 )
+    {
+        actual = selectedIndexes.at(0);
+    }
+    else
+    {
+        actual = selectionModel->currentIndex();
+    }
+    if ( !actual.isValid() )
+    {
+        return BaseBeanPointer();
+    }
+
+    if ( direction == QLatin1Literal("next") )
+    {
+        if ( actual.row() < (filterModel->rowCount() - 1) )
+        {
+            next = filterModel->index(actual.row()+1, actual.column());
+        }
+    }
+    else if ( direction == QLatin1Literal("previous") )
+    {
+        if ( actual.row() > 0 )
+        {
+            next = filterModel->index(actual.row()-1, actual.column());
+        }
+    }
+    else if ( direction == QLatin1Literal("first") )
+    {
+        if ( actual.row() != 0 )
+        {
+            next = filterModel->index(0, actual.column());
+        }
+    }
+    else if ( direction == QLatin1Literal("last") )
+    {
+        if ( actual.row() != filterModel->rowCount() - 1 )
+        {
+            next = filterModel->index(filterModel->rowCount() - 1, actual.column());
+        }
+    }
+
+    BaseBeanPointer b;
+    if ( next.isValid() )
+    {
+        b = filterModel->bean(next).data();
+        selectionModel->select(next, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        selectionModel->setCurrentIndex(next, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    }
+    return b;
+}
+
 DBFormDlg::DBFormDlg(QWidget *parent, Qt::WindowFlags f)
     : QWidget( parent, f ), ui(new Ui::DBFormDlg), d(new DBFormDlgPrivate(this))
 {
@@ -562,6 +628,26 @@ BaseBeanPointer DBFormDlg::selectedBean()
         return BaseBeanPointer ();
     }
     return d->m_itemView->selectedBean();
+}
+
+BaseBeanPointer DBFormDlg::nextBean()
+{
+    return d->nextIndex(QStringLiteral("next"));
+}
+
+BaseBeanPointer DBFormDlg::previousBean()
+{
+    return d->nextIndex(QStringLiteral("previous"));
+}
+
+BaseBeanPointer DBFormDlg::firstBean()
+{
+    return d->nextIndex(QStringLiteral("first"));
+}
+
+BaseBeanPointer DBFormDlg::lastBean()
+{
+    return d->nextIndex(QStringLiteral("last"));
 }
 
 bool DBFormDlg::openSuccess()

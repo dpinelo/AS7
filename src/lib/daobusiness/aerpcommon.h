@@ -122,6 +122,10 @@ public:
     static const char * stScriptAssociated;
     static const char * stStaticToolBars;
     static const char * stStaticMenu;
+    static const char * stNextBean;
+    static const char * stPreviousBean;
+    static const char * stFirstBean;
+    static const char * stLastBean;
 
     static const char * stLogDB;
     static const char * stLogScript;

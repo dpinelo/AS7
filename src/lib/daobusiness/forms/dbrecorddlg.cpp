@@ -161,11 +161,8 @@ public:
         m_canNavigate = false;
     }
 
-    bool readBeanFromModel(const QModelIndex &idx, QString &message);
-    bool readBeanFromModel(int row, QString &message);
     bool insertRow(QItemSelectionModel *selectionModel);
-    QModelIndex nextIndex(const QModelIndex actual, const QString &direction);
-    void setFilterFieldValuesOnNewBean();
+    BaseBeanPointer nextIndex(const QString &direction);
     bool isPrintButtonVisible();
     bool isEmailButtonVisible();
     QString widgetFileName();
@@ -1632,7 +1629,8 @@ BaseBean * DBRecordDlg::bean()
 
 void DBRecordDlg::navigate(const QString &direction)
 {
-    /*
+    QString message = tr("Ha ocurrido un error seleccionando los datos.");
+
     // Llamamos a una función de QS justo antes de navegar
     QScriptValueList args;
     args.append(QScriptValue(direction));
@@ -1645,26 +1643,6 @@ void DBRecordDlg::navigate(const QString &direction)
         }
     }
 
-    if ( d->m_sourceModel.isNull() || d->m_bean.isNull() || d->m_selectionModel.isNull() )
-    {
-        return;
-    }
-
-    QModelIndexList selectedIndexes = d->m_selectionModel->selectedIndexes();
-    QModelIndex actual, next;
-    if ( selectedIndexes.size() > 0 )
-    {
-        actual = selectedIndexes.at(0);
-    }
-    else
-    {
-        actual = d->m_selectionModel->currentIndex();
-    }
-    next = d->nextIndex(actual, direction);
-    if ( !actual.isValid() || !next.isValid() )
-    {
-        return;
-    }
     if ( d->m_openType != AlephERP::ReadOnly )
     {
         if ( isWindowModified() )
@@ -1686,6 +1664,13 @@ void DBRecordDlg::navigate(const QString &direction)
             }
         }
     }
+    BaseBeanPointer newBean = d->nextIndex(direction);
+    if ( newBean.isNull() )
+    {
+        QMessageBox::information(this, qApp->applicationName(), message, QMessageBox::Ok);
+        return;
+    }
+
     BaseDAO::unlock(d->m_lockId);
     if ( !d->m_bean.isNull() )
     {
@@ -1693,42 +1678,32 @@ void DBRecordDlg::navigate(const QString &direction)
     }
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     aerpQsEngine()->disconnectFieldsFromScriptMembers(d->m_bean.data());
-    QString message = trUtf8("Ha ocurrido un error seleccionando los datos.");
-    if ( !d->readBeanFromModel(next, message) )
+    d->m_bean = newBean;
+    if ( d->m_openType == AlephERP::ReadOnly )
     {
-        QMessageBox::information(this, qApp->applicationName(), message, QMessageBox::Ok);
-        reject();
-        return;
+        setReadOnly(true);
+        ui->pbSave->setVisible(false);
+        ui->pbSaveAndNew->setVisible(false);
+        ui->pbSaveAndClose->setVisible(false);
+#ifdef ALEPHERP_DOC_MANAGEMENT
+        if ( !d->m_documentWidget.isNull() )
+        {
+            d->m_documentWidget->setDataEditable(false);
+        }
+#endif
     }
-    else if ( !message.isEmpty() )
+    else
     {
-        QMessageBox::warning(this,qApp->applicationName(), message, QMessageBox::Ok);
-        if ( d->m_openType == AlephERP::ReadOnly )
-        {
-            setReadOnly(true);
-            ui->pbSave->setVisible(false);
-            ui->pbSaveAndNew->setVisible(false);
-            ui->pbSaveAndClose->setVisible(false);
+        setReadOnly(false);
+        ui->pbSave->setVisible(true);
+        ui->pbSaveAndNew->setVisible(d->m_canNavigate);
+        ui->pbSaveAndClose->setVisible(true);
 #ifdef ALEPHERP_DOC_MANAGEMENT
-            if ( !d->m_documentWidget.isNull() )
-            {
-                d->m_documentWidget->setDataEditable(false);
-            }
-#endif
-        }
-        else
+        if ( !d->m_documentWidget.isNull() )
         {
-            setReadOnly(false);
-            ui->pbSave->setVisible(true);
-            ui->pbSaveAndNew->setVisible(d->m_canNavigate);
-            ui->pbSaveAndClose->setVisible(true);
-#ifdef ALEPHERP_DOC_MANAGEMENT
-            if ( !d->m_documentWidget.isNull() )
-            {
-                d->m_documentWidget->setDataEditable(true);
-            }
-#endif
+            d->m_documentWidget->setDataEditable(true);
         }
+#endif
     }
     // Hacemos una copia de seguridad de los datos, por si hay cancelación
     if ( d->m_bean )
@@ -1738,8 +1713,6 @@ void DBRecordDlg::navigate(const QString &direction)
         d->m_observer = qobject_cast<BaseBeanObserver *>(d->m_bean->observer());
         d->m_bean->observer()->installWidget(this);
         d->m_bean->observer()->sync();
-        d->m_selectionModel->select(next, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-        d->m_selectionModel->setCurrentIndex(next, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
         // Llamamos a la función QS justo después de navegar
         aerpQsEngine()->replaceEnviromentObject("bean", d->m_bean.data());
         aerpQsEngine()->connectFieldsToScriptMembers(d->m_bean.data());
@@ -1752,7 +1725,6 @@ void DBRecordDlg::navigate(const QString &direction)
         reject();
         return;
     }
-    */
 }
 
 /**
@@ -1897,46 +1869,19 @@ void DBRecordDlg::reject()
     close();
 }
 
-QModelIndex DBRecordDlgPrivate::nextIndex(const QModelIndex actual, const QString &direction)
+BaseBeanPointer DBRecordDlgPrivate::nextIndex(const QString &direction)
 {
-    QModelIndex next;
-
-    /*
-    if ( m_filterModel.isNull() )
+    if ( q_ptr->parent() == NULL )
     {
-        return next;
+        return BaseBeanPointer();
     }
-
-    if ( direction == "next" )
-    {
-        if ( actual.row() < (m_filterModel->rowCount() - 1) )
-        {
-            next = m_filterModel->index(actual.row()+1, actual.column());
-        }
-    }
-    else if ( direction == "previous" )
-    {
-        if ( actual.row() > 0 )
-        {
-            next = m_filterModel->index(actual.row()-1, actual.column());
-        }
-    }
-    else if ( direction == "first" )
-    {
-        if ( actual.row() != 0 )
-        {
-            next = m_filterModel->index(0, actual.column());
-        }
-    }
-    else if ( direction == "last" )
-    {
-        if ( actual.row() != m_filterModel->rowCount() - 1 )
-        {
-            next = m_filterModel->index(m_filterModel->rowCount() - 1, actual.column());
-        }
-    }
-    */
-    return next;
+    BaseBeanPointer b;
+    QString methodName = QString("%1Bean").arg(direction);
+    QByteArray ba = methodName.toLatin1();
+    QMetaObject::invokeMethod(q_ptr->parent(),
+                              ba.constData(),
+                              Q_RETURN_ARG(BaseBeanPointer, b));
+    return b;
 }
 
 void DBRecordDlg::keyPressEvent (QKeyEvent *e)
