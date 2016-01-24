@@ -396,7 +396,7 @@ void BaseBeanMetadata::setTableName(const QString &value)
 
 bool BaseBeanMetadata::canNavigate() const
 {
-    return d->m_canNavigate
+    return d->m_canNavigate;
 }
 
 void BaseBeanMetadata::setCanNavigate(bool value)
@@ -1631,7 +1631,7 @@ void BaseBeanMetadataPrivate::setConfig()
         n = root.firstChildElement("canNavigate");
         if ( !n.isNull() )
         {
-            m_canNavigate = QObject::trUtf8(checkWildCards(n).toUtf8());
+            m_canNavigate = (checkWildCards(n) == QLatin1String("true") ? true : false);
         }
         n = root.firstChildElement("schema");
         if ( !n.isNull() )

@@ -404,24 +404,6 @@ DBRecordDlg::DBRecordDlg(BaseBeanPointer bean,
     d->m_openType = openType;
     // Si se pulsa Guardar, se pondrá esto a true
     ui->setupUi(this);
-    ui->pbNext->setVisible(false);
-    ui->pbFirst->setVisible(false);
-    ui->pbLast->setVisible(false);
-    ui->pbPrevious->setVisible(false);
-    ui->chkNavigateSavingChanges->setVisible(false);
-    ui->pbPrint->setVisible(d->isPrintButtonVisible());
-    ui->pbEmail->setVisible(d->isEmailButtonVisible());
-    ui->pbRelatedElements->setVisible(bean->metadata()->canHaveRelatedElements() ||
-                                      bean->metadata()->canHaveRelatedDocuments() ||
-                                      bean->metadata()->canSendEmail() ||
-                                      bean->metadata()->showSomeRelationOnRelatedElementsModel());
-
-    if ( d->m_openType == AlephERP::Insert )
-    {
-        ui->pbHistory->setVisible(false);
-        ui->pbDocuments->setVisible(false);
-    }
-    ui->pbSaveAndNew->setVisible(false);
 
     setOpenSuccess(true);
     if ( d->m_openType == AlephERP::Insert && !d->m_bean->checkAccess('w') )
@@ -448,6 +430,17 @@ DBRecordDlg::DBRecordDlg(BaseBeanPointer bean,
             d->m_openType = AlephERP::ReadOnly;
         }
     }
+
+    d->m_signalMapper = new QSignalMapper(this);
+    d->m_signalMapper->setMapping(ui->pbNext, QString("next"));
+    d->m_signalMapper->setMapping(ui->pbPrevious, QString("previous"));
+    d->m_signalMapper->setMapping(ui->pbLast, QString("last"));
+    d->m_signalMapper->setMapping(ui->pbFirst, QString("first"));
+    connect (ui->pbNext, SIGNAL(clicked()), d->m_signalMapper, SLOT(map()));
+    connect (ui->pbPrevious, SIGNAL(clicked()), d->m_signalMapper, SLOT(map()));
+    connect (ui->pbFirst, SIGNAL(clicked()), d->m_signalMapper, SLOT(map()));
+    connect (ui->pbLast, SIGNAL(clicked()), d->m_signalMapper, SLOT(map()));
+    connect (d->m_signalMapper, SIGNAL(mapped(const QString &)), this, SLOT(navigate(const QString &)));
 }
 
 bool DBRecordDlg::init(bool doConnections)
@@ -458,8 +451,27 @@ bool DBRecordDlg::init(bool doConnections)
     }
 
     setTableName(d->m_bean->metadata()->tableName());
-    d->m_helpUrl = d->m_bean->metadata()->helpUrl();
 
+    ui->pbNext->setVisible(d->m_canNavigate);
+    ui->pbFirst->setVisible(d->m_canNavigate);
+    ui->pbLast->setVisible(d->m_canNavigate);
+    ui->pbPrevious->setVisible(d->m_canNavigate);
+    ui->chkNavigateSavingChanges->setVisible(d->m_canNavigate);
+    ui->pbPrint->setVisible(d->isPrintButtonVisible());
+    ui->pbEmail->setVisible(d->isEmailButtonVisible());
+    ui->pbRelatedElements->setVisible(d->m_bean->metadata()->canHaveRelatedElements() ||
+                                      d->m_bean->metadata()->canHaveRelatedDocuments() ||
+                                      d->m_bean->metadata()->canSendEmail() ||
+                                      d->m_bean->metadata()->showSomeRelationOnRelatedElementsModel());
+
+    if ( d->m_openType == AlephERP::Insert )
+    {
+        ui->pbHistory->setVisible(false);
+        ui->pbDocuments->setVisible(false);
+    }
+    ui->pbSaveAndNew->setVisible(false);
+
+    d->m_helpUrl = d->m_bean->metadata()->helpUrl();
     if ( d->m_helpUrl.isEmpty() )
     {
         d->m_helpUrl = QString("qthelp://%1/doc/%2.html").
@@ -1734,7 +1746,6 @@ void DBRecordDlg::navigate(const QString &direction)
  */
 void DBRecordDlg::navigateBean(BaseBeanPointer bean, AlephERP::FormOpenType openType)
 {
-    /*
     // Esta función no se puede llamar desde el motor QS, ya que lo destruye.
     if ( engine() != NULL || bean.isNull() || d->m_bean.isNull() )
     {
@@ -1755,12 +1766,7 @@ void DBRecordDlg::navigateBean(BaseBeanPointer bean, AlephERP::FormOpenType open
     alephERPSettings->saveDimensionForm(this);
     d->showNavigationBeanWidget();
 
-    QString modelTableName;
-    if ( !d->m_sourceModel.isNull() )
-    {
-        modelTableName = d->m_sourceModel->metadata()->tableName();
-    }
-    if ( d->m_openType != AlephERP::ReadOnly && d->m_bean->metadata()->tableName() == modelTableName )
+    if ( d->m_openType != AlephERP::ReadOnly )
     {
         if ( isWindowModified() )
         {
@@ -1819,7 +1825,6 @@ void DBRecordDlg::navigateBean(BaseBeanPointer bean, AlephERP::FormOpenType open
     alephERPSettings->applyAnimatedDimensionForm(this);
 
     CommonsFunctions::restoreOverrideCursor();
-    */
 }
 
 /**

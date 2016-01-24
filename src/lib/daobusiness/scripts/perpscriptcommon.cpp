@@ -1627,6 +1627,11 @@ bool AERPScriptCommon::sendEmail(const QString &to, const QString &cc, const QSt
     smtp->setSmtpPassword(EnvVars::instance()->var(AlephERP::stEmailPassword).toString());
     return smtp->send();
 #else
+    Q_UNUSED(to)
+    Q_UNUSED(cc)
+    Q_UNUSED(bcc)
+    Q_UNUSED(subject)
+    Q_UNUSED(body)
     return false;
 #endif
 }
