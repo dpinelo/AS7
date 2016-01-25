@@ -911,7 +911,7 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
                                                      "  <debug>%5</debug>\n"
                                                      "  <debugOnInit>%6</debugOnInit>\n"
                                                      "  <device>%7</device>\n"
-                                                     "  <idOrigin>%7</idOrigin>\n"
+                                                     "  <idOrigin>%8</idOrigin>\n"
                                                      "</file>\n").
                                              arg(systemObject->name()).
                                              arg(fileName).
