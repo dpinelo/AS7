@@ -870,6 +870,15 @@ void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
             d->updateModel();
         }
         d->m_backgroundIdCount.clear();
+        if ( d->m_rowCount == 0 )
+        {
+            d->m_refreshing = false;
+            emit endRefresh();
+            if ( d->m_reloadingWasActivePreviousRefresh )
+            {
+                startReloading();
+            }
+        }
     }
     else
     {
