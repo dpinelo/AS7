@@ -1282,9 +1282,11 @@ bool BaseBeanModel::exportToSpreadSheet(QAbstractItemModel *model, BaseBeanMetad
             }
         }
     }
-    for (int row = 0 ; row < model->rowCount() ; ++row)
+    int rowCount = model->rowCount();
+    int columnCount = model->columnCount();
+    for (int row = 0 ; row < rowCount ; ++row)
     {
-        for (int column = 0 ; column < model->columnCount() ; ++column)
+        for (int column = 0 ; column < columnCount ; ++column)
         {
             QModelIndex idx = model->index(row, column);
             if ( idx.isValid() )

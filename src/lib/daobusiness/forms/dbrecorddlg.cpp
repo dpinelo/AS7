@@ -141,6 +141,7 @@ public:
     QList<BeansOnNavigation> m_advancedNavigationBeans;
     bool m_forceSaveToDb;
     bool m_canNavigate;
+    DBRecordDlg::DBRecordButtons m_visibleButtons;
 
     DBRecordDlgPrivate(DBRecordDlg *qq) : q_ptr(qq)
     {
@@ -159,6 +160,14 @@ public:
         m_advancedNavigation = false;
         m_forceSaveToDb = false;
         m_canNavigate = false;
+        m_visibleButtons = DBRecordDlg::Save |
+                           DBRecordDlg::SaveAndClose |
+                           DBRecordDlg::SaveAndNew |
+                           DBRecordDlg::First |
+                           DBRecordDlg::Previous |
+                           DBRecordDlg::Next |
+                           DBRecordDlg::Last |
+                           DBRecordDlg::History;
     }
 
     bool insertRow(QItemSelectionModel *selectionModel);
@@ -469,7 +478,6 @@ bool DBRecordDlg::init(bool doConnections)
         ui->pbHistory->setVisible(false);
         ui->pbDocuments->setVisible(false);
     }
-    ui->pbSaveAndNew->setVisible(false);
 
     d->m_helpUrl = d->m_bean->metadata()->helpUrl();
     if ( d->m_helpUrl.isEmpty() )
@@ -644,12 +652,17 @@ bool DBRecordDlg::init(bool doConnections)
         ui->pbSave->setVisible(false);
         ui->pbSaveAndNew->setVisible(false);
         ui->pbSaveAndClose->setVisible(false);
+        ui->pbSaveAndNew->setVisible(false);
 #ifdef ALEPHERP_DOC_MANAGEMENT
         if ( !d->m_documentWidget.isNull() )
         {
             d->m_documentWidget->setDataEditable(false);
         }
 #endif
+    }
+    else
+    {
+        ui->pbSaveAndNew->setVisible(d->m_canNavigate);
     }
     ui->pbDocuments->setVisible(d->m_bean->metadata()->canHaveRelatedDocuments());
     ui->pbRelatedElements->setVisible(d->m_bean->metadata()->canHaveRelatedElements() ||
@@ -2158,11 +2171,13 @@ DBRecordDlg::DBRecordButtons DBRecordDlg::visibleButtons() const
     {
         flag |= DBRecordDlg::Email;
     }
+    d->m_visibleButtons = flag;
     return flag;
 }
 
 void DBRecordDlg::setVisibleButtons(DBRecordDlg::DBRecordButtons buttons)
 {
+    d->m_visibleButtons = buttons;
     ui->pbFirst->setVisible(buttons.testFlag(DBRecordDlg::First) && d->m_canNavigate);
     ui->pbPrevious->setVisible(buttons.testFlag(DBRecordDlg::Previous) && d->m_canNavigate);
     ui->pbNext->setVisible(buttons.testFlag(DBRecordDlg::Next) && d->m_canNavigate);
@@ -2196,16 +2211,16 @@ bool DBRecordDlg::canNavigate() const
 
 void DBRecordDlg::setCanNavigate(bool value)
 {
+    d->m_canNavigate = value;
     if ( d->m_bean.isNull() )
     {
         return;
     }
-    d->m_canNavigate = value;
     if ( !d->m_bean->metadata()->canNavigate() )
     {
         d->m_canNavigate = false;
-    }
-    setVisibleButtons(visibleButtons());
+    }    
+    setVisibleButtons(d->m_visibleButtons);
 }
 
 void DBRecordDlg::showOrHideRelatedElements()

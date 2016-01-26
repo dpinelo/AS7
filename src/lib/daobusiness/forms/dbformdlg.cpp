@@ -2064,7 +2064,16 @@ void DBFormDlg::exportSpreadSheet()
     {
         return;
     }
+    bool modelFrozen = d->m_itemView->filterModel()->isFrozenModel();
+    if ( !modelFrozen )
+    {
+        d->m_itemView->filterModel()->freezeModel();
+    }
     AERPSpreadSheetUtil::instance()->exportSpreadSheet(d->m_itemView->filterModel(), this);
+    if ( !modelFrozen )
+    {
+        d->m_itemView->filterModel()->defrostModel();
+    }
 }
 
 /**

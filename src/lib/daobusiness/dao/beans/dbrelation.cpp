@@ -2061,6 +2061,20 @@ void DBRelation::setFather(BaseBean *bean)
     restoreOverrideOnExecution();
 }
 
+bool DBRelation::fatherSetted() const
+{
+    DBField *orig = ownerBean()->field(d->m->rootFieldName());
+    if ( orig != NULL )
+    {
+        int id = orig->value().toInt();
+        if ( id > 0 )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 /** Devuelve sólo aquellas referencias de hijos compartido (esto excluye a todos los otros otherChilds */
 BaseBeanSharedPointerList DBRelation::sharedChildren(const QString &order, bool includeToBeDeleted)
 {
@@ -2280,7 +2294,7 @@ DBField * DBRelation::masterField()
     return fld;
 }
 
-BaseBeanPointer DBRelation::ownerBean()
+BaseBeanPointer DBRelation::ownerBean() const
 {
     if ( !m_owner.isNull() )
     {

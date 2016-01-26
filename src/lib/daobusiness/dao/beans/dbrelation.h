@@ -65,6 +65,8 @@ class ALEPHERP_DLL_EXPORT DBRelation : public DBObject
     Q_PROPERTY(DBRelationMetadata *metadata READ metadata)
     /** Atajo para las relaciones 1-1, para obtener el registro relacionado */
     Q_PROPERTY(BaseBeanPointer brother READ brother WRITE setBrother)
+    /** Indica si el padre ha sido establecido */
+    Q_PROPERTY(bool fatherSetted READ fatherSetted)
 
 private:
     Q_DISABLE_COPY(DBRelation)
@@ -105,6 +107,7 @@ public:
 
     BaseBeanPointer father(bool retrieveOnDemand = true);
     void setFather(BaseBean *bean);
+    bool fatherSetted() const;
     BaseBeanSharedPointerList sharedChildren(const QString &order = "", bool includeToBeDeleted = true);
 
     BaseBeanPointer brother();
@@ -126,7 +129,7 @@ public:
     QString sqlChildTableAlias();
 
     Q_INVOKABLE DBField * masterField();
-    BaseBeanPointer ownerBean();
+    BaseBeanPointer ownerBean() const;
     bool allSignalsBlocked() const;
 
     static QScriptValue toScriptValueSharedPointer(QScriptEngine *engine, const QSharedPointer<DBRelation> &in);
