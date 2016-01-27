@@ -531,6 +531,18 @@ AERPCell *AERPSheet::cell(const QString &row, const QString &column)
     return NULL;
 }
 
+AERPCell *AERPSheet::cell(int rowId, const QString &column)
+{
+    foreach (AERPCell *cell, d->m_cells)
+    {
+        if ( cell->column() == column && cell->rowIndex() == rowId )
+        {
+            return cell;
+        }
+    }
+    return NULL;
+}
+
 AERPCell *AERPSheet::createCell(int row, int column, const QVariant value)
 {
     QString strRow(row);
@@ -582,6 +594,16 @@ QVariant AERPSheet::cellValue(const QString &row, const QString &column)
     return QVariant();
 }
 
+QVariant AERPSheet::cellValue(int rowId, const QString &column)
+{
+    AERPCell *c = cell(rowId, column);
+    if ( c != NULL )
+    {
+        return c->value();
+    }
+    return QVariant();
+}
+
 QVariant AERPSheet::dateTimeCellValue(int rowId, int columnId)
 {
     AERPCell *c = cell(rowId, columnId);
@@ -595,6 +617,16 @@ QVariant AERPSheet::dateTimeCellValue(int rowId, int columnId)
 QVariant AERPSheet::dateTimeCellValue(const QString &row, const QString &column)
 {
     AERPCell *c = cell(row, column);
+    if ( c != NULL )
+    {
+        return c->dateTimeValue();
+    }
+    return QVariant();
+}
+
+QVariant AERPSheet::dateTimeCellValue(int rowId, const QString &column)
+{
+    AERPCell *c = cell(rowId, column);
     if ( c != NULL )
     {
         return c->dateTimeValue();
@@ -622,6 +654,16 @@ AERPSpreadSheet::Type AERPSheet::cellType(const QString &row, const QString &col
     return AERPSpreadSheet::Invalid;
 }
 
+AERPSpreadSheet::Type AERPSheet::cellType(int rowId, const QString &column)
+{
+    AERPCell *c = cell(rowId, column);
+    if ( c != NULL )
+    {
+        return c->type();
+    }
+    return AERPSpreadSheet::Invalid;
+}
+
 int AERPSheet::cellLength(int rowId, int columnId)
 {
     AERPCell *c = cell(rowId, columnId);
@@ -642,6 +684,16 @@ int AERPSheet::cellLength(const QString &row, const QString &column)
     return -1;
 }
 
+int AERPSheet::cellLength(int rowId, const QString &column)
+{
+    AERPCell *c = cell(rowId, column);
+    if ( c != NULL )
+    {
+        return c->length();
+    }
+    return -1;
+}
+
 int AERPSheet::cellDecimalPlaces(int rowId, int columnId)
 {
     AERPCell *c = cell(rowId, columnId);
@@ -655,6 +707,16 @@ int AERPSheet::cellDecimalPlaces(int rowId, int columnId)
 int AERPSheet::cellDecimalPlaces(const QString &row, const QString &column)
 {
     AERPCell *c = cell(row, column);
+    if ( c != NULL )
+    {
+        return c->decimalPlaces();
+    }
+    return 0;
+}
+
+int AERPSheet::cellDecimalPlaces(int rowId, const QString &column)
+{
+    AERPCell *c = cell(rowId, column);
     if ( c != NULL )
     {
         return c->decimalPlaces();

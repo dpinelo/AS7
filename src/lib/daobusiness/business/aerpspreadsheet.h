@@ -166,18 +166,24 @@ public:
 public slots:
     AERPCell *cell(int rowId, int columnId);
     AERPCell *cell(const QString &row, const QString &column);
+    AERPCell *cell(int rowId, const QString &column);
     AERPCell *createCell(int row, int column, const QVariant value = QVariant());
     AERPCell *createCell(const QString &row, const QString &column, const QVariant value = QVariant());
     QVariant cellValue(int rowId, int columnId);
     QVariant cellValue(const QString &row, const QString &column);
+    QVariant cellValue(int rowId, const QString &column);
     QVariant dateTimeCellValue(int rowId, int columnId);
     QVariant dateTimeCellValue(const QString &row, const QString &column);
+    QVariant dateTimeCellValue(int rowId, const QString &column);
     AERPSpreadSheet::Type cellType(int rowId, int columnId);
     AERPSpreadSheet::Type cellType(const QString &row, const QString &column);
+    AERPSpreadSheet::Type cellType(int rowId, const QString &column);
     int cellLength(int rowId, int columnId);
     int cellLength(const QString &row, const QString &column);
+    int cellLength(int rowId, const QString &column);
     int cellDecimalPlaces(int rowId, int columnId);
     int cellDecimalPlaces(const QString &row, const QString &column);
+    int cellDecimalPlaces(int rowId, const QString &column);
 
     void addColumn(const QString &columnName);
     void setColumn(int index, const QString &columnName, AERPSpreadSheet::Type type, int length = -1, int decimalPlaces = 0);
