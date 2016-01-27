@@ -2461,7 +2461,7 @@ void DBField::setCounterBlocked(bool value)
 void DBField::recalculate()
 {
     QMutexLocker lock(&d->m_mutex);
-    if ( d->m_bean->readOnly() )
+    if ( d->m_bean->readOnly() || d->m_overwriteValue )
     {
         return;
     }
@@ -2478,7 +2478,7 @@ void DBField::recalculate()
     }
     d->m_valueIsOld = true;
 
-    if ( d->m->calculated() && !isWorking() && !d->m_overwriteValue )
+    if ( d->m->calculated() && !isWorking() )
     {
         QVariant v = d->calculateValue();
         if ( v != d->m_value )
@@ -2681,6 +2681,10 @@ DBField *DBField::fromVariant(const QVariant &v)
 void DBField::recalculateCounterField(const QString &connection)
 {
     QMutexLocker lock(&d->m_mutex);
+    if ( d->m_overwriteValue )
+    {
+        return;
+    }
     d->m_valueIsOld = true;
     if ( !d->m->hasCounterDefinition() || isWorking() )
     {
