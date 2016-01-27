@@ -1663,11 +1663,11 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore)
         if ( fld->metadata()->hasCounterDefinition() )
         {
             if ( !fld->metadata()->counterDefinition()->userCanModified ||
-                    (fld->metadata()->counterDefinition()->userCanModified && !fld->modified()) )
+                 (fld->metadata()->counterDefinition()->userCanModified && !fld->modified()) )
             {
                 if ( (fld->metadata()->counterDefinition()->calculateOnlyOnInsert && dbState() == BaseBean::INSERT) || !fld->metadata()->counterDefinition()->calculateOnlyOnInsert )
                 {
-                    if ( !fld->counterBlocked() )
+                    if ( !fld->counterBlocked() && !fld->overwrite() )
                     {
                         fld->setValue(fld->calculateCounter("", false));
                     }
