@@ -1920,7 +1920,10 @@ void AERPScriptCommon::openRecordDialog(BaseBean *bean, AlephERP::FormOpenType o
 
 QScriptValue AERPScriptCommon::openSpreadSheet(const QString &file, const QString &type)
 {
-    AERPSpreadSheet *spread = AERPSpreadSheet::openSpreadSheet(file, type);
+    AERPSpreadSheet *spread;
+    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+    spread = AERPSpreadSheet::openSpreadSheet(file, type);
+    CommonsFunctions::restoreOverrideCursor();
     if ( spread != NULL )
     {
         QScriptValue obj = engine()->newQObject(spread, QScriptEngine::ScriptOwnership);

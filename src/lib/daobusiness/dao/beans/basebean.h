@@ -387,7 +387,6 @@ public:
     static int countBeans();
     static int maxCountBeans();
 
-    bool blockAllSignals(bool value);
     bool allSignalsBlocked() const;
 
     DBField *fieldForRole(int role);
@@ -413,6 +412,7 @@ public slots:
     void registerRecalculateFields();
     void setValuesFromFilter(const QString &filter);
     void setValuesFromFilter(const QVariantMap &filter);
+    bool blockAllSignals(bool value);
 
 private slots:
     void setModified();
