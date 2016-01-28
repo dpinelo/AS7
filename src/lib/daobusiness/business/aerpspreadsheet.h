@@ -104,7 +104,7 @@ public:
     void setPath(const QString &path);
 
     static void loadPlugins();
-    static AERPSpreadSheet *openSpreadSheet(const QString &file, const QString &type);
+    static AERPSpreadSheet *openSpreadSheet(const QString &file, const QString &type = "", int init = -1, int offset = -1);
     static bool appCanWriteToSomeFile();
     static QList<AERPSpreadSheetIface *> ifaces();
 

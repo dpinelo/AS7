@@ -39,10 +39,11 @@ public:
     virtual bool release() = 0;
     virtual QString type() = 0;
     virtual QString displayType() = 0;
-    virtual AERPSpreadSheet *openFile(const QString &file) = 0;
+    virtual AERPSpreadSheet *openFile(const QString &file, int rowInit = -1, int offset = -1) = 0;
     virtual bool writeFile(AERPSpreadSheet *info, const QString &file) = 0;
     virtual bool canWriteFiles() = 0;
     virtual void setProperties(const QVariantMap &properties) = 0;
+    virtual bool readRows(int init, int offset) = 0;
 
 };
 

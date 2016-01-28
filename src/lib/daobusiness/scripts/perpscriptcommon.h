@@ -153,6 +153,8 @@ public:
 
     Q_INVOKABLE QString extractDigits(const QString &data);
 
+    Q_INVOKABLE QString generateUuid();
+
     // -----------------------------------------------
     // ACCESO HTTP e EMAIL
     // -----------------------------------------------
@@ -262,7 +264,7 @@ public:
     // ------------------------------------------------
     // TRABAJO CON HOJAS DE CÁLCULOS
     // ------------------------------------------------
-    Q_INVOKABLE QScriptValue openSpreadSheet(const QString &file, const QString &type = "");
+    Q_INVOKABLE QScriptValue openSpreadSheet(const QString &file, const QString &type = "", int rowInit = -1, int rowCount = -1);
     Q_INVOKABLE QScriptValue createSpreadSheet(const QString &file, const QString &type);
 
     // ------------------------------------------------

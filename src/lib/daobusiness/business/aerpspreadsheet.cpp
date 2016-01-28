@@ -275,7 +275,7 @@ void AERPSpreadSheet::loadPlugins()
     }
 }
 
-AERPSpreadSheet *AERPSpreadSheet::openSpreadSheet(const QString &file, const QString &type = "")
+AERPSpreadSheet *AERPSpreadSheet::openSpreadSheet(const QString &file, const QString &type, int init, int offset)
 {
     QString fileType = type;
     if ( type.isEmpty() )
@@ -299,7 +299,7 @@ AERPSpreadSheet *AERPSpreadSheet::openSpreadSheet(const QString &file, const QSt
                 qDebug () << trUtf8("AERPSpreadSheet::openSpreadSheet: No se ha podido inicializar el driver. Error: [%1]").arg(iface->lastMessage());
                 return NULL;
             }
-            return iface->openFile(file);
+            return iface->openFile(file, init, offset);
         }
     }
     return NULL;

@@ -1490,6 +1490,11 @@ QString AERPScriptCommon::extractDigits(const QString &data)
     return result;
 }
 
+QString AERPScriptCommon::generateUuid()
+{
+    return QUuid::createUuid().toString();
+}
+
 /**
  * @brief AERPScriptCommon::httpGet
  * Realiza una conexión HTTP a \a url. La query de esa URL se pasa en queryList a través de un array en el que cada elemento
@@ -1918,11 +1923,11 @@ void AERPScriptCommon::openRecordDialog(BaseBean *bean, AlephERP::FormOpenType o
     }
 }
 
-QScriptValue AERPScriptCommon::openSpreadSheet(const QString &file, const QString &type)
+QScriptValue AERPScriptCommon::openSpreadSheet(const QString &file, const QString &type, int rowInit, int rowCount)
 {
     AERPSpreadSheet *spread;
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-    spread = AERPSpreadSheet::openSpreadSheet(file, type);
+    spread = AERPSpreadSheet::openSpreadSheet(file, type, rowInit, rowCount);
     CommonsFunctions::restoreOverrideCursor();
     if ( spread != NULL )
     {
