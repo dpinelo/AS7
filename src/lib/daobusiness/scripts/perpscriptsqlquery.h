@@ -44,6 +44,9 @@ class AERPScriptSqlQueryPrivate;
 class AERPScriptSqlQuery : public QObject, public QScriptable
 {
     Q_OBJECT
+
+    Q_PROPERTY(QString connectionName READ connectionName WRITE setConnectionName)
+
 private:
     AERPScriptSqlQueryPrivate *d;
 
@@ -56,11 +59,15 @@ public:
     Q_INVOKABLE bool exec (const QString & sql);
     Q_INVOKABLE bool exec ();
     Q_INVOKABLE bool prepare (const QString & query);
-    Q_INVOKABLE QVariant value (int index);
+    Q_INVOKABLE QVariant value(int index);
+    Q_INVOKABLE QVariant value(const QString &fieldName);
     Q_INVOKABLE bool first ();
     Q_INVOKABLE bool next ();
     Q_INVOKABLE int size ();
     static QScriptValue specialAERPScriptSqlQueryConstructor(QScriptContext *context, QScriptEngine *engine);
+
+    QString connectionName() const;
+    void setConnectionName(const QString &connectionName);
 
 signals:
 

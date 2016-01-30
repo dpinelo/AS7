@@ -522,13 +522,18 @@ QScriptValue AERPScriptCommon::beans(const QString &tableName, const QString &wh
   Si record.length == 0 entonces no se ha encontrado nada.
   Si record == null ha ocurrido un error.
   */
-QScriptValue AERPScriptCommon::sqlSelect(const QString &sql)
+QScriptValue AERPScriptCommon::sqlSelect(const QString &sql, const QString &connectionName)
 {
     QScriptValue result (QScriptValue::NullValue);
     if ( engine() )
     {
         result = engine()->newArray();
-        QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase()));
+        QSqlDatabase db = Database::getQDatabase();
+        if ( !connectionName.isEmpty() )
+        {
+            db = QSqlDatabase::database(connectionName);
+        }
+        QScopedPointer<QSqlQuery> qry (new QSqlQuery(db));
         QLogger::QLog_Debug(AlephERP::stLogScript, QString::fromUtf8("AERPScriptCommon: sqlSelect: [%1]").arg(sql));
         if ( qry->exec(sql) )
         {
@@ -562,7 +567,7 @@ QScriptValue AERPScriptCommon::sqlSelect(const QString &sql)
  * @param sql
  * @return
  */
-QVariant AERPScriptCommon::sqlSelectFirstColumn(const QString &sql)
+QVariant AERPScriptCommon::sqlSelectFirstColumn(const QString &sql, const QString &connectionName)
 {
     QVariant result;
     if ( engine() )
@@ -572,7 +577,12 @@ QVariant AERPScriptCommon::sqlSelectFirstColumn(const QString &sql)
         {
             defSql.append(" LIMIT 1");
         }
-        QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase()));
+        QSqlDatabase db = Database::getQDatabase();
+        if ( !connectionName.isEmpty() )
+        {
+            db = QSqlDatabase::database(connectionName);
+        }
+        QScopedPointer<QSqlQuery> qry (new QSqlQuery(db));
         QLogger::QLog_Debug(AlephERP::stLogScript, QString::fromUtf8("AERPScriptCommon: sqlSelectFirstColumn: [%1]").arg(sql));
         if ( qry->exec(sql) )
         {
@@ -594,9 +604,9 @@ QVariant AERPScriptCommon::sqlSelectFirstColumn(const QString &sql)
   Permite desde Javascript invocar una sentencia SQL arbitraria.
   \return true Si todo ha ido correctamente.
   */
-bool AERPScriptCommon::sqlExecute(const QString &sql)
+bool AERPScriptCommon::sqlExecute(const QString &sql, const QString &connectionName)
 {
-    return BaseDAO::execute(sql);
+    return BaseDAO::execute(sql, connectionName);
 }
 
 /**
@@ -604,10 +614,72 @@ bool AERPScriptCommon::sqlExecute(const QString &sql)
   claúsula \a where
   Devuelve -1 si ha ocurrido algún error
  */
-int AERPScriptCommon::sqlCount(const QString &tableName, const QString &where)
+int AERPScriptCommon::sqlCount(const QString &tableName, const QString &where, const QString &connectionName)
 {
-    int count = BaseDAO::selectTableRecordCount(tableName, where);
+    int count = BaseDAO::selectTableRecordCount(tableName, where, connectionName);
     return count;
+}
+
+bool AERPScriptCommon::addConnection(const QString &type,
+                                     const QString &connectionName,
+                                     const QString &hostName,
+                                     const QString &databaseName,
+                                     const QString &userName,
+                                     const QString &password,
+                                     int port,
+                                     const QString &connectOptions)
+{
+    QSqlDatabase db = QSqlDatabase::database(connectionName);
+    if ( !db.isValid() )
+    {
+        db = QSqlDatabase::addDatabase(type, connectionName);
+        if ( !hostName.isEmpty() )
+        {
+            db.setHostName(hostName);
+        }
+        if ( !databaseName.isEmpty() )
+        {
+            db.setDatabaseName(databaseName);
+        }
+        if ( !userName.isEmpty() )
+        {
+            db.setUserName(userName);
+        }
+        if ( !password.isEmpty() )
+        {
+            db.setPassword(password);
+        }
+        if ( port != -1 )
+        {
+            db.setPort(port);
+        }
+        if ( !connectOptions.isEmpty() )
+        {
+            db.setConnectOptions(connectOptions);
+        }
+    }
+    else
+    {
+        qDebug() << Q_FUNC_INFO
+                 << "Base de datos previamente abierta: "
+                 << connectionName;
+    }
+
+    bool result = db.open();
+    if ( !result )
+    {
+        QLogger::QLog_Error(AlephERP::stLogScript,
+                            db.lastError().databaseText());
+        QLogger::QLog_Error(AlephERP::stLogScript,
+                            db.lastError().driverText());
+        d_ptr->m_lastError = db.lastError().text();
+    }
+    else
+    {
+        qDebug() << Q_FUNC_INFO
+                 << "Conexión abierta correctamente";
+    }
+    return result;
 }
 
 /**
@@ -616,10 +688,15 @@ int AERPScriptCommon::sqlCount(const QString &tableName, const QString &where)
  * @param sql
  * @return Null si ha ocurrido algún error. 0 si no se ha encontrado ningún registro
  */
-QScriptValue AERPScriptCommon::sqlSelectFirst(const QString &sql)
+QScriptValue AERPScriptCommon::sqlSelectFirst(const QString &sql, const QString &connectionName)
 {
     QScriptValue result = QScriptValue(QScriptValue::NullValue);
-    QScopedPointer<QSqlQuery> qry(new QSqlQuery(Database::getQDatabase()));
+    QSqlDatabase db = Database::getQDatabase();
+    if ( !connectionName.isEmpty() )
+    {
+        db = QSqlDatabase::database(connectionName);
+    }
+    QScopedPointer<QSqlQuery> qry(new QSqlQuery(db));
     if ( engine() != NULL )
     {
         QLogger::QLog_Debug(AlephERP::stLogScript, QString::fromUtf8("AERPScriptCommon::sqlFirstRecord: [%1]").arg(sql));

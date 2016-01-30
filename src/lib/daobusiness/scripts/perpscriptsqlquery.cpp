@@ -41,6 +41,7 @@ public:
     QHash<QString, QVariant> m_bindValues;
     QHash<int, QVariant> m_iBindValues;
     QString m_sql;
+    QString m_connectionName;
 
     AERPScriptSqlQueryPrivate()
     {
@@ -71,6 +72,16 @@ QScriptValue AERPScriptSqlQuery::specialAERPScriptSqlQueryConstructor(QScriptCon
     return engine->newQObject(object, QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject);
 }
 
+QString AERPScriptSqlQuery::connectionName() const
+{
+    return d->m_connectionName;
+}
+
+void AERPScriptSqlQuery::setConnectionName(const QString &connectionName)
+{
+    d->m_connectionName = connectionName;
+}
+
 void AERPScriptSqlQuery::bindValue(const QString & placeholder, const QVariant & val)
 {
     QString definitivePlaceHolder = placeholder;
@@ -96,7 +107,23 @@ bool AERPScriptSqlQuery::exec (const QString &sql)
 
     d->m_bindValues.clear();
     d->m_iBindValues.clear();
-    d->m_query = new QSqlQuery(Database::getQDatabase());
+    QSqlDatabase db = Database::getQDatabase();
+    if ( !d->m_connectionName.isEmpty() )
+    {
+        db = QSqlDatabase::database(d->m_connectionName);
+        if ( !db.isOpen() )
+        {
+            setProperty(AlephERP::stLastErrorMessage, tr("No existe conexión a base de datos %1").arg(d->m_connectionName));
+            return false;
+        }
+        else
+        {
+            qDebug() << Q_FUNC_INFO
+                     << "Utilizando conexión "
+                     << d->m_connectionName;
+        }
+    }
+    d->m_query = new QSqlQuery(db);
     d->m_sql = sql;
 
     bool result = d->m_query->exec(sql);
@@ -122,7 +149,23 @@ bool AERPScriptSqlQuery::exec ()
         delete d->m_query;
         d->m_query = NULL;
     }
-    d->m_query = new QSqlQuery(Database::getQDatabase());
+    QSqlDatabase db = Database::getQDatabase();
+    if ( !d->m_connectionName.isEmpty() )
+    {
+        db = QSqlDatabase::database(d->m_connectionName);
+        if ( !db.isOpen() )
+        {
+            setProperty(AlephERP::stLastErrorMessage, tr("No existe conexión a base de datos %1").arg(d->m_connectionName));
+            return false;
+        }
+        else
+        {
+            qDebug() << Q_FUNC_INFO
+                     << "Utilizando conexión "
+                     << d->m_connectionName;
+        }
+    }
+    d->m_query = new QSqlQuery(db);
 
     if ( !d->m_query->prepare(d->m_sql) )
     {
@@ -183,6 +226,20 @@ QVariant AERPScriptSqlQuery::value (int index)
     if ( d->m_query != NULL )
     {
         return d->m_query->value(index);
+    }
+    else
+    {
+        QLogger::QLog_Error(AlephERP::stLogScript, QString::fromUtf8("AERPScriptSqlQuery:value(): QUERY NO CREADA"));
+        setProperty(AlephERP::stLastErrorMessage, d->m_query->lastError().text());
+    }
+    return false;
+}
+
+QVariant AERPScriptSqlQuery::value(const QString &fieldName)
+{
+    if ( d->m_query != NULL )
+    {
+        return d->m_query->value(fieldName);
     }
     else
     {
