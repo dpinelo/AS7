@@ -969,7 +969,7 @@ Qt::ItemFlags DBBaseBeanModel::flags(const QModelIndex & index) const
     }
     if ( !field->serial() )
     {
-        flags = Qt::ItemIsEnabled ;
+        flags = Qt::ItemIsEnabled;
     }
     if ( field->type() == QVariant::Bool || BaseBeanModel::checkColumns().contains(field->dbFieldName()))
     {

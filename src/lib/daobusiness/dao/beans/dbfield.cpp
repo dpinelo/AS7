@@ -2764,6 +2764,11 @@ bool DBField::insertFieldOnUpdateSql(BaseBean::DbBeanStates state)
 {
     QSqlDatabase db = Database::getQDatabase();
 
+    if ( overwrite() && metadata()->isOnDb() )
+    {
+        return true;
+    }
+
     /**
      * SQLite no soporta secuencias. Por ello, si es un campo secuencia, debemos incluirlo en la sentencia INSERT o UPDATE
      * y se le dará valor. La función \a value contiene el código necesario para buscar el siguiente valor serial.

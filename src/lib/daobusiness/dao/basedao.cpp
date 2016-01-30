@@ -2158,7 +2158,7 @@ bool BaseDAO::update(DBField *field, const QString &idTransaction, const QString
         return false;
     }
 
-    if ( field->modified() && !field->metadata()->serial() )
+    if ( field->modified() && (field->overwrite() || !field->metadata()->serial()) )
     {
         sql = QString("UPDATE %1 SET %2=:value WHERE %3").
                 arg(field->bean()->metadata()->tableName()).
