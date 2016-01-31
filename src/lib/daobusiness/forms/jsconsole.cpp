@@ -25,7 +25,7 @@
 #include "configuracion.h"
 #include "globales.h"
 
-static QTextEdit *consoleTextEdit;
+static QPointer<QTextEdit> consoleTextEdit;
 
 class JSConsolePrivate
 {
@@ -114,9 +114,12 @@ JSConsole::~JSConsole()
  */
 static void consoleEntry(const QString &value)
 {
-    consoleTextEdit->append(value);
-    consoleTextEdit->update();
-    CommonsFunctions::processEvents();
+    if ( consoleTextEdit )
+    {
+        consoleTextEdit->append(value);
+        consoleTextEdit->update();
+        CommonsFunctions::processEvents();
+    }
 }
 
 void JSConsole::execute()

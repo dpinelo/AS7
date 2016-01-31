@@ -151,6 +151,7 @@ QScriptValue BaseBeanQsFunction::function(QScriptEngine *eng)
                 qDebug() << "BaseBeanQsFunction::function: El esitldo de [" << d->m_functionName << "] no es una función.";
             }
         }
+        qsEngine->collectGarbage();
     }
     return result;
 }
@@ -265,6 +266,7 @@ QScriptValue BaseBeanQsFunctionPrivate::call(QScriptEngine *eng, const QScriptVa
         {
             printError(eng, BeansFactory::systemScripts[bean->metadata()->associatedScript(m_functionName)]);
         }
+        eng->collectGarbage();
         m_isRunning = false;
 #ifdef ALEPHERP_DEVTOOLS
         if ( alephERPSettings->debuggerEnabled() && debugger )

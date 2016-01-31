@@ -60,6 +60,7 @@ AERPScriptSqlQuery::~AERPScriptSqlQuery()
     if ( d->m_query != NULL )
     {
         delete d->m_query;
+        d->m_query = NULL;
     }
     delete d;
     d = NULL;
