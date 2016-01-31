@@ -510,9 +510,15 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     foreach (BaseBeanPointer bean, list)
     {
         QLogger::QLog_Info(AlephERP::stLogDB,
-                           tr("Bean: %1. Estado: %2. OID: %3").arg(bean->metadata()->alias()).
+                           tr("Bean: %1. [%2] Estado: %3. OID: %4").arg(bean->metadata()->alias()).
+                                                                    arg(bean->objectName()).
                                                                     arg(bean->dbStateDisplayName()).
                                                                     arg(bean->dbOid()));
+        foreach (DBField *fld, bean->fields())
+        {
+            QLogger::QLog_Debug(AlephERP::stLogDB,
+                                tr("   %1: [%2]").arg(fld->dbFieldName()).arg(fld->value().toString()));
+        }
     }
     QLogger::QLog_Info(AlephERP::stLogDB, tr("----- FIN ----"));
 
