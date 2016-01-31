@@ -506,17 +506,15 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     int beansToSave = list.size();
 
     // Algo de debug
+    QLogger::QLog_Info(AlephERP::stLogDB, tr("----- INFORMACIÓN DE TRANSACCIÓN ----"));
     foreach (BaseBeanPointer bean, list)
     {
-        QLogger::QLog_Info(AlephERP::stLogDB,
-                           tr("----- INFORMACIÓN DE TRANSACCIÓN ----"));
         QLogger::QLog_Info(AlephERP::stLogDB,
                            tr("Bean: %1. Estado: %2. OID: %3").arg(bean->metadata()->alias()).
                                                                     arg(bean->dbStateDisplayName()).
                                                                     arg(bean->dbOid()));
-        QLogger::QLog_Info(AlephERP::stLogDB,
-                           tr("----- FIN ----"));
     }
+    QLogger::QLog_Info(AlephERP::stLogDB, tr("----- FIN ----"));
 
     // Vamos a validar con las reglas internas
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPTransactionContext::commit: Se va a proceder a guardar los beans de las transacción. El número de beans a guardar es de: [%1]").arg(list.size()));
