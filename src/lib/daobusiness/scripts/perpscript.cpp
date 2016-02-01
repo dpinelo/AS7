@@ -446,8 +446,8 @@ QScriptValue AERPScript::evaluateObjectScript()
             scriptAssociated.setProperty( d->m_scriptName, scriptObject);
             clearError();
         }
-        m_engine->collectGarbage();
     }
+    m_engine->collectGarbage();
 
 #ifdef ALEPHERP_DEVTOOLS
 
@@ -619,7 +619,6 @@ QScriptValue AERPScript::callQsFunction(const QString &scriptFunctionName)
             clearError();
             functionsPlace.setProperty(d->m_scriptName, evaluateFunction);
         }
-        m_engine->collectGarbage();
     }
 
     pushAnidatedCall(d->m_scriptName.append(scriptFunctionName), d->m_scriptCode);
@@ -643,6 +642,7 @@ QScriptValue AERPScript::callQsFunction(const QString &scriptFunctionName)
     {
         clearError();
     }
+    m_engine->collectGarbage();
     popAnidatedCall();
 
 #ifdef ALEPHERP_DEVTOOLS
@@ -734,8 +734,8 @@ QScriptValue AERPScript::executeScript()
             clearError();
         }
         m_engine->popContext();
+        m_engine->collectGarbage();
     }
-    m_engine->collectGarbage();
 #ifdef ALEPHERP_DEVTOOLS
 
     if ( alephERPSettings->debuggerEnabled() && d->m_debug && debugger )
