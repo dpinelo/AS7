@@ -32,6 +32,7 @@ public:
     QString m_userName;
     QString m_email;
     QString m_name;
+    QString m_server;
     QList<AlephERP::RoleInfo> m_roles;
     QHash<QString, QVariant> m_metadataAccess;
     QString m_lastError;
@@ -73,6 +74,16 @@ void AERPLoggedUser::setUserName(const QString &value)
 {
     QMutexLocker lock(&mutex);
     d->m_userName = value;
+}
+
+QString AERPLoggedUser::server() const
+{
+    return d->m_server;
+}
+
+void AERPLoggedUser::setServer(const QString &value)
+{
+    d->m_server = value;
 }
 
 QString AERPLoggedUser::email() const

@@ -42,6 +42,7 @@ class LoginDlgPrivate
 public:
     QString m_userName;
     QString m_password;
+    QString m_server;
     QSqlTableModel *m_model;
     QSqlDatabase m_db;
     // ID de la tabla alepherp_servers con el último servidor conectado
@@ -163,6 +164,7 @@ void LoginDlg::okClicked()
 
     d->m_userName = ui->txtUserName->text();
     d->m_password = ui->txtPassword->text();
+    d->m_server = ui->cbServers->currentText();
     accept();
 }
 
@@ -262,6 +264,11 @@ QString LoginDlg::userName() const
 QString LoginDlg::password() const
 {
     return d->m_password;
+}
+
+QString LoginDlg::selectedServer() const
+{
+    return d->m_server;
 }
 
 void LoginDlg::showEvent(QShowEvent *event)

@@ -47,6 +47,8 @@ public:
 
     QString userName () const;
     void setUserName(const QString &value);
+    QString server() const;
+    void setServer(const QString &value);
     QString email() const;
     void setEmail(const QString &value);
     QString name() const;

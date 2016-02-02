@@ -127,6 +127,9 @@ bool AERPScriptSqlQuery::exec (const QString &sql)
     d->m_query = new QSqlQuery(db);
     d->m_sql = sql;
 
+    QLogger::QLog_Debug(AlephERP::stLogScript,
+                        QString::fromUtf8("AERPScriptSqlQuery:exec(): [%1]").arg(d->m_sql));
+
     bool result = d->m_query->exec(sql);
     if (!result)
     {
@@ -167,6 +170,9 @@ bool AERPScriptSqlQuery::exec ()
         }
     }
     d->m_query = new QSqlQuery(db);
+
+    QLogger::QLog_Debug(AlephERP::stLogScript,
+                        QString::fromUtf8("AERPScriptSqlQuery:exec(): [%1]").arg(d->m_sql));
 
     if ( !d->m_query->prepare(d->m_sql) )
     {

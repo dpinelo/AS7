@@ -1132,6 +1132,13 @@ void AERPMainWindow::init()
             tb->installEventFilter(this);
         }
     }
+
+    // Ponemos Window title con más info:
+    QString wt = QString("%1 - [%2] [%3]").
+            arg(windowTitle()).
+            arg(AERPLoggedUser::instance()->server()).
+            arg(AERPLoggedUser::instance()->userName());
+    setWindowTitle(wt);
 }
 
 void AERPMainWindow::showEvent(QShowEvent *event)

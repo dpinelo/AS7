@@ -51,6 +51,7 @@ public:
 
     QString userName() const;
     QString password() const;
+    QString selectedServer() const;
     QList<QVariant> roles();
 
 protected:

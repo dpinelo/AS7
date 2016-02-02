@@ -753,12 +753,13 @@ bool loginProcess()
 
     while (!loginProccess)
     {
-        QString userName;
+        QString userName, server;
         if ( loginDlg->exec() == QDialog::Rejected )
         {
             return false;
         }
         userName = loginDlg->userName();
+        server = loginDlg->selectedServer();
 
         // Intentamos conectar a la base de datos principal. Conectamos aquí, ya que en este punto, el usuario ha seleccionado el servidor.
         bool databaseOk = false;
@@ -838,6 +839,7 @@ bool loginProcess()
         {
             // Cargamos los roles del usuario
             AERPLoggedUser::instance()->setUserName(userName);
+            AERPLoggedUser::instance()->setServer(server);
             QLogger::QLog_Debug(AlephERP::stLogOther, QString("loginProcess: Vamos a cargar los roles del usuario."));
             if ( !AERPLoggedUser::instance()->loadRoles() )
             {
