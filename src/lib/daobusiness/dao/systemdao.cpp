@@ -736,6 +736,14 @@ bool SystemDAO::checkIfTableExists(const QString &tableName, const QString &conn
 
 bool SystemDAO::checkIfForeignKeyExists(DBRelationMetadata *rel, const QString &connection)
 {
+    if ( rel == NULL || rel->rootMetadata() == NULL )
+    {
+        return false;
+    }
+    if ( rel->rootMetadata()->dbObjectType() != AlephERP::Table )
+    {
+        return true;
+    }
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
     QString sql = QString("SELECT DISTINCT "
                           "tc.constraint_name, tc.table_name, kcu.column_name, "
