@@ -891,10 +891,26 @@ bool SystemDAO::insertSystemObject(AERPSystemObject *systemObject, const QString
     SystemDAO::clearLastDbMessage();
     QSqlDatabase db = Database::getQDatabase(connectionName);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(db));
-    QString sql = QString("INSERT INTO %1_system(idremote, nombre, contenido, type, version, debug, on_init_debug, module, idorigin, ispatch, patch, device) "
+    QString sql;
+    if ( connectionName == Database::localSystemDatabaseName() )
+    {
+        sql = QString("INSERT INTO %1_system(idremote, nombre, contenido, type, version, debug, on_init_debug, module, idorigin, ispatch, patch, device) "
                           "VALUES (:idremote, :nombre, :contenido, :type, :version, :debug, :on_init_debug, :module, :idorigin, :ispatch, :patch, :device)").arg(alephERPSettings->systemTablePrefix());
-    qry->prepare(sql);
-    qry->bindValue(":idremote", systemObject->id());
+    }
+    else
+    {
+        sql = QString("INSERT INTO %1_system(nombre, contenido, type, version, debug, on_init_debug, module, idorigin, ispatch, patch, device) "
+                          "VALUES (:nombre, :contenido, :type, :version, :debug, :on_init_debug, :module, :idorigin, :ispatch, :patch, :device)").arg(alephERPSettings->systemTablePrefix());
+    }
+    if ( !qry->prepare(sql) )
+    {
+        SystemDAO::writeDbMessages(qry.data());
+        return false;
+    }
+    if ( connectionName == Database::localSystemDatabaseName() )
+    {
+        qry->bindValue(":idremote", systemObject->id());
+    }
     qry->bindValue(":nombre", systemObject->name());
     qry->bindValue(":contenido", systemObject->content());
     qry->bindValue(":type", systemObject->type());
