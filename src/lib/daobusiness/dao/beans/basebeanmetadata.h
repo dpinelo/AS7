@@ -711,6 +711,7 @@ public:
     QString sqlAddColumn(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect);
     QString sqlDropColumn(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect);
     QString sqlMakeNotNull(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect);
+    QString sqlAlterColumnSetLength(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect);
     QStringList sqlAditional(AlephERP::CreationTableSqlOptions options, const QString &dialect);
 
     QString processToIncludePrefix(const QString &where, const QString &prefix);

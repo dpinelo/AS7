@@ -4426,7 +4426,21 @@ QString BaseBeanMetadata::sqlMakeNotNull(AlephERP::CreationTableSqlOptions optio
     Q_UNUSED(options)
     QString sql = QString("ALTER TABLE %1 ALTER COLUMN %2 SET NOT NULL").arg(sqlTableName(dialect)).arg(dbFieldName);
     return sql;
+}
 
+QString BaseBeanMetadata::sqlAlterColumnSetLength(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect)
+{
+    Q_UNUSED(options)
+    DBFieldMetadata *f = field(dbFieldName);
+    QString sql;
+    if ( f->type() == QVariant::String && f->length() > 0 )
+    {
+        sql = QString("ALTER TABLE %1 ALTER COLUMN %2 TYPE character varying(%3)").
+                arg(sqlTableName(dialect)).
+                arg(dbFieldName).
+                arg(f->length());
+    }
+    return sql;
 }
 
 /**

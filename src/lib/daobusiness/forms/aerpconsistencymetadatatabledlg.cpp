@@ -127,6 +127,22 @@ void AERPConsistencyMetadataTableDlg::fix()
                     ui->tableWidget->removeRow(row);
                 }
             }
+            else if ( error.testFlag(AlephERP::ColumnOnMetadataWithLengthOverDatabaseLength) )
+            {
+                QString sql = m->sqlAlterColumnSetLength(0, ui->tableWidget->item(row, 1)->text(), Database::driverConnection());
+                bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
+                if (!result)
+                {
+                    QString err = trUtf8("Ocurrió un error: %1").arg(BaseDAO::lastErrorMessage());
+                    CommonsFunctions::restoreOverrideCursor();
+                    QMessageBox::information(this, qApp->applicationName(), err, QMessageBox::Ok);
+                    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+                }
+                else
+                {
+                    ui->tableWidget->removeRow(row);
+                }
+            }
             else if ( error.testFlag(AlephERP::ColumnOnMetadataIsNullableButNotOnDatabase) )
             {
                 QString sql = m->sqlMakeNotNull(0, ui->tableWidget->item(row, 1)->text(), Database::driverConnection());
