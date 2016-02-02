@@ -318,12 +318,12 @@ QString DBRelationMetadata::sqlForeignKey(AlephERP::CreationTableSqlOptions opti
 {
     QString sql;
     // Tabla relacionada
-        BaseBeanMetadata *f = BeansFactory::metadataBean(tableName());
+    BaseBeanMetadata *f = BeansFactory::metadataBean(tableName());
     // Tabla "padre" u origen
     BaseBeanMetadata *root = rootMetadata();
-    if ( f != NULL )
+    if ( f != NULL && f->dbObjectType() == AlephERP::Table )
     {
-        if ( options.testFlag(AlephERP::WithForeignKeys) )
+        if ( options.testFlag(AlephERP::WithForeignKeys) && root->dbObjectType() == AlephERP::Table )
         {
             if ( type() == DBRelationMetadata::MANY_TO_ONE )
             {
