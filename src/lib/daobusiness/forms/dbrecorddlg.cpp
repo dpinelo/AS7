@@ -528,6 +528,7 @@ bool DBRecordDlg::init(bool doConnections)
         d->m_initContext = true;
         // Si esta es la ventana que inicia una transacción, deberá estar atenta y vigilante con todos los beans agregados
         // y que deban ser modificados.
+        AERPTransactionContext::instance()->addToContext(AERPTransactionContext::instance()->masterContext(), d->m_bean);
         if ( doConnections )
         {
             connect(AERPTransactionContext::instance(), SIGNAL(beanModified(bool)), this, SLOT(setWindowModified(bool)));

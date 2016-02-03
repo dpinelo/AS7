@@ -311,7 +311,7 @@ bool AERPTransactionContext::addToContext(const QString &contextName, const Base
  * @param bean
  * @return
  */
-bool AERPTransactionContext::discardFromContext(const BaseBeanPointer &bean, QStack<BaseBean *> *discardStack)
+bool AERPTransactionContext::discardFromContext(const BaseBeanPointer &bean, bool includeFatherBeansOnDiscard, QStack<BaseBean *> *discardStack)
 {
     bool stackCreatedHere = false;
     QString contextName = bean->actualContext();
@@ -347,8 +347,17 @@ bool AERPTransactionContext::discardFromContext(const BaseBeanPointer &bean, QSt
         disconnect(bean.data(), SIGNAL(beanModified(bool)), this, SIGNAL(beanModified(bool)));
         disconnect(bean.data(), SIGNAL(beanModified(BaseBean *,bool)), this, SIGNAL(beanModified(BaseBean *,bool)));
 
-        // Eliminamos del contexto los hijos o padres de est bean que estuviesen relacionados
-        foreach(DBRelation *relation, bean.data()->relations(AlephERP::OneToMany | AlephERP::OneToOne | AlephERP::ManyToOne))
+        // Eliminamos del contexto los hijos o padres de este bean que estuviesen relacionados
+        QList<DBRelation *> relations;
+        if ( includeFatherBeansOnDiscard )
+        {
+            relations = bean.data()->relations(AlephERP::OneToMany | AlephERP::OneToOne | AlephERP::ManyToOne);
+        }
+        else
+        {
+            relations = bean.data()->relations(AlephERP::ManyToOne);
+        }
+        foreach(DBRelation *relation, relations)
         {
             // Obtener los hijos no debe en este caso de desencadenar ningún tipo de proceso.
             bool previousState = bean->blockAllSignals(true);
@@ -358,7 +367,7 @@ bool AERPTransactionContext::discardFromContext(const BaseBeanPointer &bean, QSt
             {
                 if ( !child.isNull() )
                 {
-                    AERPTransactionContext::discardFromContext(child.data(), discardStack);
+                    AERPTransactionContext::discardFromContext(child.data(), includeFatherBeansOnDiscard, discardStack);
 
                     disconnect(child.data(), SIGNAL(beanModified(bool)), this, SIGNAL(beanModified(bool)));
                     disconnect(child.data(), SIGNAL(beanModified(BaseBean *,bool)), this, SIGNAL(beanModified(BaseBean *,bool)));

@@ -1139,6 +1139,12 @@ void AERPMainWindow::init()
             arg(AERPLoggedUser::instance()->server()).
             arg(AERPLoggedUser::instance()->userName());
     setWindowTitle(wt);
+    if ( statusBar() )
+    {
+        statusBar()->addPermanentWidget(new QLabel(tr("Servidor: %1. Usuario: %2").
+                                                   arg(AERPLoggedUser::instance()->server()).
+                                                   arg(AERPLoggedUser::instance()->userName())));
+    }
 }
 
 void AERPMainWindow::showEvent(QShowEvent *event)

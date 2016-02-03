@@ -51,7 +51,7 @@ public:
     static QString masterContext();
 
     bool addToContext(const QString &contextName, const BaseBeanPointer &bean);
-    bool discardFromContext(const BaseBeanPointer &bean, QStack<BaseBean *> *discardStak = NULL);
+    bool discardFromContext(const BaseBeanPointer &bean, bool includeFatherBeansOnDiscard = true, QStack<BaseBean *> *discardStak = NULL);
     bool discardContext(const QString &contextName);
     bool commit(const QString &contextName, bool discardContextOnSuccess = true);
     bool saveOneToOneIds(BaseBeanPointer bean, const QString &contextName);

@@ -1392,15 +1392,16 @@ void BaseBean::setPkValueFromInternal(const QVariant &id)
 void BaseBean::setDbState(BaseBean::DbBeanStates value)
 {
     QMutexLocker lock(&d->m_mutex);
-    bool wasInsert = d->m_dbState == BaseBean::INSERT;
+    bool previousStateWasInsert = d->m_dbState == BaseBean::INSERT;
     d->m_dbState = value;
-    /** Por definición, si se marca un bean para ser borrado, pasa a está modificado */
+    /** Por definición, si se marca un bean para ser borrado, pasa a estar modificado */
     if ( value == BaseBean::TO_BE_DELETED )
     {
         d->m_modified = true;
-        if ( wasInsert && !d->m_actualContext.isEmpty() )
+        if ( previousStateWasInsert && !d->m_actualContext.isEmpty() )
         {
-            AERPTransactionContext::instance()->discardFromContext(this);
+            // OJO: Aquí no descartamos al padre. Por eso ponemos false.
+            AERPTransactionContext::instance()->discardFromContext(this, false);
         }
         // Marcamos también para borrar todos los hijos de las relaciones que hubiese
         foreach (DBRelation *rel, d->m_relations)
