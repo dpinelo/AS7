@@ -695,6 +695,11 @@ QScriptValue AERPBaseDialog::thisForm()
     return aerpQsEngine()->qsThisForm();
 }
 
+QWidget *AERPBaseDialog::contentWidget() const
+{
+    return NULL;
+}
+
 /*!
   Vamos a obtener y guardar cuándo el usuario ha modificado un control
   */
@@ -794,6 +799,24 @@ void AERPBaseDialog::addPropertyToThisForm(const QString &name, QVariant data)
 
     d->m_data[name] = data;
     d->m_engine->replaceThisFormProperty(name, data);
+}
+
+void AERPBaseDialog::setFocusOnFirstWidget()
+{
+    if ( contentWidget() != NULL )
+    {
+        // Establecer el foco en el widget hace que este en sí tenga el foco, pero como es creado
+        // por un QUILoader no va a ningún lado
+        setFocusProxy(contentWidget());
+        if ( contentWidget()->focusProxy() )
+        {
+            contentWidget()->focusProxy()->setFocus();
+        }
+        else
+        {
+            setTabOrder(0, contentWidget());
+        }
+    }
 }
 
 /**

@@ -125,6 +125,8 @@ public:
     BaseBeanPointer masterBean() const;
     void setMasterBean(BaseBeanPointer bean);
 
+    QWidget *contentWidget() const;
+
     static QScriptValue toScriptValue(QScriptEngine *aerpQsEngine, DBSearchDlg * const &in);
     static void fromScriptValue(const QScriptValue &object, DBSearchDlg * &out);
 

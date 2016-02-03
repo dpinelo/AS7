@@ -100,6 +100,8 @@ public:
     QScriptValue parentDialog();
     QScriptValue thisForm();
 
+    virtual QWidget *contentWidget() const;
+
 signals:
 
 public slots:
@@ -109,6 +111,7 @@ public slots:
     virtual void hideFadeMessage();
     virtual void addPropertyToThisForm(const QString &name, QObject *obj);
     virtual void addPropertyToThisForm(const QString &name, QVariant data);
+    virtual void setFocusOnFirstWidget();
 
 protected slots:
     void searchComboChanged(int index);

@@ -63,6 +63,8 @@ public:
 
     Q_INVOKABLE void setParameterValue(const QString &name, const QVariant &value);
 
+    QWidget *contentWidget() const;
+
     static QScriptValue toScriptValue(QScriptEngine *aerpQsEngine, DBReportRunDlg * const &in);
     static void fromScriptValue(const QScriptValue &object, DBReportRunDlg * &out);
 

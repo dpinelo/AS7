@@ -103,6 +103,11 @@ void DBReportRunDlg::setParameterValue(const QString &name, const QVariant &valu
     d->m_qsParameters[name] = value;
 }
 
+QWidget *DBReportRunDlg::contentWidget() const
+{
+    return d->m_widget;
+}
+
 QScriptValue DBReportRunDlg::toScriptValue(QScriptEngine *engine, DBReportRunDlg * const &in)
 {
     return engine->newQObject(in, QScriptEngine::QtOwnership, QScriptEngine::PreferExistingWrapperObject);
@@ -243,6 +248,8 @@ bool DBReportRunDlg::init()
     }
     // Si hay un bean seleccionado, introducimos los datos en el formulario de parámetros.
     d->setDefaultValueParemeters();
+
+    setFocusOnFirstWidget();
 
     // Código propio del formulario
     d->execQs();

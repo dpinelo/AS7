@@ -42,6 +42,8 @@ private:
     void setupMainWidget();
     void execQs();
 
+    QWidget *contentWidget() const;
+
 protected:
     void showEvent (QShowEvent *event);
     void closeEvent (QCloseEvent * event);

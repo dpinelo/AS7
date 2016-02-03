@@ -161,6 +161,8 @@ public:
     bool canNavigate() const;
     void setCanNavigate(bool value);
 
+    QWidget *contentWidget() const;
+
     Q_INVOKABLE virtual BaseBean *bean();
     Q_INVOKABLE virtual QString parentType();
 

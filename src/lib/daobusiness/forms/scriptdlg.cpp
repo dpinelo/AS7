@@ -81,8 +81,11 @@ bool ScriptDlg::init()
         return false;
     }
 
+    setFocusOnFirstWidget();
+
     // Código propio del formulario
     execQs();
+
     return true;
 }
 
@@ -188,6 +191,11 @@ void ScriptDlg::execQs()
         }
 #endif
     }
+}
+
+QWidget *ScriptDlg::contentWidget() const
+{
+    return d->m_widget;
 }
 
 void ScriptDlg::keyPressEvent (QKeyEvent * e)

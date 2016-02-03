@@ -320,6 +320,11 @@ void DBSearchDlg::setMasterBean(BaseBeanPointer bean)
     d->m_masterBean = bean;
 }
 
+QWidget *DBSearchDlg::contentWidget() const
+{
+    return d->m_widget;
+}
+
 QScriptValue DBSearchDlg::toScriptValue(QScriptEngine *engine, DBSearchDlg * const &in)
 {
     return engine->newQObject(in, QScriptEngine::QtOwnership, QScriptEngine::PreferExistingWrapperObject);
@@ -408,6 +413,8 @@ bool DBSearchDlg::init()
     connect(&d->m_keyPressTimer, SIGNAL(timeout()), this, SLOT(search()));
     d->m_keyPressTimer.setSingleShot(true);
     d->connectObjectsToSearch();
+
+    setFocusOnFirstWidget();
     return true;
 }
 

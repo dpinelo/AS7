@@ -671,20 +671,7 @@ bool DBRecordDlg::init(bool doConnections)
                                       d->m_bean->metadata()->canSendEmail() ||
                                       d->m_bean->metadata()->showSomeRelationOnRelatedElementsModel());
 
-    if ( d->m_widget != NULL )
-    {
-        // Establecer el foco en el widget hace que este en sí tenga el foco, pero como es creado
-        // por un QUILoader no va a ningún lado
-        setFocusProxy(d->m_widget);
-        if ( d->m_widget->focusProxy() )
-        {
-            d->m_widget->focusProxy()->setFocus();
-        }
-        else
-        {
-            setTabOrder(0, d->m_widget);
-        }
-    }
+    setFocusOnFirstWidget();
 
     return true;
 }
@@ -2222,6 +2209,11 @@ void DBRecordDlg::setCanNavigate(bool value)
         d->m_canNavigate = false;
     }    
     setVisibleButtons(d->m_visibleButtons);
+}
+
+QWidget *DBRecordDlg::contentWidget() const
+{
+    return d->m_widget;
 }
 
 void DBRecordDlg::showOrHideRelatedElements()
