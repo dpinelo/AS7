@@ -237,7 +237,7 @@ QVariant AERPScriptSqlQuery::value (int index)
     else
     {
         QLogger::QLog_Error(AlephERP::stLogScript, QString::fromUtf8("AERPScriptSqlQuery:value(): QUERY NO CREADA"));
-        setProperty(AlephERP::stLastErrorMessage, d->m_query->lastError().text());
+        setProperty(AlephERP::stLastErrorMessage, "QUERY NO CREADA");
     }
     return false;
 }
@@ -251,7 +251,7 @@ QVariant AERPScriptSqlQuery::value(const QString &fieldName)
     else
     {
         QLogger::QLog_Error(AlephERP::stLogScript, QString::fromUtf8("AERPScriptSqlQuery:value(): QUERY NO CREADA"));
-        setProperty(AlephERP::stLastErrorMessage, d->m_query->lastError().text());
+        setProperty(AlephERP::stLastErrorMessage, "QUERY NO CREADA");
     }
     return false;
 }
@@ -265,7 +265,7 @@ bool AERPScriptSqlQuery::first ()
     else
     {
         QLogger::QLog_Error(AlephERP::stLogScript, QString::fromUtf8("AERPScriptSqlQuery:first(): QUERY NO CREADA"));
-        setProperty(AlephERP::stLastErrorMessage, d->m_query->lastError().text());
+        setProperty(AlephERP::stLastErrorMessage, "QUERY NO CREADA");
     }
     return false;
 }
@@ -279,7 +279,7 @@ bool AERPScriptSqlQuery::next ()
     else
     {
         QLogger::QLog_Error(AlephERP::stLogScript, QString::fromUtf8("AERPScriptSqlQuery:next(): QUERY NO CREADA"));
-        setProperty(AlephERP::stLastErrorMessage, d->m_query->lastError().text());
+        setProperty(AlephERP::stLastErrorMessage, "QUERY NO CREADA");
     }
     return false;
 }
@@ -293,7 +293,7 @@ int AERPScriptSqlQuery::size ()
     else
     {
         QLogger::QLog_Error(AlephERP::stLogScript, QString::fromUtf8("AERPScriptSqlQuery:size(): QUERY NO CREADA"));
-        setProperty(AlephERP::stLastErrorMessage, d->m_query->lastError().text());
+        setProperty(AlephERP::stLastErrorMessage, "QUERY NO CREADA");
     }
     return false;
 }
