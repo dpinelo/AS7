@@ -73,6 +73,7 @@ public:
     // FUNCIONES PARA EL TRABAJO CON ARCHIVOS
     // --------------------------------------
     Q_INVOKABLE bool saveToFile(const QString &fileName, const QString &content, bool overwrite = false);
+    Q_INVOKABLE bool appendToFile(const QString &fileName, const QString &content);
     Q_INVOKABLE QString readFromFile(const QString &fileName);
     Q_INVOKABLE QString saveToTempFile(const QString &content, const QString &extension = "");
     Q_INVOKABLE QString readFromTempFile(const QString &fileName, bool remove = true);
