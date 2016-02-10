@@ -163,6 +163,7 @@ public:
     static QScriptValue toScriptValue(QScriptEngine *engine, DBChooseRecordButton * const &in);
     static void fromScriptValue(const QScriptValue &object, DBChooseRecordButton * &out);
 
+    bool hasSelectedBean() const;
     QScriptValue selectedBean();
     void setSelectedBean(QScriptValue &val);
 

@@ -48,6 +48,7 @@
 #include "widgets/dblineedit.h"
 #include "widgets/dbcombobox.h"
 #include "widgets/dbcheckbox.h"
+#include "widgets/dbchooserecordbutton.h"
 #include "forms/dbrecorddlg.h"
 #include "scripts/perpscript.h"
 #include "scripts/perpscriptwidget.h"
@@ -1468,7 +1469,10 @@ QList<QHashVariant> DBSearchDlgPrivate::searchState()
                 {
                     DBBaseWidget *wid = dynamic_cast<DBBaseWidget *> (widget);
                     DBCheckBox *chk = qobject_cast<DBCheckBox *>(widget);
-                    if ( wid != NULL && ! (chk != NULL && chk->checkState() == Qt::PartiallyChecked) )
+                    DBChooseRecordButton *chooseButton = qobject_cast<DBChooseRecordButton *>(widget);
+                    if ( wid != NULL &&
+                         ! (chk != NULL && chk->checkState() == Qt::PartiallyChecked) &&
+                         ! (chooseButton != NULL && !chooseButton->hasSelectedBean()) )
                     {
                         QHashVariant valueState;
                         // ¿Hay otro widget con el mismo nombre? Si lo hay, entonces tenemos que hacer un between

@@ -211,11 +211,7 @@ QDate AlephERPSettings::minimumDate()
     QMutexLocker lock(&mutex);
     QString dDate = EnvVars::instance()->var(AlephERP::stMinimumDate).toString();
     QDate d;
-    if ( dDate.isNull() || dDate.isEmpty() )
-    {
-        d = QDate(QDate::currentDate().year(), 1, 1);
-    }
-    else
+    if ( !dDate.isNull() && !dDate.isEmpty() )
     {
         if ( dDate == "now" )
         {

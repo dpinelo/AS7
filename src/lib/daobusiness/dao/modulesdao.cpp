@@ -259,6 +259,10 @@ bool ModulesDAO::importModulesData(const QString &xmlOrigin, const QString &modu
 
         if ( moduleId.isEmpty() )
         {
+            QScopedPointer<QProgressDialog> progressDialog(new QProgressDialog());
+            progressDialog->setMaximum(listModules.size());
+            progressDialog->setLabelText(tr("Importando módulo: %1").arg(moduleId));
+
             for ( int i = 0 ; i < listModules.size() ; i++ )
             {
                 QDomElement module = listModules.at(i).toElement();
@@ -276,6 +280,7 @@ bool ModulesDAO::importModulesData(const QString &xmlOrigin, const QString &modu
                     return false;
                 }
                 dlg.hide();
+                progressDialog->setValue(i);
             }
         }
         else
@@ -819,6 +824,12 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
     QHash<QString, QString> moduleMetadatas;
     d->m_cancelProcess = false;
 
+    QScopedPointer<QProgressDialog> progressDialog(new QProgressDialog());
+    progressDialog->setMaximum(list.size());
+    progressDialog->setLabelText(tr("Exportando módulo: %").arg(moduleId));
+    progressDialog->show();
+    int progress = 0;
+
     // Se hacen varias pasadas: Lo primero es almacenar definiciones de tabla, despues tablas, vistas...
     QList<AERPSystemObject *> orderedList, listTableDef, listTable, listView, listOthers;
     foreach (AERPSystemObject *item, list)
@@ -941,7 +952,14 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
                 qDebug() << "ModulesDAO::exportModules: Exportado [" << absoluteFileName << "]";
             }
         }
+        progressDialog->setValue(progress);
+        progress++;
     }
+
+    progress = 0;
+    progressDialog->setMaximum(moduleMetadatas.size());
+    progressDialog->setLabelText(tr("Exportando módulo: %. Procesando metadatos").arg(moduleId));
+    progressDialog->show();
 
     // Vamos a generar ahora los moduleMetadata por cada módulo
     QHashIterator<QString, QString> it(moduleMetadatas);
@@ -980,6 +998,8 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
             out << "\n</export>\n</AlephERP>\n";
             file.close();
         }
+        progress++;
+        progressDialog->setValue(progress);
     }
     qDeleteAll(list);
     return true;

@@ -72,7 +72,7 @@ class ALEPHERP_DLL_EXPORT DBTableView : public QTableView, public DBAbstractView
     caso, por ejemplo una combinación válida es:
     relationName: presupuestos_cabecera.presupuestos_ejemplares.presupuestos_actividades
     relationFilter: id_presupuesto=2595;id_numejemplares=24442;id_categoria=2;y más filtros para presupuestos_actividades */
-    Q_PROPERTY(QString relationName READ relationName WRITE setRelationName DESIGNABLE internalDataPropertyVisible)
+    Q_PROPERTY(QString relationName READ relationName WRITE setRelationName)
     Q_PROPERTY (QString relationFilter READ relationFilter WRITE setRelationFilter DESIGNABLE internalDataPropertyVisible)
 
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)

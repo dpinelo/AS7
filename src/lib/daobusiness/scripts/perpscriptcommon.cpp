@@ -184,6 +184,22 @@ bool AERPScriptCommon::saveToFile(const QString &fileName, const QString &conten
     return true;
 }
 
+bool AERPScriptCommon::appendToFile(const QString &fileName, const QString &content)
+{
+    QFile f(fileName);
+    bool r = f.open(QIODevice::WriteOnly | QIODevice::Append);
+    if ( !r )
+    {
+        return false;
+    }
+    QTextStream t(&f);
+    t.setCodec("UTF-8");
+    t << content;
+    f.flush();
+    f.close();
+    return true;
+}
+
 /*!
   Lee el contenido del archivo fileName. Devuelve el contenido
   \param fileName Ruta absoluta del fichero que leer
