@@ -483,6 +483,19 @@ void DBChooseRecordButton::fromScriptValue(const QScriptValue &object, DBChooseR
     out = qobject_cast<DBChooseRecordButton *>(object.toQObject());
 }
 
+bool DBChooseRecordButton::hasSelectedBean() const
+{
+    if ( d->selectedBean().isNull() )
+    {
+        return false;
+    }
+    if ( d->selectedBean()->dbState() == BaseBean::INSERT )
+    {
+        return false;
+    }
+    return true;
+}
+
 QScriptValue DBChooseRecordButton::selectedBean()
 {
     if ( engine() != NULL && d->selectedBean() )
