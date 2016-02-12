@@ -266,7 +266,6 @@ bool OpenRPTPlugin::print(bool showPreview, int numCopies)
         if(!d->m_printerName.isEmpty())
         {
             printer.setPrinterName(d->m_printerName);
-            d->m_printerName = QString::null;
         }
 
         ORPrintRender render;

@@ -43,6 +43,8 @@ class OpenRPTScriptObject : public QObject
     Q_PROPERTY (QString reportName READ reportName WRITE setReportName)
     /** Widget propietarios de los posibles mensajes que este plugin da */
     Q_PROPERTY (QWidget* widgetParent READ widgetParent WRITE setWidgetParent)
+    /** Impresora por defecto a utilizar */
+    Q_PROPERTY (QString printerName READ printerName WRITE setPrinterName)
 
 private:
     OpenRPTScriptObjectPrivate *d;
@@ -54,15 +56,17 @@ public:
 
     ~OpenRPTScriptObject();
 
-    QWidget *widgetParent();
+    QWidget *widgetParent() const;
     void setWidgetParent(QWidget *wid);
     void setReportName(const QString &name);
-    QString reportName();
+    QString reportName() const;
+    QString printerName() const;
+    void setPrinterName(const QString &value);
 
-    Q_INVOKABLE void setParamValue(const QString &paramName, const QVariant &value);
-    Q_INVOKABLE bool filePreview( int numCopies = 1 );
-    Q_INVOKABLE bool filePrint( int numCopies = 1 );
-    Q_INVOKABLE bool print(bool showPreview, int numCopies);
+    Q_INVOKABLE void setParamValue (const QString &paramName, const QVariant &value);
+    Q_INVOKABLE bool filePreview (int numCopies = 1);
+    Q_INVOKABLE bool filePrint (int numCopies = 1);
+    Q_INVOKABLE bool print (bool showPreview, int numCopies);
     Q_INVOKABLE bool filePrintToPDF();
     Q_INVOKABLE bool filePrintToPDF(QString & pdfFileName);
 

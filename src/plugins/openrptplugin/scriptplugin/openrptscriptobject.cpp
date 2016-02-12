@@ -88,7 +88,7 @@ QScriptValue createOpenRPT(QScriptContext *context, QScriptEngine *engine)
     return result;
 }
 
-QWidget *OpenRPTScriptObject::widgetParent()
+QWidget *OpenRPTScriptObject::widgetParent() const
 {
     return d->m_widget;
 }
@@ -104,9 +104,19 @@ void OpenRPTScriptObject::setReportName(const QString &name)
     d->fileOpen();
 }
 
-QString OpenRPTScriptObject::reportName()
+QString OpenRPTScriptObject::reportName() const
 {
     return d->m_reportName;
+}
+
+QString OpenRPTScriptObject::printerName() const
+{
+    return d->m_printerName;
+}
+
+void OpenRPTScriptObject::setPrinterName(const QString &value)
+{
+    d->m_printerName = value;
 }
 
 void OpenRPTScriptObject::setParamValue(const QString &paramName, const QVariant &value)
@@ -203,10 +213,9 @@ bool OpenRPTScriptObject::print(bool showPreview, int numCopies)
 #else
         printer.setCopyCount( numCopies );
 #endif
-        if(!d->m_printerName.isEmpty())
+        if (!d->m_printerName.isEmpty())
         {
             printer.setPrinterName(d->m_printerName);
-            d->m_printerName = QString::null;
         }
 
         ORPrintRender render;
