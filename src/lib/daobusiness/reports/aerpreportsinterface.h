@@ -93,6 +93,7 @@ public:
     /** Indica si el fichero del informe es de tipo binario, o por el contrario, es un fichero en modo texto */
     virtual bool reportIsBinaryFile() = 0;
 
+    virtual void setPrinterName(const QString &name) = 0;
 };
 
 QT_BEGIN_NAMESPACE

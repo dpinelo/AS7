@@ -240,6 +240,7 @@ public:
     Q_INVOKABLE void setLabelProgressDialog(const QString label);
     Q_INVOKABLE void closeProgressDialog();
     Q_INVOKABLE QScriptValue dataTable();
+    Q_INVOKABLE void dataTable(const QString &tableName, const QString &where = "", const QString &order = "");
     Q_INVOKABLE void showTrayIconMessage(const QString &message);
     Q_INVOKABLE void waitCursor();
     Q_INVOKABLE void restoreCursor();

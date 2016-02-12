@@ -455,6 +455,11 @@ bool OpenRPTPlugin::reportIsBinaryFile()
     return false;
 }
 
+void OpenRPTPlugin::setPrinterName(const QString &name)
+{
+    d->m_printerName = name;
+}
+
 void OpenRPTPlugin::editReportWindowClose()
 {
     d->m_editReportOpen = false;

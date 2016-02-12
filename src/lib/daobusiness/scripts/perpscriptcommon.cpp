@@ -2431,6 +2431,28 @@ QScriptValue AERPScriptCommon::dataTable()
     return r;
 }
 
+/**
+ * @brief AERPScriptCommon::dataTable
+ * AERPScriptCommon.dataTable("tvw_resumen_expedicion_lineas", "idpedido=" + 1234);
+ * @param tableName
+ * @param relationName
+ */
+void AERPScriptCommon::dataTable(const QString &tableName, const QString &where, const QString &order)
+{
+    QScopedPointer<DBBaseBeanModel> model(new DBBaseBeanModel(tableName, where, order));
+    QWidget *widget  = new QWidget();
+    QHBoxLayout *hBoxLayout = new QHBoxLayout;
+    QPushButton *pbOk = new QPushButton(QIcon(":/aplicacion/images/ok.png"), "&Ok", widget);
+    DBTableView *tableView = new DBTableView(widget);
+    tableView->setModel(model.data());
+    hBoxLayout->addWidget(tableView);
+    hBoxLayout->addWidget(pbOk);
+    connect(pbOk, SIGNAL(clicked(bool)), widget, SLOT(close()));
+    widget->setLayout(hBoxLayout);
+    widget->setAttribute(Qt::WA_DeleteOnClose, true);
+    widget->show();
+}
+
 void AERPScriptCommon::showTrayIconMessage(const QString &message)
 {
     QVariant v = qApp->property(AlephERP::stTrayIcon);
