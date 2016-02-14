@@ -159,6 +159,7 @@ public slots:
     void setFilterKeyColumn(const QString &dbFieldName, const QString &op, const QVariant &value, int level = -1);
     void setFilter(const QString &filter);
     void resetFilter();
+    void reloadBean(const QModelIndex &idx);
 
     void setStaticModel() { freezeModel(); }
     void disableStaticModel() { defrostModel(); }

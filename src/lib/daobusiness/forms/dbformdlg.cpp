@@ -956,6 +956,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
         int ret = dlg->exec();
         bool userSaveData = dlg->userSaveData();
         delete dlg;
+        BaseDAO::reloadBeanFromDB(bean);
         if ( ret == QDialog::Accepted )
         {
             recordDlgClosed(userSaveData);
@@ -1756,6 +1757,24 @@ void DBFormDlg::resetFilter()
     {
         d->m_itemView->filterModel()->resetFilter();
     }
+}
+
+void DBFormDlg::reloadBean(const QModelIndex &idx)
+{
+    // Si el índice a borrar es directamente del último parte del árbol, no hay problema
+    FilterBaseBeanModel *model = qobject_cast<FilterBaseBeanModel *> (d->m_itemView->filterModel());
+    if ( model == NULL )
+    {
+        d->m_lastMessage = QObject::trUtf8("Se ha producido un error general.");
+        return;
+    }
+    if ( d->m_metadata == NULL )
+    {
+        d->m_lastMessage = QObject::trUtf8("Se ha producido un error general. No existen los metadatos.");
+        return;
+    }
+    BaseBeanSharedPointer beanSelected = model->bean(idx);
+    BaseDAO::reloadBeanFromDB(beanSelected);
 }
 
 void DBFormDlg::setFilter(const QString &filter)
