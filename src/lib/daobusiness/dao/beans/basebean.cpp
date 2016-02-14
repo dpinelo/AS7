@@ -1677,8 +1677,6 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore)
         }
     }
 
-    // saveChildren a true sólo guarda los hijos de las relaciones 11 y 1M, pero no los "nuevos padres"
-    // que se hayan podido insertar, eso se ha hecho antes
     if ( dbState() == BaseBean::INSERT )
     {
         result = BaseDAO::insert(this, transaction);

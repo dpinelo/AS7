@@ -106,6 +106,7 @@ public:
     QVariant calculateCounterOldMethod(const QString &connection, bool searchOnTransaction);
     QVariant calculateCounter(const QString &connection, bool searchOnTransaction);
     QVariant calculateValue();
+    QString filterForUniqueOnFilterField();
 
     void emitValueModified(const QString &fieldName, const QVariant &);
     void emitValueModified(const QVariant &);
@@ -966,6 +967,36 @@ QVariant DBFieldPrivate::calculateValue()
         v = setDataToType(m->calculateValue(q_ptr));
     }
     return v;
+}
+
+QString DBFieldPrivate::filterForUniqueOnFilterField()
+{
+    QString result;
+    if ( m->uniqueOnFilterField().isEmpty() )
+    {
+        return result;
+    }
+    QStringList parts = m->uniqueOnFilterField().split(QRegExp(";|,"));
+    if ( !parts.isEmpty() )
+    {
+        bool first = true;
+        result.append("(");
+        foreach (const QString &part, parts)
+        {
+            if ( !first )
+            {
+                result.append(" AND ");
+            }
+            QString sqlVal = m_bean->sqlFieldValue(part);
+            if ( !sqlVal.isEmpty() )
+            {
+                first = false;
+                result.append(QString("%1=%2").arg(part).arg(sqlVal));
+            }
+        }
+        result.append(")");
+    }
+    return result;
 }
 
 QVariant DBField::defaultValue()
@@ -2201,6 +2232,7 @@ QVariant DBFieldPrivate::calculateCounterOldMethod(const QString &connection, bo
     if ( m_counterVariablePart == -1 )
     {
         QString where = QString("%1 LIKE '%2%%'").arg(m->dbFieldName()).arg(counterPrefix);
+        where = filterForUniqueOnFilterField();
         where = m->beanMetadata()->processWhereSqlToIncludeEnvVars(where);
         QString sql = QString("SELECT max(%1) as column1 FROM %2 WHERE %3").
                         arg(m->dbFieldName()).
@@ -2282,6 +2314,7 @@ QVariant DBFieldPrivate::calculateCounter(const QString &connection, bool search
                       arg(m->dbFieldName()).
                       arg(result);
         }
+        where = filterForUniqueOnFilterField();
         where = m_bean->metadata()->processWhereSqlToIncludeEnvVars(where);
         if ( !where.isEmpty() )
         {

@@ -243,6 +243,16 @@ void DBSearchDlg::setCanInsertRecords(bool value)
     ui->pbNewRecord->setVisible(value);
 }
 
+bool DBSearchDlg::canEditRecords() const
+{
+    return ui->pbEdit->isVisible();
+}
+
+void DBSearchDlg::setCanEditRecords(bool value)
+{
+    ui->pbEdit->setVisible(value);
+}
+
 bool DBSearchDlg::canSelectSeveral()
 {
     return d->m_canSelectSeveral;
