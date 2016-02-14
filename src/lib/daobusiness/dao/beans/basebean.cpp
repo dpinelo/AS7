@@ -3726,8 +3726,12 @@ void BaseBean::resetToDefaultValues()
  * a un bean de una tabla. Aquí se establece esa relación
  * @param bean
  */
-void BaseBean::setViewLinkedBean(BaseBean *bean)
+void BaseBean::setViewLinkedBean(BaseBeanPointer bean)
 {
+    if ( bean.isNull() )
+    {
+        return;
+    }
     QMutexLocker lock(&d->m_mutex);
     d->m_viewLinkedBean = BaseBeanPointer (bean);
     if ( !d->m_viewLinkedBean.isNull() )

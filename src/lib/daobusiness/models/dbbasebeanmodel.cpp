@@ -602,7 +602,7 @@ bool DBBaseBeanModelPrivate::checkBeanInsert(int row, BaseBeanSharedPointer upda
     else
     {
         // Existe, pero en otra posición ... algún bean se ha borrado
-        if ( m_vectorBean.at(idx)->rawHash() != updateBean->rawHash() && q_ptr->canEmitDataChanged() )
+        if ( AERP_CHECK_INDEX_OK(idx, m_vectorBean) && m_vectorBean.at(idx)->rawHash() != updateBean->rawHash() && q_ptr->canEmitDataChanged() )
         {
             replaceInternalBean(idx, updateBean);
             QModelIndex idxModel1 = q_ptr->index(idx, 0, QModelIndex());
@@ -654,38 +654,56 @@ void DBBaseBeanModelPrivate::checkBeanDeleted()
 
 void DBBaseBeanModelPrivate::replaceInternalBean(int row, BaseBeanSharedPointer newBean)
 {
-    // Reemplazaremos si el bean a remplazar tiene fecha de obtención anterior a la de newBean
-    if (m_vectorBean[row]->loadTime() < newBean->loadTime())
+    if ( AERP_CHECK_INDEX_OK(row, m_vectorBean) )
     {
-        QObject::disconnect(m_vectorBean[row].data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
-                         q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-        QObject::disconnect(m_vectorBean[row].data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
-                         q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-        m_vectorBean[row].clear();
-        m_tableVectorBean[row].clear();
-        m_vectorBean[row] = newBean;
-        m_beansFecthed[row] = true;
-        QObject::connect(m_vectorBean[row].data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
-                         q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-        QObject::connect(m_vectorBean[row].data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
-                         q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
+        // Reemplazaremos si el bean a remplazar tiene fecha de obtención anterior a la de newBean
+        if (m_vectorBean[row]->loadTime() < newBean->loadTime())
+        {
+            QObject::disconnect(m_vectorBean[row].data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
+                             q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
+            QObject::disconnect(m_vectorBean[row].data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
+                             q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
+            m_vectorBean[row].clear();
+            if ( AERP_CHECK_INDEX_OK(row, m_tableVectorBean) )
+            {
+                m_tableVectorBean[row].clear();
+            }
+            m_vectorBean[row] = newBean;
+            m_beansFecthed[row] = true;
+            QObject::connect(m_vectorBean[row].data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
+                             q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
+            QObject::connect(m_vectorBean[row].data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
+                             q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
+        }
     }
 }
 
 void DBBaseBeanModelPrivate::removeBean(int row)
 {
-    q_ptr->beginRemoveRows(QModelIndex(), row, row);
-    QObject::disconnect(m_vectorBean[row].data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
-                     q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-    QObject::disconnect(m_vectorBean[row].data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
-                     q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-    m_vectorBean[row].clear();
-    m_tableVectorBean[row].clear();
-    m_vectorBean.removeAt(row);
-    m_tableVectorBean.removeAt(row);
-    m_beansFecthed.removeAt(row);
-    m_rowCount--;
-    q_ptr->endRemoveRows();
+    if ( AERP_CHECK_INDEX_OK(row, m_vectorBean) )
+    {
+        if ( !m_refreshing )
+        {
+            q_ptr->beginRemoveRows(QModelIndex(), row, row);
+        }
+        QObject::disconnect(m_vectorBean[row].data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
+                         q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
+        QObject::disconnect(m_vectorBean[row].data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
+                         q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
+        m_vectorBean[row].clear();
+        m_vectorBean.removeAt(row);
+        if ( AERP_CHECK_INDEX_OK(row, m_tableVectorBean) )
+        {
+            m_tableVectorBean[row].clear();
+            m_tableVectorBean.removeAt(row);
+        }
+        m_beansFecthed.removeAt(row);
+        m_rowCount--;
+        if ( !m_refreshing )
+        {
+            q_ptr->endRemoveRows();
+        }
+    }
 }
 
 void DBBaseBeanModelPrivate::fetchBean(int row)
@@ -795,60 +813,66 @@ void DBBaseBeanModel::availableBean(QString id, int row, BaseBeanSharedPointer u
 
     QMutexLocker lock(&DBBaseBeanModelPrivate::m_mutex);
 
-    int modelRow = row + d->m_beansPetitions.at(idx).initRow;
-    if ( !d->m_beansPetitions.at(idx).updatePetition )
+    if ( AERP_CHECK_INDEX_OK(idx, d->m_beansPetitions) )
     {
-        if ( modelRow >= d->m_vectorBean.size() )
+        int modelRow = row + d->m_beansPetitions.at(idx).initRow;
+        if ( !d->m_beansPetitions.at(idx).updatePetition )
         {
-            d->m_vectorBean.resize(modelRow);
-            d->m_beansFecthed.resize(modelRow);
-        }
-        d->m_vectorBean[modelRow] = updateBean;
-        d->m_beansFecthed[modelRow] = true;
-        QObject::connect(updateBean.data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
-                         this, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-        QObject::connect(updateBean.data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
-                         this, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-        if ( canEmitDataChanged() )
-        {
-            emit dataChanged(index(modelRow, 0), index(modelRow, columnCount(QModelIndex())));
-        }
-    }
-    else
-    {
-        if ( AERP_CHECK_INDEX_OK(modelRow, d->m_vectorBean) && !isFrozenModel() )
-        {
-            if ( d->m_vectorBean.at(modelRow) == NULL )
+            if ( modelRow >= d->m_vectorBean.size() )
             {
-                if ( !d->checkBeanInsert(modelRow, updateBean) )
+                d->m_vectorBean.resize(modelRow);
+                d->m_beansFecthed.resize(modelRow);
+            }
+            if ( AERP_CHECK_INDEX_OK(modelRow, d->m_vectorBean) && AERP_CHECK_INDEX_OK(modelRow, d->m_beansFecthed) )
+            {
+                d->m_vectorBean[modelRow] = updateBean;
+                d->m_beansFecthed[modelRow] = true;
+                QObject::connect(updateBean.data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
+                                 this, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
+                QObject::connect(updateBean.data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
+                                 this, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
+                if ( canEmitDataChanged() )
                 {
-                    // Este bean ni se ha insertado, ni se ha encontrado en otra posición... ¿se habrá borrado?
-                    // Lo guardamos en esta estructura intermedia para comprobarlo después
-                    d->m_checkedUpdateBeans << updateBean;
+                    emit dataChanged(index(modelRow, 0), index(modelRow, columnCount(QModelIndex())));
                 }
             }
-            else
+        }
+        else
+        {
+            if ( AERP_CHECK_INDEX_OK(modelRow, d->m_vectorBean) && !isFrozenModel() )
             {
-                if ( d->m_vectorBean.at(modelRow)->dbOid() == updateBean->dbOid() )
-                {
-                    if ( d->m_vectorBean.at(modelRow)->rawHash() != updateBean->rawHash() )
-                    {
-                        d->replaceInternalBean(modelRow, updateBean);
-                        if ( canEmitDataChanged() )
-                        {
-                            QModelIndex idxModel1 = index(idx, 0, QModelIndex());
-                            QModelIndex idxModel2 = index(idx, columnCount(QModelIndex())-1, QModelIndex());
-                            emit dataChanged(idxModel1, idxModel2);
-                        }
-                    }
-                }
-                else
+                if ( d->m_vectorBean.at(modelRow) == NULL )
                 {
                     if ( !d->checkBeanInsert(modelRow, updateBean) )
                     {
                         // Este bean ni se ha insertado, ni se ha encontrado en otra posición... ¿se habrá borrado?
                         // Lo guardamos en esta estructura intermedia para comprobarlo después
                         d->m_checkedUpdateBeans << updateBean;
+                    }
+                }
+                else
+                {
+                    if ( d->m_vectorBean.at(modelRow)->dbOid() == updateBean->dbOid() )
+                    {
+                        if ( d->m_vectorBean.at(modelRow)->rawHash() != updateBean->rawHash() )
+                        {
+                            d->replaceInternalBean(modelRow, updateBean);
+                            if ( canEmitDataChanged() )
+                            {
+                                QModelIndex idxModel1 = index(idx, 0, QModelIndex());
+                                QModelIndex idxModel2 = index(idx, columnCount(QModelIndex())-1, QModelIndex());
+                                emit dataChanged(idxModel1, idxModel2);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if ( !d->checkBeanInsert(modelRow, updateBean) )
+                        {
+                            // Este bean ni se ha insertado, ni se ha encontrado en otra posición... ¿se habrá borrado?
+                            // Lo guardamos en esta estructura intermedia para comprobarlo después
+                            d->m_checkedUpdateBeans << updateBean;
+                        }
                     }
                 }
             }
@@ -1422,28 +1446,31 @@ BaseBeanSharedPointer DBBaseBeanModel::beanToBeEdited (const QModelIndex &index)
         {
             originalTableName = b->metadata()->viewForTable();
         }
-        if ( d->m_tableVectorBean.at(index.row()).isNull() )
+        if ( AERP_CHECK_INDEX_OK(index.row(), d->m_tableVectorBean) )
         {
-            if ( b->dbState() != BaseBean::INSERT )
+            if ( d->m_tableVectorBean.at(index.row()).isNull() )
             {
-                beanOriginal = BaseDAO::selectByPk(b->pkValue(), originalTableName);
-                if ( beanOriginal.isNull() )
+                if ( b->dbState() != BaseBean::INSERT )
+                {
+                    beanOriginal = BaseDAO::selectByPk(b->pkValue(), originalTableName);
+                    if ( beanOriginal.isNull() )
+                    {
+                        beanOriginal = BeansFactory::instance()->newQBaseBean(originalTableName);
+                    }
+                }
+                else
                 {
                     beanOriginal = BeansFactory::instance()->newQBaseBean(originalTableName);
                 }
+                // Si es un bean de una vista, lo recargamos cuando el original se ha guardado correctamente.
+                b->setViewLinkedBean(beanOriginal.data());
+                connect(beanOriginal.data(), SIGNAL(beanCommitted()), b.data(), SLOT(reloadFromLinkedBean()));
+                d->m_tableVectorBean[index.row()] = beanOriginal;
             }
             else
             {
-                beanOriginal = BeansFactory::instance()->newQBaseBean(originalTableName);
+                beanOriginal = d->m_tableVectorBean.at(index.row());
             }
-            // Si es un bean de una vista, lo recargamos cuando el original se ha guardado correctamente.
-            b->setViewLinkedBean(beanOriginal.data());
-            connect(beanOriginal.data(), SIGNAL(beanCommitted()), b.data(), SLOT(reloadFromLinkedBean()));
-            d->m_tableVectorBean[index.row()] = beanOriginal;
-        }
-        else
-        {
-            beanOriginal = d->m_tableVectorBean.at(index.row());
         }
     }
     else
