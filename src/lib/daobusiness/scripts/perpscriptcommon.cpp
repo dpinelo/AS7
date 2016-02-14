@@ -2439,18 +2439,25 @@ QScriptValue AERPScriptCommon::dataTable()
  */
 void AERPScriptCommon::dataTable(const QString &tableName, const QString &where, const QString &order)
 {
-    QScopedPointer<DBBaseBeanModel> model(new DBBaseBeanModel(tableName, where, order));
-    QWidget *widget  = new QWidget();
+    QWidget *activeWindow = qApp->activeWindow();
+    if ( activeWindow == NULL )
+    {
+        activeWindow = (AERPMainWindow *) qApp->property(AlephERP::stMainWindowPointer).value<void *>();
+    }
+
+    QDialog *dialog  = new QDialog(activeWindow);
+    DBBaseBeanModel *model = new DBBaseBeanModel(tableName, where, order, false, true, true, dialog);
     QHBoxLayout *hBoxLayout = new QHBoxLayout;
-    QPushButton *pbOk = new QPushButton(QIcon(":/aplicacion/images/ok.png"), "&Ok", widget);
-    DBTableView *tableView = new DBTableView(widget);
-    tableView->setModel(model.data());
+    QPushButton *pbOk = new QPushButton(QIcon(":/aplicacion/images/ok.png"), "&Ok", dialog);
+    DBTableView *tableView = new DBTableView(dialog);
+    tableView->setModel(model);
     hBoxLayout->addWidget(tableView);
     hBoxLayout->addWidget(pbOk);
-    connect(pbOk, SIGNAL(clicked(bool)), widget, SLOT(close()));
-    widget->setLayout(hBoxLayout);
-    widget->setAttribute(Qt::WA_DeleteOnClose, true);
-    widget->show();
+    connect(pbOk, SIGNAL(clicked(bool)), dialog, SLOT(close()));
+    dialog->setLayout(hBoxLayout);
+    dialog->setModal(true);
+    dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+    dialog->show();
 }
 
 void AERPScriptCommon::showTrayIconMessage(const QString &message)
