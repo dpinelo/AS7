@@ -461,17 +461,17 @@ bool DBRecordDlg::init(bool doConnections)
 
     setTableName(d->m_bean->metadata()->tableName());
 
-    ui->pbNext->setVisible(d->m_canNavigate);
-    ui->pbFirst->setVisible(d->m_canNavigate);
-    ui->pbLast->setVisible(d->m_canNavigate);
-    ui->pbPrevious->setVisible(d->m_canNavigate);
+    ui->pbNext->setVisible(d->m_canNavigate && d->m_visibleButtons.testFlag(DBRecordDlg::Next));
+    ui->pbFirst->setVisible(d->m_canNavigate && d->m_visibleButtons.testFlag(DBRecordDlg::First));
+    ui->pbLast->setVisible(d->m_canNavigate && d->m_visibleButtons.testFlag(DBRecordDlg::Last));
+    ui->pbPrevious->setVisible(d->m_canNavigate && d->m_visibleButtons.testFlag(DBRecordDlg::Previous));
     ui->chkNavigateSavingChanges->setVisible(d->m_canNavigate);
-    ui->pbPrint->setVisible(d->isPrintButtonVisible());
-    ui->pbEmail->setVisible(d->isEmailButtonVisible());
-    ui->pbRelatedElements->setVisible(d->m_bean->metadata()->canHaveRelatedElements() ||
+    ui->pbPrint->setVisible(d->isPrintButtonVisible() && d->m_visibleButtons.testFlag(DBRecordDlg::Print));
+    ui->pbEmail->setVisible(d->isEmailButtonVisible() && d->m_visibleButtons.testFlag(DBRecordDlg::Email));
+    ui->pbRelatedElements->setVisible((d->m_bean->metadata()->canHaveRelatedElements() ||
                                       d->m_bean->metadata()->canHaveRelatedDocuments() ||
                                       d->m_bean->metadata()->canSendEmail() ||
-                                      d->m_bean->metadata()->showSomeRelationOnRelatedElementsModel());
+                                      d->m_bean->metadata()->showSomeRelationOnRelatedElementsModel()) && d->m_visibleButtons.testFlag(DBRecordDlg::RelatedItems));
 
     if ( d->m_openType == AlephERP::Insert )
     {
@@ -663,13 +663,13 @@ bool DBRecordDlg::init(bool doConnections)
     }
     else
     {
-        ui->pbSaveAndNew->setVisible(d->m_canNavigate);
+        ui->pbSaveAndNew->setVisible(d->m_canNavigate && d->m_visibleButtons.testFlag(DBRecordDlg::SaveAndNew));
     }
-    ui->pbDocuments->setVisible(d->m_bean->metadata()->canHaveRelatedDocuments());
-    ui->pbRelatedElements->setVisible(d->m_bean->metadata()->canHaveRelatedElements() ||
+    ui->pbDocuments->setVisible(d->m_bean->metadata()->canHaveRelatedDocuments() && d->m_visibleButtons.testFlag(DBRecordDlg::Documents));
+    ui->pbRelatedElements->setVisible((d->m_bean->metadata()->canHaveRelatedElements() ||
                                       d->m_bean->metadata()->canHaveRelatedDocuments() ||
                                       d->m_bean->metadata()->canSendEmail() ||
-                                      d->m_bean->metadata()->showSomeRelationOnRelatedElementsModel());
+                                      d->m_bean->metadata()->showSomeRelationOnRelatedElementsModel()) && d->m_visibleButtons.testFlag(DBRecordDlg::RelatedItems));
 
     setFocusOnFirstWidget();
 
