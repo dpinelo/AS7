@@ -160,6 +160,7 @@ public slots:
     void setFilter(const QString &filter);
     void resetFilter();
     void reloadBean(const QModelIndex &idx);
+    void reloadCurrentRow();
 
     void setStaticModel() { freezeModel(); }
     void disableStaticModel() { defrostModel(); }

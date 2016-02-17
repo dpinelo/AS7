@@ -259,6 +259,8 @@ bool DBFieldPrivate::checkNull()
         bool canBeNullBecauseIsChildPartOfRelation = false;
         if ( q_ptr->value().isNull() || !q_ptr->value().isValid() )
         {
+            qDebug() << Q_FUNC_INFO
+                     << "Vamos a comprobar si el field es parte de una relación.";
             // Si el campo apunta a una relación, no podra tener valor cero... o, si es cero, pero
             // apunta a un padre que va a ser guardado, entonces pasa la validación.
             QList<DBRelation *> relations = q_ptr->relations();
@@ -266,6 +268,10 @@ bool DBFieldPrivate::checkNull()
             {
                 if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
                 {
+                    qDebug() << Q_FUNC_INFO
+                             << m->dbFieldName()
+                             << "Examinando."
+                             << rel->metadata()->tableName();
                     if ( ! (rel->father()->modified() && rel->father()->dbState() == BaseBean::INSERT) )
                     {
                         result = false;

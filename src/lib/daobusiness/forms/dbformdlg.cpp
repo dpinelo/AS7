@@ -881,12 +881,21 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
             QMessageBox::warning(this,
                                  qApp->applicationName(),
                                  tr("Debe seleccionar un registro a editar."));
+            return;
+        }
+        if ( !ui->pbEdit->isVisible() )
+        {
+            openType = AlephERP::ReadOnly;
         }
     }
     else
     {
         openType = AlephERP::Insert;
         functionName = "beforeInsert";
+        if ( !ui->pbNew->isVisible() )
+        {
+            openType = AlephERP::ReadOnly;
+        }
     }
     if ( engine()->existQsFunction(functionName) )
     {
@@ -1775,6 +1784,20 @@ void DBFormDlg::reloadBean(const QModelIndex &idx)
     }
     BaseBeanSharedPointer beanSelected = model->bean(idx);
     BaseDAO::reloadBeanFromDB(beanSelected);
+}
+
+void DBFormDlg::reloadCurrentRow()
+{
+    if ( d->m_itemView.isNull() )
+    {
+        return;
+    }
+    QItemSelectionModel *selModel = d->m_itemView->selectionModel();
+    QModelIndexList indexes = selModel->selectedRows();
+    foreach (const QModelIndex &idx, indexes)
+    {
+        reloadBean(idx);
+    }
 }
 
 void DBFormDlg::setFilter(const QString &filter)
