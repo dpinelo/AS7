@@ -94,6 +94,8 @@ public:
     virtual bool reportIsBinaryFile() = 0;
 
     virtual void setPrinterName(const QString &name) = 0;
+
+    virtual void setAutoPrint(bool value) = 0;
 };
 
 QT_BEGIN_NAMESPACE

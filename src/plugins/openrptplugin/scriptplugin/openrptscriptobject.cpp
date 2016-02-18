@@ -119,6 +119,16 @@ void OpenRPTScriptObject::setPrinterName(const QString &value)
     d->m_printerName = value;
 }
 
+bool OpenRPTScriptObject::autoPrint() const
+{
+    return d->m_autoPrint;
+}
+
+void OpenRPTScriptObject::setAutoPrint(bool value)
+{
+    d->m_autoPrint = value;
+}
+
 void OpenRPTScriptObject::setParamValue(const QString &paramName, const QVariant &value)
 {
     if ( value.isNull() || !value.isValid() )

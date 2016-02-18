@@ -45,6 +45,8 @@ class OpenRPTScriptObject : public QObject
     Q_PROPERTY (QWidget* widgetParent READ widgetParent WRITE setWidgetParent)
     /** Impresora por defecto a utilizar */
     Q_PROPERTY (QString printerName READ printerName WRITE setPrinterName)
+    /** Imprime sin pasar por el diálogo de impresoras */
+    Q_PROPERTY (bool autoPrint READ autoPrint WRITE setAutoPrint)
 
 private:
     OpenRPTScriptObjectPrivate *d;
@@ -62,6 +64,8 @@ public:
     QString reportName() const;
     QString printerName() const;
     void setPrinterName(const QString &value);
+    bool autoPrint() const;
+    void setAutoPrint(bool value);
 
     Q_INVOKABLE void setParamValue (const QString &paramName, const QVariant &value);
     Q_INVOKABLE bool filePreview (int numCopies = 1);

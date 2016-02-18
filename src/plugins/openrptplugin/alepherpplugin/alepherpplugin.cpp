@@ -459,6 +459,11 @@ void OpenRPTPlugin::setPrinterName(const QString &name)
     d->m_printerName = name;
 }
 
+void OpenRPTPlugin::setAutoPrint(bool value)
+{
+    d->m_autoPrint = value;
+}
+
 void OpenRPTPlugin::editReportWindowClose()
 {
     d->m_editReportOpen = false;
