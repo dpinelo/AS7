@@ -83,7 +83,7 @@ contains(QT_VERSION, ^4\\.[0-8]\\..*) {
     !ios {
         QT += uitools
     }
-    !android:!ios {
+    !android:!ios:!macx {
         unix {
               QT += x11extras
         }
