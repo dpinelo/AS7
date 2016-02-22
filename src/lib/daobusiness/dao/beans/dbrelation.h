@@ -107,11 +107,12 @@ public:
 
     BaseBeanPointer father(bool retrieveOnDemand = true);
     void setFather(BaseBean *bean);
-    bool fatherSetted() const;
+    bool fatherSetted();
     BaseBeanSharedPointerList sharedChildren(const QString &order = "", bool includeToBeDeleted = true);
 
     BaseBeanPointer brother();
     void setBrother(BaseBeanPointer bean);
+    bool brotherSetted();
 
     QString filter() const;
     void setFilter(const QString &filter);

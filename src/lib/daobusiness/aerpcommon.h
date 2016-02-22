@@ -280,7 +280,8 @@ public:
         SetFather = 0x800,
         CounterValue = 0x1000,
         OverwriteValue = 0x2000,
-        CalculateLength = 0x4000
+        CalculateLength = 0x4000,
+        CheckFatherSetted = 0x8000
     };
 
     // Tipos de autocompletados que ofrece el sistema

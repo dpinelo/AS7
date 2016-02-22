@@ -272,7 +272,7 @@ bool DBFieldPrivate::checkNull()
                              << m->dbFieldName()
                              << "Examinando."
                              << rel->metadata()->tableName();
-                    if ( ! (rel->father()->modified() && rel->father()->dbState() == BaseBean::INSERT) )
+                    if ( !rel->father()->modified() && rel->father()->dbState() == BaseBean::INSERT )
                     {
                         result = false;
                     }
@@ -593,6 +593,19 @@ bool DBField::hasM1Relation() const
     return false;
 }
 
+bool DBField::hasBrotherRelation() const
+{
+    // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
+    foreach (DBRelation *rel, d->m_relations)
+    {
+        if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 QString DBField::sqlEqual()
 {
     return sqlWhere("=");
@@ -819,6 +832,36 @@ QVariant DBField::value()
     if ( d->m->coordinates() )
     {
         return d->m_value;
+    }
+    if ( hasM1Relation() )
+    {
+        // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
+        foreach (DBRelation *rel, d->m_relations)
+        {
+            if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
+            {
+                if ( !rel->fatherSetted() && !d->m_modified )
+                {
+                    return QVariant();
+                }
+            }
+        }
+        return false;
+    }
+    if ( hasBrotherRelation() )
+    {
+        // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
+        foreach (DBRelation *rel, d->m_relations)
+        {
+            if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
+            {
+               if ( !rel->brotherSetted() )
+               {
+                   return QVariant();
+               }
+            }
+        }
+        return false;
     }
     if ( d->m_bean->dbState() == BaseBean::UPDATE &&
             (d->m->type() == QVariant::String || d->m->type() == QVariant::Pixmap)
@@ -2782,6 +2825,28 @@ bool DBField::isEmpty()
     else if ( d->m->type() == QVariant::String )
     {
         return value().toString().isEmpty();
+    }
+    else if ( hasM1Relation() )
+    {
+        // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
+        foreach (DBRelation *rel, d->m_relations)
+        {
+            if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
+            {
+                return !rel->fatherSetted();
+            }
+        }
+    }
+    else if ( hasBrotherRelation() )
+    {
+        // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
+        foreach (DBRelation *rel, d->m_relations)
+        {
+            if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
+            {
+                return !rel->brotherSetted();
+            }
+        }
     }
     return false;
 }
