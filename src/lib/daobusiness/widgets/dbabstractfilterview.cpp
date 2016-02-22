@@ -60,6 +60,11 @@ DBAbstractFilterView::DBAbstractFilterView(QWidget *parent) :
     connect (ui->leFastFilter1, SIGNAL(textChanged(const QString &)), this, SLOT(fastFilterByNumbers()));
     connect (ui->leFastFilter2, SIGNAL(textChanged(const QString &)), this, SLOT(fastFilterByNumbers()));
     connect (BackgroundDAO::instance(), SIGNAL(queryExecuted(QString,bool)), this, SLOT(subTotalNewData(QString,bool)));
+    connect (ui->leFastFilter, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
+    connect (ui->leFastFilter1, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
+    connect (ui->leFastFilter2, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
+
+    ui->leFastFilter->installEventFilter(this);
 }
 
 DBAbstractFilterView::~DBAbstractFilterView()
@@ -1148,4 +1153,20 @@ bool DBAbstractFilterView::isFrozenModel() const
         return d->m_model->isFrozenModel();
     }
     return false;
+}
+
+bool DBAbstractFilterView::eventFilter(QObject *sender, QEvent *event)
+{
+    if ( sender == ui->leFastFilter && event->type() == QEvent::KeyPress )
+    {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if ( keyEvent->key() == Qt::Key_Up ||
+             keyEvent->key() == Qt::Key_Down ||
+             keyEvent->key() == Qt::Key_PageUp ||
+             keyEvent->key() == Qt::Key_PageDown )
+        {
+            emit fastFilterKeyPress(keyEvent->key());
+        }
+    }
+    return QWidget::eventFilter(sender, event);
 }

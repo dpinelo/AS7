@@ -677,6 +677,8 @@ void DBFormDlg::actions()
     connect(ui->pbWizard, SIGNAL(clicked()), ui->actionWizard, SLOT(trigger()));
     connect(ui->pbHelp, SIGNAL(clicked()), ui->actionHelp, SLOT(trigger()));
     connect(ui->pbExportSpreadSheet, SIGNAL(clicked()), ui->actionExportSpreadSheet, SLOT(trigger()));
+    connect(d->m_itemView.data(), SIGNAL(fastFilterReturnPressed()), this, SLOT(fastFilterReturnPressed()));
+    connect(d->m_itemView.data(), SIGNAL(fastFilterKeyPress(int)), this, SLOT(fastFilterKeyPress(int)));
 }
 
 bool DBFormDlg::event(QEvent *e)
@@ -2164,4 +2166,80 @@ void DBFormDlg::showContextMenu(const QPoint &point)
         }
     }
     contextMenu.exec(globalPos);
+}
+
+void DBFormDlg::fastFilterReturnPressed()
+{
+    if ( d->m_itemView.isNull() )
+    {
+        return;
+    }
+    FilterBaseBeanModel *filterModel = d->m_itemView->filterModel();
+    QItemSelectionModel *selectionModel = d->m_itemView->selectionModel();
+    if ( filterModel == NULL || selectionModel == NULL )
+    {
+        return;
+    }
+    if ( filterModel->rowCount() == 1 )
+    {
+        QModelIndex init = filterModel->index(0, 0);
+        QModelIndex end = filterModel->index(0, filterModel->columnCount());
+        QItemSelection selection(init, end);
+        selectionModel->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        selectionModel->setCurrentIndex(init, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        if ( ui->pbEdit->isVisible() )
+        {
+            edit("false");
+            return;
+        }
+        if ( ui->pbView->isVisible() )
+        {
+            view();
+            return;
+        }
+    }
+    else if ( !selectionModel->selectedRows().isEmpty() )
+    {
+        if ( ui->pbEdit->isVisible() )
+        {
+            edit("false");
+            return;
+        }
+        if ( ui->pbView->isVisible() )
+        {
+            view();
+            return;
+        }
+    }
+}
+
+void DBFormDlg::fastFilterKeyPress(int key)
+{
+    if ( d->m_itemView.isNull() )
+    {
+        return;
+    }
+    FilterBaseBeanModel *filterModel = d->m_itemView->filterModel();
+    QItemSelectionModel *selectionModel = d->m_itemView->selectionModel();
+    if ( filterModel == NULL || selectionModel == NULL )
+    {
+        return;
+    }
+    int row = selectionModel->currentIndex().row();
+    if ( key == Qt::Key_Down )
+    {
+        row++;
+    }
+    else if ( key == Qt::Key_Up )
+    {
+        row--;
+    }
+    if ( row > -1 && row < filterModel->rowCount() )
+    {
+        QModelIndex init = filterModel->index(row, 0);
+        QModelIndex end = filterModel->index(row, filterModel->columnCount());
+        QItemSelection selection(init, end);
+        selectionModel->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        selectionModel->setCurrentIndex(init, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    }
 }
