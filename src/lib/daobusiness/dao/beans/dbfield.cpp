@@ -115,6 +115,7 @@ public:
     bool checkLength();
     bool checkUnique();
     bool checkUniqueOnFilterField();
+    bool fatherOrBrotherSetted();
 };
 
 DBFieldPrivate::DBFieldPrivate (DBField *qq) :
@@ -415,6 +416,25 @@ bool DBFieldPrivate::checkUniqueOnFilterField()
         }
     }
     return result;
+}
+
+bool DBFieldPrivate::fatherOrBrotherSetted()
+{
+    if ( m->type() == QVariant::Int )
+    {
+        int id = m_value.toInt();
+        return id != 0;
+    }
+    if ( m->type() == QVariant::Double )
+    {
+        double d = m_value.toDouble();
+        return d != 0;
+    }
+    if ( m->type() == QVariant::String )
+    {
+        return !m_value.toString().isEmpty();
+    }
+    return m_value.isValid();
 }
 
 DBField::DBField(QObject *parent) : DBObject(parent), d(new DBFieldPrivate(this))
@@ -827,34 +847,20 @@ QVariant DBField::value()
     {
         return d->m_value;
     }
-    if ( hasM1Relation() )
+    if ( hasM1Relation() || hasBrotherRelation() )
     {
         // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
         foreach (DBRelation *rel, d->m_relations)
         {
-            if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
+            if ( rel != NULL && (rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE || rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE) )
             {
-                if ( !rel->fatherSetted() && !d->m_modified )
+                // Es muy importante no llamar aquí a fatherSetted de la relación.
+                if ( !d->fatherOrBrotherSetted() )
                 {
                     return QVariant();
                 }
             }
         }
-    }
-    if ( hasBrotherRelation() )
-    {
-        // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
-        foreach (DBRelation *rel, d->m_relations)
-        {
-            if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
-            {
-               if ( !rel->brotherSetted() )
-               {
-                   return QVariant();
-               }
-            }
-        }
-        return false;
     }
     if ( d->m_bean->dbState() == BaseBean::UPDATE &&
             (d->m->type() == QVariant::String || d->m->type() == QVariant::Pixmap)

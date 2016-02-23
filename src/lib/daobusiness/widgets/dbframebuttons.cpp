@@ -356,11 +356,13 @@ void DBFrameButtons::init()
         }
     }
     // Si solo hay un botón, o es el primero, se da por pulsado
+    /*
     if ( d->m_buttons.buttons().size() > 0 )
     {
         d->m_buttons.buttons().at(0)->setChecked(true);
         buttonIsClicked(0);
     }
+    */
     d->m_init = true;
 }
 
