@@ -847,21 +847,6 @@ QVariant DBField::value()
     {
         return d->m_value;
     }
-    if ( hasM1Relation() || hasBrotherRelation() )
-    {
-        // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
-        foreach (DBRelation *rel, d->m_relations)
-        {
-            if ( rel != NULL && (rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE || rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE) )
-            {
-                // Es muy importante no llamar aquí a fatherSetted de la relación.
-                if ( !d->fatherOrBrotherSetted() )
-                {
-                    return QVariant();
-                }
-            }
-        }
-    }
     if ( d->m_bean->dbState() == BaseBean::UPDATE &&
             (d->m->type() == QVariant::String || d->m->type() == QVariant::Pixmap)
             && d->m->memo() && !d->m_memoLoaded && !d->m->calculated() )
@@ -994,6 +979,23 @@ QVariant DBField::value()
             }
         }
     }
+
+    if ( hasM1Relation() || hasBrotherRelation() )
+    {
+        // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
+        foreach (DBRelation *rel, d->m_relations)
+        {
+            if ( rel != NULL && (rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE || rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE) )
+            {
+                // Es muy importante no llamar aquí a fatherSetted de la relación.
+                if ( !d->fatherOrBrotherSetted() )
+                {
+                    return QVariant();
+                }
+            }
+        }
+    }
+
     return d->m_value;
 }
 
