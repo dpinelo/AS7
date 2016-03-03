@@ -98,7 +98,7 @@ void AERPScriptSqlQuery::bindValue(int pos, const QVariant & val)
     d->m_iBindValues[pos] = val;
 }
 
-bool AERPScriptSqlQuery::exec (const QString &sql)
+bool AERPScriptSqlQuery::exec(const QString &sql)
 {
     if ( d->m_query != NULL )
     {
@@ -225,6 +225,7 @@ bool AERPScriptSqlQuery::prepare (const QString & query)
     d->m_sql = query;
     d->m_bindValues.clear();
     d->m_iBindValues.clear();
+    QLogger::QLog_Debug(AlephERP::stLogScript, QString::fromUtf8("AERPScriptSqlQuery::prepare(): SQL PREPARE: [%1]").arg(query));
     return true;
 }
 

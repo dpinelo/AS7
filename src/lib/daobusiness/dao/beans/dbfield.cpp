@@ -106,6 +106,7 @@ public:
     QVariant calculateCounterOldMethod(const QString &connection, bool searchOnTransaction);
     QVariant calculateCounter(const QString &connection, bool searchOnTransaction);
     QVariant calculateValue();
+    QString filterForUniqueOnFilterField(const QString where);
 
     void emitValueModified(const QString &fieldName, const QVariant &);
     void emitValueModified(const QVariant &);
@@ -114,6 +115,7 @@ public:
     bool checkLength();
     bool checkUnique();
     bool checkUniqueOnFilterField();
+    bool fatherOrBrotherSetted();
 };
 
 DBFieldPrivate::DBFieldPrivate (DBField *qq) :
@@ -265,7 +267,7 @@ bool DBFieldPrivate::checkNull()
             {
                 if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
                 {
-                    if ( ! (rel->father()->modified() && rel->father()->dbState() == BaseBean::INSERT) )
+                    if ( !rel->father()->modified() && rel->father()->dbState() == BaseBean::INSERT )
                     {
                         result = false;
                     }
@@ -414,6 +416,25 @@ bool DBFieldPrivate::checkUniqueOnFilterField()
         }
     }
     return result;
+}
+
+bool DBFieldPrivate::fatherOrBrotherSetted()
+{
+    if ( m->type() == QVariant::Int )
+    {
+        int id = m_value.toInt();
+        return id != 0;
+    }
+    if ( m->type() == QVariant::Double )
+    {
+        double d = m_value.toDouble();
+        return d != 0;
+    }
+    if ( m->type() == QVariant::String )
+    {
+        return !m_value.toString().isEmpty();
+    }
+    return m_value.isValid();
 }
 
 DBField::DBField(QObject *parent) : DBObject(parent), d(new DBFieldPrivate(this))
@@ -579,6 +600,19 @@ bool DBField::hasM1Relation() const
     foreach (DBRelation *rel, d->m_relations)
     {
         if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool DBField::hasBrotherRelation() const
+{
+    // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
+    foreach (DBRelation *rel, d->m_relations)
+    {
+        if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
         {
             return true;
         }
@@ -945,6 +979,23 @@ QVariant DBField::value()
             }
         }
     }
+
+    if ( hasM1Relation() || hasBrotherRelation() )
+    {
+        // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
+        foreach (DBRelation *rel, d->m_relations)
+        {
+            if ( rel != NULL && (rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE || rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE) )
+            {
+                // Es muy importante no llamar aquí a fatherSetted de la relación.
+                if ( !d->fatherOrBrotherSetted() )
+                {
+                    return QVariant();
+                }
+            }
+        }
+    }
+
     return d->m_value;
 }
 
@@ -966,6 +1017,40 @@ QVariant DBFieldPrivate::calculateValue()
         v = setDataToType(m->calculateValue(q_ptr));
     }
     return v;
+}
+
+QString DBFieldPrivate::filterForUniqueOnFilterField(const QString where)
+{
+    QString tempSql;
+    if ( m->uniqueOnFilterField().isEmpty() )
+    {
+        return where;
+    }
+    QStringList parts = m->uniqueOnFilterField().split(QRegExp(";|,"));
+    if ( !parts.isEmpty() )
+    {
+        bool first = true;
+        tempSql.append("(");
+        foreach (const QString &part, parts)
+        {
+            if ( !first )
+            {
+                tempSql.append(" AND ");
+            }
+            QString sqlVal = m_bean->sqlFieldValue(part);
+            if ( !sqlVal.isEmpty() )
+            {
+                first = false;
+                tempSql.append(QString("%1=%2").arg(part).arg(sqlVal));
+            }
+        }
+        tempSql.append(")");
+    }
+    if ( !tempSql.isEmpty() )
+    {
+        tempSql.append(" AND ").append(where);
+    }
+    return tempSql;
 }
 
 QVariant DBField::defaultValue()
@@ -2201,6 +2286,7 @@ QVariant DBFieldPrivate::calculateCounterOldMethod(const QString &connection, bo
     if ( m_counterVariablePart == -1 )
     {
         QString where = QString("%1 LIKE '%2%%'").arg(m->dbFieldName()).arg(counterPrefix);
+        where = filterForUniqueOnFilterField(where);
         where = m->beanMetadata()->processWhereSqlToIncludeEnvVars(where);
         QString sql = QString("SELECT max(%1) as column1 FROM %2 WHERE %3").
                         arg(m->dbFieldName()).
@@ -2282,6 +2368,7 @@ QVariant DBFieldPrivate::calculateCounter(const QString &connection, bool search
                       arg(m->dbFieldName()).
                       arg(result);
         }
+        where = filterForUniqueOnFilterField(where);
         where = m_bean->metadata()->processWhereSqlToIncludeEnvVars(where);
         if ( !where.isEmpty() )
         {
@@ -2739,6 +2826,28 @@ bool DBField::isEmpty()
     else if ( d->m->type() == QVariant::String )
     {
         return value().toString().isEmpty();
+    }
+    else if ( hasM1Relation() )
+    {
+        // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
+        foreach (DBRelation *rel, d->m_relations)
+        {
+            if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
+            {
+                return !rel->fatherSetted();
+            }
+        }
+    }
+    else if ( hasBrotherRelation() )
+    {
+        // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
+        foreach (DBRelation *rel, d->m_relations)
+        {
+            if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
+            {
+                return !rel->brotherSetted();
+            }
+        }
     }
     return false;
 }

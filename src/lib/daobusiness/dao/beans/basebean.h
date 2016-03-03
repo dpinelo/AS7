@@ -330,7 +330,7 @@ public:
     BaseBeanPointer clone(QObject *parent);
 
     void resetToDefaultValues();
-    void setViewLinkedBean(BaseBean *bean);
+    void setViewLinkedBean(BaseBeanPointer bean);
 
     void copyValues(BaseBeanPointer otherBean, bool saveValues = false);
     void copyValues(BaseBeanPointer otherBean, const QStringList &fields);

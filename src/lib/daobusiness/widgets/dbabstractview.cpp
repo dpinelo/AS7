@@ -1076,6 +1076,10 @@ void DBAbstractViewInterface::paste()
             cells.removeLast(); // strip empty trailing tokens
         }
         int rows = selectedText.count(QLatin1Char('\n'));
+        if ( rows == 0 )
+        {
+            rows = 1;
+        }
         int cols = cells.size() / rows;
         if ( rows == 1 && cols == 1 )
         {

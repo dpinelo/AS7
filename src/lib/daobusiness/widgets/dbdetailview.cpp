@@ -585,6 +585,10 @@ void DBDetailView::addExisting()
         }
         dlg->setModal(true);
         dlg->setCanSelectSeveral(true);
+        // Añadiendo registros existentes, no tiene mucho sentido permitir agregar nuevos registros, ni editar los que hay (¿qué se agregaría, el registro editado o modificado
+        // o el leído de base de datos?)
+        dlg->setCanInsertRecords(false);
+        dlg->setCanEditRecords(false);
         dlg->init();
         dlg->exec();
 

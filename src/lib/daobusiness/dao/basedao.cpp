@@ -1978,7 +1978,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
                     QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Md5).toHex();
                     qry->bindValue(i, hashValue, QSql::In);
                 }
-                else if ( field->hasM1Relation() )
+                else if ( field->hasM1Relation() || field->hasBrotherRelation() )
                 {
                     qry->bindValue(i, field->isEmpty() ? QVariant() : field->value(), QSql::In);
                     QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::insert: bindValue: [%1]: [%2]").arg(field->metadata()->dbFieldName()).arg(field->value().toString()));
@@ -2097,7 +2097,7 @@ bool BaseDAO::update(BaseBean *bean, const QString &idTransaction, const QString
                             QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Md5).toHex();
                             qry->bindValue(i, hashValue, QSql::In);
                         }
-                        else if ( field->hasM1Relation() )
+                        else if ( field->hasM1Relation() || field->hasBrotherRelation() )
                         {
                             qry->bindValue(i, field->isEmpty() ? QVariant() : field->value(), QSql::In);
                             QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").arg(field->metadata()->dbFieldName()).arg(field->value().toString()));
@@ -2179,7 +2179,7 @@ bool BaseDAO::update(DBField *field, const QString &idTransaction, const QString
                 QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Md5).toHex();
                 qry->bindValue(":value", hashValue, QSql::In);
             }
-            else if ( field->hasM1Relation() )
+            else if ( field->hasM1Relation() || field->hasBrotherRelation() )
             {
                 qry->bindValue(":value", field->isEmpty() ? QVariant() : field->value(), QSql::In);
                 QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").arg(field->metadata()->dbFieldName()).arg(field->value().toString()));

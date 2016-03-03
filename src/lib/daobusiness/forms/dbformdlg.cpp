@@ -677,6 +677,8 @@ void DBFormDlg::actions()
     connect(ui->pbWizard, SIGNAL(clicked()), ui->actionWizard, SLOT(trigger()));
     connect(ui->pbHelp, SIGNAL(clicked()), ui->actionHelp, SLOT(trigger()));
     connect(ui->pbExportSpreadSheet, SIGNAL(clicked()), ui->actionExportSpreadSheet, SLOT(trigger()));
+    connect(d->m_itemView.data(), SIGNAL(fastFilterReturnPressed()), this, SLOT(fastFilterReturnPressed()));
+    connect(d->m_itemView.data(), SIGNAL(fastFilterKeyPress(int)), this, SLOT(fastFilterKeyPress(int)));
 }
 
 bool DBFormDlg::event(QEvent *e)
@@ -881,12 +883,21 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
             QMessageBox::warning(this,
                                  qApp->applicationName(),
                                  tr("Debe seleccionar un registro a editar."));
+            return;
+        }
+        if ( !ui->pbEdit->isVisible() )
+        {
+            openType = AlephERP::ReadOnly;
         }
     }
     else
     {
         openType = AlephERP::Insert;
         functionName = "beforeInsert";
+        if ( !ui->pbNew->isVisible() )
+        {
+            openType = AlephERP::ReadOnly;
+        }
     }
     if ( engine()->existQsFunction(functionName) )
     {
@@ -956,6 +967,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
         int ret = dlg->exec();
         bool userSaveData = dlg->userSaveData();
         delete dlg;
+        BaseDAO::reloadBeanFromDB(bean);
         if ( ret == QDialog::Accepted )
         {
             recordDlgClosed(userSaveData);
@@ -1758,6 +1770,38 @@ void DBFormDlg::resetFilter()
     }
 }
 
+void DBFormDlg::reloadBean(const QModelIndex &idx)
+{
+    // Si el índice a borrar es directamente del último parte del árbol, no hay problema
+    FilterBaseBeanModel *model = qobject_cast<FilterBaseBeanModel *> (d->m_itemView->filterModel());
+    if ( model == NULL )
+    {
+        d->m_lastMessage = QObject::trUtf8("Se ha producido un error general.");
+        return;
+    }
+    if ( d->m_metadata == NULL )
+    {
+        d->m_lastMessage = QObject::trUtf8("Se ha producido un error general. No existen los metadatos.");
+        return;
+    }
+    BaseBeanSharedPointer beanSelected = model->bean(idx);
+    BaseDAO::reloadBeanFromDB(beanSelected);
+}
+
+void DBFormDlg::reloadCurrentRow()
+{
+    if ( d->m_itemView.isNull() )
+    {
+        return;
+    }
+    QItemSelectionModel *selModel = d->m_itemView->selectionModel();
+    QModelIndexList indexes = selModel->selectedRows();
+    foreach (const QModelIndex &idx, indexes)
+    {
+        reloadBean(idx);
+    }
+}
+
 void DBFormDlg::setFilter(const QString &filter)
 {
     if ( d->m_itemView->filterModel() )
@@ -2122,4 +2166,80 @@ void DBFormDlg::showContextMenu(const QPoint &point)
         }
     }
     contextMenu.exec(globalPos);
+}
+
+void DBFormDlg::fastFilterReturnPressed()
+{
+    if ( d->m_itemView.isNull() )
+    {
+        return;
+    }
+    FilterBaseBeanModel *filterModel = d->m_itemView->filterModel();
+    QItemSelectionModel *selectionModel = d->m_itemView->selectionModel();
+    if ( filterModel == NULL || selectionModel == NULL )
+    {
+        return;
+    }
+    if ( filterModel->rowCount() == 1 )
+    {
+        QModelIndex init = filterModel->index(0, 0);
+        QModelIndex end = filterModel->index(0, filterModel->columnCount());
+        QItemSelection selection(init, end);
+        selectionModel->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        selectionModel->setCurrentIndex(init, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        if ( ui->pbEdit->isVisible() )
+        {
+            edit("false");
+            return;
+        }
+        if ( ui->pbView->isVisible() )
+        {
+            view();
+            return;
+        }
+    }
+    else if ( !selectionModel->selectedRows().isEmpty() )
+    {
+        if ( ui->pbEdit->isVisible() )
+        {
+            edit("false");
+            return;
+        }
+        if ( ui->pbView->isVisible() )
+        {
+            view();
+            return;
+        }
+    }
+}
+
+void DBFormDlg::fastFilterKeyPress(int key)
+{
+    if ( d->m_itemView.isNull() )
+    {
+        return;
+    }
+    FilterBaseBeanModel *filterModel = d->m_itemView->filterModel();
+    QItemSelectionModel *selectionModel = d->m_itemView->selectionModel();
+    if ( filterModel == NULL || selectionModel == NULL )
+    {
+        return;
+    }
+    int row = selectionModel->currentIndex().row();
+    if ( key == Qt::Key_Down )
+    {
+        row++;
+    }
+    else if ( key == Qt::Key_Up )
+    {
+        row--;
+    }
+    if ( row > -1 && row < filterModel->rowCount() )
+    {
+        QModelIndex init = filterModel->index(row, 0);
+        QModelIndex end = filterModel->index(row, filterModel->columnCount());
+        QItemSelection selection(init, end);
+        selectionModel->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        selectionModel->setCurrentIndex(init, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    }
 }

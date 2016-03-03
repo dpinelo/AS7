@@ -65,6 +65,8 @@ protected:
     virtual QString initOrderedColumnSort();
     virtual void addFieldsCombo();
 
+    virtual bool eventFilter(QObject *sender, QEvent *event);
+
 public:
     explicit DBAbstractFilterView(QWidget *parent = 0);
     virtual ~DBAbstractFilterView();
@@ -126,6 +128,8 @@ signals:
     void requestForInsertRecord(QModelIndex idx);
     void requestForEditRecord(QModelIndex idx);
     void requestForDeleteRecord(QModelIndex idx);
+    void fastFilterReturnPressed();
+    void fastFilterKeyPress(int key);
 };
 
 Q_DECLARE_METATYPE(DBAbstractFilterView*)

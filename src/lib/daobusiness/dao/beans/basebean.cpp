@@ -1677,8 +1677,6 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore)
         }
     }
 
-    // saveChildren a true sólo guarda los hijos de las relaciones 11 y 1M, pero no los "nuevos padres"
-    // que se hayan podido insertar, eso se ha hecho antes
     if ( dbState() == BaseBean::INSERT )
     {
         result = BaseDAO::insert(this, transaction);
@@ -3726,8 +3724,12 @@ void BaseBean::resetToDefaultValues()
  * a un bean de una tabla. Aquí se establece esa relación
  * @param bean
  */
-void BaseBean::setViewLinkedBean(BaseBean *bean)
+void BaseBean::setViewLinkedBean(BaseBeanPointer bean)
 {
+    if ( bean.isNull() )
+    {
+        return;
+    }
     QMutexLocker lock(&d->m_mutex);
     d->m_viewLinkedBean = BaseBeanPointer (bean);
     if ( !d->m_viewLinkedBean.isNull() )

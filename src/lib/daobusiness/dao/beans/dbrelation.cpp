@@ -2061,18 +2061,70 @@ void DBRelation::setFather(BaseBean *bean)
     restoreOverrideOnExecution();
 }
 
-bool DBRelation::fatherSetted() const
+bool DBRelation::fatherSetted()
 {
+    if ( d->m == NULL )
+    {
+        return false;
+    }
+    if ( ownerBean() == NULL )
+    {
+        return false;
+    }
+    if ( isExecuting(AlephERP::CheckFatherSetted) )
+    {
+        if ( d->m_father.isNull() )
+        {
+            return false;
+        }
+        if ( !d->m_father->modified() && d->m_father->dbState() == BaseBean::INSERT )
+        {
+            return false;
+        }
+        return true;
+    }
+    setOnExecution(AlephERP::CheckFatherSetted);
     DBField *orig = ownerBean()->field(d->m->rootFieldName());
+    bool r = false;
     if ( orig != NULL )
     {
         int id = orig->value().toInt();
         if ( id > 0 )
         {
-            return true;
+            r = true;
         }
     }
-    return false;
+    restoreOverrideOnExecution();
+    return r;
+}
+
+bool DBRelation::brotherSetted()
+{
+    if ( d->m == NULL )
+    {
+        return false;
+    }
+    if ( ownerBean() == NULL )
+    {
+        return false;
+    }
+    if ( isExecuting(AlephERP::CheckFatherSetted) )
+    {
+        return false;
+    }
+    setOnExecution(AlephERP::CheckFatherSetted);
+    DBField *orig = ownerBean()->field(d->m->rootFieldName());
+    bool r = false;
+    if ( orig != NULL )
+    {
+        int id = orig->value().toInt();
+        if ( id > 0 )
+        {
+            r = true;
+        }
+    }
+    restoreOverrideOnExecution();
+    return r;
 }
 
 /** Devuelve sólo aquellas referencias de hijos compartido (esto excluye a todos los otros otherChilds */

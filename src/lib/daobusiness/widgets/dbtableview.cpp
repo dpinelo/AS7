@@ -350,7 +350,7 @@ void DBTableView::setModel(QAbstractItemModel *mdl)
     if ( filterModel() != NULL )
     {
         QAbstractItemModel *tmp = filterModel()->sourceModel();
-        if ( tmp->property(AlephERP::stBaseBeanModel).toBool() )
+        if ( tmp != NULL && tmp->property(AlephERP::stBaseBeanModel).toBool() )
         {
             BaseBeanModel *metadataModel = qobject_cast<BaseBeanModel *>(filterModel()->sourceModel());
             if ( metadataModel != NULL )

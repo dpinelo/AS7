@@ -182,6 +182,7 @@ public:
     void addRelation (DBRelation *rel);
     void setRelations(const QList<DBRelation *> rels);
     bool hasM1Relation() const;
+    bool hasBrotherRelation() const;
 
     QString sqlEqual();
 

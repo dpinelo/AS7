@@ -99,7 +99,7 @@ public:
 
     QDialog *inputDialog(const QString &label, QWidget *mainWidget);
     BaseBeanSharedPointerList chooseRecordsFromTable(const QString &tableName, const QString &where, const QString &order, const QString &label, bool userEnvVars);
-
+    BaseBeanSharedPointer chooseRecordFromTable(const QString &tableName, const QString &where, const QString &order, const QString &label, bool userEnvVars);
 };
 
 AERPScriptCommon::AERPScriptCommon(QObject *parent) :
@@ -1920,20 +1920,13 @@ QScriptValue AERPScriptCommon::chooseRecordFromTable(const QString &tableName, c
         QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPScriptCommon::chooseRecordFromComboBox: El engine es null"));
         return QScriptValue(QScriptValue::NullValue);
     }
-    BaseBeanSharedPointerList beans = d_ptr->chooseRecordsFromTable(tableName, where, order, label, userEnvVars);
-    if ( beans.isEmpty() )
+    BaseBeanSharedPointer bean = d_ptr->chooseRecordFromTable(tableName, where, order, label, userEnvVars);
+    if ( bean.isNull() )
     {
         return QScriptValue(QScriptValue::NullValue);
     }
-    foreach ( BaseBeanSharedPointer bean, beans )
-    {
-        if ( !bean.isNull() )
-        {
-            QScriptValue scriptBean = engine()->newQObject(bean->clone(NULL), QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject);
-            return scriptBean;
-        }
-    }
-    return QScriptValue(QScriptValue::NullValue);
+    QScriptValue scriptBean = engine()->newQObject(bean->clone(NULL), QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject);
+    return scriptBean;
 }
 
 /**
@@ -2431,6 +2424,35 @@ QScriptValue AERPScriptCommon::dataTable()
     return r;
 }
 
+/**
+ * @brief AERPScriptCommon::dataTable
+ * AERPScriptCommon.dataTable("tvw_resumen_expedicion_lineas", "idpedido=" + 1234);
+ * @param tableName
+ * @param relationName
+ */
+void AERPScriptCommon::dataTable(const QString &tableName, const QString &where, const QString &order)
+{
+    QWidget *activeWindow = qApp->activeWindow();
+    if ( activeWindow == NULL )
+    {
+        activeWindow = (AERPMainWindow *) qApp->property(AlephERP::stMainWindowPointer).value<void *>();
+    }
+
+    QDialog *dialog  = new QDialog(activeWindow);
+    DBBaseBeanModel *model = new DBBaseBeanModel(tableName, where, order, false, true, true, dialog);
+    QHBoxLayout *hBoxLayout = new QHBoxLayout;
+    QPushButton *pbOk = new QPushButton(QIcon(":/aplicacion/images/ok.png"), "&Ok", dialog);
+    DBTableView *tableView = new DBTableView(dialog);
+    tableView->setModel(model);
+    hBoxLayout->addWidget(tableView);
+    hBoxLayout->addWidget(pbOk);
+    connect(pbOk, SIGNAL(clicked(bool)), dialog, SLOT(close()));
+    dialog->setLayout(hBoxLayout);
+    dialog->setModal(true);
+    dialog->setAttribute(Qt::WA_DeleteOnClose, true);
+    dialog->show();
+}
+
 void AERPScriptCommon::showTrayIconMessage(const QString &message)
 {
     QVariant v = qApp->property(AlephERP::stTrayIcon);
@@ -2624,6 +2646,74 @@ BaseBeanSharedPointerList AERPScriptCommonPrivate::chooseRecordsFromTable(const 
 
     QModelIndexList checkedItems = mdl->checkedItems();
     return mdl->beansToBeEdited(checkedItems);
+}
+
+BaseBeanSharedPointer AERPScriptCommonPrivate::chooseRecordFromTable(const QString &tableName, const QString &where, const QString &order, const QString &label, bool userEnvVars)
+{
+    BaseBeanMetadata *m = BeansFactory::instance()->metadataBean(tableName);
+    if ( m == NULL )
+    {
+        QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPScriptCommon::chooseRecordFromComboBox: No existe la tabla: [%1]").arg(tableName));
+        return BaseBeanSharedPointer();
+    }
+    QString showedLabel;
+    if (!label.isEmpty())
+    {
+        showedLabel = label;
+    }
+    else
+    {
+        showedLabel = QObject::trUtf8("Seleccione: %1").arg(m->alias());
+    }
+
+    // Creamos el diálogo
+    QScopedPointer<QDialog> dlg (new QDialog());
+    QLabel *lbl = new QLabel(showedLabel, dlg.data());
+    DBTableView *tableView = new DBTableView(dlg.data());
+    DBBaseBeanModel *mdl = new DBBaseBeanModel(tableName, where, order, true, userEnvVars);
+    mdl->setParent(dlg.data());
+    FilterBaseBeanModel *filterMdl = new FilterBaseBeanModel(dlg.data());
+    QVBoxLayout *layout = new QVBoxLayout;
+    QDialogButtonBox *bg = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, dlg.data());
+    QObject::connect(bg, SIGNAL(accepted()), dlg.data(), SLOT(accept()));
+    QObject::connect(bg, SIGNAL(rejected()), dlg.data(), SLOT(reject()));
+
+    qDebug() << Q_FUNC_INFO
+             << "Objetos creados";
+
+    filterMdl->setSourceModel(mdl);
+    tableView->setModel(filterMdl);
+    layout->addWidget(lbl);
+    layout->addWidget(tableView);
+    layout->addWidget(bg);
+    tableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    dlg->setWindowTitle(qApp->applicationName());
+    dlg->setLayout(layout);
+    dlg->setModal(true);
+    dlg->setWindowState(dlg->windowState() | Qt::WindowMaximized);
+    dlg->setObjectName(QString("ChooseRecordsDlg-%1").arg(tableName));
+
+    alephERPSettings->applyPosForm(dlg.data());
+    alephERPSettings->applyDimensionForm(dlg.data());
+    if ( dlg->exec() == QDialog::Rejected )
+    {
+        return BaseBeanSharedPointer();
+    }
+    alephERPSettings->savePosForm(dlg.data());
+    alephERPSettings->saveDimensionForm(dlg.data());
+
+    QItemSelectionModel *selectionModel = tableView->selectionModel();
+    if ( selectionModel == NULL )
+    {
+        return BaseBeanSharedPointer();
+    }
+    QModelIndexList lst = selectionModel->selectedRows();
+    if ( lst.size() == 0 )
+    {
+        return BaseBeanSharedPointer();
+    }
+    return filterMdl->beanToBeEdited(lst.first());
 }
 
 /**

@@ -9,6 +9,12 @@
     <moduleToolBarEntryPath>Sistema</moduleToolBarEntryPath>
     <menuEntryPath>Configuración</menuEntryPath>
 
+    <itemsFilterColumn>
+        <itemFilter>
+            <fieldToFilter>type</fieldToFilter>
+        </itemFilter>
+    </itemsFilterColumn>
+
     <field>
         <name>id</name>
         <alias>Cod. Tabla</alias>

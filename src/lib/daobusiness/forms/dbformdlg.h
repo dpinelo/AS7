@@ -159,6 +159,8 @@ public slots:
     void setFilterKeyColumn(const QString &dbFieldName, const QString &op, const QVariant &value, int level = -1);
     void setFilter(const QString &filter);
     void resetFilter();
+    void reloadBean(const QModelIndex &idx);
+    void reloadCurrentRow();
 
     void setStaticModel() { freezeModel(); }
     void disableStaticModel() { defrostModel(); }
@@ -204,6 +206,8 @@ protected slots:
     void view();
     void exportSpreadSheet();
     void showContextMenu(const QPoint &point);
+    void fastFilterReturnPressed();
+    void fastFilterKeyPress(int key);
 
 private slots:
     void specialEdit(const QString code);

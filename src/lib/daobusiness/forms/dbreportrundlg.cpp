@@ -857,6 +857,7 @@ void DBReportRunDlgPrivate::showAvailableButtons()
             {
                 q_ptr->ui->pbEdit->setVisible(false);
             }
+            q_ptr->ui->pbPrint->setVisible(iface->canPreview());
             q_ptr->ui->pbPreview->setVisible(iface->canPreview());
             q_ptr->ui->pbPDF->setVisible(iface->canCreatePDF());
         }

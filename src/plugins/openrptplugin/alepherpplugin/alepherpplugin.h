@@ -112,6 +112,10 @@ public:
 
     bool reportIsBinaryFile();
 
+    void setPrinterName(const QString &name);
+
+    void setAutoPrint(bool value);
+
 protected slots:
     void editReportWindowClose();
 

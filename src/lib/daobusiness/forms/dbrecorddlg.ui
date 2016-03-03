@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1190</width>
-    <height>77</height>
+    <height>58</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,16 +24,6 @@
       <enum>QLayout::SetDefaultConstraint</enum>
      </property>
     </layout>
-   </item>
-   <item>
-    <widget class="QCheckBox" name="chkNavigateSavingChanges">
-     <property name="whatsThis">
-      <string>Si este checkbox está seleccionado, y usted ha modificado datos, éstos se guardarán automáticamente al pulsar los botones &quot;Anterior&quot;, &quot;Siguiente&quot;, &quot;Primero&quot; o &quot;Último&quot;. Si no está seleccionado, se le preguntará si desea guardar los datos modificados.</string>
-     </property>
-     <property name="text">
-      <string>Guardar los datos modificados automáticamente al navegar por los registros</string>
-     </property>
-    </widget>
    </item>
    <item>
     <widget class="QFrame" name="frameButtons">
@@ -65,6 +55,16 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
+      <item>
+       <widget class="QCheckBox" name="chkNavigateSavingChanges">
+        <property name="whatsThis">
+         <string>Si este checkbox está seleccionado, y usted ha modificado datos, éstos se guardarán automáticamente al pulsar los botones &quot;Anterior&quot;, &quot;Siguiente&quot;, &quot;Primero&quot; o &quot;Último&quot;. Si no está seleccionado, se le preguntará si desea guardar los datos modificados.</string>
+        </property>
+        <property name="text">
+         <string>Guardar automáticamente al navegar</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <spacer name="horizontalSpacer">
         <property name="orientation">
@@ -718,7 +718,6 @@ Podrá enviarlo también por correo electrónico (F9)</string>
   </layout>
  </widget>
  <tabstops>
-  <tabstop>chkNavigateSavingChanges</tabstop>
   <tabstop>pbEditScript</tabstop>
   <tabstop>pbRelatedElements</tabstop>
   <tabstop>pbDocuments</tabstop>

@@ -71,6 +71,7 @@ class ALEPHERP_DLL_EXPORT DBSearchDlg : public AERPBaseDialog
     Q_PROPERTY (bool userInsertNewRecord READ userInsertNewRecord)
     Q_PROPERTY (QString filterData READ filterData WRITE setFilterData)
     Q_PROPERTY (bool canInsertRecords READ canInsertRecords WRITE setCanInsertRecords)
+    Q_PROPERTY (bool canEditRecords READ canEditRecords WRITE setCanEditRecords)
     Q_PROPERTY (BaseBeanPointer masterBean READ masterBean WRITE setMasterBean)
 
     Q_FLAGS (DBSearchButtons)
@@ -113,6 +114,9 @@ public:
 
     bool canInsertRecords() const;
     void setCanInsertRecords(bool value);
+
+    bool canEditRecords() const;
+    void setCanEditRecords(bool value);
 
     bool canSelectSeveral();
     void setCanSelectSeveral(bool value);

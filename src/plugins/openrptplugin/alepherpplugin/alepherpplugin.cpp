@@ -266,7 +266,6 @@ bool OpenRPTPlugin::print(bool showPreview, int numCopies)
         if(!d->m_printerName.isEmpty())
         {
             printer.setPrinterName(d->m_printerName);
-            d->m_printerName = QString::null;
         }
 
         ORPrintRender render;
@@ -453,6 +452,16 @@ bool OpenRPTPlugin::editReport(const QString &reportPath)
 bool OpenRPTPlugin::reportIsBinaryFile()
 {
     return false;
+}
+
+void OpenRPTPlugin::setPrinterName(const QString &name)
+{
+    d->m_printerName = name;
+}
+
+void OpenRPTPlugin::setAutoPrint(bool value)
+{
+    d->m_autoPrint = value;
 }
 
 void OpenRPTPlugin::editReportWindowClose()
