@@ -229,6 +229,7 @@ void DBNumberEdit::storeNumber(const QString & texto)
     }
     emit valueEdited(QVariant(d->m_numericValue));
     d->m_userModifiedValue = true;
+    m_userModified = true;
 }
 
 void DBNumberEdit::calculate()

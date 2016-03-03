@@ -160,7 +160,7 @@ void DBBaseWidget::setFieldName(const QString &name)
     }
 }
 
-QString DBBaseWidget::fieldName()
+QString DBBaseWidget::fieldName() const
 {
     return m_fieldName;
 }
@@ -170,7 +170,7 @@ void DBBaseWidget::setRelationName(const QString &name)
     m_relationName = name;
 }
 
-QString DBBaseWidget::relationName()
+QString DBBaseWidget::relationName() const
 {
     return m_relationName;
 }
@@ -191,7 +191,7 @@ void DBBaseWidget::setRelationFilter(const QString &value)
     }
 }
 
-QString DBBaseWidget::relationFilter()
+QString DBBaseWidget::relationFilter() const
 {
     return m_relationFilter;
 }
@@ -212,6 +212,11 @@ bool DBBaseWidget::dataEditable()
     {
         return m_dataEditable;
     }
+    DBSearchDlg *searchDlg = qobject_cast<DBSearchDlg *>(CommonsFunctions::aerpParentDialog(wid));
+    if ( searchDlg != NULL )
+    {
+        return m_dataEditable;
+    }
     if ( observer()->readOnly() )
     {
         return false;
@@ -225,7 +230,7 @@ void DBBaseWidget::setDataEditable(bool value)
     applyFieldProperties();
 }
 
-bool DBBaseWidget::userModified()
+bool DBBaseWidget::userModified() const
 {
     return m_userModified;
 }
@@ -235,7 +240,7 @@ void DBBaseWidget::setUserModified(bool value)
     m_userModified = value;
 }
 
-bool DBBaseWidget::dataFromParentDialog()
+bool DBBaseWidget::dataFromParentDialog() const
 {
     return m_dataFromParentDialog;
 }
@@ -245,7 +250,7 @@ void DBBaseWidget::setDataFromParentDialog(bool value)
     m_dataFromParentDialog = value;
 }
 
-DBRelation *DBBaseWidget::relation ()
+DBRelation *DBBaseWidget::relation () const
 {
     return m_relation;
 }

@@ -123,20 +123,20 @@ public:
     virtual AbstractObserver *observer(bool sync = true);
 
     virtual void setFieldName(const QString &name);
-    virtual QString fieldName();
+    virtual QString fieldName() const;
     virtual void setRelationName(const QString &name);
-    virtual QString relationName();
+    virtual QString relationName() const;
     virtual void setRelationFilter(const QString &name);
-    virtual QString relationFilter();
+    virtual QString relationFilter() const;
     virtual bool dataEditable();
     virtual void setDataEditable(bool value);
-    virtual bool userModified();
+    virtual bool userModified() const;
     virtual void setUserModified(bool value);
-    virtual bool dataFromParentDialog();
+    virtual bool dataFromParentDialog() const;
     virtual void setDataFromParentDialog(bool value);
-    virtual DBRelation *relation ();
+    virtual DBRelation *relation () const;
     virtual void setDBRelation(DBRelation *rel);
-    virtual bool aerpControl()
+    virtual bool aerpControl() const
     {
         return true;
     }

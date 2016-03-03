@@ -395,6 +395,7 @@ void DBLineEdit::emitValueEdited()
     QVariant v (QLineEdit::text());
     emit valueEdited(v);
     d->m_userModifiedValue = true;
+    m_userModified = true;
 }
 
 /**
