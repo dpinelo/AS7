@@ -1141,14 +1141,22 @@ void FilterBaseBeanModel::sort (int column, Qt::SortOrder order)
             }
             else
             {
-                orderClausule = QString("%1 %2").arg(visibleFlds.at(column)->dbFieldName()).
-                                arg(order == Qt::AscendingOrder ? "ASC" : "DESC");
-                if ( orderClausule != model->internalOrderClausule() )
+                CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+                RelationBaseBeanModel *relModel = qobject_cast<RelationBaseBeanModel *>(model);
+                if ( relModel != NULL )
                 {
-                    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-                    model->setInternalOrderClausule(orderClausule, true);
-                    CommonsFunctions::restoreOverrideCursor();
+                    QSortFilterProxyModel::sort(column, order);
                 }
+                else
+                {
+                    orderClausule = QString("%1 %2").arg(visibleFlds.at(column)->dbFieldName()).
+                                    arg(order == Qt::AscendingOrder ? "ASC" : "DESC");
+                    if ( orderClausule != model->internalOrderClausule() )
+                    {
+                        model->setInternalOrderClausule(orderClausule, true);
+                    }
+                }
+                CommonsFunctions::restoreOverrideCursor();
             }
         }
         else
