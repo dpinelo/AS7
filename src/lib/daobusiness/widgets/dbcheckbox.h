@@ -61,6 +61,7 @@ public:
     explicit DBCheckBox(QWidget *parent = 0);
     ~DBCheckBox();
 
+    bool userModified() const;
     void applyFieldProperties();
     QVariant value();
     AlephERP::ObserverType observerType(BaseBean *)

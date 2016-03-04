@@ -2555,7 +2555,10 @@ void DBRelation::availableBean(QString id, int row, BaseBeanSharedPointer bean)
         d->m_children.resize(row+1);
         d->m_childrenCount = row;
     }
-    d->m_children[row] = bean;
+    if ( AERP_CHECK_INDEX_OK(row, d->m_children) )
+    {
+        d->m_children[row] = bean;
+    }
     bool blockSignalsState = bean->blockSignals(true);
     bean->setOwner(this);
     // Si el padre está en un contexto, el hijo se agregará también al contexto

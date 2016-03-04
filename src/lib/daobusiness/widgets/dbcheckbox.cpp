@@ -44,6 +44,15 @@ DBCheckBox::~DBCheckBox()
     emit destroyed(this);
 }
 
+bool DBCheckBox::userModified() const
+{
+    if ( checkState() == Qt::PartiallyChecked )
+    {
+        return false;
+    }
+    return m_userModified;
+}
+
 void DBCheckBox::showEvent(QShowEvent *event)
 {
     DBBaseWidget::showEvent(event);

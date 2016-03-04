@@ -395,6 +395,7 @@ void DBLineEdit::emitValueEdited()
     QVariant v (QLineEdit::text());
     emit valueEdited(v);
     d->m_userModifiedValue = true;
+    m_userModified = true;
 }
 
 /**
@@ -898,6 +899,10 @@ void DBLineEdit::mouseReleaseEvent(QMouseEvent *event)
             {
                 selStart = selectionStart();
                 selLength = selectedText().length();
+            }
+            if ( selStart == -1 && selLength == -1 )
+            {
+                return;
             }
             QLineEdit::setText(fld->displayValue());
             // This order is very important.

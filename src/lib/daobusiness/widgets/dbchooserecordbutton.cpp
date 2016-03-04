@@ -451,6 +451,7 @@ void DBChooseRecordButton::buttonClicked()
                     {
                         b->observer()->sync();
                     }
+                    m_userModified = true;
                 }
             }
         }

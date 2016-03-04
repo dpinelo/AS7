@@ -393,18 +393,20 @@ bool DBSearchDlg::init()
     QList<QWidget *> list = findChildren<QWidget *>();
     foreach (QWidget *widget, list)
     {
-        QHashIterator<QString, QVariant> it(d->m_defaultValues);
-        while (it.hasNext())
+        if ( widget->property(AlephERP::stAerpControl).toBool() )
         {
-            it.next();
-            if ( widget->property(AlephERP::stAerpControl).toBool() )
+            DBBaseWidget *baseWidget = dynamic_cast<DBBaseWidget *>(widget);
+            QHashIterator<QString, QVariant> it(d->m_defaultValues);
+            while (it.hasNext())
             {
-                DBBaseWidget *baseWidget = dynamic_cast<DBBaseWidget *>(widget);
+                it.next();
                 if ( baseWidget->fieldName() == it.key() )
                 {
                     baseWidget->setValue(it.value());
                 }
             }
+            // Por defecto todos los controles en el DBSearch son editables.
+            baseWidget->setDataEditable(true);
         }
     }
     d->setupQs();
@@ -1324,7 +1326,7 @@ void DBSearchDlgPrivate::resetFilter()
     BaseBeanModel *model = qobject_cast<BaseBeanModel *>(m_model);
     if ( m_model != NULL )
     {
-        model->setWhere(QString());
+        model->setWhere(m_filterData);
         return;
     }
 }
@@ -1420,15 +1422,18 @@ QList<QHashVariant> DBSearchDlgPrivate::searchState()
                                     QHashVariant value1, value2;
                                     DBBaseWidget *wid1 = dynamic_cast<DBBaseWidget *> (widget);
                                     DBBaseWidget *wid2 = dynamic_cast<DBBaseWidget *> (widget2);
-                                    value1["value"] = wid1->value();
-                                    value2["value"] = wid2->value();
-                                    value1["operator"] = OP_BETWEEN;
-                                    value2["operator"] = OP_AND;
-                                    value1["fieldName"] = fld->dbFieldName();
-                                    value2["fieldName"] = fld->dbFieldName();
-                                    widgetsState.append(value1);
-                                    widgetsState.append(value2);
-                                    fieldsOnState.append(fld->dbFieldName());
+                                    if ( wid1->userModified() || wid2->userModified() )
+                                    {
+                                        value1["value"] = wid1->value();
+                                        value2["value"] = wid2->value();
+                                        value1["operator"] = OP_BETWEEN;
+                                        value2["operator"] = OP_AND;
+                                        value1["fieldName"] = fld->dbFieldName();
+                                        value2["fieldName"] = fld->dbFieldName();
+                                        widgetsState.append(value1);
+                                        widgetsState.append(value2);
+                                        fieldsOnState.append(fld->dbFieldName());
+                                    }
                                 }
                             }
                         }
@@ -1436,8 +1441,7 @@ QList<QHashVariant> DBSearchDlgPrivate::searchState()
                         {
                             QHashVariant valueState;
                             DBBaseWidget *wid = dynamic_cast<DBBaseWidget *> (widget);
-                            DBCheckBox *chk = qobject_cast<DBCheckBox *>(widget);
-                            if ( wid != NULL && ! (chk != NULL && chk->checkState() == Qt::PartiallyChecked) )
+                            if ( wid != NULL && wid->userModified() )
                             {
                                 QVariant v = wid->value();
                                 // OJO: Los number edit devuelven un valor válido, aunque el control esté vacío...
@@ -1467,8 +1471,7 @@ QList<QHashVariant> DBSearchDlgPrivate::searchState()
                     else
                     {
                         DBBaseWidget *wid = dynamic_cast<DBBaseWidget *> (widget);
-                        DBCheckBox *chk = qobject_cast<DBCheckBox *>(widget);
-                        if ( wid != NULL && ! (chk != NULL && chk->checkState() == Qt::PartiallyChecked) )
+                        if ( wid != NULL &&  wid->userModified() )
                         {
                             QHashVariant valueState;
                             valueState["value"] = wid->value();
@@ -1490,11 +1493,7 @@ QList<QHashVariant> DBSearchDlgPrivate::searchState()
                 else
                 {
                     DBBaseWidget *wid = dynamic_cast<DBBaseWidget *> (widget);
-                    DBCheckBox *chk = qobject_cast<DBCheckBox *>(widget);
-                    DBChooseRecordButton *chooseButton = qobject_cast<DBChooseRecordButton *>(widget);
-                    if ( wid != NULL &&
-                         ! (chk != NULL && chk->checkState() == Qt::PartiallyChecked) &&
-                         ! (chooseButton != NULL && !chooseButton->hasSelectedBean()) )
+                    if ( wid != NULL && wid->userModified() )
                     {
                         QHashVariant valueState;
                         // ¿Hay otro widget con el mismo nombre? Si lo hay, entonces tenemos que hacer un between

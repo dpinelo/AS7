@@ -167,7 +167,8 @@ public:
                            DBRecordDlg::Previous |
                            DBRecordDlg::Next |
                            DBRecordDlg::Last |
-                           DBRecordDlg::History;
+                           DBRecordDlg::History |
+                           DBRecordDlg::Print;
     }
 
     bool insertRow(QItemSelectionModel *selectionModel);
