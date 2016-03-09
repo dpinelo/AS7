@@ -379,6 +379,7 @@ bool ModulesDAOPrivate::importModuleFiles(const QString &xmlOrigin, const QStrin
                 QFileInfo fi (moduleDirPath + "/" + itemToImport["fileName"]);
                 if ( fi.exists() )
                 {
+                    QLogger::QLog_Debug(AlephERP::stLogOther, QString("Procesando: [%1]").arg(moduleDirPath + "/" + itemToImport["fileName"]));
                     QFile f(moduleDirPath + "/" + itemToImport["fileName"]);
                     if ( f.open(QIODevice::ReadOnly) )
                     {
