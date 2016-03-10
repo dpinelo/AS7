@@ -778,7 +778,7 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
     else
     {
         // Y ahora creamos el formulario que presentará los datos de este bean.
-        QApplication::setOverrideCursor(Qt::WaitCursor);
+        CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
         BaseBeanSharedPointer beanToEdit = filterModel()->beanToBeEdited(idx);
         BaseBeanPointer b = beanToEdit.data();
         if ( beanToEdit )
@@ -789,6 +789,12 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
                 if ( b.isNull() )
                 {
                     QLogger::QLog_Warning(AlephERP::stLogOther, QObject::tr("DBAbstractViewInterface::itemClicked: No existe la relación %1").arg(fld->metadata()->linkRelation()));
+                    CommonsFunctions::restoreOverrideCursor();
+                    return;
+                }
+                if ( b->dbState() == BaseBean::INSERT && !b->modified() )
+                {
+                    CommonsFunctions::restoreOverrideCursor();
                     return;
                 }
             }
