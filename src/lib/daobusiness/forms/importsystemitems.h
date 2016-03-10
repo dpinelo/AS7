@@ -66,7 +66,6 @@ public:
 
 protected slots:
     void showTables(const QString &moduleId);
-    void setResultCursorPosition();
 
 public slots:
     void ok();

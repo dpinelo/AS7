@@ -1184,7 +1184,14 @@ BaseBeanSharedPointer DBRelation::newChild(int pos)
     }
     if ( pos != -1 )
     {
-        d->m_children.insert(pos, child);
+        if ( pos > d->m_children.size() )
+        {
+            d->m_children.append(child);
+        }
+        else
+        {
+            d->m_children.insert(pos, child);
+        }
     }
     else
     {
