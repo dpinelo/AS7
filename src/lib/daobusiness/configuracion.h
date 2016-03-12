@@ -141,6 +141,8 @@ private:
 
     bool m_allowSystemTray;
 
+    int m_reportsToShowCombobox;
+
     bool m_userWritesHistory;
 
     QMap<QString, QVariant> m_scheduleMode;
@@ -262,6 +264,9 @@ public:
     void setMdiTabView(bool value);
 
     int humanKeyPressIntervalMsecs() const;
+
+    int reportsToShowCombobox() const;
+    void setReportsToShowCombobox(int value);
 
     int scheduleMode(const QString &schedule) const;
     void setScheduleMode(const QString &schedule, int value);
