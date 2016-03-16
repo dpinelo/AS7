@@ -470,7 +470,7 @@ void DBReportRunDlgPrivate::buildUIChooseReport()
         CommonsFunctions::restoreOverrideCursor();
         return;
     }
-    if ( reports.size() < 5 )
+    if ( reports.size() < alephERPSettings->reportsToShowCombobox() )
     {
         QVBoxLayout *gbLayout = new QVBoxLayout();
         foreach (ReportMetadata *report, reports)

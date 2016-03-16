@@ -110,8 +110,6 @@ SystemItemsDlg::SystemItemsDlg(const QString &moduleName, const QList<QHash<QStr
     connect(ui->pbUnselectAll, SIGNAL(clicked()), this, SLOT(uncheckAll()));
     connect(ui->pbBack, SIGNAL(clicked()), this, SLOT(backDiff()));
     connect(ui->twDiff, SIGNAL(itemClicked(QTableWidgetItem*)), this, SLOT(applyIndividualDiff(QTableWidgetItem *)));
-    connect(ui->txtDiff->verticalScrollBar(), SIGNAL(sliderMoved(int)), ui->txtResult->verticalScrollBar(), SLOT(setValue(int)));
-    connect(ui->txtDiff, SIGNAL(cursorPositionChanged()), this, SLOT(setResultCursorPosition()));
 }
 
 SystemItemsDlg::SystemItemsDlg(const QString &module, const QString &type, QWidget *parent) :
@@ -201,14 +199,6 @@ void SystemItemsDlg::showTables(const QString &moduleId)
     }
 }
 
-void SystemItemsDlg::setResultCursorPosition()
-{
-    QTextCursor txtCursor = ui->txtDiff->textCursor();
-    QTextCursor txtResultCursor = ui->txtResult->textCursor();
-    txtResultCursor.setPosition(txtCursor.position());
-    ui->txtResult->setTextCursor(txtResultCursor);
-}
-
 void SystemItemsDlg::ok()
 {
     d->m_list.clear();
@@ -266,7 +256,6 @@ void SystemItemsDlg::showDiff()
     QString htmlDiff = CommonsFunctions::prettyDiff(finalListDiff);
     ui->stackedWidget->setCurrentWidget(ui->pageDiff);
     ui->txtDiff->setHtml(htmlDiff);
-    ui->txtResult->setHtml(CommonsFunctions::prettyDiffResult(finalListDiff));
 
     foreach(Patch p, patches)
     {
@@ -328,9 +317,6 @@ void SystemItemsDlg::applyIndividualDiff(QTableWidgetItem *item)
         }
     }
     QPair<QString, QVector<bool> > result = diff.patch_apply(patches, d->m_actualDiffItem["actualContent"]);
-    QString content = d->m_actualDiffItem["actualContent"];
-    QList<Diff> finalListDiff = diff.diff_main_lines(content, result.first);
-    ui->txtResult->setHtml(CommonsFunctions::prettyDiffResult(finalListDiff));
     d->m_actualDiffItem["contentToImport"] = result.first;
 }
 

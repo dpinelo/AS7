@@ -321,6 +321,10 @@ void DBChooseRecordButton::showEvent(QShowEvent *event)
             {
                 setDBRelation(relations.at(0));
             }
+            else
+            {
+                QLogger::QLog_Error(AlephERP::stLogOther, QString("DBChooseRecordButton: %1 asignado a un field %2, con una relación 1M, cuando debería ser 11 o M1.").arg(objectName()).arg(fld->dbFieldName()));
+            }
         }
     }
 }

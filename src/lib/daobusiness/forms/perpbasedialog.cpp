@@ -287,6 +287,7 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBRecordDlg(BaseBeanMetadata
                 widList.at(0)->setObjectName(QString("db_%1").arg(fld->dbFieldName()));
                 QLabel *lbl = new QLabel(q_ptr);
                 lbl->setText(fld->fieldName());
+                lbl->setBuddy(widList.at(0));
                 widList.prepend(lbl);
                 rowWidgets[row] = widList;
                 row++;
@@ -413,6 +414,7 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBSearchDlg(BaseBeanMetadata
             {
                 QLabel *lbl = new QLabel(q_ptr);
                 lbl->setText(fld->fieldName());
+                lbl->setBuddy(widList.at(0));
                 widList.prepend(lbl);
                 rowWidgets[row] = widList;
                 row++;

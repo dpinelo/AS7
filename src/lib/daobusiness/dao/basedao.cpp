@@ -2259,7 +2259,8 @@ bool BaseDAO::remove(BaseBean *bean, const QString &idTransaction, const QString
                 }
             }
         }
-        else if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
+        else if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY &&
+                  !rel->metadata()->deleteCascade() )
         {
             // Si se borra un bean, que tiene asociados una serie de beans preexistentes, se elimina de éstos la referencia al bean eliminado
             if ( !BaseDAO::removeReference(bean, rel) )
@@ -2337,6 +2338,19 @@ bool BaseDAO::remove(BaseBean *bean, const QString &idTransaction, const QString
  */
 bool BaseDAO::removeReference(BaseBean *bean, DBRelation *relation, const QString &connectionName)
 {
+    if ( relation == NULL || bean == NULL )
+    {
+        return false;
+    }
+    BaseBeanMetadata *relMetadata = BeansFactory::instance()->metadataBean(relation->metadata()->tableName());
+    if ( relMetadata == NULL )
+    {
+        return false;
+    }
+    if ( relMetadata->dbObjectType() == AlephERP::View )
+    {
+        return true;
+    }
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
     QString sql = QString("UPDATE %1 SET %2=null WHERE %2=:id").
                   arg(relation->metadata()->tableName()).

@@ -923,6 +923,16 @@ QScriptValue AERPScriptCommon::orderMetadatasForInsertUpdate(QList<BaseBeanMetad
     return finalList;
 }
 
+bool AERPScriptCommon::openLocalServerConnection()
+{
+    bool r = Database::createServerConnection();
+    if ( !r )
+    {
+        d_ptr->m_lastError = Database::lastErrorMessage();
+    }
+    return r;
+}
+
 /*!
   Da formato según lo configurado en la aplicación (locale) a un número
   */

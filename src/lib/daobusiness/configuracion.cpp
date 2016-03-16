@@ -103,6 +103,8 @@
 
 #define KEY_USER_WRITES_HISTORY         "generales/userWritesHistory"
 
+#define KEY_REPORTS_TO_SHOW_COMBOBOX    "generales/reportsToShowCombobox"
+
 #define FONT_SIZE_REFERENCE_REPORTS_POR_DEFECTO    10
 
 #define KEY_SCRIPT                      "script/%1"
@@ -162,6 +164,7 @@ AlephERPSettings::AlephERPSettings(QObject *parent) :
     m_allowSystemTray = false;
     m_humanKeyPressIntervalMsecs = 0;
     m_modelsRefresh = true;
+    m_reportsToShowCombobox = 8;
 #ifdef ALEPHERP_LOCALMODE
     m_localMode = false;
     m_batchLoadBackground = false;
@@ -328,6 +331,7 @@ void AlephERPSettings::init (void)
     m_lastServer = m_settings->value(KEY_LAST_SERVER_ID, -1).toInt();
     m_logLevel = static_cast<QLogger::LogLevel>(m_settings->value(KEY_LOG_LEVEL, static_cast<int>(QLogger::InfoLevel)).toInt());
     m_allowSystemTray = m_settings->value(KEY_ALLOW_SYSTEM_TRAY, false).toBool();
+    m_reportsToShowCombobox = m_settings->value(KEY_REPORTS_TO_SHOW_COMBOBOX, 8).toInt();
 
     m_userWritesHistory = m_settings->value(KEY_USER_WRITES_HISTORY, true).toBool();
 
@@ -932,6 +936,7 @@ void AlephERPSettings::save(void)
     m_settings->setValue(KEY_LAST_SERVER_ID, m_lastServer);
     m_settings->setValue(KEY_LOG_LEVEL, static_cast<int>(m_logLevel));
     m_settings->setValue(KEY_ALLOW_SYSTEM_TRAY, m_allowSystemTray);
+    m_settings->setValue(KEY_REPORTS_TO_SHOW_COMBOBOX, 8);
 
     m_settings->setValue(KEY_FIRST_DAY_OF_WEEK, m_firstDayOfWeek);
     m_settings->setValue(KEY_DBA_MODE, m_modeDBA);
@@ -1291,6 +1296,16 @@ void AlephERPSettings::setMdiTabView(bool value)
 int AlephERPSettings::humanKeyPressIntervalMsecs() const
 {
     return m_humanKeyPressIntervalMsecs;
+}
+
+int AlephERPSettings::reportsToShowCombobox() const
+{
+    return m_reportsToShowCombobox;
+}
+
+void AlephERPSettings::setReportsToShowCombobox(int value)
+{
+    m_reportsToShowCombobox = value;
 }
 
 int AlephERPSettings::scheduleMode(const QString &schedule) const

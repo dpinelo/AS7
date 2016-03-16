@@ -119,6 +119,7 @@ public:
     Q_INVOKABLE bool rollback();
 
     Q_INVOKABLE QScriptValue orderMetadatasForInsertUpdate(QList<BaseBeanMetadata *> list);
+    Q_INVOKABLE bool openLocalServerConnection();
 
     // -----------------------------------------------
     // FUNCIONES PARA EL PARSEADO Y FORMATEO DE DATOS

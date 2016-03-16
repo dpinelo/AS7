@@ -292,6 +292,10 @@ void DBDateTimeEdit::observerUnregistered()
 
 void DBDateTimeEdit::setToday()
 {
+    if ( observer() == NULL )
+    {
+        setValue(QDateTime::currentDateTime());
+    }
     if ( dataEditable() )
     {
         setValue(QDateTime::currentDateTime());
