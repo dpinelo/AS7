@@ -238,10 +238,10 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
     {
         if ( !m_removedStrongFilter.contains(filter["idFilter"]) )
         {
-            QString fieldToFilter = filter["fieldToFilter"];
-            QString relationFieldToShow = filter["relationFieldToShow"];
-            QString order = filter["order"];
-            bool viewAll = filter["viewAllOption"].isEmpty() || filter["viewAllOption"] == "true" ? true : false;
+            QString fieldToFilter = filter[AlephERP::stFieldToFilter];
+            QString relationFieldToShow = filter[AlephERP::stRelationFieldToShow];
+            QString order = filter[AlephERP::stOrder];
+            bool viewAll = filter[AlephERP::stViewAllOption].isEmpty() || filter[AlephERP::stViewAllOption] == "true" ? true : false;
 
             if ( fieldToFilter.isEmpty() )
             {
@@ -417,7 +417,7 @@ void DBAbstractFilterViewPrivate::destroyStrongFilter(const QString &dbFieldName
         }
         foreach (HashString hash, m_metadata->itemsFilterColumn())
         {
-            if (hash["fieldToFilter"] == dbFieldName)
+            if (hash[AlephERP::stFieldToFilter] == dbFieldName)
             {
                 m_removedStrongFilter.append(hash["idFilter"]);
                 q_ptr->filterWithSql();
@@ -550,7 +550,7 @@ void DBAbstractFilterViewPrivate::addFieldsCombo()
         QList<QHash<QString, QString> > itemFilterColumn = m_metadata->itemsFilterColumn();
         foreach ( HashString item, itemFilterColumn )
         {
-            if ( item["fieldToFilter"] == fld->dbFieldName() )
+            if ( item[AlephERP::stFieldToFilter] == fld->dbFieldName() )
             {
                 visibleStrongFilter = true;
             }

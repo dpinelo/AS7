@@ -3025,39 +3025,43 @@ void BaseBeanMetadataPrivate::readItemsFilterColumn(const QDomElement &e)
             for ( int j = 0 ; j < p.size() ; j++ )
             {
                 QDomElement final = p.at(j).toElement();
-                if ( final.tagName() == QLatin1String("fieldToFilter") )
+                if ( final.tagName() == QLatin1String(AlephERP::stFieldToFilter) )
                 {
-                    hash["fieldToFilter"] = checkWildCards(final);
+                    hash[AlephERP::stFieldToFilter] = checkWildCards(final);
+                    if ( final.hasAttribute(AlephERP::stShowTextLine) )
+                    {
+                        hash[AlephERP::stShowTextLine] = final.attribute(AlephERP::stShowTextLine);
+                    }
                 }
-                else if ( final.tagName() == QLatin1String("relationFieldToShow") )
+                else if ( final.tagName() == QLatin1String(AlephERP::stRelationFieldToShow) )
                 {
-                    hash["relationFieldToShow"] = checkWildCards(final);
+                    hash[AlephERP::stRelationFieldToShow] = checkWildCards(final);
                 }
-                else if ( final.tagName() == QLatin1String("order") )
+                else if ( final.tagName() == QLatin1String(AlephERP::stOrder) )
                 {
-                    hash["order"] = checkWildCards(final);
+                    hash[AlephERP::stOrder] = checkWildCards(final);
                 }
-                else if ( final.tagName() == QLatin1String("setFilterValueOnNewRecords") )
+                else if ( final.tagName() == QLatin1String(AlephERP::stSetFilterValueOnNewRecords) )
                 {
-                    hash["filterValueOnNewRecords"] = checkWildCards(final);
+                    hash[AlephERP::stSetFilterValueOnNewRecords] = checkWildCards(final);
                 }
-                else if ( final.tagName() == QLatin1String("relationFilter") )
+                else if ( final.tagName() == QLatin1String(AlephERP::stRelationFilter) )
                 {
                     QString filter = checkWildCards(final);
-                    hash["relationFilter"] = filter.replace("${user}", AERPLoggedUser::instance()->userName());
+                    hash[AlephERP::stRelationFilter] = filter.replace("${user}", AERPLoggedUser::instance()->userName());
                 }
-                else if ( final.tagName() == QLatin1String("relationFilterScript") )
+                else if ( final.tagName() == QLatin1String(AlephERP::stRelationFilterScript) )
                 {
-                    hash["relationFilterScript"] = checkWildCards(final);
+                    hash[AlephERP::stRelationFilterScript] = checkWildCards(final);
                 }
-                else if ( final.tagName() == QLatin1String("viewAllOption") )
+                else if ( final.tagName() == QLatin1String(AlephERP::stViewAllOption) )
                 {
-                    hash["viewAllOption"] = checkWildCards(final);
+                    hash[AlephERP::stViewAllOption] = checkWildCards(final);
                 }
             }
-            QString idFilter = QString("%1;%2;%3;%4;%5;%6;%7").arg(hash["fieldToFilter"]).arg(hash["relationFieldToShow"]).arg(hash["order"])
-                               .arg(hash["filterValueOnNewRecords"]).arg(hash["relationFilter"]).arg(hash["relationFilterScript"])
-                               .arg(hash["viewAllOption"]);
+            QString idFilter = QString("%1;%2;%3;%4;%5;%6;%7").arg(hash[AlephERP::stFieldToFilter]).arg(hash[AlephERP::stRelationFieldToShow]).arg(hash[AlephERP::stOrder])
+                               .arg(hash[AlephERP::stSetFilterValueOnNewRecords]).arg(hash[AlephERP::stRelationFilter]).arg(hash[AlephERP::stRelationFilterScript])
+                               .arg(hash[AlephERP::stViewAllOption]);
             hash["idFilter"] = QCryptographicHash::hash(idFilter.toUtf8(), QCryptographicHash::Md5);
             m_itemsFilterColumn.append(hash);
         }
