@@ -258,7 +258,14 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
             DBFieldMetadata *fld = m_metadata->field(fieldToFilter);
             if ( fld != NULL )
             {
-                createComboStringFilter(filter, fld, viewAll, i, order, fieldToFilter, relationFieldToShow);
+                if ( showTexTLine )
+                {
+                    createLineTextStringFilter(fld, i);
+                }
+                else
+                {
+                    createComboStringFilter(filter, fld, viewAll, i, order, fieldToFilter, relationFieldToShow);
+                }
                 i++;
             }
             else
@@ -362,6 +369,25 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
     // Lo dotamos de funcionalidad
     q_ptr->connect(cb, SIGNAL(currentIndexChanged(int)), q_ptr, SLOT(filterWithSql()));
     q_ptr->connect(cb, SIGNAL(currentIndexChanged(int)), q_ptr, SLOT(saveStrongFilterWidgetStatus()));
+}
+
+void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fld, int i)
+{
+    QLineEdit *le = new QLineEdit(q_ptr);
+    QLabel *lbl = new QLabel(q_ptr);
+    QHBoxLayout *lay = qobject_cast<QHBoxLayout *>(q_ptr->ui->gbFilter->layout());
+    if ( lay == NULL )
+    {
+        return;
+    }
+    le->setObjectName(QString("leStrongFilter%1").arg(fld->dbFieldName()));
+    lbl->setObjectName(QString("lblStrongFilter%1").arg(fld->dbFieldName()));
+    le->setProperty(AlephERP::stFieldName, fld->dbFieldName());
+    lay->insertWidget(i*2, lbl);
+    lay->insertWidget(i*2 + 1, le);
+    lbl->setText(fld->fieldName());
+    // Lo dotamos de funcionalidad
+    q_ptr->connect(le, SIGNAL(textEdited(QString)), q_ptr, SLOT(filterWithSql()));
 }
 
 QString DBAbstractFilterViewPrivate::sqlFilterForStrongFilter(const QString &tableName, const QHash<QString, QString> &filter)
@@ -529,6 +555,25 @@ QString DBAbstractFilterViewPrivate::buildFilterWhere(const QString &aditionalSq
             }
         }
     }
+    QList<QLineEdit*> lineEdits = q_ptr->findChildren<QLineEdit *>(QRegExp("leStrongFilter.+"));
+    foreach (QLineEdit *le, lineEdits)
+    {
+        if ( !le->text().isEmpty() )
+        {
+            QString filter = QString("lower(%1) like lower('%2')").
+                    arg(le->property(AlephERP::stFieldName).toString()).
+                    arg(le->text());
+            if ( whereFilter.isEmpty() )
+            {
+                whereFilter = filter;
+            }
+            else
+            {
+                whereFilter = QString("%1 AND %2").arg(whereFilter).arg(filter);
+            }
+        }
+    }
+
     if ( !aditionalSql.isEmpty() )
     {
         if ( whereFilter.isEmpty() )
