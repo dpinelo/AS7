@@ -260,15 +260,16 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <tabstops>
+  <tabstop>cbFastFilter</tabstop>
+  <tabstop>cbFastFilterOperators</tabstop>
+  <tabstop>cbFastFilterValue</tabstop>
   <tabstop>leFastFilter</tabstop>
   <tabstop>deFastFilter1</tabstop>
   <tabstop>deFastFilter2</tabstop>
   <tabstop>leFastFilter1</tabstop>
   <tabstop>leFastFilter2</tabstop>
-  <tabstop>cbFastFilter</tabstop>
+  <tabstop>pbRefresh</tabstop>
   <tabstop>pbSort</tabstop>
-  <tabstop>cbFastFilterOperators</tabstop>
-  <tabstop>cbFastFilterValue</tabstop>
  </tabstops>
  <resources>
   <include location="../resources/resources.qrc"/>

@@ -669,6 +669,12 @@ QVariant DBFieldPrivate::setDataToType(const QVariant &v)
     else if ( m->type() == QVariant::String )
     {
         QString temp = v.toString();
+        QLogger::QLog_Debug(AlephERP::stLogOther, QString("Vamos a aplicar formato a: %").arg(temp));
+        if ( m->hasFormat() )
+        {
+            temp = m->applyFormat(temp);
+            QLogger::QLog_Debug(AlephERP::stLogOther, QString("Formato a: %").arg(temp));
+        }
         result = QVariant(temp);
     }
     else if ( m->type() == QVariant::Pixmap )
@@ -996,7 +1002,14 @@ QVariant DBField::value()
         }
     }
 
-    return d->m_value;
+    if ( d->m->hasFormat() && d->m->type() == QVariant::String )
+    {
+        return d->m->applyFormat(d->m_value.toString());
+    }
+    else
+    {
+        return d->m_value;
+    }
 }
 
 QVariant DBFieldPrivate::calculateValue()

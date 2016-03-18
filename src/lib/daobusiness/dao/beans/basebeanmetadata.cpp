@@ -2008,6 +2008,22 @@ void BaseBeanMetadataPrivate::setConfig()
                 {
                     field->setDbFieldName(elementText);
                 }
+                else if ( e.tagName() == QLatin1String("format") )
+                {
+                    field->setHasFormat(true);
+                    if ( e.hasAttribute("lowerCase") )
+                    {
+                        field->setLowerCase((e.attribute("lowerCase", "false") == QLatin1String("true") ? true : false));
+                    }
+                    else if ( e.hasAttribute("upperCase") )
+                    {
+                        field->setUpperCase((e.attribute("upperCase", "false") == QLatin1String("true") ? true : false));
+                    }
+                    if ( e.hasAttribute("noSpaces") )
+                    {
+                        field->setNoSpaces((e.attribute("noSpaces", "false") == QLatin1String("true") ? true : false));
+                    }
+                }
                 else if ( e.tagName() == QLatin1String("expression") )
                 {
                     // Esta expresión puede ser una regla con wildcards internos. Requiere un tratamiento posterior cuando
