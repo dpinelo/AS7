@@ -131,6 +131,7 @@ public:
     static const char * stOrder;
     static const char * stSetFilterValueOnNewRecords;
     static const char * stRelationFilter;
+    static const char * stRelationFieldToShow;
     static const char * stRelationFilterScript;
     static const char * stShowTextLine;
 
