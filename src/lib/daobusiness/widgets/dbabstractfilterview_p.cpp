@@ -238,10 +238,11 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
     {
         if ( !m_removedStrongFilter.contains(filter["idFilter"]) )
         {
-            QString fieldToFilter = filter["fieldToFilter"];
-            QString relationFieldToShow = filter["relationFieldToShow"];
-            QString order = filter["order"];
-            bool viewAll = filter["viewAllOption"].isEmpty() || filter["viewAllOption"] == "true" ? true : false;
+            QString fieldToFilter = filter[AlephERP::stFieldToFilter];
+            QString relationFieldToShow = filter[AlephERP::stRelationFieldToShow];
+            QString order = filter[AlephERP::stOrder];
+            bool showTexTLine = filter[AlephERP::stShowTextLine] == QLatin1Literal("true") ? true: false;
+            bool viewAll = filter[AlephERP::stViewAllOption].isEmpty() || filter[AlephERP::stViewAllOption] == QLatin1Literal("true") ? true : false;
 
             if ( fieldToFilter.isEmpty() )
             {
@@ -257,92 +258,8 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
             DBFieldMetadata *fld = m_metadata->field(fieldToFilter);
             if ( fld != NULL )
             {
-                QComboBox *cb = new QComboBox(q_ptr);
-                QLabel *lbl = new QLabel(q_ptr);
-                QHBoxLayout *lay = qobject_cast<QHBoxLayout *>(q_ptr->ui->gbFilter->layout());
-                if ( lay == NULL )
-                {
-                    return;
-                }
-                cb->setObjectName(QString("cbStrongFilter%1").arg(fld->dbFieldName()));
-                lbl->setObjectName(QString("lblStrongFilter%1").arg(fld->dbFieldName()));
-                lay->insertWidget(i*2, lbl);
-                lay->insertWidget(i*2 + 1, cb);
+                createComboStringFilter(filter, fld, viewAll, i, order, fieldToFilter, relationFieldToShow);
                 i++;
-                lbl->setText(fld->fieldName());
-                if ( fld->type() == QVariant::Bool )
-                {
-                    QString filterItem = fld->sqlWhere("=", true);
-                    cb->addItem(QIcon(":/aplicacion/images/ok.png"), QObject::trUtf8("Verdadero"), filterItem);
-                    filterItem = fld->sqlWhere("=", false);
-                    cb->addItem(QIcon(":/generales/images/delete.png"), QObject::trUtf8("Falso"), filterItem);
-                }
-                else
-                {
-                    // Agregamos las opciones de este campo al combobox
-                    if ( fld->optionsList().isEmpty() )
-                    {
-                        QList<DBRelationMetadata *> rels = fld->relations(AlephERP::ManyToOne);
-                        DBRelationMetadata *rel = NULL;
-                        if ( rels.size() > 0 )
-                        {
-                            rel = rels.first();
-                        }
-                        if ( rel != NULL )
-                        {
-                            BaseBeanSharedPointerList list;
-                            if ( BaseDAO::select(list, rel->tableName(), sqlFilterForStrongFilter(rel->tableName(), filter), order) )
-                            {
-                                // Añadimos los hijos de la relación al combo
-                                foreach ( BaseBeanSharedPointer child, list )
-                                {
-                                    QString where = QString("%1=%2").arg(fieldToFilter).arg(child->sqlFieldValue(rel->childFieldName()));
-                                    cb->addItem(child->displayFieldValue(relationFieldToShow), where);
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        QMap<QString, QString> optionList = fld->optionsList();
-                        QMap<QString, QString> optionIcons = fld->optionsIcons();
-                        QMapIterator<QString, QString> i(optionList);
-                        while ( i.hasNext() )
-                        {
-                            i.next();
-                            QString filterItem = fld->sqlWhere("=", i.key());
-                            if ( optionIcons.contains(i.key()) )
-                            {
-                                cb->addItem(QIcon(optionIcons.value(i.key())), i.value().trimmed(), filterItem);
-                            }
-                            else
-                            {
-                                cb->addItem(i.value().trimmed(), filterItem);
-                            }
-                        }
-                    }
-                }
-                if ( viewAll )
-                {
-                    cb->addItem(QObject::trUtf8("Ver todos"), "");
-                }
-                QString key = QString("%1%2").arg(m_tableName).arg(cb->objectName());
-                QVariant v = alephERPSettings->loadRegistryValue(key);
-                int index = cb->findData(v);
-                if ( index != -1 )
-                {
-                    cb->setCurrentIndex(index);
-                }
-                else
-                {
-                    if ( cb->count() > 0 )
-                    {
-                        cb->setCurrentIndex(0);
-                    }
-                }
-                // Lo dotamos de funcionalidad
-                q_ptr->connect(cb, SIGNAL(currentIndexChanged(int)), q_ptr, SLOT(filterWithSql()));
-                q_ptr->connect(cb, SIGNAL(currentIndexChanged(int)), q_ptr, SLOT(saveStrongFilterWidgetStatus()));
             }
             else
             {
@@ -350,6 +267,101 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
             }
         }
     }
+}
+
+void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, QString> &filter,
+                                                          DBFieldMetadata *fld,
+                                                          bool viewAll,
+                                                          int i,
+                                                          const QString &order,
+                                                          const QString &fieldToFilter,
+                                                          const QString &relationFieldToShow)
+{
+    QComboBox *cb = new QComboBox(q_ptr);
+    QLabel *lbl = new QLabel(q_ptr);
+    QHBoxLayout *lay = qobject_cast<QHBoxLayout *>(q_ptr->ui->gbFilter->layout());
+    if ( lay == NULL )
+    {
+        return;
+    }
+    cb->setObjectName(QString("cbStrongFilter%1").arg(fld->dbFieldName()));
+    lbl->setObjectName(QString("lblStrongFilter%1").arg(fld->dbFieldName()));
+    lay->insertWidget(i*2, lbl);
+    lay->insertWidget(i*2 + 1, cb);
+    lbl->setText(fld->fieldName());
+    if ( fld->type() == QVariant::Bool )
+    {
+        QString filterItem = fld->sqlWhere("=", true);
+        cb->addItem(QIcon(":/aplicacion/images/ok.png"), QObject::trUtf8("Verdadero"), filterItem);
+        filterItem = fld->sqlWhere("=", false);
+        cb->addItem(QIcon(":/generales/images/delete.png"), QObject::trUtf8("Falso"), filterItem);
+    }
+    else
+    {
+        // Agregamos las opciones de este campo al combobox
+        if ( fld->optionsList().isEmpty() )
+        {
+            QList<DBRelationMetadata *> rels = fld->relations(AlephERP::ManyToOne);
+            DBRelationMetadata *rel = NULL;
+            if ( rels.size() > 0 )
+            {
+                rel = rels.first();
+            }
+            if ( rel != NULL )
+            {
+                BaseBeanSharedPointerList list;
+                if ( BaseDAO::select(list, rel->tableName(), sqlFilterForStrongFilter(rel->tableName(), filter), order) )
+                {
+                    // Añadimos los hijos de la relación al combo
+                    foreach ( BaseBeanSharedPointer child, list )
+                    {
+                        QString where = QString("%1=%2").arg(fieldToFilter).arg(child->sqlFieldValue(rel->childFieldName()));
+                        cb->addItem(child->displayFieldValue(relationFieldToShow), where);
+                    }
+                }
+            }
+        }
+        else
+        {
+            QMap<QString, QString> optionList = fld->optionsList();
+            QMap<QString, QString> optionIcons = fld->optionsIcons();
+            QMapIterator<QString, QString> i(optionList);
+            while ( i.hasNext() )
+            {
+                i.next();
+                QString filterItem = fld->sqlWhere("=", i.key());
+                if ( optionIcons.contains(i.key()) )
+                {
+                    cb->addItem(QIcon(optionIcons.value(i.key())), i.value().trimmed(), filterItem);
+                }
+                else
+                {
+                    cb->addItem(i.value().trimmed(), filterItem);
+                }
+            }
+        }
+    }
+    if ( viewAll )
+    {
+        cb->addItem(QObject::trUtf8("Ver todos"), "");
+    }
+    QString key = QString("%1%2").arg(m_tableName).arg(cb->objectName());
+    QVariant v = alephERPSettings->loadRegistryValue(key);
+    int index = cb->findData(v);
+    if ( index != -1 )
+    {
+        cb->setCurrentIndex(index);
+    }
+    else
+    {
+        if ( cb->count() > 0 )
+        {
+            cb->setCurrentIndex(0);
+        }
+    }
+    // Lo dotamos de funcionalidad
+    q_ptr->connect(cb, SIGNAL(currentIndexChanged(int)), q_ptr, SLOT(filterWithSql()));
+    q_ptr->connect(cb, SIGNAL(currentIndexChanged(int)), q_ptr, SLOT(saveStrongFilterWidgetStatus()));
 }
 
 QString DBAbstractFilterViewPrivate::sqlFilterForStrongFilter(const QString &tableName, const QHash<QString, QString> &filter)
@@ -417,7 +429,7 @@ void DBAbstractFilterViewPrivate::destroyStrongFilter(const QString &dbFieldName
         }
         foreach (HashString hash, m_metadata->itemsFilterColumn())
         {
-            if (hash["fieldToFilter"] == dbFieldName)
+            if (hash[AlephERP::stFieldToFilter] == dbFieldName)
             {
                 m_removedStrongFilter.append(hash["idFilter"]);
                 q_ptr->filterWithSql();
@@ -550,7 +562,7 @@ void DBAbstractFilterViewPrivate::addFieldsCombo()
         QList<QHash<QString, QString> > itemFilterColumn = m_metadata->itemsFilterColumn();
         foreach ( HashString item, itemFilterColumn )
         {
-            if ( item["fieldToFilter"] == fld->dbFieldName() )
+            if ( item[AlephERP::stFieldToFilter] == fld->dbFieldName() )
             {
                 visibleStrongFilter = true;
             }

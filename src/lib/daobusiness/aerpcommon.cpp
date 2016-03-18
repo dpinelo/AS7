@@ -94,6 +94,14 @@ const char * AlephERP::stNextBean = "nextBean";
 const char * AlephERP::stPreviousBean = "previousBean";
 const char * AlephERP::stFirstBean = "firstBean";
 const char * AlephERP::stLastBean = "lastBean";
+const char * AlephERP::stFieldToFilter = "fieldToFilter";
+const char * AlephERP::stRelationFieldToShow = "relationFieldToShow";
+const char * AlephERP::stViewAllOption = "viewAllOption";
+const char * AlephERP::stOrder = "order";
+const char * AlephERP::stSetFilterValueOnNewRecords = "setFilterValueOnNewRecords";
+const char * AlephERP::stRelationFilter = "relationFilter";
+const char * AlephERP::stRelationFilterScript = "relationFilterScript";
+const char * AlephERP::stShowTextLine = "showTextLine";
 
 #ifdef ALEPHERP_DEVTOOLS
 const char * AlephERP::stWebInspector = "aerpWebInspector";

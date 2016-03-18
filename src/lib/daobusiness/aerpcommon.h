@@ -126,6 +126,14 @@ public:
     static const char * stPreviousBean;
     static const char * stFirstBean;
     static const char * stLastBean;
+    static const char * stFieldToFilter;
+    static const char * stViewAllOption;
+    static const char * stOrder;
+    static const char * stSetFilterValueOnNewRecords;
+    static const char * stRelationFilter;
+    static const char * stRelationFieldToShow;
+    static const char * stRelationFilterScript;
+    static const char * stShowTextLine;
 
     static const char * stLogDB;
     static const char * stLogScript;

@@ -1860,15 +1860,15 @@ QHash<QString, QVariant> DBFormDlg::filterValuesToSetOnBean()
     QList<QHash<QString, QString> > itemsFilter = metadata->itemsFilterColumn();
     foreach ( HashString hash, itemsFilter )
     {
-        if ( hash.contains("filterValueOnNewRecords") )
+        if ( hash.contains(AlephERP::stSetFilterValueOnNewRecords) )
         {
-            bool setFilterValue = hash["filterValueOnNewRecords"] == "true" ? true : false;
+            bool setFilterValue = hash[AlephERP::stSetFilterValueOnNewRecords] == "true" ? true : false;
             if ( setFilterValue )
             {
-                QVariant filterValue = d->m_itemView->filterValue(hash.value("fieldToFilter"));
+                QVariant filterValue = d->m_itemView->filterValue(hash.value(AlephERP::stFieldToFilter));
                 if ( filterValue.isValid() )
                 {
-                    list[hash.value("fieldToFilter")] = filterValue;
+                    list[hash.value(AlephERP::stFieldToFilter)] = filterValue;
                 }
             }
         }

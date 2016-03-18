@@ -236,6 +236,10 @@ public:
     bool m_reloadFromDBAfterSave;
     /** Definición XML de la que proviene el campo */
     QString m_xmlDefinition;
+    bool m_hasFormat;
+    bool m_lowerCase;
+    bool m_upperCase;
+    bool m_noSpaces;
 
     QStringList m_dependOnFieldsToCalc;
 
@@ -279,6 +283,10 @@ public:
         m_scheduleDuration = false;
         m_scheduleUnit = AlephERP::Hour;
         m_uniqueCompound = false;
+        m_hasFormat = false;
+        m_lowerCase = false;
+        m_upperCase = false;
+        m_noSpaces = false;
     }
 
     QString fieldName();
@@ -1233,6 +1241,46 @@ bool DBFieldMetadata::isOnDb() const
     return d->m_calculatedSaveOnDB;
 }
 
+bool DBFieldMetadata::hasFormat() const
+{
+    return d->m_hasFormat;
+}
+
+void DBFieldMetadata::setHasFormat(bool value)
+{
+    d->m_hasFormat = value;
+}
+
+bool DBFieldMetadata::lowerCase() const
+{
+    return d->m_lowerCase;
+}
+
+void DBFieldMetadata::setLowerCase(bool value)
+{
+    d->m_lowerCase = value;
+}
+
+bool DBFieldMetadata::upperCase() const
+{
+    return d->m_upperCase;
+}
+
+void DBFieldMetadata::setUpperCase(bool value)
+{
+    d->m_upperCase = value;
+}
+
+bool DBFieldMetadata::noSpaces() const
+{
+    return d->m_noSpaces;
+}
+
+void DBFieldMetadata::setNoSpaces(bool value)
+{
+    d->m_noSpaces = value;
+}
+
 void DBFieldMetadata::setXmlDefinition(const QString &value)
 {
     d->m_xmlDefinition = value;
@@ -1404,6 +1452,10 @@ QString DBFieldMetadata::displayValue(QVariant data, DBField *parent)
     if ( parent != NULL )
     {
         parent->restoreOverrideOnExecution();
+    }
+    if ( hasFormat() )
+    {
+        result = applyFormat(result);
     }
     return result;
 }
@@ -2088,6 +2140,29 @@ bool DBFieldMetadata::loadOnBackground() const
         return false;
     }
     return ( memo() || type() == QVariant::Pixmap );
+}
+
+QString DBFieldMetadata::applyFormat(const QString &value)
+{
+    if ( !d->m_hasFormat )
+    {
+        return value;
+    }
+    QString formattedValue = value;
+    if ( d->m_lowerCase )
+    {
+        formattedValue = formattedValue.toLower();
+    }
+    if ( d->m_upperCase )
+    {
+        formattedValue = formattedValue.toUpper();
+    }
+    if ( d->m_noSpaces )
+    {
+        formattedValue = formattedValue.replace(" ", "");
+        formattedValue = formattedValue.trimmed();
+    }
+    return formattedValue;
 }
 
 QString DBFieldMetadataPrivate::fieldName()

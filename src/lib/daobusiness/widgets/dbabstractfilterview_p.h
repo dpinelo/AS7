@@ -86,6 +86,7 @@ public:
     QString initOrderedColumn();
     QString initOrderedColumnSort();
     void createStrongFilter();
+    void createComboStringFilter(const QHash<QString, QString> &filter, DBFieldMetadata *fld, bool viewAll, int i, const QString &order, const QString &fieldToFilter, const QString &relationFieldToShow);
     QString sqlFilterForStrongFilter(const QString &tableName, const QHash<QString, QString> &filter);
     void destroyStrongFilter(const QString &dbFieldName);
     bool filterTypeToApply(QObject *obj, const QString &textFilter, int rowCount, int filterCount);

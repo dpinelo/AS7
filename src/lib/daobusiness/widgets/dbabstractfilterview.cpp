@@ -719,6 +719,7 @@ void DBAbstractFilterView::cbFastFilterIndexChanged(int index)
         }
     }
     d->calculateSubTotals();
+    ui->leFastFilter->setFocus();
 }
 
 /*!

@@ -345,6 +345,11 @@ class ALEPHERP_DLL_EXPORT DBFieldMetadata : public QObject, public QScriptable
     Q_PROPERTY(bool hasDefaultValue READ hasDefaultValue)
     /** Indica si este campo se almacena en base de datos */
     Q_PROPERTY(bool isOnDb READ isOnDb)
+    /** Se aplican formatos especiales */
+    Q_PROPERTY(bool hasFormat READ hasFormat WRITE setHasFormat)
+    Q_PROPERTY(bool lowerCase READ lowerCase WRITE setLowerCase)
+    Q_PROPERTY(bool upperCase READ upperCase WRITE setUpperCase)
+    Q_PROPERTY(bool noSpaces READ noSpaces WRITE setNoSpaces)
 
 private:
     Q_DISABLE_COPY(DBFieldMetadata)
@@ -493,6 +498,14 @@ public:
     QStringList dependOnFieldsToCalc() const;
     void setDependOnFieldsToCalc(const QStringList &data);
     bool isOnDb() const;
+    bool hasFormat() const;
+    void setHasFormat(bool value);
+    bool lowerCase() const;
+    void setLowerCase(bool value);
+    bool upperCase() const;
+    void setUpperCase(bool value);
+    bool noSpaces() const;
+    void setNoSpaces(bool value);
 
     QString ddlCreationTable(const AlephERP::CreationTableSqlOptions &options, const QString &dialect);
 
@@ -563,6 +576,8 @@ public:
     static void fromScriptValue(const QScriptValue &object, DBFieldMetadata * &out);
 
     bool loadOnBackground() const;
+
+    QString applyFormat(const QString &value);
 };
 
 Q_DECLARE_METATYPE(DBFieldMetadata*)
