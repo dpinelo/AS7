@@ -229,6 +229,9 @@ p, li { white-space: pre-wrap; }
          <iconset resource="../resources/resources.qrc">
           <normaloff>:/generales/images/recalculatecounter.png</normaloff>:/generales/images/recalculatecounter.png</iconset>
         </property>
+        <property name="shortcut">
+         <string>F5</string>
+        </property>
        </widget>
       </item>
       <item>

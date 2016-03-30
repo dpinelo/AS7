@@ -1840,7 +1840,11 @@ bool AERPScriptCommon::isOnBatchMode()
  * @param order
  * @return Si el usuario no escoge nada, devuelve null
  */
-QScriptValue AERPScriptCommon::chooseRecordFromComboBox(const QString &tableName, const QString &fieldToShow, const QString &where, const QString &order, const QString &label)
+QScriptValue AERPScriptCommon::chooseRecordFromComboBox(const QString &tableName,
+                                                        const QString &fieldToShow,
+                                                        const QString &where,
+                                                        const QString &order,
+                                                        const QString &label)
 {
     BaseBeanMetadata *m = BeansFactory::instance()->metadataBean(tableName);
     if ( m == NULL )

@@ -134,6 +134,7 @@ public:
     static const char * stRelationFieldToShow;
     static const char * stRelationFilterScript;
     static const char * stShowTextLine;
+    static const char * stShowTextLineExactlySearch;
 
     static const char * stLogDB;
     static const char * stLogScript;

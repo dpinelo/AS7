@@ -102,6 +102,7 @@ const char * AlephERP::stSetFilterValueOnNewRecords = "setFilterValueOnNewRecord
 const char * AlephERP::stRelationFilter = "relationFilter";
 const char * AlephERP::stRelationFilterScript = "relationFilterScript";
 const char * AlephERP::stShowTextLine = "showTextLine";
+const char * AlephERP::stShowTextLineExactlySearch = "exactlySearch";
 
 #ifdef ALEPHERP_DEVTOOLS
 const char * AlephERP::stWebInspector = "aerpWebInspector";

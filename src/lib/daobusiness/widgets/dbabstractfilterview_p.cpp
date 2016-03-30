@@ -29,6 +29,7 @@
 #include "dao/beans/beansfactory.h"
 #include "dao/basedao.h"
 #include "dao/backgrounddao.h"
+#include "widgets/dblineedit.h"
 #include "models/filterbasebeanmodel.h"
 #include "models/perpquerymodel.h"
 #include "scripts/perpscript.h"
@@ -241,7 +242,8 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
             QString fieldToFilter = filter[AlephERP::stFieldToFilter];
             QString relationFieldToShow = filter[AlephERP::stRelationFieldToShow];
             QString order = filter[AlephERP::stOrder];
-            bool showTexTLine = filter[AlephERP::stShowTextLine] == QLatin1Literal("true") ? true: false;
+            bool showTextLine = filter[AlephERP::stShowTextLine] == QLatin1Literal("true") ? true: false;
+            bool showTextLineExactlySearch = filter[AlephERP::stShowTextLineExactlySearch] == QLatin1Literal("true") ? true: false;
             bool viewAll = filter[AlephERP::stViewAllOption].isEmpty() || filter[AlephERP::stViewAllOption] == QLatin1Literal("true") ? true : false;
 
             if ( fieldToFilter.isEmpty() )
@@ -258,9 +260,9 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
             DBFieldMetadata *fld = m_metadata->field(fieldToFilter);
             if ( fld != NULL )
             {
-                if ( showTexTLine )
+                if ( showTextLine )
                 {
-                    createLineTextStringFilter(fld, i);
+                    createLineTextStringFilter(fld, i, showTextLineExactlySearch);
                 }
                 else
                 {
@@ -371,9 +373,9 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
     q_ptr->connect(cb, SIGNAL(currentIndexChanged(int)), q_ptr, SLOT(saveStrongFilterWidgetStatus()));
 }
 
-void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fld, int i)
+void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fld, int i, bool exactlySearch)
 {
-    QLineEdit *le = new QLineEdit(q_ptr);
+    DBLineEdit *le = new DBLineEdit(q_ptr);
     QLabel *lbl = new QLabel(q_ptr);
     QHBoxLayout *lay = qobject_cast<QHBoxLayout *>(q_ptr->ui->gbFilter->layout());
     if ( lay == NULL )
@@ -382,10 +384,15 @@ void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fl
     }
     le->setObjectName(QString("leStrongFilter%1").arg(fld->dbFieldName()));
     lbl->setObjectName(QString("lblStrongFilter%1").arg(fld->dbFieldName()));
+    le->setProperty(AlephERP::stShowTextLineExactlySearch, exactlySearch);
     le->setProperty(AlephERP::stFieldName, fld->dbFieldName());
     lay->insertWidget(i*2, lbl);
     lay->insertWidget(i*2 + 1, le);
     lbl->setText(fld->fieldName());
+
+    le->setAutoComplete(AlephERP::ValuesFromTableWithNoRelation);
+    le->setAutoCompleteTableName(m_tableName);
+    le->setAutoCompleteColumn(fld->dbFieldName());
     // Lo dotamos de funcionalidad
     q_ptr->connect(le, SIGNAL(textEdited(QString)), q_ptr, SLOT(filterWithSql()));
 }
@@ -560,9 +567,19 @@ QString DBAbstractFilterViewPrivate::buildFilterWhere(const QString &aditionalSq
     {
         if ( !le->text().isEmpty() )
         {
-            QString filter = QString("lower(%1) like lower('%2')").
+            QString filter;
+            if ( le->property(AlephERP::stShowTextLineExactlySearch).toBool() )
+            {
+                filter = QString("lower(%1) like lower('%2')").
                     arg(le->property(AlephERP::stFieldName).toString()).
                     arg(le->text());
+            }
+            else
+            {
+                filter = QString("lower(%1) like lower('%%2%')").
+                    arg(le->property(AlephERP::stFieldName).toString()).
+                    arg(le->text());
+            }
             if ( whereFilter.isEmpty() )
             {
                 whereFilter = filter;

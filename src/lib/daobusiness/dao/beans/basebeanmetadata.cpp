@@ -3032,6 +3032,10 @@ void BaseBeanMetadataPrivate::readItemsFilterColumn(const QDomElement &e)
                     {
                         hash[AlephERP::stShowTextLine] = final.attribute(AlephERP::stShowTextLine);
                     }
+                    if ( final.hasAttribute(AlephERP::stShowTextLineExactlySearch) )
+                    {
+                        hash[AlephERP::stShowTextLineExactlySearch] = final.attribute(AlephERP::stShowTextLineExactlySearch);
+                    }
                 }
                 else if ( final.tagName() == QLatin1String(AlephERP::stRelationFieldToShow) )
                 {
