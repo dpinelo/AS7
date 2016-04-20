@@ -768,7 +768,9 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
     QScopedPointer<QSqlQuery> qry(new QSqlQuery(Database::getQDatabase()));
     if ( !qry->prepare(sql) )
     {
-        d->m_lastErrorMessage = trUtf8("Ocurrió un error ejecutando la consulta de exportación. \nEl error es: [%1]").arg(qry->lastError().text());
+        d->m_lastErrorMessage = trUtf8("Ocurrió un error al preparar la consulta de exportación. \nEl error es: [%1][%2]").
+                arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
+        QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
         return false;
     }
     QMapIterator<QString, QVariant> itQuery(param);
@@ -787,7 +789,9 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
 
     if ( !qry->exec() )
     {
-        d->m_lastErrorMessage = trUtf8("Ocurrió un error ejecutando la consulta de exportación. \nEl error es: [%1]").arg(qry->lastError().text());
+        d->m_lastErrorMessage = trUtf8("Ocurrió un error ejecutando la consulta de exportación. \nEl error es: [%1][%2]").
+                arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
+        QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
         return false;
     }
     QStringList metadataFields = d->m_metadata->exportMetadataFields();
