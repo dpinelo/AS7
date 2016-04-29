@@ -459,6 +459,7 @@ public:
         }
     }
 
+    QString dataPathWithoutServer() const;
     QString dataPath() const;
     QLocale* locale() const;
     QString check();

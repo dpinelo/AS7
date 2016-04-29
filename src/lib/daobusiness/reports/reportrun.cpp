@@ -798,6 +798,11 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
     AERPSheet *sheet = spread->createSheet(d->m_reportName, 0);
     int rowNumber = 1;
     char column = 'A';
+    for (int i = 0 ; i < qry->record().count() ; i++)
+    {
+        AERPCell *cell = sheet->createCell(QString("%1").arg(rowNumber), QString("%2").arg(QChar(column + i)));
+        cell->setValue(qry->record().fieldName(i));
+    }
     while (qry->next())
     {
         for (int idx = 0 ; idx < qry->record().count() ; ++idx)

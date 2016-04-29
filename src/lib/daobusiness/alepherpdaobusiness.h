@@ -7,6 +7,7 @@
 #include "call_once.h"
 #include "singleton.h"
 #include "aerpapplication.h"
+#include "dao/database.h"
 #include "dao/dbobject.h"
 #include "dao/dbfieldobserver.h"
 #include "dao/basebeanobserver.h"
@@ -110,5 +111,12 @@
 #endif
 #ifdef ALEPHERP_DEVTOOLS
 #include "widgets/aerpsystemobjecteditorwidget.h"
+#endif
+#ifdef ALEPHERP_DOC_MANAGEMENT
+#include "widgets/dbrecorddocuments.h"
+#include "business/docmngmnt/aerpdocumentdaopluginiface.h"
+#include "dao/beans/aerpdocmngmntdocument.h"
+#include "dao/beans/aerpdocmngmntitem.h"
+#include "dao/beans/aerpdocmngmntnode.h"
 #endif
 #endif // ALEPHERPDAOBUSINESS_H

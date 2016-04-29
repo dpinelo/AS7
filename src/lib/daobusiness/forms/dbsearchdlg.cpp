@@ -654,6 +654,8 @@ void DBSearchDlgPrivate::setupWidget()
 bool DBSearchDlgPrivate::setupExternalWidget()
 {
     QString fileName;
+    QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBSearchDlgPrivate::setupExternalWidget: Tabla: %1 tiene definido el dbsearch: %2").
+                        arg(q_ptr->tableName()).arg(m_metadata->uiDbSearch()));
     if ( m_metadata->uiDbSearch().isEmpty() )
     {
         fileName = QString("%1/%2.search.ui").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
@@ -661,8 +663,16 @@ bool DBSearchDlgPrivate::setupExternalWidget()
     }
     else
     {
-        fileName = QString("%1/%2.search.ui").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                   arg(m_metadata->uiDbSearch());
+        if ( !m_metadata->uiDbSearch().endsWith(".search.ui" ))
+        {
+            fileName = QString("%1/%2.search.ui").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
+                       arg(m_metadata->uiDbSearch());
+        }
+        else
+        {
+            fileName = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
+                       arg(m_metadata->uiDbSearch());
+        }
     }
     QFile file (fileName);
     bool result;
@@ -690,6 +700,7 @@ bool DBSearchDlgPrivate::setupExternalWidget()
     }
     else
     {
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("DBSearchDlgPrivate::setupExternalWidget: No existe el fichero %1").arg(fileName));
         result = false;
     }
     file.close();

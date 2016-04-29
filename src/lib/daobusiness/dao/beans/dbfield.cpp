@@ -225,10 +225,16 @@ bool DBFieldPrivate::checkUnique()
         if ( count > 0 )
         {
             result = false;
-            m_message = QObject::trUtf8("%1\r\n%2: Ya existe un registro que tiene ese valor. El valor debe ser único.").
-                        arg(m_message).arg(q_ptr->metadata()->fieldName());
-            m_htmlMessage = QObject::trUtf8("%1<p><strong>%2</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único.</p>").
-                            arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
+            m_message = QObject::trUtf8("%1\r\n[%2] %3: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: %4").
+                            arg(m_message).
+                            arg(q_ptr->bean()->metadata()->alias()).
+                            arg(q_ptr->metadata()->fieldName()).
+                            arg(q_ptr->displayValue());
+            m_htmlMessage = QObject::trUtf8("%1<p>[%2] <strong>%3</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: <i>%4</i></p>").
+                            arg(m_htmlMessage).
+                            arg(q_ptr->bean()->metadata()->alias()).
+                            arg(q_ptr->metadata()->fieldName()).
+                            arg(q_ptr->displayValue());
             if ( m_widget == NULL )
             {
                 // TODO esto no es muy elegante
@@ -400,10 +406,16 @@ bool DBFieldPrivate::checkUniqueOnFilterField()
                     }
                 }
             }
-            m_message = QObject::trUtf8("%1\r\n%2: Ya existe un registro que tiene ese valor. El valor debe ser único.").
-                        arg(m_message).arg(q_ptr->metadata()->fieldName());
-            m_htmlMessage = QObject::trUtf8("%1<p><strong>%2</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único.</p>").
-                            arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
+            m_message = QObject::trUtf8("%1\r\n[%2] %3: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: %4").
+                            arg(m_message).
+                            arg(q_ptr->bean()->metadata()->alias()).
+                            arg(q_ptr->metadata()->fieldName()).
+                            arg(q_ptr->displayValue());
+            m_htmlMessage = QObject::trUtf8("%1<p>[%2] <strong>%3</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: <i>%4</i></p>").
+                            arg(m_htmlMessage).
+                            arg(q_ptr->bean()->metadata()->alias()).
+                            arg(q_ptr->metadata()->fieldName()).
+                            arg(q_ptr->displayValue());
             if ( m_widget == NULL )
             {
                 // TODO esto no es muy elegante

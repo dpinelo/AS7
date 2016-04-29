@@ -142,10 +142,14 @@ contains (CLOUDSUPPORT, Y) {
 
 contains (AERPDOCMNGSUPPORT, Y) {
     message( "Configurando sistema con soporte para gestión documental..." )
-    SUBDIRS += src/plugins/dbdocumentmngmnt \
-               src/plugins/plaincontentplugin
+    SUBDIRS += src/plugins/dbdocumentmngmnt
+    contains (PLAINCONTENTPLUGIN, Y) {
+        src/plugins/plaincontentplugin
+    }
     win32 {
-        SUBDIRS += src/plugins/qtwain
+        contains(TWAINSUPPORT, Y) {
+            SUBDIRS += src/plugins/qtwain
+        }
         contains(WIASUPPORT, Y) {
             SUBDIRS += src/plugins/qwiascan
         }

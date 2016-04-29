@@ -804,7 +804,7 @@ void AlephERPSettings::setFirstDayOfWeek(const QString &temp)
     }
 }
 
-QString AlephERPSettings::dataPath() const
+QString AlephERPSettings::dataPathWithoutServer() const
 {
     QDir dir;
     if ( !dir.exists(m_dataPath) )
@@ -817,6 +817,36 @@ QString AlephERPSettings::dataPath() const
         }
     }
     return m_dataPath;
+}
+
+QString AlephERPSettings::dataPath() const
+{
+    QDir dir;
+    if ( !dir.exists(m_dataPath) )
+    {
+        if ( !dir.mkpath(m_dataPath) )
+        {
+            QString message = QString("Configuracion::dataPath(): No se ha podido crear el directorio de archivos de datos: [%1]").arg(m_dataPath);
+            QByteArray ba = message.toUtf8();
+            qFatal(ba.constData());
+        }
+    }
+    QString finalPath = m_dataPath;
+    if ( !m_dataPath.endsWith("/") )
+    {
+        finalPath.append("/");
+    }
+    finalPath.append(QString("%1").arg(alephERPSettings->lastServer())).append(alephERPSettings->dbName()).append(alephERPSettings->dbSchema());
+    if ( !dir.exists(finalPath) )
+    {
+        if ( !dir.mkpath(finalPath) )
+        {
+            QString message = QString("Configuracion::dataPath(): No se ha podido crear el directorio de archivos de datos: [%1]").arg(finalPath);
+            QByteArray ba = message.toUtf8();
+            qFatal(ba.constData());
+        }
+    }
+    return finalPath;
 }
 
 void AlephERPSettings::saveRegistryValue(const QString &key, const QVariant &value)

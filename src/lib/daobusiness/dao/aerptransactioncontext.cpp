@@ -331,6 +331,7 @@ bool AERPTransactionContext::discardFromContext(const BaseBeanPointer &bean, boo
             return true;
         }
     }
+    QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPTransactionContext::discardFromContext: Descartando: %1").arg(bean->metadata()->tableName()));
     discardStack->push(bean.data());
     if ( !d->m_contextObjects.contains(contextName) )
     {
@@ -355,7 +356,7 @@ bool AERPTransactionContext::discardFromContext(const BaseBeanPointer &bean, boo
         }
         else
         {
-            relations = bean.data()->relations(AlephERP::ManyToOne);
+            relations = bean.data()->relations(AlephERP::OneToMany | AlephERP::OneToOne);
         }
         foreach(DBRelation *relation, relations)
         {
