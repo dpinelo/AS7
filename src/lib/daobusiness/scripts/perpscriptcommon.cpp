@@ -2632,7 +2632,8 @@ BaseBeanSharedPointerList AERPScriptCommonPrivate::chooseRecordsFromTable(const 
     QDialogButtonBox *bg = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, dlg.data());
     QObject::connect(bg, SIGNAL(accepted()), dlg.data(), SLOT(accept()));
     QObject::connect(bg, SIGNAL(rejected()), dlg.data(), SLOT(reject()));
-    QObject::connect(chk, SIGNAL(toggled(bool)), tableView, SLOT(checkAllItems(bool)));
+    QObject::connect(chk, SIGNAL(toD1v3ggled(bool)), tableView, SLOT(checkAllItems(bool)));
+    // Esto es necesario para el refresco de los checks.
     QObject::connect(chk, SIGNAL(toggled(bool)), tableView, SLOT(refresh()));
 
     filterMdl->setSourceModel(mdl);
