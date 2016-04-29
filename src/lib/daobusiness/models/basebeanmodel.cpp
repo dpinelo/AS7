@@ -813,7 +813,7 @@ bool BaseBeanModel::isLinkColumn(int column) const
 
 void BaseBeanModel::setCheckedItems(QModelIndexList list, bool checked)
 {
-    int lessRow=INT_MAX, lessCol=INT_MAX, maxRow=0, maxCol=0;
+    int lessRow = INT_MAX, lessCol = INT_MAX, maxRow = 0, maxCol = 0;
     if ( list.size() == 0 )
     {
         return;

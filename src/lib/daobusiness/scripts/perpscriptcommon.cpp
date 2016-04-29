@@ -2622,6 +2622,8 @@ BaseBeanSharedPointerList AERPScriptCommonPrivate::chooseRecordsFromTable(const 
     // Creamos el diálogo
     QScopedPointer<QDialog> dlg (new QDialog());
     QLabel *lbl = new QLabel(showedLabel, dlg.data());
+    QCheckBox *chk = new QCheckBox(dlg.data());
+    chk->setText(QObject::tr("Seleccionar todos"));
     DBTableView *tableView = new DBTableView(dlg.data());
     DBBaseBeanModel *mdl = new DBBaseBeanModel(tableName, where, order, true, userEnvVars);
     mdl->setParent(dlg.data());
@@ -2630,6 +2632,8 @@ BaseBeanSharedPointerList AERPScriptCommonPrivate::chooseRecordsFromTable(const 
     QDialogButtonBox *bg = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, dlg.data());
     QObject::connect(bg, SIGNAL(accepted()), dlg.data(), SLOT(accept()));
     QObject::connect(bg, SIGNAL(rejected()), dlg.data(), SLOT(reject()));
+    QObject::connect(chk, SIGNAL(toggled(bool)), tableView, SLOT(checkAllItems(bool)));
+    QObject::connect(chk, SIGNAL(toggled(bool)), tableView, SLOT(refresh()));
 
     filterMdl->setSourceModel(mdl);
     mdl->setCanShowCheckBoxes(true);
@@ -2643,6 +2647,7 @@ BaseBeanSharedPointerList AERPScriptCommonPrivate::chooseRecordsFromTable(const 
     tableView->setModel(filterMdl);
     layout->addWidget(lbl);
     layout->addWidget(tableView);
+    layout->addWidget(chk);
     layout->addWidget(bg);
     dlg->setWindowTitle(qApp->applicationName());
     dlg->setLayout(layout);
