@@ -531,7 +531,7 @@ void DBDetailView::addExisting()
         QMessageBox::information(this, qApp->applicationName(), trUtf8("La aplicación está mal configurada. No existe la relación: ").arg(mdl->tableName()), QMessageBox::Ok);
         return;
     }
-    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(m_relationName, this));
+    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(rel->metadata()->tableName(), this));
     if ( dlg->openSuccess() )
     {
         QString filter;
