@@ -233,6 +233,7 @@ public:
 
 /*!
  *  \class  QwwColorButton
+ *  \inmodule wwWidgets
  *  \brief  The QwwColorButton class provides a color chooser in form of a button with a popup list
  *
  *          This widget provides a push button that can be used
@@ -284,8 +285,6 @@ QColor QwwColorButton::currentColor() const {
 
 /*!
  * \brief Adds a \a color with a \a name to the list of colors to choose from
- * \param color color to add
- * \param name name to associate with the color
  */
 void QwwColorButton::addColor(const QColor & color, const QString & name) {
     Q_D(QwwColorButton);

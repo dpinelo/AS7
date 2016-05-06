@@ -37,3 +37,7 @@ RESOURCES += wwresources.qrc
 includesTarget.path = $$BUILDPATH/include
 includesTarget.files = $$HEADERS
 #INSTALLS += includesTarget
+
+DEFINES += WW_BUILD_WWWIDGETS
+CONFIG += precompile_header
+PRECOMPILED_HEADER = stable.h
