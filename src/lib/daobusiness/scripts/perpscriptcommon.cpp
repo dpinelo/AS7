@@ -782,6 +782,16 @@ bool AERPScriptCommon::addToTransaction(BaseBean *bean, const QString &contextNa
     return AERPTransactionContext::instance()->addToContext(contextName, bean);
 }
 
+bool AERPScriptCommon::addPreviousSqlToContext(const QString &sql, const QString &contextName)
+{
+    return AERPTransactionContext::instance()->addPreviousSqlToContext(contextName, sql);
+}
+
+bool AERPScriptCommon::addFinalSqlToContext(const QString &sql, const QString &contextName)
+{
+    return AERPTransactionContext::instance()->addFinalSqlToContext(contextName, sql);
+}
+
 void AERPScriptCommon::discardContext(const QString &contextName)
 {
     if ( !contextName.isEmpty() )

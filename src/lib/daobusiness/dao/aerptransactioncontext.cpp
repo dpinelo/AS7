@@ -40,6 +40,8 @@ private:
     /** Utilizamos WeakPointers, ya que éste tipo de template NO borra el bean. Y no podemos permitir que estas
      * funciones borren los beans, una vez que han trabajado con ellas */
     QList<BaseBeanPointer> m_list;
+    QStringList m_beforeSqls;
+    QStringList m_afterSqls;
 
 public:
 
@@ -50,6 +52,16 @@ public:
     ~BeansReferenceList()
     {
         m_list.clear();
+    }
+
+    void addPreviousSql(const QString &sql)
+    {
+        m_beforeSqls.append(sql);
+    }
+
+    void addFinalSql(const QString &sql)
+    {
+        m_afterSqls.append(sql);
     }
 
     void addBean(const BaseBeanPointer &bean)
@@ -111,6 +123,16 @@ public:
         return false;
     }
 
+    QStringList previousSql() const
+    {
+        return m_beforeSqls;
+    }
+
+    QStringList finalsSql() const
+    {
+        return m_afterSqls;
+    }
+
     QList<BaseBeanPointer> list() const
     {
         return m_list;
@@ -124,6 +146,8 @@ public:
     void clear()
     {
         m_list.clear();
+        m_beforeSqls.clear();
+        m_afterSqls.clear();
     }
 
     bool contains(const BaseBeanPointer &bean)
@@ -569,6 +593,20 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
         return false;
     }
 
+    // Ejecutamos las SQL Previas
+    foreach (const QString &sql, d->m_contextObjects[contextName]->previousSql())
+    {
+        if ( !BaseDAO::execute(sql) )
+        {
+            d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. ERROR: [%1]").arg(BaseDAO::lastErrorMessage());
+            QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
+            BaseDAO::rollback(d->m_database);
+            emit transactionAborted(contextName);
+            d->m_doingCommit[contextName] = false;
+            return false;
+        }
+    }
+
     // Guardamos los objetos del contexto
     foreach (BaseBeanPointer bean, list)
     {
@@ -626,6 +664,20 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
             d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. ERROR: [%1]").arg(BaseDAO::lastErrorMessage());
             QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
             d->restoreBeansStateAfterRollback();
+            BaseDAO::rollback(d->m_database);
+            emit transactionAborted(contextName);
+            d->m_doingCommit[contextName] = false;
+            return false;
+        }
+    }
+
+    // Ejecutamos las SQL Finales
+    foreach (const QString &sql, d->m_contextObjects[contextName]->finalsSql())
+    {
+        if ( !BaseDAO::execute(sql) )
+        {
+            d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. ERROR: [%1]").arg(BaseDAO::lastErrorMessage());
+            QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
             BaseDAO::rollback(d->m_database);
             emit transactionAborted(contextName);
             d->m_doingCommit[contextName] = false;
@@ -764,6 +816,28 @@ bool AERPTransactionContext::rollback(const QString &contextName)
 QString AERPTransactionContext::masterContext()
 {
     return "AERPTransactionContextMaster";
+}
+
+bool AERPTransactionContext::addPreviousSqlToContext(const QString &contextName, const QString &sql)
+{
+    // Comprobamos primero si debemos crear el contexto
+    if ( !d->m_contextObjects.contains(contextName) )
+    {
+        d->m_contextObjects[contextName] = new BeansReferenceList();
+    }
+    d->m_contextObjects[contextName]->addPreviousSql(sql);
+    return true;
+}
+
+bool AERPTransactionContext::addFinalSqlToContext(const QString &contextName, const QString &sql)
+{
+    // Comprobamos primero si debemos crear el contexto
+    if ( !d->m_contextObjects.contains(contextName) )
+    {
+        d->m_contextObjects[contextName] = new BeansReferenceList();
+    }
+    d->m_contextObjects[contextName]->addFinalSql(sql);
+    return true;
 }
 
 /**
