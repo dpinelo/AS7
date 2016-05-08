@@ -174,7 +174,7 @@ bool Database::createSystemConnection()
 bool Database::createServerConnection()
 {
     bool result, emptyDatabase = true;
-    result = openSQLite(Database::serversDatabaseName(), emptyDatabase, alephERPSettings->dataPath());
+    result = openSQLite(Database::serversDatabaseName(), emptyDatabase, alephERPSettings->dataPathWithoutServer());
     if ( result && emptyDatabase )
     {
         result = Database::createServerTablesSQLite();

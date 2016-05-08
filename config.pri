@@ -23,7 +23,7 @@ win32 {
         #FIREBIRDPATH=C:/Users/David/programacion/Firebird-2.5.2.26540
         #ADDITIONALLIBS=C:/Users/David/programacion/libraries/win32/msvc
         FIREBIRDPATH=C:/Users/David/src/Firebird-2.5.2.26540
-        ADDITIONALLIBS=C:/Users/David/src/alepherp/libraries/win32/msvc
+        ADDITIONALLIBS=C:/Users/d_pin/Documents/src/libraries/msvc/build
         INCLUDEPATH += $$PWD/projects/msvc/src/3rdparty/zlib-1.2.8 \
                        $$PWD/projects/msvc/src/3rdparty/libpng-1.6.15 \
                        $$PWD/projects/msvc/src/3rdparty/jpeg-9a
@@ -37,21 +37,23 @@ ADVANCEDEDIT=Y
 USEQSCINTILLA=Y
 OPENRPTSUPPORT=Y
 DEVTOOLS=Y
-SMTPBUILTIN=N
+SMTPBUILTIN=Y
 PRINTINGERPSUPPORT=N
 CLOUDSUPPORT=N
 LOCALMODE=N
 FIREBIRDSUPPORT=N
-DOCMNGSUPPORT=N
+DOCMNGSUPPORT=Y
+PLAINCONTENTPLUGIN=N
 USELIBMAGIC=N
 STANDALONE=N
 USEWEBSOCKETS=N
 FORCETOUSECLOUD=N
 WIASUPPORT=N
+TWAINSUPPORT=N
 JASPERSERVERSUPPORT=N
 BARCODESUPPORT=N
 QTDESIGNERBUILTIN=N
-QTSCRIPTBINDING=Y
+QTSCRIPTBINDING=N
 TESTPARTS=N
 # Puede ser, xbase64, xbase2 o dbase-code
 DBASELIBRARY=dbase-code
@@ -387,10 +389,14 @@ contains (CLOUDSUPPORT, Y) {
 }
 
 contains (AERPDOCMNGSUPPORT, Y) {
-    INCLUDEPATH += $$ALEPHERPPATH/src/plugins/dbdocumentmngmnt \
-                   $$ALEPHERPPATH/src/plugins/plaincontentplugin
+    INCLUDEPATH += $$ALEPHERPPATH/src/plugins/dbdocumentmngmnt
+    contains(PLAINCONTENTPLUGIN, Y) {
+        $$ALEPHERPPATH/src/plugins/plaincontentplugin
+    }
     win32 {
-        INCLUDEPATH += $$ALEPHERPPATH/src/plugins/qtwain
+        contains(TWAINSUPPORT, Y) {
+            INCLUDEPATH += $$ALEPHERPPATH/src/plugins/qtwain
+        }
         contains (WIASUPPORT, Y) {
             INCLUDEPATH += $$ALEPHERPPATH/src/plugins/qwiascan
         }

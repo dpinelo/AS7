@@ -811,13 +811,8 @@ bool RelatedElementPrivate::loadDocument()
 {
     bool result = false;
 #ifdef ALEPHERP_DOC_MANAGEMENT
-    int id;
-    bool ok;
-    id = m_relatedPkey.toInt(&ok);
-    if ( ok )
-    {
-        m_document = AERPDocumentDAOWrapper::instance()->document(id, q_ptr);
-    }
+    m_document = AERPDocumentDAOWrapper::instance()->document(m_relatedDbOid, q_ptr);
+    result = m_document != NULL;
 #endif
     return result;
 }

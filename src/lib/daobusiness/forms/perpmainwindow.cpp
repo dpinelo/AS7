@@ -235,6 +235,8 @@ void AERPMainWindowPrivate::processSpecialActions()
     }
     if ( actionMdiTabView )
     {
+        actionMdiTabView->setCheckable(true);
+        actionMdiTabView->setChecked(alephERPSettings->mdiTabView());
         q_ptr->connect(actionMdiTabView, SIGNAL(triggered()), q_ptr, SLOT(mdiTabViewSelect()));
     }
 

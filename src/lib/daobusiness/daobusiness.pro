@@ -57,7 +57,7 @@ contains (AERPADVANCEDEDIT, Y) {
 LIBS += -lmuparser
 
 win32-msvc* {
-    LIBS += -llibpng16 -ljpeg -lzlib
+    LIBS += -llibpng -ljpeg -lzlib
 }
 win32-g++ {
     LIBS += -liconv -lpng -ljpeg -lz
@@ -222,7 +222,7 @@ contains(AERPDOCMNGSUPPORT, Y) {
                business/docmngmnt/aerpscanneriface.h \
                business/docmngmnt/aerpdocumentmngnmtsynctask.h \
                business/docmngmnt/aerpdocumentdaowrapper.h \
-               business/aerpextractplainconteniface.h \
+               business/docmngmnt/aerpextractplainconteniface.h \
 
     FORMS +=   forms/documentrepoexplorerdlg.ui \
                forms/aerpdocumenthotfolders.ui \

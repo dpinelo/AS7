@@ -50,6 +50,8 @@ public:
     static AERPTransactionContext * instance();
     static QString masterContext();
 
+    bool addPreviousSqlToContext(const QString &contextName, const QString &sql);
+    bool addFinalSqlToContext(const QString &contextName, const QString &sql);
     bool addToContext(const QString &contextName, const BaseBeanPointer &bean);
     bool discardFromContext(const BaseBeanPointer &bean, bool includeFatherBeansOnDiscard = true, QStack<BaseBean *> *discardStak = NULL);
     bool discardContext(const QString &contextName);

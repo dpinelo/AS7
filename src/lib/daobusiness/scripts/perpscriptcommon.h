@@ -113,6 +113,8 @@ public:
 
     Q_INVOKABLE bool addToTransaction(BaseBean *bean);
     Q_INVOKABLE bool addToTransaction(BaseBean *bean, const QString &contextName);
+    Q_INVOKABLE bool addPreviousSqlToContext(const QString &sql, const QString &contextName);
+    Q_INVOKABLE bool addFinalSqlToContext(const QString &sql, const QString &contextName);
     Q_INVOKABLE void discardContext(const QString &contextName = "");
     Q_INVOKABLE QScriptValue beansOnTransaction();
     Q_INVOKABLE bool commit();
