@@ -260,6 +260,7 @@ bool DBFieldPrivate::checkNull()
     if ( q_ptr->metadata()->type() == QVariant::String ||
          q_ptr->metadata()->type() == QVariant::Double ||
          q_ptr->metadata()->type() == QVariant::Int ||
+         q_ptr->metadata()->type() == QVariant::LongLong ||
          q_ptr->metadata()->type() == QVariant::Date ||
          q_ptr->metadata()->type() == QVariant::DateTime )
     {
@@ -435,6 +436,11 @@ bool DBFieldPrivate::fatherOrBrotherSetted()
     if ( m->type() == QVariant::Int )
     {
         int id = m_value.toInt();
+        return id != 0;
+    }
+    if ( m->type() == QVariant::LongLong )
+    {
+        qlonglong id = m_value.toLongLong();
         return id != 0;
     }
     if ( m->type() == QVariant::Double )
@@ -654,6 +660,14 @@ QVariant DBFieldPrivate::setDataToType(const QVariant &v)
             result = QVariant(temp);
         }
     }
+    else if ( m->type() == QVariant::LongLong )
+    {
+        qlonglong temp = v.toLongLong(&ok);
+        if ( ok )
+        {
+            result = QVariant(temp);
+        }
+    }
     else if ( m->type() == QVariant::Double )
     {
         double temp = v.toDouble(&ok);
@@ -714,6 +728,10 @@ QString DBFieldPrivate::sqlValue(const QVariant &val, bool includeQuotesOnString
     if ( m->type() == QVariant::Int )
     {
         result = QString("%1").arg(val.toInt());
+    }
+    else if ( m->type() == QVariant::LongLong )
+    {
+        result = QString("%1").arg(val.toLongLong());
     }
     else if ( m->type() == QVariant::Double )
     {
@@ -1707,6 +1725,29 @@ bool DBField::checkValue(const QVariant &chkValue, const QString &op, Qt::CaseSe
             return false;
         }
     }
+    else if ( d->m->type() == QVariant::LongLong )
+    {
+        if ( op == "<" )
+        {
+            return ( chkValue.toDouble() > value().toLongLong() );
+        }
+        else if ( op == ">" )
+        {
+            return ( chkValue.toDouble() < value().toLongLong() );
+        }
+        else if ( op == "=" )
+        {
+            return ( chkValue.toDouble() == value().toLongLong() );
+        }
+        else if ( op == "!=" )
+        {
+            return ( chkValue.toDouble() != value().toLongLong() );
+        }
+        else
+        {
+            return false;
+        }
+    }
     else if ( d->m->type() == QVariant::Double )
     {
         if ( op == "<" )
@@ -1845,6 +1886,10 @@ bool DBField::checkValue(const QVariant &value1, const QVariant &value2)
     if ( d->m->type() == QVariant::Int )
     {
         return ( value().toInt() >= value1.toInt() && value().toInt() <= value2.toInt() );
+    }
+    else if ( d->m->type() == QVariant::LongLong )
+    {
+        return ( value().toLongLong() >= value1.toLongLong() && value().toLongLong() <= value2.toLongLong() );
     }
     else if ( d->m->type() == QVariant::Double )
     {
@@ -2180,9 +2225,13 @@ bool DBField::operator < (DBField &field)
     {
         return ( value().toInt() < field.value().toInt() );
     }
+    else if ( d->m->type() == QVariant::LongLong )
+    {
+        return ( value().toLongLong() < field.value().toLongLong() );
+    }
     else if ( d->m->type() == QVariant::Double )
     {
-        return (  value().toDouble() < field.value().toDouble() );
+        return ( value().toDouble() < field.value().toDouble() );
     }
     else if ( d->m->type() == QVariant::Date )
     {
@@ -2841,6 +2890,10 @@ bool DBField::isEmpty()
     if ( d->m->type() == QVariant::Int )
     {
         return (value().toInt() == 0);
+    }
+    if ( d->m->type() == QVariant::LongLong )
+    {
+        return (value().toLongLong() == 0);
     }
     else if ( d->m->type() == QVariant::Double )
     {

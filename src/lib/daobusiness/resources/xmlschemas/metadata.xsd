@@ -219,6 +219,7 @@ EJEMPLO A SEGUIR
         <xsd:enumeration value="double"/>
         <xsd:enumeration value="int"/>
         <xsd:enumeration value="integer"/>
+        <xsd:enumeration value="long"/>
         <xsd:enumeration value="serial"/>
         <xsd:enumeration value="date"/>
         <xsd:enumeration value="datetime"/>

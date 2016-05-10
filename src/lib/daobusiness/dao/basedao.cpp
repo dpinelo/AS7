@@ -2715,6 +2715,10 @@ QString BaseDAO::serializePk(const QVariant &pk)
         {
             result.append(QString("%1: %2").arg(pkIterator.key()).arg(pkIterator.value().toInt()));
         }
+        else if ( pkIterator.value().type() == QVariant::LongLong )
+        {
+            result.append(QString("%1: %2").arg(pkIterator.key()).arg(pkIterator.value().toLongLong()));
+        }
         else if ( pkIterator.value().type() == QVariant::Double )
         {
             result.append(QString("%1: %2").arg(pkIterator.key()).arg(pkIterator.value().toDouble()));

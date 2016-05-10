@@ -361,6 +361,10 @@ int DBFieldMetadata::desiredLengthForType(QVariant::Type type)
     {
         return 15;
     }
+    if ( type == QVariant::LongLong )
+    {
+        return 15;
+    }
     if ( type == QVariant::Date )
     {
         return 10;
@@ -981,6 +985,25 @@ QString DBFieldMetadata::databaseType(const QString &dialect) const
             }
         }
     }
+    else if ( d->m_metadataTypeName == "long" )
+    {
+        /* De la documentación de SQLIte: http://www.sqlite.org/lang_createtable.html
+         * With one exception, if a table has a primary key that consists of a single column, and the declared type of that
+         * column is "INTEGER" in any mixture of upper and lower case, then the column becomes an alias for the rowid.
+         * Such a column is usually referred to as an "integer primary key". A PRIMARY KEY column only becomes an integer primary
+         * key if the declared type name is exactly "INTEGER". Other integer type names like "INT" or "BIGINT" or "SHORT INTEGER" or
+         * "UNSIGNED INTEGER" causes the primary key column to behave as an ordinary table column with integer affinity and a
+         * unique index, not as an alias for the rowid.
+         * Y esto genera un problema con las foreign key al asumirse como alias de la rowid. Las foreign key no se pueden asociar a un rowid. */
+        type = QString("bigint");
+        if ( dialect == "QSQLITE" )
+        {
+            if ( d->m_primaryKey )
+            {
+                type = QString("int");
+            }
+        }
+    }
     else if ( d->m_metadataTypeName == "serial" )
     {
         /* Por la razón anterior, los campos serial sólo se adminten para primary keys. SQLIte los asocia a un rowid.
@@ -1067,6 +1090,16 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
         if ( databaseColumnType != "integer" )
         {
             err = trUtf8("%1: La columna %2 es de tipo int en los metadatos pero en la base de datos es de tipo %3 ").
+                  arg(beanMetadata()->tableName()).
+                  arg(dbFieldName()).arg(databaseColumnType);
+            return false;
+        }
+    }
+    if ( type() == QVariant::LongLong )
+    {
+        if ( databaseColumnType != "bigint" )
+        {
+            err = trUtf8("%1: La columna %2 es de tipo bigint en los metadatos pero en la base de datos es de tipo %3 ").
                   arg(beanMetadata()->tableName()).
                   arg(dbFieldName()).arg(databaseColumnType);
             return false;
@@ -1207,7 +1240,7 @@ QString DBFieldMetadata::xmlDefinition() const
 
 Qt::Alignment DBFieldMetadata::alignment() const
 {
-    if ( type() == QVariant::Int || type() == QVariant::Double )
+    if ( type() == QVariant::Int || type() == QVariant::Double || type() == QVariant::LongLong )
     {
         return Qt::AlignRight | Qt::AlignVCenter;
     }
@@ -1397,6 +1430,12 @@ QString DBFieldMetadata::displayValue(QVariant data, DBField *parent)
     {
         displayValue = QScriptValue(alephERPSettings->locale()->toString(data.toInt()));
         value = QScriptValue(data.toInt());
+    }
+    else if ( type() == QVariant::LongLong )
+    {
+        displayValue = QScriptValue(alephERPSettings->locale()->toString(data.toLongLong()));
+        qlonglong t = data.toLongLong();
+        value = QScriptValue(qsreal(t));
     }
     else if ( type() == QVariant::Double )
     {
@@ -1757,6 +1796,10 @@ QString DBFieldMetadata::sqlValue(const QVariant &value, bool includeQuotes, con
     {
         result = QString("%1").arg(value.toInt());
     }
+    else if ( type() == QVariant::LongLong )
+    {
+        result = QString("%1").arg(value.toLongLong());
+    }
     else if ( type() == QVariant::Double )
     {
         result = QString("%1").arg(value.toDouble());
@@ -1831,7 +1874,7 @@ QString DBFieldMetadata::sqlNullCondition(const QString &dialect)
 {
     Q_UNUSED(dialect)
     QString sql;
-    if ( type() == QVariant::Int || type() == QVariant::Double )
+    if ( type() == QVariant::Int || type() == QVariant::Double || type() == QVariant::LongLong )
     {
         sql = QString("(%1 IS NULL OR %1 = 0)").arg(d->m_dbFieldName);
     }
@@ -1955,6 +1998,11 @@ QVariant DBFieldMetadata::parseValue(const QString &v)
         int temp = value.toInt();
         result = QVariant(temp);
     }
+    else if ( type() == QVariant::LongLong )
+    {
+        qlonglong temp = value.toLongLong();
+        result = QVariant(temp);
+    }
     else if ( type() == QVariant::Double )
     {
         double temp = value.toDouble();
@@ -2020,6 +2068,11 @@ QVariant DBFieldMetadata::variantValueFromSqlRawData(const QString &data)
     if ( type() == QVariant::Int )
     {
         int temp = data.toInt();
+        result = QVariant(temp);
+    }
+    else if ( type() == QVariant::LongLong )
+    {
+        qlonglong temp = data.toLongLong();
         result = QVariant(temp);
     }
     else if ( type() == QVariant::Double )

@@ -527,7 +527,7 @@ QVariant TreeBaseBeanModel::headerData(int section, Qt::Orientation orientation,
         // TODO: Estaria guapo esto
         break;
     case Qt::TextAlignmentRole:
-        if ( field->type() == QVariant::Int || field->type() == QVariant::Double )
+        if ( field->type() == QVariant::Int || field->type() == QVariant::LongLong || field->type() == QVariant::Double )
         {
             returnData = int (Qt::AlignVCenter | Qt::AlignRight);
         }
@@ -789,7 +789,7 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
         }
         else
         {
-            if ( field != NULL && (field->type() == QVariant::Int || field->type() == QVariant::Double) )
+            if ( field != NULL && (field->type() == QVariant::Int || field->type() == QVariant::LongLong || field->type() == QVariant::Double) )
             {
                 return int(Qt::AlignRight | Qt::AlignVCenter);
             }

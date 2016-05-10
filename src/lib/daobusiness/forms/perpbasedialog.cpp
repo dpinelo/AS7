@@ -248,7 +248,7 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBRecordDlg(BaseBeanMetadata
             }
             else
             {
-                if ( !fld->serial() && (fld->type() == QVariant::Int || fld->type() == QVariant::Double) )
+                if ( !fld->serial() && (fld->type() == QVariant::Int || fld->type() == QVariant::Double || fld->type() == QVariant::LongLong) )
                 {
                     DBNumberEdit *ne = new DBNumberEdit(q_ptr);
                     ne->setDecimalPlaces(fld->partD());
@@ -344,7 +344,7 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBSearchDlg(BaseBeanMetadata
                 }
                 else
                 {
-                    if ( fld->type() == QVariant::Int || fld->type() == QVariant::Double )
+                    if ( fld->type() == QVariant::Int || fld->type() == QVariant::Double || fld->type() == QVariant::LongLong )
                     {
                         widList << createComboOperators(fld->dbFieldName());
                         DBNumberEdit *ne = new DBNumberEdit(q_ptr);

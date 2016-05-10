@@ -604,7 +604,7 @@ void DBAbstractFilterView::filterWithSql()
                 aditionalSql = QString("%1 BETWEEN %2 AND %3").arg(fld->dbFieldName()).
                                arg(fld->sqlValue(ui->deFastFilter1->date())).arg(fld->sqlValue(ui->deFastFilter2->date()));
             }
-            else if ( fld->type() == QVariant::Int || fld->type() == QVariant::Double )
+            else if ( fld->type() == QVariant::Int || fld->type() == QVariant::LongLong || fld->type() == QVariant::Double )
             {
                 if ( !ui->leFastFilter1->text().isEmpty() || !ui->leFastFilter2->text().isEmpty() )
                 {

@@ -2102,6 +2102,10 @@ void BaseBeanMetadataPrivate::setConfig()
                     {
                         field->setType(QVariant::Int);
                     }
+                    else if ( elementText == QLatin1String("long") )
+                    {
+                        field->setType(QVariant::LongLong);
+                    }
                     else if ( elementText == QLatin1String("serial") )
                     {
                         field->setType(QVariant::Int);
@@ -2350,6 +2354,13 @@ void BaseBeanMetadataPrivate::setConfig()
                 if ( !defaultValue.isEmpty() )
                 {
                     field->setDefaultValue(QVariant(defaultValue.toInt()));
+                }
+            }
+            else if ( field->type() == QVariant::LongLong )
+            {
+                if ( !defaultValue.isEmpty() )
+                {
+                    field->setDefaultValue(QVariant(defaultValue.toLongLong()));
                 }
             }
             else if ( field->type() == QVariant::Double )

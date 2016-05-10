@@ -378,7 +378,7 @@ void DBReportRunDlgPrivate::buildUIParameters()
                     lbl = new QLabel(q_ptr);
                     lbl->setText(text);
                 }
-                else if ( fld->type() == QVariant::Int || fld->type() == QVariant::Double )
+                else if ( fld->type() == QVariant::Int || fld->type() == QVariant::Double || fld->type() == QVariant::LongLong )
                 {
                     edit = new DBNumberEdit(q_ptr);
                     lbl = new QLabel(q_ptr);
