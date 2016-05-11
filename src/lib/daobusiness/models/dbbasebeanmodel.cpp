@@ -1442,7 +1442,7 @@ BaseBeanSharedPointer DBBaseBeanModel::beanToBeEdited (const QModelIndex &index)
     if ( b->metadata()->tableName() != d->m_tableName || b->metadata()->dbObjectType() == AlephERP::View )
     {
         QString originalTableName = d->m_tableName;
-        if ( b->metadata()->dbObjectType() == AlephERP::View )
+        if ( b->metadata()->dbObjectType() == AlephERP::View && !b->metadata()->viewForTable().isEmpty() )
         {
             originalTableName = b->metadata()->viewForTable();
         }
@@ -1477,9 +1477,12 @@ BaseBeanSharedPointer DBBaseBeanModel::beanToBeEdited (const QModelIndex &index)
     {
         beanOriginal = b;
     }
-    bool blockSignalsState = beanOriginal->blockSignals(true);
-    beanOriginal->uncheckModifiedFields();
-    beanOriginal->blockSignals(blockSignalsState);
+    if ( !beanOriginal.isNull() )
+    {
+        bool blockSignalsState = beanOriginal->blockSignals(true);
+        beanOriginal->uncheckModifiedFields();
+        beanOriginal->blockSignals(blockSignalsState);
+    }
     return beanOriginal;
 }
 
