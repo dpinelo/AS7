@@ -103,6 +103,7 @@ const char * AlephERP::stRelationFilter = "relationFilter";
 const char * AlephERP::stRelationFilterScript = "relationFilterScript";
 const char * AlephERP::stShowTextLine = "showTextLine";
 const char * AlephERP::stShowTextLineExactlySearch = "exactlySearch";
+const char * AlephERP::stShowTextLineAutocomplete = "autocomplete";
 
 #ifdef ALEPHERP_DEVTOOLS
 const char * AlephERP::stWebInspector = "aerpWebInspector";
