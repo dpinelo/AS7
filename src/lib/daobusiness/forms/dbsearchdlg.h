@@ -150,6 +150,8 @@ public slots:
     void addDefaultValue(const QString &dbFieldName, const QVariant &value);
     void setDefaultValues(const QHash<QString, QVariant> &values);
     void setInsertFather(BaseBeanPointer bean);
+    void checkAll();
+    void uncheckAll();
 };
 
 Q_DECLARE_METATYPE(DBSearchDlg*)
