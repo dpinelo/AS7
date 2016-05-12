@@ -318,10 +318,10 @@ public:
 
     /** Función que sólo podrán ser llamadas desde BaseDAO. Establece el valor
       sin modificar m_modified */
-    virtual void setInternalFieldValue(const QString &dbFieldName, const QVariant &value, bool overwriteOnReadOnly = false);
+    virtual void setInternalFieldValue(const QString &dbFieldName, const QVariant &value, bool overwriteOnReadOnly = false, bool updateChildren = true);
     /** Función que sólo podrán ser llamadas desde BaseDAO. Establece el valor
       sin modificar m_modified */
-    virtual void setInternalFieldValue(int index, const QVariant &value, bool overwriteOnReadOnly = false);
+    virtual void setInternalFieldValue(int index, const QVariant &value, bool overwriteOnReadOnly = false, bool updateChildren = true);
     virtual void setOldValue(const QString &dbFieldName, const QVariant &oldValue);
     virtual void setOldValue(int index, const QVariant &oldValue);
 

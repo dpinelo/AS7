@@ -863,11 +863,11 @@ void BaseBean::setFieldValue(const QString &dbFieldName, const QVariant &value)
     }
 }
 
-void BaseBean::setInternalFieldValue(int index, const QVariant &value, bool overwriteOnReadOnly)
+void BaseBean::setInternalFieldValue(int index, const QVariant &value, bool overwriteOnReadOnly, bool updateChildren)
 {
     if ( index >= 0 && index < d->m_fields.size() )
     {
-        d->m_fields.at(index)->setInternalValue(value, overwriteOnReadOnly);
+        d->m_fields.at(index)->setInternalValue(value, overwriteOnReadOnly, updateChildren);
     }
 }
 
@@ -890,13 +890,13 @@ void BaseBean::setOldValue(int index, const QVariant &oldValue)
     }
 }
 
-void BaseBean::setInternalFieldValue(const QString &dbFieldName, const QVariant &value, bool overwriteOnReadOnly)
+void BaseBean::setInternalFieldValue(const QString &dbFieldName, const QVariant &value, bool overwriteOnReadOnly, bool updateChildren)
 {
     foreach ( DBField *field, d->m_fields )
     {
         if ( field->metadata()->dbFieldName() == dbFieldName )
         {
-            field->setInternalValue(value, overwriteOnReadOnly);
+            field->setInternalValue(value, overwriteOnReadOnly, updateChildren);
             return;
         }
     }

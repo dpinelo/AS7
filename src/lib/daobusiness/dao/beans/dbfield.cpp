@@ -1301,7 +1301,7 @@ void DBField::resetOverwriteValue()
   Almacena el valor pasado en el parámetro. Pero no emite señales. Es una
   función de uso interno de la aplicación.
   */
-void DBField::setInternalValue(const QVariant &newValue, bool overwriteOnReadOnly)
+void DBField::setInternalValue(const QVariant &newValue, bool overwriteOnReadOnly, bool updateChildren)
 {
     QMutexLocker lock(&d->m_mutex);
 
@@ -1347,12 +1347,16 @@ void DBField::setInternalValue(const QVariant &newValue, bool overwriteOnReadOnl
         d->m_value = data;
         d->m_displayValue.clear();
         d->m_valueIsOld = false;
-        // ¿Hay que actualizar los valores de beans hijos?
+        // ¿Hay que actualizar los valores de beans hijos? Esta actualización hace referencia
+        // a relaciones 1->M, donde se ha establecido el valor de la parte 1 en esta función
+        // y se debe poner los valores en los hijos de la parte M.
         QList<DBRelation *> rels = relations();
         foreach (DBRelation *rel, rels)
         {
             if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
             {
+                // Al llamar a la función internalChildren, sólo nos traemos los beans en memoria y no los que están
+                // en base de datos (estos ya vendrían con este campo relleno).
                 BaseBeanPointerList otherChildren = rel->internalChildren();
                 foreach (BaseBeanPointer child, otherChildren)
                 {
@@ -1362,7 +1366,7 @@ void DBField::setInternalValue(const QVariant &newValue, bool overwriteOnReadOnl
                         if ( fld != NULL )
                         {
                             // TODO: OJO: esto puede provocar llamadas recursivas si se configuran mal los metadatos.
-                            fld->setInternalValue(d->m_value, overwriteOnReadOnly);
+                            fld->setInternalValue(d->m_value, overwriteOnReadOnly, updateChildren);
                         }
                     }
                 }
@@ -1378,9 +1382,12 @@ void DBField::setInternalValue(const QVariant &newValue, bool overwriteOnReadOnl
             }
             else if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
             {
-                bool previous = rel->blockAllSignals(true);
-                rel->updateChildrens();
-                rel->blockAllSignals(previous);
+                if ( updateChildren )
+                {
+                    bool previous = rel->blockAllSignals(true);
+                    rel->updateChildrens();
+                    rel->blockAllSignals(previous);
+                }
             }
         }
         // Pero hay que escalar más en los permisos... Si este es el campo ID de un father, que se acaba de insertar, debemos actualizar el
