@@ -1142,9 +1142,9 @@ void DBSearchDlg::checkAll()
 {
     if ( d->m_canSelectSeveral && d->m_model != NULL )
     {
+        bool v = d->m_model->setCanEmitDataChanged(true);
         d->m_model->checkAllItems(true);
-        ui->tvResults->update();
-        ui->treeResults->update();
+        d->m_model->setCanEmitDataChanged(v);
     }
 }
 
@@ -1152,9 +1152,9 @@ void DBSearchDlg::uncheckAll()
 {
     if ( d->m_canSelectSeveral && d->m_model != NULL )
     {
+        bool v = d->m_model->setCanEmitDataChanged(true);
         d->m_model->checkAllItems(false);
-        ui->tvResults->update();
-        ui->treeResults->update();
+        d->m_model->setCanEmitDataChanged(v);
     }
 }
 
