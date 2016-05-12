@@ -91,6 +91,7 @@ public:
     bool m_readOnly;
     bool m_restoringValues;
     QMutex m_mutex;
+    bool m_calculateFieldsEnabled;
 
     BaseBeanPrivate(BaseBean *qq);
 
@@ -518,7 +519,7 @@ BaseBeanMetadata * BaseBean::metadata() const
     return d->m;
 }
 
-qlonglong BaseBean::dbOid()
+qlonglong BaseBean::dbOid() const
 {
     return d->m_dbOid;
 }
@@ -667,12 +668,12 @@ DBRelation *BaseBean::newRelation(DBRelationMetadata *m)
     return rel;
 }
 
-QList<DBField *> BaseBean::fields()
+QList<DBField *> BaseBean::fields() const
 {
     return d->m_fields;
 }
 
-QVariantMap BaseBean::fieldsMap()
+QVariantMap BaseBean::fieldsMap() const
 {
     QVariantMap map;
     foreach (DBField *fld, d->m_fields)
@@ -685,7 +686,7 @@ QVariantMap BaseBean::fieldsMap()
 /*!
   Conjunto de todas las relaciones del basebean. Pueden ser relaciones con hijos o con padres
   */
-QList<DBRelation *> BaseBean::relations(AlephERP::RelationTypes type)
+QList<DBRelation *> BaseBean::relations(AlephERP::RelationTypes type) const
 {
     if ( type.testFlag(AlephERP::All) )
     {
@@ -710,7 +711,7 @@ QList<DBRelation *> BaseBean::relations(AlephERP::RelationTypes type)
     return rels;
 }
 
-QVariantMap BaseBean::relationsMap()
+QVariantMap BaseBean::relationsMap() const
 {
     QVariantMap map;
     foreach (DBRelation *rel, d->m_relations)
@@ -974,12 +975,12 @@ int BaseBean::fieldIndex(const QString &dbFieldName)
     return index;
 }
 
-int BaseBean::fieldCount()
+int BaseBean::fieldCount() const
 {
     return d->m_fields.size();
 }
 
-bool BaseBean::modifiedRelatedElements()
+bool BaseBean::modifiedRelatedElements() const
 {
     return d->m_relatedElementsModified;
 }
@@ -1429,7 +1430,7 @@ void BaseBean::setDbState(BaseBean::DbBeanStates value)
     d->emitBeanModified(true);
 }
 
-BaseBean::DbBeanStates BaseBean::dbState()
+BaseBean::DbBeanStates BaseBean::dbState() const
 {
     // Si el registro es una vista, jamás podrá estar modificado
     if ( d->m->dbObjectType() == AlephERP::View )
@@ -1464,7 +1465,7 @@ QString BaseBean::dbStateDisplayName() const
   Chivato de modificación: Indica si el bean se ha modificado desde que se creó
   o desde que se leyó de base de datos
   */
-bool BaseBean::modified ()
+bool BaseBean::modified () const
 {
     if ( dbState() != BaseBean::INSERT && d->m_readOnly )
     {
@@ -1502,6 +1503,10 @@ void BaseBean::setModified(BaseBean *child, bool value)
 void BaseBean::recalculateCalculatedFields()
 {
     QMutexLocker lock(&d->m_mutex);
+    if ( !d->m_calculateFieldsEnabled )
+    {
+        return;
+    }
     QElapsedTimer timer;
     timer.start();
     foreach ( DBField *fld, d->m_fields )
@@ -1556,7 +1561,14 @@ void BaseBean::recalculateCalculatedFields()
         }
     }
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBean::recalculateCalculatedFields: Time: [%1] ms").
-               arg(timer.elapsed()));
+                        arg(timer.elapsed()));
+}
+
+bool BaseBean::enableCalculateFields(bool value)
+{
+    bool v = d->m_calculateFieldsEnabled;
+    d->m_calculateFieldsEnabled = value;
+    return v;
 }
 
 /*!
@@ -3169,7 +3181,7 @@ void BaseBean::addRelatedElement(RelatedElement *element)
     }
 }
 
-QDateTime BaseBean::loadTime()
+QDateTime BaseBean::loadTime() const
 {
     return d->m_loadTime;
 }
@@ -3203,6 +3215,11 @@ bool BaseBean::setReadOnly(bool value)
         fldEditable->setInternalValue(!value);
     }
     return previousReadOnly;
+}
+
+bool BaseBean::calculatedFieldsEnabled() const
+{
+    return d->m_calculateFieldsEnabled;
 }
 
 void BaseBean::setLoadTime(const QDateTime &time)

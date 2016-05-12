@@ -2635,6 +2635,12 @@ void DBField::recalculate()
     {
         return;
     }
+    // Si el registro al que pertenece este registro tiene deshabilitado los cálculos, no hace nada
+    if ( !d->m_bean->calculatedFieldsEnabled() )
+    {
+        return;
+    }
+
     d->m_valueIsOld = true;
 
     if ( d->m->calculated() && !isWorking() )
