@@ -131,6 +131,7 @@ BaseBeanPrivate::BaseBeanPrivate(BaseBean *qq) :
     m_allSignalsBlocked = false;
     m_readOnly = false;
     m_restoringValues = false;
+    m_calculateFieldsEnabled = true;
 }
 
 void BaseBeanPrivate::setDefaultValues(BaseBeanPointerList fatherBeans)
