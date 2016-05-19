@@ -57,7 +57,7 @@ contains (AERPADVANCEDEDIT, Y) {
 LIBS += -lmuparser
 
 win32-msvc* {
-    LIBS += -llibpng -ljpeg -lzlib
+    LIBS += -llibpng -ljpeg -lzlib -lUser32
 }
 win32-g++ {
     LIBS += -liconv -lpng -ljpeg -lz

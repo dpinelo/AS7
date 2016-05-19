@@ -2015,7 +2015,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
             qry->first();
             foreach (DBField *fld, pkFields)
             {
-                fld->setInternalValue(qry->record().value(fld->metadata()->dbFieldName()), true);
+                fld->setInternalValue(qry->record().value(fld->metadata()->dbFieldName()), true, false);
             }
             bean->setDbOid(qry->record().value("oid").toLongLong());
         }
@@ -2715,6 +2715,10 @@ QString BaseDAO::serializePk(const QVariant &pk)
         {
             result.append(QString("%1: %2").arg(pkIterator.key()).arg(pkIterator.value().toInt()));
         }
+        else if ( pkIterator.value().type() == QVariant::LongLong )
+        {
+            result.append(QString("%1: %2").arg(pkIterator.key()).arg(pkIterator.value().toLongLong()));
+        }
         else if ( pkIterator.value().type() == QVariant::Double )
         {
             result.append(QString("%1: %2").arg(pkIterator.key()).arg(pkIterator.value().toDouble()));
@@ -2906,7 +2910,7 @@ void BaseDAO::readSerialValuesAfterInsert(BaseBean *bean, qlonglong oid, const Q
                 else
                 {
                     QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::readSerialValuesAfterInsert: Field [%1] VALUE [%2]").arg(field->metadata()->dbFieldName()).arg(value.toInt()));
-                    field->setInternalValue(value, true);
+                    field->setInternalValue(value, true, false);
                 }
             }
         }
@@ -2931,7 +2935,7 @@ void BaseDAO::readSerialValuesAfterInsert(BaseBean *bean, qlonglong oid, const Q
                 else
                 {
                     QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::readSerialValuesAfterInsert: Field [%1] VALUE [%2]").arg(field->metadata()->dbFieldName()).arg(value.toInt()));
-                    field->setInternalValue(value, true);
+                    field->setInternalValue(value, true, false);
                 }
             }
         }
@@ -3059,7 +3063,7 @@ bool BaseDAO::reloadFieldChangedAfterSave(BaseBean *bean, const QString &connect
         {
             if ( fld->metadata()->reloadFromDBAfterSave() )
             {
-                fld->setInternalValue(qry->value(i), true);
+                fld->setInternalValue(qry->value(i), true, false);
                 fld->sync();
             }
         }

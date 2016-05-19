@@ -305,6 +305,9 @@ void FilterBaseBeanModel::setFilterPkColumn (const QVariant &pk, int level)
             case QVariant::Int:
                 filterValues["value"] = QString("%1").arg(it.value().toInt());
                 break;
+            case QVariant::LongLong:
+                filterValues["value"] = QString("%1").arg(it.value().toLongLong());
+                break;
             case QVariant::Double:
                 filterValues["value"] = QString("%1").arg(it.value().toDouble());
                 break;
@@ -651,6 +654,10 @@ bool FilterBaseBeanModel::lessThan(const QModelIndex &left, const QModelIndex &r
         {
         case QVariant::Int:
             result = ( vLeft.toInt() < vRight.toInt() );
+            break;
+
+        case QVariant::LongLong:
+            result = ( vLeft.toLongLong() < vRight.toLongLong() );
             break;
 
         case QVariant::Double:

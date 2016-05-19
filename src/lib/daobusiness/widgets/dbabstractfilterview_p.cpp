@@ -245,6 +245,7 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
             bool showTextLine = filter[AlephERP::stShowTextLine] == QLatin1Literal("true") ? true: false;
             bool showTextLineExactlySearch = filter[AlephERP::stShowTextLineExactlySearch] == QLatin1Literal("true") ? true: false;
             bool viewAll = filter[AlephERP::stViewAllOption].isEmpty() || filter[AlephERP::stViewAllOption] == QLatin1Literal("true") ? true : false;
+            bool autocomplete = filter[AlephERP::stShowTextLineAutocomplete] == QLatin1Literal("true") ? true : false;
 
             if ( fieldToFilter.isEmpty() )
             {
@@ -262,7 +263,7 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
             {
                 if ( showTextLine )
                 {
-                    createLineTextStringFilter(fld, i, showTextLineExactlySearch);
+                    createLineTextStringFilter(fld, i, showTextLineExactlySearch, autocomplete);
                 }
                 else
                 {
@@ -373,7 +374,7 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
     q_ptr->connect(cb, SIGNAL(currentIndexChanged(int)), q_ptr, SLOT(saveStrongFilterWidgetStatus()));
 }
 
-void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fld, int i, bool exactlySearch)
+void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fld, int i, bool exactlySearch, bool autocomplete)
 {
     DBLineEdit *le = new DBLineEdit(q_ptr);
     QLabel *lbl = new QLabel(q_ptr);
@@ -390,9 +391,12 @@ void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fl
     lay->insertWidget(i*2 + 1, le);
     lbl->setText(fld->fieldName());
 
-    le->setAutoComplete(AlephERP::ValuesFromTableWithNoRelation);
-    le->setAutoCompleteTableName(m_tableName);
-    le->setAutoCompleteColumn(fld->dbFieldName());
+    if ( autocomplete )
+    {
+        le->setAutoComplete(AlephERP::ValuesFromTableWithNoRelation);
+        le->setAutoCompleteTableName(m_tableName);
+        le->setAutoCompleteColumn(fld->dbFieldName());
+    }
     // Lo dotamos de funcionalidad
     q_ptr->connect(le, SIGNAL(textEdited(QString)), q_ptr, SLOT(filterWithSql()));
 }

@@ -2475,6 +2475,13 @@ bool DBRelationPrivate::haveToSearchOnDatabase(DBField *fld)
             return false;
         }
     }
+    if ( fld->metadata()->type() == QVariant::LongLong )
+    {
+        if ( !fld->rawValue().isValid() || fld->rawValue().isNull() || fld->rawValue().toLongLong() == 0 )
+        {
+            return false;
+        }
+    }
     if ( fld->metadata()->type() == QVariant::Double )
     {
         if ( !fld->rawValue().isValid() || fld->rawValue().isNull() || fld->rawValue().toDouble() == 0 )

@@ -26,7 +26,7 @@ win32 {
         ADDITIONALLIBS=C:/Users/d_pin/Documents/src/libraries/msvc/build
         INCLUDEPATH += $$PWD/projects/msvc/src/3rdparty/zlib-1.2.8 \
                        $$PWD/projects/msvc/src/3rdparty/libpng-1.6.15 \
-                       $$PWD/projects/msvc/src/3rdparty/jpeg-9a
+                       $$PWD/projects/msvc/src/3rdparty/jpeg-9b
     }
     INCLUDEPATH += $$ADDITIONALLIBS/include
     DEFINES += ALEPHERP_BUILD_DLL

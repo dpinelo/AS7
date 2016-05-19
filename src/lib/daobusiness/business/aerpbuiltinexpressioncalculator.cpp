@@ -457,6 +457,10 @@ QVariant AERPBuiltInExpressionCalculator::value()
     {
         data = (int) dVal;
     }
+    else if ( d->m_type == QVariant::LongLong )
+    {
+        data = (qlonglong) dVal;
+    }
     else
     {
         data = dVal;

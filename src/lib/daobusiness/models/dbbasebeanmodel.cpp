@@ -1105,7 +1105,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
                 QVariant sortReturn;
                 if ( singleClausuleOrder.at(1).toLower() == "desc" )
                 {
-                    if ( field->type() == QVariant::Int || field->type() == QVariant::Double || field->type() == QVariant::String || field->type() == QVariant::Bool )
+                    if ( field->type() == QVariant::Int || field->type() == QVariant::LongLong || field->type() == QVariant::Double || field->type() == QVariant::String || field->type() == QVariant::Bool )
                     {
                         sortReturn = (QString("%1").arg(d->m_rowCount - row)).rightJustified(12, '0');
                     }
@@ -1116,7 +1116,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
                 }
                 else
                 {
-                    if ( field->type() == QVariant::Int || field->type() == QVariant::Double || field->type() == QVariant::String || field->type() == QVariant::Bool )
+                    if ( field->type() == QVariant::Int || field->type() == QVariant::LongLong || field->type() == QVariant::Double || field->type() == QVariant::String || field->type() == QVariant::Bool )
                     {
                         sortReturn = (QString("%1").arg(row)).rightJustified(12, '0');
                     }
@@ -1442,7 +1442,7 @@ BaseBeanSharedPointer DBBaseBeanModel::beanToBeEdited (const QModelIndex &index)
     if ( b->metadata()->tableName() != d->m_tableName || b->metadata()->dbObjectType() == AlephERP::View )
     {
         QString originalTableName = d->m_tableName;
-        if ( b->metadata()->dbObjectType() == AlephERP::View )
+        if ( b->metadata()->dbObjectType() == AlephERP::View && !b->metadata()->viewForTable().isEmpty() )
         {
             originalTableName = b->metadata()->viewForTable();
         }
@@ -1477,9 +1477,12 @@ BaseBeanSharedPointer DBBaseBeanModel::beanToBeEdited (const QModelIndex &index)
     {
         beanOriginal = b;
     }
-    bool blockSignalsState = beanOriginal->blockSignals(true);
-    beanOriginal->uncheckModifiedFields();
-    beanOriginal->blockSignals(blockSignalsState);
+    if ( !beanOriginal.isNull() )
+    {
+        bool blockSignalsState = beanOriginal->blockSignals(true);
+        beanOriginal->uncheckModifiedFields();
+        beanOriginal->blockSignals(blockSignalsState);
+    }
     return beanOriginal;
 }
 

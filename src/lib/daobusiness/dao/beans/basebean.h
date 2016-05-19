@@ -140,6 +140,7 @@ class ALEPHERP_DLL_EXPORT BaseBean : public DBObject
     Q_PROPERTY(QString hash READ hash)
     Q_PROPERTY(QString rawHash READ hash)
     Q_PROPERTY(bool allSignalsBlocked READ allSignalsBlocked)
+    Q_PROPERTY(bool calculatedFieldsEnabled READ calculatedFieldsEnabled)
 
     /** BaseDAO utiliza unas funciones específicas de DBField y BaseBean para así saber
       cuándo la lectura de un dato se ha producid por lectura de base de datos, de modo
@@ -200,31 +201,33 @@ public:
     };
 
     BaseBeanMetadata * metadata() const;
-    qlonglong dbOid();
+    qlonglong dbOid() const;
     void setDbOid(qlonglong value);
 
     void setDbState(DbBeanStates state);
-    DbBeanStates dbState();
+    DbBeanStates dbState() const;
     QString dbStateDisplayName() const;
 
-    bool modified();
+    bool modified() const;
     QString actualContext() const;
-    QDateTime loadTime();
+    QDateTime loadTime() const;
 
     bool readOnly();
     bool setReadOnly(bool value);
 
-    QList<DBField *> fields();
-    QVariantMap fieldsMap();
+    bool calculatedFieldsEnabled() const;
+
+    QList<DBField *> fields() const;
+    QVariantMap fieldsMap() const;
     Q_INVOKABLE DBField * field(const QString &dbFieldName);
     Q_INVOKABLE DBField * field(int index);
     Q_INVOKABLE QList<DBField *> pkFields ();
     int fieldIndex(const QString &dbFieldName);
-    int fieldCount();
-    bool modifiedRelatedElements();
+    int fieldCount() const;
+    bool modifiedRelatedElements() const;
 
-    QList<DBRelation *> relations(AlephERP::RelationTypes type = AlephERP::All);
-    QVariantMap relationsMap();
+    QList<DBRelation *> relations(AlephERP::RelationTypes type = AlephERP::All) const;
+    QVariantMap relationsMap() const;
     Q_INVOKABLE DBRelation * relation(const QString &relationName);
     int relationIndex(const QString &relationName);
     Q_INVOKABLE BaseBeanPointerList relationChildren(const QString &relationName, const QString &order = "", bool includeToBeDeleted = false);
@@ -315,10 +318,10 @@ public:
 
     /** Función que sólo podrán ser llamadas desde BaseDAO. Establece el valor
       sin modificar m_modified */
-    virtual void setInternalFieldValue(const QString &dbFieldName, const QVariant &value, bool overwriteOnReadOnly = false);
+    virtual void setInternalFieldValue(const QString &dbFieldName, const QVariant &value, bool overwriteOnReadOnly = false, bool updateChildren = true);
     /** Función que sólo podrán ser llamadas desde BaseDAO. Establece el valor
       sin modificar m_modified */
-    virtual void setInternalFieldValue(int index, const QVariant &value, bool overwriteOnReadOnly = false);
+    virtual void setInternalFieldValue(int index, const QVariant &value, bool overwriteOnReadOnly = false, bool updateChildren = true);
     virtual void setOldValue(const QString &dbFieldName, const QVariant &oldValue);
     virtual void setOldValue(int index, const QVariant &oldValue);
 
@@ -413,11 +416,12 @@ public slots:
     void setValuesFromFilter(const QString &filter);
     void setValuesFromFilter(const QVariantMap &filter);
     bool blockAllSignals(bool value);
+    void recalculateCalculatedFields();
+    bool enableCalculateFields(bool value);
 
 private slots:
     void setModified();
     void setModified(BaseBean *child, bool value);
-    void recalculateCalculatedFields();
     void emitBeforeInsert();
     void emitBeforeUpdate();
     void emitBeforeSave();

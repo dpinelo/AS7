@@ -958,7 +958,23 @@ QString AERPScriptCommon::formatNumber(const QVariant &number, int numDecimals)
             result = alephERPSettings->locale()->toString(value, 'f', numDecimals);
         }
     }
-    else if ( number.type() == QVariant::Int || number.type() == QVariant::Double )
+    else if ( number.type() == QVariant::Int )
+    {
+        int value = number.toInt(&ok);
+        if ( ok )
+        {
+            result = alephERPSettings->locale()->toString((int)value);
+        }
+    }
+    else if ( number.type() == QVariant::LongLong )
+    {
+        qlonglong value = number.toLongLong(&ok);
+        if ( ok )
+        {
+            result = alephERPSettings->locale()->toString((qlonglong)value);
+        }
+    }
+    else if ( number.type() == QVariant::Double )
     {
         double value = number.toDouble(&ok);
         if ( ok )
@@ -1385,7 +1401,7 @@ QScriptValue AERPScriptCommon::nextCounter(DBField *fld, const QString &sqlFilte
             QString stringValue = QString("%1%2").arg(zeroString).arg(tmp);
             scriptResult = QScriptValue(stringValue);
         }
-        else if ( fld->metadata()->type() == QVariant::Int || fld->metadata()->type() == QVariant::Double )
+        else if ( fld->metadata()->type() == QVariant::Int || fld->metadata()->type() == QVariant::Double || fld->metadata()->type() == QVariant::LongLong )
         {
             scriptResult = QScriptValue(v);
         }

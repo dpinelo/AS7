@@ -2102,6 +2102,10 @@ void BaseBeanMetadataPrivate::setConfig()
                     {
                         field->setType(QVariant::Int);
                     }
+                    else if ( elementText == QLatin1String("long") )
+                    {
+                        field->setType(QVariant::LongLong);
+                    }
                     else if ( elementText == QLatin1String("serial") )
                     {
                         field->setType(QVariant::Int);
@@ -2350,6 +2354,13 @@ void BaseBeanMetadataPrivate::setConfig()
                 if ( !defaultValue.isEmpty() )
                 {
                     field->setDefaultValue(QVariant(defaultValue.toInt()));
+                }
+            }
+            else if ( field->type() == QVariant::LongLong )
+            {
+                if ( !defaultValue.isEmpty() )
+                {
+                    field->setDefaultValue(QVariant(defaultValue.toLongLong()));
                 }
             }
             else if ( field->type() == QVariant::Double )
@@ -3035,6 +3046,10 @@ void BaseBeanMetadataPrivate::readItemsFilterColumn(const QDomElement &e)
                     if ( final.hasAttribute(AlephERP::stShowTextLineExactlySearch) )
                     {
                         hash[AlephERP::stShowTextLineExactlySearch] = final.attribute(AlephERP::stShowTextLineExactlySearch);
+                    }
+                    if ( final.hasAttribute(AlephERP::stShowTextLineAutocomplete) )
+                    {
+                        hash[AlephERP::stShowTextLineAutocomplete] = final.attribute(AlephERP::stShowTextLineAutocomplete);
                     }
                 }
                 else if ( final.tagName() == QLatin1String(AlephERP::stRelationFieldToShow) )

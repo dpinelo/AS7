@@ -1359,7 +1359,7 @@ QString BatchDAOPrivate::sqlSerializePk(BaseBeanMetadata *metadata, const QStrin
         {
             sql = QString("'");
         }
-        if ( field->type() == QVariant::Int || field->type() == QVariant::Bool || field->type() == QVariant::Double )
+        if ( field->type() == QVariant::Int || field->type() == QVariant::Bool || field->type() == QVariant::Double || field->type() == QVariant::LongLong )
         {
             sql = QString("%1%2: ' || %3").arg(sql).arg(field->dbFieldName()).arg(dbFieldName);
         }

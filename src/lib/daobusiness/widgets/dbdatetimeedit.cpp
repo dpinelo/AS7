@@ -144,6 +144,7 @@ void DBDateTimeEdit::setValue(const QVariant &value)
 void DBDateTimeEdit::emitValueEdited()
 {
     QVariant v;
+    m_userModified = true;
     if ( text().isEmpty() )
     {
         emit valueEdited(v);
@@ -295,10 +296,12 @@ void DBDateTimeEdit::setToday()
     if ( observer() == NULL )
     {
         setValue(QDateTime::currentDateTime());
+        emitValueEdited();
     }
     if ( dataEditable() )
     {
         setValue(QDateTime::currentDateTime());
+        emitValueEdited();
     }
 }
 

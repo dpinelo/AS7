@@ -574,7 +574,7 @@ QVariant BaseBeanModel::headerData(DBFieldMetadata *field, int section, Qt::Orie
         // TODO: Estaria guapo esto
         break;
     case Qt::TextAlignmentRole:
-        if ( field->type() == QVariant::Int || field->type() == QVariant::Double )
+        if ( field->type() == QVariant::Int || field->type() == QVariant::Double || field->type() == QVariant::LongLong )
         {
             returnData = int (Qt::AlignVCenter | Qt::AlignRight);
         }

@@ -260,6 +260,7 @@ bool DBFieldPrivate::checkNull()
     if ( q_ptr->metadata()->type() == QVariant::String ||
          q_ptr->metadata()->type() == QVariant::Double ||
          q_ptr->metadata()->type() == QVariant::Int ||
+         q_ptr->metadata()->type() == QVariant::LongLong ||
          q_ptr->metadata()->type() == QVariant::Date ||
          q_ptr->metadata()->type() == QVariant::DateTime )
     {
@@ -435,6 +436,11 @@ bool DBFieldPrivate::fatherOrBrotherSetted()
     if ( m->type() == QVariant::Int )
     {
         int id = m_value.toInt();
+        return id != 0;
+    }
+    if ( m->type() == QVariant::LongLong )
+    {
+        qlonglong id = m_value.toLongLong();
         return id != 0;
     }
     if ( m->type() == QVariant::Double )
@@ -654,6 +660,14 @@ QVariant DBFieldPrivate::setDataToType(const QVariant &v)
             result = QVariant(temp);
         }
     }
+    else if ( m->type() == QVariant::LongLong )
+    {
+        qlonglong temp = v.toLongLong(&ok);
+        if ( ok )
+        {
+            result = QVariant(temp);
+        }
+    }
     else if ( m->type() == QVariant::Double )
     {
         double temp = v.toDouble(&ok);
@@ -714,6 +728,10 @@ QString DBFieldPrivate::sqlValue(const QVariant &val, bool includeQuotesOnString
     if ( m->type() == QVariant::Int )
     {
         result = QString("%1").arg(val.toInt());
+    }
+    else if ( m->type() == QVariant::LongLong )
+    {
+        result = QString("%1").arg(val.toLongLong());
     }
     else if ( m->type() == QVariant::Double )
     {
@@ -1283,7 +1301,7 @@ void DBField::resetOverwriteValue()
   Almacena el valor pasado en el parámetro. Pero no emite señales. Es una
   función de uso interno de la aplicación.
   */
-void DBField::setInternalValue(const QVariant &newValue, bool overwriteOnReadOnly)
+void DBField::setInternalValue(const QVariant &newValue, bool overwriteOnReadOnly, bool updateChildren)
 {
     QMutexLocker lock(&d->m_mutex);
 
@@ -1329,12 +1347,16 @@ void DBField::setInternalValue(const QVariant &newValue, bool overwriteOnReadOnl
         d->m_value = data;
         d->m_displayValue.clear();
         d->m_valueIsOld = false;
-        // ¿Hay que actualizar los valores de beans hijos?
+        // ¿Hay que actualizar los valores de beans hijos? Esta actualización hace referencia
+        // a relaciones 1->M, donde se ha establecido el valor de la parte 1 en esta función
+        // y se debe poner los valores en los hijos de la parte M.
         QList<DBRelation *> rels = relations();
         foreach (DBRelation *rel, rels)
         {
             if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
             {
+                // Al llamar a la función internalChildren, sólo nos traemos los beans en memoria y no los que están
+                // en base de datos (estos ya vendrían con este campo relleno).
                 BaseBeanPointerList otherChildren = rel->internalChildren();
                 foreach (BaseBeanPointer child, otherChildren)
                 {
@@ -1344,7 +1366,7 @@ void DBField::setInternalValue(const QVariant &newValue, bool overwriteOnReadOnl
                         if ( fld != NULL )
                         {
                             // TODO: OJO: esto puede provocar llamadas recursivas si se configuran mal los metadatos.
-                            fld->setInternalValue(d->m_value, overwriteOnReadOnly);
+                            fld->setInternalValue(d->m_value, overwriteOnReadOnly, updateChildren);
                         }
                     }
                 }
@@ -1360,9 +1382,12 @@ void DBField::setInternalValue(const QVariant &newValue, bool overwriteOnReadOnl
             }
             else if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
             {
-                bool previous = rel->blockAllSignals(true);
-                rel->updateChildrens();
-                rel->blockAllSignals(previous);
+                if ( updateChildren )
+                {
+                    bool previous = rel->blockAllSignals(true);
+                    rel->updateChildrens();
+                    rel->blockAllSignals(previous);
+                }
             }
         }
         // Pero hay que escalar más en los permisos... Si este es el campo ID de un father, que se acaba de insertar, debemos actualizar el
@@ -1707,6 +1732,29 @@ bool DBField::checkValue(const QVariant &chkValue, const QString &op, Qt::CaseSe
             return false;
         }
     }
+    else if ( d->m->type() == QVariant::LongLong )
+    {
+        if ( op == "<" )
+        {
+            return ( chkValue.toDouble() > value().toLongLong() );
+        }
+        else if ( op == ">" )
+        {
+            return ( chkValue.toDouble() < value().toLongLong() );
+        }
+        else if ( op == "=" )
+        {
+            return ( chkValue.toDouble() == value().toLongLong() );
+        }
+        else if ( op == "!=" )
+        {
+            return ( chkValue.toDouble() != value().toLongLong() );
+        }
+        else
+        {
+            return false;
+        }
+    }
     else if ( d->m->type() == QVariant::Double )
     {
         if ( op == "<" )
@@ -1845,6 +1893,10 @@ bool DBField::checkValue(const QVariant &value1, const QVariant &value2)
     if ( d->m->type() == QVariant::Int )
     {
         return ( value().toInt() >= value1.toInt() && value().toInt() <= value2.toInt() );
+    }
+    else if ( d->m->type() == QVariant::LongLong )
+    {
+        return ( value().toLongLong() >= value1.toLongLong() && value().toLongLong() <= value2.toLongLong() );
     }
     else if ( d->m->type() == QVariant::Double )
     {
@@ -2180,9 +2232,13 @@ bool DBField::operator < (DBField &field)
     {
         return ( value().toInt() < field.value().toInt() );
     }
+    else if ( d->m->type() == QVariant::LongLong )
+    {
+        return ( value().toLongLong() < field.value().toLongLong() );
+    }
     else if ( d->m->type() == QVariant::Double )
     {
-        return (  value().toDouble() < field.value().toDouble() );
+        return ( value().toDouble() < field.value().toDouble() );
     }
     else if ( d->m->type() == QVariant::Date )
     {
@@ -2586,6 +2642,12 @@ void DBField::recalculate()
     {
         return;
     }
+    // Si el registro al que pertenece este registro tiene deshabilitado los cálculos, no hace nada
+    if ( !d->m_bean->calculatedFieldsEnabled() )
+    {
+        return;
+    }
+
     d->m_valueIsOld = true;
 
     if ( d->m->calculated() && !isWorking() )
@@ -2841,6 +2903,10 @@ bool DBField::isEmpty()
     if ( d->m->type() == QVariant::Int )
     {
         return (value().toInt() == 0);
+    }
+    if ( d->m->type() == QVariant::LongLong )
+    {
+        return (value().toLongLong() == 0);
     }
     else if ( d->m->type() == QVariant::Double )
     {

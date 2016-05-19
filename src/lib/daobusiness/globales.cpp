@@ -86,11 +86,11 @@ double CommonsFunctions::round(double value, int Digits)
     double rounded;
     if( value > 0.0 )
     {
-        rounded = ( (long)(value * pow( 10.0, Digits) + 0.5) ) / pow(10.0, Digits);
+        rounded = ( (qlonglong)(value * pow( 10.0, Digits) + 0.5) ) / pow(10.0, Digits);
     }
     else
     {
-        rounded = ((long)(value * pow( 10.0, Digits) - 0.5 )) / pow(10.0, Digits);
+        rounded = ((qlonglong)(value * pow( 10.0, Digits) - 0.5 )) / pow(10.0, Digits);
     }
     return rounded;
 }

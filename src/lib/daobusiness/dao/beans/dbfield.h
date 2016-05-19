@@ -242,7 +242,7 @@ public slots:
     }
     void setValueFromSqlRawData(const QString &data);
     void setOverwriteValue(const QVariant &value);
-    void setInternalValue(const QVariant &value, bool overwriteOnReadOnly = false);
+    void setInternalValue(const QVariant &value, bool overwriteOnReadOnly = false, bool updateChildren = true);
     void resetOverwriteValue();
     void recalculateCounterField(const QString &connection = "");
     void recalculate();
