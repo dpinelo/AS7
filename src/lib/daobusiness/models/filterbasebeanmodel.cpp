@@ -748,6 +748,12 @@ bool FilterBaseBeanModel::exportToSpreadSheet(const QString &file, const QString
     BaseBeanModel *source = qobject_cast<BaseBeanModel *>(sourceModel());
     if ( source != NULL )
     {
+        // Primero: Nos aseguramos de cargar datos de los registros
+        for (int i = 0 ; i < rowCount() ; i++)
+        {
+            bean(i);
+            emit rowProcessed(i);
+        }
         connect(source, SIGNAL(rowProcessed(int)), this, SIGNAL(rowProcessed(int)));
         bool r = source->exportToSpreadSheet(this, source->metadata(), file, type);
         disconnect(source, SIGNAL(rowProcessed(int)), this, SIGNAL(rowProcessed(int)));

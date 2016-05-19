@@ -1258,7 +1258,7 @@ bool BaseBeanModel::exportToSpreadSheet(QAbstractItemModel *model, BaseBeanMetad
 {
     if ( !m )
     {
-        model->setProperty("lastErrorMessage", trUtf8("Los metadatos están vacíos"));
+        model->setProperty("lastErrorMessage", trUtf8("Los metadatos están vacíos."));
         return false;
     }
     QScopedPointer<AERPSpreadSheet> spread (new AERPSpreadSheet);
@@ -1292,7 +1292,7 @@ bool BaseBeanModel::exportToSpreadSheet(QAbstractItemModel *model, BaseBeanMetad
             if ( idx.isValid() )
             {
                 AERPCell *cell = sheet->createCell(row, column);
-                cell->setValue(idx.data());
+                cell->setValue(idx.data(AlephERP::RawValueRole));
             }
         }
         emit rowProcessed(row);
