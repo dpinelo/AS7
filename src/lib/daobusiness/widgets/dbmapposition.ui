@@ -14,7 +14,16 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <property name="margin">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
     <number>0</number>
    </property>
    <item row="1" column="0">
@@ -84,23 +93,6 @@
      </layout>
     </widget>
    </item>
-   <item row="1" column="2">
-    <widget class="QPushButton" name="pbShowInspector">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Web Inspector</string>
-     </property>
-     <property name="icon">
-      <iconset resource="../resources/resources.qrc">
-       <normaloff>:/generales/images/inspectbean.png</normaloff>:/generales/images/inspectbean.png</iconset>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
@@ -108,8 +100,8 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QWebView" name="webView">
-        <property name="url">
+       <widget class="QWebEngineView" name="webView" native="true">
+        <property name="url" stdset="0">
          <url>
           <string>about:blank</string>
          </url>
@@ -167,15 +159,14 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QWebView</class>
+   <class>QWebEngineView</class>
    <extends>QWidget</extends>
-   <header>QtWebKit/QWebView</header>
+   <header>QWebEngineView</header>
   </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>leLatitude</tabstop>
   <tabstop>leLongitude</tabstop>
-  <tabstop>pbShowInspector</tabstop>
   <tabstop>cbSearch</tabstop>
   <tabstop>leSearch</tabstop>
   <tabstop>pbSearch</tabstop>

@@ -64,7 +64,7 @@ contains (SMTPBUILTIN, Y) {
 unix {
     contains(AERPADVANCEDEDIT, Y) {
         QMAKE_CXXFLAGS += -fPIC
-        LIBS += -lqwwrichtextedit -lhtmleditor
+        LIBS += -lqwwrichtextedit
         !contains(USEQSCINTILLA, Y) {
             LIBS += -lqcodeedit
         }

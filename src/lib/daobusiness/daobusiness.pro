@@ -39,7 +39,7 @@ android {
 
 contains (AERPADVANCEDEDIT, Y) {
     DEFINES += _QCODE_EDIT_ _QCODE_EDIT_GENERIC_
-    LIBS += -lqwwrichtextedit -lhtmleditor
+    LIBS += -lqwwrichtextedit
     !contains(USEQSCINTILLA, Y) {
         LIB_QCODEEDIT = $$ALEPHERPPATH/src/plugins/qcodeedit/lib
         INCLUDEPATH += $$LIB_QCODEEDIT \
@@ -69,24 +69,15 @@ CONFIG +=   warn_on \
             exceptions \
             shared
 
-contains(QT_VERSION, ^4\\.[0-8]\\..*) {
-    QT += gui
-    CONFIG += uitools help
-    SOURCES += business/json/json.cpp
-    HEADERS += business/json/json.h
+QT += widgets qml help webenginewidgets
+SOURCES += business/aerpqmlextension.cpp
+HEADERS += business/aerpqmlextension.h
+!ios {
+    QT += uitools
 }
-
-!contains(QT_VERSION, ^4\\.[0-8]\\..*) {
-    QT += widgets qml help webkitwidgets
-    SOURCES += business/aerpqmlextension.cpp
-    HEADERS += business/aerpqmlextension.h
-    !ios {
-        QT += uitools
-    }
-    !android:!ios:!macx {
-        unix {
-              QT += x11extras
-        }
+!android:!ios:!macx {
+    unix {
+          QT += x11extras
     }
 }
 
@@ -95,7 +86,6 @@ QT +=   sql \
         xmlpatterns \
         network \
         script \
-        webkit \
         printsupport
 
 VERSTR = '\\"$${VERSION}\\"'
@@ -667,12 +657,10 @@ contains (AERPADVANCEDEDIT, Y) {
     RESOURCES += widgets/images/codeedit/dbcodeedit.qrc
 
     SOURCES += widgets/dbcodeedit.cpp \
-               widgets/dbrichtextedit.cpp \
-               widgets/dbhtmleditor.cpp
+               widgets/dbrichtextedit.cpp
 
     HEADERS += widgets/dbcodeedit.h \
-               widgets/dbrichtextedit.h \
-               widgets/dbhtmleditor.h
+               widgets/dbrichtextedit.h
 }
 
 # Instalamos los archivos include

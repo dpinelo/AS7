@@ -23,13 +23,7 @@
 #include "business/aerpgeocodedatamanager.h"
 #include "forms/perpbasedialog.h"
 #include "globales.h"
-#include "configuracion.h"
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtWebKit>
-#else
-#include <QtWebKit>
-#include <QtWebKitWidgets>
-#endif
+#include <QtWebEngineWidgets>
 #include <cmath>
 
 struct MapMarker
@@ -59,9 +53,6 @@ struct MapMarker
 class DBMapPositionPrivate
 {
 public:
-#ifdef ALEPHERP_DEVTOOLS
-    QPointer<QWebInspector> m_inspector;
-#endif
     QPointer<QProgressBar> m_progressBar;
     QPointer<DBMapPosition> q_ptr;
     QPointer<DBMapPositionJSObject> m_bindingObject;
@@ -93,19 +84,6 @@ public:
     {
         m_geoCoder = new AERPGeocodeDataManager(q_ptr);
         m_bindingObject = new DBMapPositionJSObject(q_ptr);
-#ifdef ALEPHERP_DEVTOOLS
-        if ( !qApp->property(AlephERP::stWebInspector).isValid() )
-        {
-            m_inspector = new QWebInspector();
-            m_inspector->setWindowModality(Qt::WindowModal);
-            m_inspector->setWindowFlags(m_inspector->windowFlags() | Qt::WindowStaysOnTopHint);
-            qApp->setProperty(AlephERP::stWebInspector, QVariant::fromValue((void*) m_inspector.data()));
-        }
-        else
-        {
-            m_inspector = (QWebInspector *) qApp->property(AlephERP::stWebInspector).value<void *>();
-        }
-#endif
         m_userCanSearch = false;
         m_latitude = 0;
         m_longitude = 0;
@@ -146,18 +124,6 @@ DBMapPosition::DBMapPosition(QWidget *parent) :
     ui(new Ui::DBMapPosition), d(new DBMapPositionPrivate(this))
 {
     ui->setupUi(this);
-
-    QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
-
-    ui->pbShowInspector->setVisible(false);
-#ifdef ALEPHERP_DEVTOOLS
-    if ( alephERPSettings->debuggerEnabled() )
-    {
-        ui->webView->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
-        ui->pbShowInspector->setVisible(true);
-        connect(ui->pbShowInspector, SIGNAL(clicked()), this, SLOT(showInspector()));
-    }
-#endif
 
     d->m_licenseKey = EnvVars::instance()->var(AlephERP::stGoogleMapsApiKey).toString();
     if ( d->m_licenseKey.isEmpty() )
@@ -501,7 +467,7 @@ void DBMapPosition::fitToShowAllMarkers()
     if ( d->m_mapInited )
     {
         QString str("fitToShowAllMarkers();");
-        ui->webView->page()->currentFrame()->documentElement().evaluateJavaScript(str);
+        ui->webView->page()->runJavaScript(str);
         d->m_fitToShowAllMarkersPending = false;
     }
     else
@@ -533,17 +499,6 @@ void DBMapPosition::observerUnregistered()
         d->showCoordinates(d->m_latitude, d->m_longitude);
     }
 }
-
-#ifdef ALEPHERP_DEVTOOLS
-void DBMapPosition::showInspector()
-{
-    if ( alephERPSettings->debuggerEnabled() )
-    {
-        d->m_inspector->setPage(ui->webView->page());
-        d->m_inspector->show();
-    }
-}
-#endif
 
 void DBMapPosition::searchCoords()
 {
@@ -794,15 +749,7 @@ void DBMapPositionPrivate::initMap()
         QObject::connect(q_ptr->ui->webView, SIGNAL(loadFinished(bool)), m_progressBar.data(), SLOT(hide()));
     }
     q_ptr->ui->webView->setHtml(html);
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-    q_ptr->ui->webView->page()->currentFrame()->addToJavaScriptWindowObject("alephERPBinding", m_bindingObject.data(), QScriptEngine::QtOwnership);
-#else
-    q_ptr->ui->webView->page()->currentFrame()->addToJavaScriptWindowObject("alephERPBinding", m_bindingObject.data(), QWebFrame::QtOwnership);
-#endif
-
-#ifdef ALEPHERP_DEVTOOLS
-    q_ptr->ui->webView->page()->settings()->setAttribute(QWebSettings::DeveloperExtrasEnabled, true);
-#endif
+    // q_ptr->ui->webView->page()->currentFrame()->addToJavaScriptWindowObject("alephERPBinding", m_bindingObject.data(), QWebFrame::QtOwnership);
 
     f.close();
 }
@@ -815,7 +762,7 @@ void DBMapPositionPrivate::showCoordinates(double latitude, double longitude)
                 QString("var newLoc = new google.maps.LatLng(%1, %2);").arg(latitude).arg(longitude) +
                 QString("map.setCenter(newLoc);");
 
-        q_ptr->ui->webView->page()->currentFrame()->documentElement().evaluateJavaScript(str);
+        q_ptr->ui->webView->page()->runJavaScript(str);
     }
 }
 
@@ -832,7 +779,7 @@ void DBMapPositionPrivate::showMainMark()
 void DBMapPositionPrivate::removeMark(MapMarker *mark)
 {
     QString str = QString("removeMark('%1');").arg(mark->caption);
-    q_ptr->ui->webView->page()->currentFrame()->documentElement().evaluateJavaScript(str);
+    q_ptr->ui->webView->page()->runJavaScript(str);
 }
 
 void DBMapPositionPrivate::addMark(MapMarker *mark)
@@ -843,7 +790,7 @@ void DBMapPositionPrivate::addMark(MapMarker *mark)
             arg(mark->caption).
             arg(mark->infoWindow);
 
-    q_ptr->ui->webView->page()->currentFrame()->documentElement().evaluateJavaScript(str);
+    q_ptr->ui->webView->page()->runJavaScript(str);
 }
 
 

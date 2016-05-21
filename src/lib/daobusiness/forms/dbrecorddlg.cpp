@@ -62,7 +62,6 @@
 #endif
 #include "widgets/fademessage.h"
 #ifdef ALEPHERP_ADVANCED_EDIT
-#include "widgets/dbhtmleditor.h"
 #include "widgets/dbcodeedit.h"
 #endif
 #include "widgets/dbchooserecordbutton.h"

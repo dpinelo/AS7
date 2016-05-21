@@ -25,8 +25,7 @@ contains (SMTPBUILTIN, Y) {
 }
 
 contains (AERPADVANCEDEDIT, Y) {
-    SUBDIRS += src/3rdparty/htmleditor \
-               src/3rdparty/qwwrichtextedit
+    SUBDIRS += src/3rdparty/qwwrichtextedit
     !contains(USEQSCINTILLA, Y) {
         SUBDIRS += src/plugins/qcodeedit
     }
@@ -88,9 +87,6 @@ contains (AERPADVANCEDEDIT, Y) {
 }
 
 !android:!ios {
-    contains (AERPADVANCEDEDIT, Y) {
-        SUBDIRS += src/plugins/htmleditorplugin
-    }
     contains (JASPERSERVERSUPPORT, Y) {
         SUBDIRS += src/plugins/scriptjasperserverplugin
         SUBDIRS += src/plugins/jasperserverwebviewplugin

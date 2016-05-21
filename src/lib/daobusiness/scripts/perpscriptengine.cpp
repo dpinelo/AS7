@@ -61,9 +61,6 @@
 #include "widgets/dbdetailview.h"
 #include "widgets/dbfileupload.h"
 #include "business/aerpspreadsheet.h"
-#ifdef ALEPHERP_ADVANCED_EDIT
-#include "widgets/dbhtmleditor.h"
-#endif
 #include "reports/reportrun.h"
 #include "qlogger.h"
 
@@ -627,13 +624,6 @@ void AERPScriptEngine::registerScriptsTypes(QScriptEngine *engine)
     engine->globalObject().setProperty("DBFileUpload", dbFileUpload);
     qScriptRegisterMetaType<DBFileUpload*>(engine, DBFileUpload::toScriptValue, DBFileUpload::fromScriptValue);
     engine->setDefaultPrototype(qMetaTypeId<DBFileUpload*>(), QScriptValue());
-
-#ifdef ALEPHERP_ADVANCED_EDIT
-    QScriptValue dbHtmlEditor = engine->scriptValueFromQMetaObject<DBHtmlEditor>();
-    engine->globalObject().setProperty("DBHtmlEditor", dbHtmlEditor);
-    qScriptRegisterMetaType<DBHtmlEditor*>(engine, DBHtmlEditor::toScriptValue, DBHtmlEditor::fromScriptValue);
-    engine->setDefaultPrototype(qMetaTypeId<DBHtmlEditor*>(), QScriptValue());
-#endif
 
     engine->globalObject().setProperty(AlephERP::stAERPScriptMessageBox, AERPScriptMessageBox::registerType(engine));
 }

@@ -40,7 +40,6 @@
 #include "dbbarcodeplugin.h"
 #endif
 #ifdef ALEPHERP_ADVANCED_EDIT
-#include "dbhtmleditorplugin.h"
 #include "qwwrichtexteditplugin.h"
 #include "dbrichtexteditplugin.h"
 #include "dbcodeeditplugin.h"

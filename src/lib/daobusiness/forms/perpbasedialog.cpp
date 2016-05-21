@@ -47,7 +47,6 @@
 #include "widgets/dbchooserecordbutton.h"
 #include "widgets/dbdetailview.h"
 #ifdef ALEPHERP_ADVANCED_EDIT
-#include "widgets/dbhtmleditor.h"
 #include "widgets/dbcodeedit.h"
 #ifdef ALEPHERP_QSCISCINTILLA
 #include "Qsci/qsciscintilla.h"
@@ -709,7 +708,6 @@ bool AERPBaseDialog::eventFilter (QObject *target, QEvent *event)
 {
     QTextEdit *tmp1 = qobject_cast<QTextEdit *>(target);
 #ifdef ALEPHERP_ADVANCED_EDIT
-    DBHtmlEditor *tmp2 = qobject_cast<DBHtmlEditor *>(target);
     DBCodeEdit *tmp3 = qobject_cast<DBCodeEdit *>(target);
 #ifndef ALEPHERP_QSCISCINTILLA
     QEditor *tmp7 = qobject_cast<QEditor *> (target);
@@ -738,7 +736,7 @@ bool AERPBaseDialog::eventFilter (QObject *target, QEvent *event)
         }
         // Almacenamos siempre la última pulsación de una tecla...
         d->m_lastKeyPressTimeStamp = QDateTime::currentDateTime();
-        if ( tmp1 == NULL && tmp2 == NULL && tmp3 == NULL && tmp4 == NULL && tmp5 == NULL && tmp6 == NULL && tmp7 == NULL )
+        if ( tmp1 == NULL && tmp3 == NULL && tmp4 == NULL && tmp5 == NULL && tmp6 == NULL && tmp7 == NULL )
         {
             if ( ev->key() == Qt::Key_Enter || ev->key() == Qt::Key_Return )
             {

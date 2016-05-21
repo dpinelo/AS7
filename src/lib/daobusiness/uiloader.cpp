@@ -20,9 +20,6 @@
 #include "uiloader.h"
 #include <QtGui>
 #include <alepherpdaobusiness.h>
-#ifdef ALEPHERP_ADVANCED_EDIT
-#include <alepherphtmleditor.h>
-#endif
 #include "qlogger.h"
 
 class AERPWidgetFactory
@@ -151,7 +148,6 @@ void AERPUiLoader::registerAlephERPMetatypes()
 #endif
 #ifdef ALEPHERP_ADVANCED_EDIT
     AERPWidgetFactory::registerClass<DBCodeEdit>();
-    AERPWidgetFactory::registerClass<DBHtmlEditor>();
     AERPWidgetFactory::registerClass<DBRichTextEdit>();
 #endif
 }

@@ -134,10 +134,6 @@ public slots:
 
     void showOrHideSearch();
 
-#ifdef ALEPHERP_DEVTOOLS
-    void showInspector();
-#endif
-
 protected slots:
     void searchCoords();
     void searchAddress();

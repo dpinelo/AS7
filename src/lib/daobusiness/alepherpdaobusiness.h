@@ -60,7 +60,6 @@
 #include "widgets/dbfullscheduleview.h"
 #include "widgets/dbfilterscheduleview.h"
 #ifdef ALEPHERP_ADVANCED_EDIT
-#include "widgets/dbhtmleditor.h"
 #include "widgets/dbrichtextedit.h"
 #include "widgets/dbcodeedit.h"
 #endif

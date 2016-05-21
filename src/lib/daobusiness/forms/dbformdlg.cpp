@@ -781,7 +781,7 @@ void DBFormDlg::hideEvent(QHideEvent *ev)
   */
 bool DBFormDlg::eventFilter (QObject *target, QEvent *event)
 {
-    if ( !target->inherits("QTextEdit") && !target->inherits("DBHtmlEditor") &&
+    if ( !target->inherits("QTextEdit") &&
             !target->inherits("DBCodeEdit") && !target->inherits("QTableView")
             && event->type() == QEvent::KeyPress )
     {
@@ -962,7 +962,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     if ( dlg->openSuccess() && dlg->init() )
     {
         d->m_itemView->disableRestoreSaveState();
-        dlg->setModal(true);
+        // dlg->setModal(true);
         dlg->setCanChangeModality(true);
         int ret = dlg->exec();
         bool userSaveData = dlg->userSaveData();
@@ -1060,7 +1060,7 @@ void DBFormDlg::insertChild()
                     if ( dlg->openSuccess() && dlg->init() )
                     {
                         d->m_itemView->disableRestoreSaveState();
-                        dlg->setModal(true);
+                        // dlg->setModal(true);
                         dlg->setCanChangeModality(true);
                         int ret = dlg->exec();
                         bool userSaveData = dlg->userSaveData();
@@ -2080,7 +2080,7 @@ void DBFormDlg::view()
     CommonsFunctions::restoreOverrideCursor();
     if ( dlg->openSuccess() && dlg->init() )
     {
-        dlg->setModal(true);
+        // dlg->setModal(true);
         dlg->setCanChangeModality(true);
         int ret = dlg->exec();
         bool userSaveData = dlg->userSaveData();

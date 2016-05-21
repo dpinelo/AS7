@@ -61,7 +61,6 @@ DBCommonsPlugin::DBCommonsPlugin(QObject *parent) :
 #ifdef ALEPHERP_ADVANCED_EDIT
     m_widgets.append(new DBRichTextEditPlugin(this));
     m_widgets.append(new DBCodeEditPlugin(this));
-    m_widgets.append(new DBHtmlEditorPlugin(this));
 #endif
 }
 

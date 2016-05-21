@@ -321,8 +321,7 @@ contains (DEVTOOLS, Y) {
 }
 
 contains (AERPADVANCEDEDIT, Y) {
-    INCLUDEPATH += $$ALEPHERPPATH/src/3rdparty/htmleditor \
-               $$ALEPHERPPATH/src/3rdparty/qwwrichtextedit
+    INCLUDEPATH += $$ALEPHERPPATH/src/3rdparty/qwwrichtextedit
     !contains(USEQSCINTILLA, Y) {
         INCLUDEPATH += $$ALEPHERPPATH/src/plugins/qcodeedit
         INCLUDEPATH += $$ALEPHERPPATH/src/plugins/qcodeedit/designer-plugin
@@ -350,7 +349,6 @@ INCLUDEPATH += $$ALEPHERPPATH/src/lib/daobusiness
         INCLUDEPATH += $$ALEPHERPPATH/src/lib/jasperserver
     }
     INCLUDEPATH += $$ALEPHERPPATH/src/plugins/dbcommons
-    INCLUDEPATH += $$ALEPHERPPATH/src/plugins/htmleditorplugin
     INCLUDEPATH += $$ALEPHERPPATH/src/plugins/scriptjasperserverplugin
     INCLUDEPATH += $$ALEPHERPPATH/src/plugins/jasperserverwebviewplugin
 }
