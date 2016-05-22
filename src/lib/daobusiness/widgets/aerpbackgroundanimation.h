@@ -26,8 +26,9 @@
 #else
 #include <QtWidgets>
 #endif
+#include <alepherpglobal.h>
 
-class AERPMovie: public QMovie
+class ALEPHERP_DLL_EXPORT AERPMovie: public QMovie
 {
    Q_OBJECT
 
@@ -45,7 +46,7 @@ signals:
  * @brief The AERPBackgroundAnimation class
  * Permitirá prensetar una animación de espera en segundo plano, en el fondo de un widget.
  */
-class AERPBackgroundAnimation
+class ALEPHERP_DLL_EXPORT AERPBackgroundAnimation
 {
 private:
 

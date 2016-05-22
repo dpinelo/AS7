@@ -16,17 +16,9 @@
 #include <QFlags>
 
 #ifdef ALEPHERP_BUILD_DLL
-#ifdef Q_OS_WIN
-#define ALEPHERP_DLL_EXPORT __declspec(dllexport)
-#else
 #define ALEPHERP_DLL_EXPORT Q_DECL_EXPORT
-#endif
-#else
-#ifdef Q_OS_WIN
-#define ALEPHERP_DLL_EXPORT __declspec(dllimport)
 #else
 #define ALEPHERP_DLL_EXPORT Q_DECL_IMPORT
-#endif
 #endif
 
 #endif

@@ -30,6 +30,9 @@ QT += widgets \
       script \
       xml \
 
+win32 {
+    DEFINES -= ALEPHERP_BUILD_DLL
+}
 
 RESOURCES += translations.'$$QT_MAJOR_VERSION'.qrc \
              lib/daobusiness/resources/resources.qrc
@@ -84,7 +87,7 @@ SOURCES += main.cpp
 
 RESOURCES +=
 
-!android {
+!android:!win32-msvc* {
     QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/../lib\''
 }
 

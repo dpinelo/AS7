@@ -5,13 +5,10 @@ message( "---------------------------------" )
 include (../../../config.pri)
 
 win32 {
-    DEFINES += WW_BUILD_WWWIDGETS WINDOWS
+    DEFINES += WINDOWS
 }
 
 contains(QT_VERSION, ^4\\.[0-8]\\..*) {
-    QT += gui
-}
-!contains(QT_VERSION, ^4\\.[0-8]\\..*) {
     QT += widgets
 }
 
