@@ -4,6 +4,10 @@ message( "---------------------------------" )
 
 include( ../../../config.pri )
 
+win32 {
+    DEFINES += ALEPHERP_BUILD_DLL
+}
+
 contains(BARCODESUPPORT, Y) {
     include($$ALEPHERPPATH/src/3rdparty/zint/zint.pri)
     SOURCES += widgets/dbbarcode.cpp

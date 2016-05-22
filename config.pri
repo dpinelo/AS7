@@ -29,7 +29,6 @@ win32 {
                        $$PWD/projects/msvc/src/3rdparty/jpeg-9b
     }
     INCLUDEPATH += $$ADDITIONALLIBS/include
-    DEFINES += ALEPHERP_BUILD_DLL
 }
 
 # Módulos
@@ -53,7 +52,7 @@ TWAINSUPPORT=N
 JASPERSERVERSUPPORT=N
 BARCODESUPPORT=N
 QTDESIGNERBUILTIN=N
-QTSCRIPTBINDING=Y
+QTSCRIPTBINDING=N
 TESTPARTS=N
 # Puede ser, xbase64, xbase2 o dbase-code
 DBASELIBRARY=dbase-code

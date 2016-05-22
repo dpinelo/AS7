@@ -30,10 +30,6 @@ QT += widgets \
       script \
       xml \
 
-win32 {
-    DEFINES -= ALEPHERP_BUILD_DLL
-}
-
 RESOURCES += translations.'$$QT_MAJOR_VERSION'.qrc \
              lib/daobusiness/resources/resources.qrc
 

@@ -10,18 +10,6 @@ contains (ADVANCEDEDIT, Y) {
     LIBS += -lqwwrichtextedit
 }
 
-win32-msvc* {
-    CONFIG(release, debug|release) {
-        INCLUDEPATH += $$ALEPHERPPATH/build/tmp/$$QT_VERSION/$$BUILDTYPE/$$APPNAME/release/moc
-        DAOBUSINESSMOC = $$ALEPHERPPATH/build/tmp/$$QT_VERSION/$$BUILDTYPE/$$APPNAME/debug/moc
-    }
-    CONFIG(debug, debug|release) {
-        INCLUDEPATH += $$ALEPHERPPATH/build/tmp/$$QT_VERSION/$$BUILDTYPE/$$APPNAME/debug/moc
-        DAOBUSINESSMOC = $$ALEPHERPPATH/build/tmp/$$QT_VERSION/$$BUILDTYPE/$$APPNAME/debug/moc
-    }
-    message( $$DAOBUSINESSMOC )
-}
-
 CONFIG(release, debug|release) {
     DESTDIR = $$BUILDPATH/release/plugins/designer/
 }

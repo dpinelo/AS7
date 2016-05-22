@@ -8,9 +8,7 @@ win32 {
     DEFINES += WINDOWS
 }
 
-contains(QT_VERSION, ^4\\.[0-8]\\..*) {
-    QT += widgets
-}
+QT += widgets
 
 TARGET = qwwrichtextedit
 TEMPLATE = lib
