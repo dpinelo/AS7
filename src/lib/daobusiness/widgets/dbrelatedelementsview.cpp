@@ -58,6 +58,7 @@ public:
     QString m_afterDeleteScript;
     QString m_beforeRemoveExistingScript;
     QString m_afterRemoveExistingScript;
+    bool m_useNewContext;
 
     DBRelatedElementsViewPrivate(DBRelatedElementsView *qq) : q_ptr(qq)
     {
@@ -66,6 +67,7 @@ public:
         m_cardinality = AlephERP::PointToChild;
         m_categoriesRule = DBRelatedElementsView::AllOfThem;
         m_askForCategories = false;
+        m_useNewContext = true;
         foreach(BaseBeanMetadata *m, BeansFactory::instance()->allowedMetadatasToUser())
         {
             m_allowedMetadatas.append(m->tableName());
@@ -470,6 +472,16 @@ void DBRelatedElementsView::setAfterRemoveExistingScript(const QString &value)
     d->m_afterRemoveExistingScript = value;
 }
 
+bool DBRelatedElementsView::useNewContext() const
+{
+    return d->m_useNewContext;
+}
+
+void DBRelatedElementsView::setUseNewContext(bool value)
+{
+    d->m_useNewContext = value;
+}
+
 void DBRelatedElementsView::showEvent(QShowEvent *event)
 {
     // Este orden es importante
@@ -572,8 +584,7 @@ void DBRelatedElementsView::addRelatedElement()
         RelatedElement *element = d->m_model->insertRow(metadata, category);
         if ( element != NULL )
         {
-            QString contextName = QUuid::createUuid().toString();
-            QScopedPointer<DBRecordDlg> dlg(new DBRecordDlg(element->relatedBean().data(), AlephERP::Insert, contextName, this));
+            QScopedPointer<DBRecordDlg> dlg(new DBRecordDlg(element->relatedBean().data(), AlephERP::Insert, d->m_useNewContext, this));
             dlg->setModal(true);
             if ( !dlg->openSuccess() || !dlg->init() )
             {
@@ -637,7 +648,7 @@ void DBRelatedElementsView::addExisting()
     }
 
     QString contextName = QUuid::createUuid().toString();
-    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(metadata, contextName, this));
+    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(metadata, d->m_useNewContext, this));
     if ( dlg->openSuccess() )
     {
         QString filter;
@@ -805,8 +816,7 @@ void DBRelatedElementsView::editRelatedElement()
                 return;
             }
         }
-        QString contextName = QUuid::createUuid().toString();
-        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(bean.data(), AlephERP::Update, contextName, this));
+        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(bean.data(), AlephERP::Update, d->m_useNewContext, this));
         if ( dlg->openSuccess() && dlg->init() )
         {
             // Guardar los datos de los hijos agregados, será responsabilidad del bean padre
@@ -845,7 +855,7 @@ void DBRelatedElementsView::viewRelatedElement()
     BaseBeanPointer bean = element->relatedBean();
     if ( !bean.isNull() )
     {
-        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(bean.data(), AlephERP::ReadOnly, QString(), this));
+        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(bean.data(), AlephERP::ReadOnly, false, this));
         if ( dlg->openSuccess() && dlg->init() )
         {
             // Guardar los datos de los hijos agregados, será responsabilidad del bean padre
@@ -966,7 +976,7 @@ void DBRelatedElementsView::itemClicked(const QModelIndex &idx)
     {
         QApplication::setOverrideCursor(Qt::WaitCursor);
         QString contextName = QUuid::createUuid().toString();
-        QPointer<DBRecordDlg> dlg = new DBRecordDlg(element->relatedBean().data(), openType, contextName, this);
+        QPointer<DBRecordDlg> dlg = new DBRecordDlg(element->relatedBean().data(), openType, d->m_useNewContext, this);
         QApplication::restoreOverrideCursor();
         if ( dlg->openSuccess() && dlg->init() )
         {

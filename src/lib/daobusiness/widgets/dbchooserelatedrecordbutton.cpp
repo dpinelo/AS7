@@ -42,6 +42,7 @@ public:
     // Indica si el master bean se ha buscado por parentescos.
     bool m_masterBeanRetrievedFromParents;
     bool m_masterBeanChoosen;
+    bool m_useNewContext;
 
     DBChooseRelatedRecordButtonPrivate(DBChooseRelatedRecordButton *qq) : q_ptr(qq)
     {
@@ -50,6 +51,7 @@ public:
         m_actionClear = new QAction(q_ptr);
         m_actionClear->setText("Deseleccionar el registro seleccionado");
         m_actionClear->setIcon(QIcon(":/mime/mimeicons/empty.png"));
+        m_useNewContext = true;
         QObject::connect(m_actionClear, SIGNAL(triggered()), q_ptr, SLOT(clear()));
     }
 };
@@ -132,6 +134,16 @@ QString DBChooseRelatedRecordButton::scriptExecuteAfterClear() const
 void DBChooseRelatedRecordButton::setScriptExecuteAfterClear(const QString &script)
 {
     d->m_scriptAfterClear = script;
+}
+
+bool DBChooseRelatedRecordButton::useNewContext() const
+{
+    return d->m_useNewContext;
+}
+
+void DBChooseRelatedRecordButton::setUseNewContext(bool value)
+{
+    d->m_useNewContext = value;
 }
 
 void DBChooseRelatedRecordButton::setValue(const QVariant &value)
@@ -250,8 +262,7 @@ void DBChooseRelatedRecordButton::chooseMasterBean()
     }
 
     QString metadataName = d->m_allowedMetadatas.at(prettyAllowedMetadatas.indexOf(selectedMetadata));
-    QString contextName = QUuid::createUuid().toString();
-    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(metadataName, contextName, this));
+    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(metadataName, d->m_useNewContext, this));
     dlg->setModal(true);
     if ( dlg->openSuccess() && dlg->init() )
     {

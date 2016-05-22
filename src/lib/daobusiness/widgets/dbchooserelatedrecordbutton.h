@@ -76,7 +76,8 @@ class ALEPHERP_DLL_EXPORT DBChooseRelatedRecordButton : public QPushButton, publ
      * Puede ser interesante ejecutar un script tras esa acción. Se puede hacer conectándose a la señal masterBeanCleared
      * o bien implementando una función con el nombre del control más AfterClear */
     Q_PROPERTY (QString scriptExecuteAfterClear READ scriptExecuteAfterClear WRITE setScriptExecuteAfterClear)
-
+    /** Los registros que abre este botón, ¿se guardan en una transacción propia? */
+    Q_PROPERTY (bool useNewContext READ useNewContext WRITE setUseNewContext)
 
 private:
     DBChooseRelatedRecordButtonPrivate *d;
@@ -107,6 +108,8 @@ public:
     void setScriptBeforeExecute(const QString &value);
     QString scriptExecuteAfterClear() const;
     void setScriptExecuteAfterClear(const QString &script);
+    bool useNewContext() const;
+    void setUseNewContext(bool value);
 
     virtual void setValue(const QVariant &value);
     virtual QVariant value();

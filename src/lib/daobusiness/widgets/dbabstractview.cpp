@@ -798,8 +798,7 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
                     return;
                 }
             }
-            QString contextName = QUuid::createUuid().toString();
-            QPointer<DBRecordDlg> dlg = new DBRecordDlg(b, openType, contextName, m_thisWidget);
+            QPointer<DBRecordDlg> dlg = new DBRecordDlg(b, openType, true, m_thisWidget);
             QApplication::restoreOverrideCursor();
             if ( dlg->openSuccess() && dlg->init() )
             {

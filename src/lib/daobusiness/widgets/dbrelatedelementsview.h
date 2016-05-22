@@ -83,6 +83,7 @@ class ALEPHERP_DLL_EXPORT DBRelatedElementsView : public QWidget, public DBAbstr
     Q_PROPERTY (QString afterDeleteScript READ afterDeleteScript WRITE setAfterDeleteScript)
     Q_PROPERTY (QString beforeRemoveExistingScript READ beforeRemoveExistingScript WRITE setBeforeRemoveExistingScript)
     Q_PROPERTY (QString afterRemoveExistingScript READ afterRemoveExistingScript WRITE setAfterRemoveExistingScript)
+    Q_PROPERTY (bool useNewContext READ useNewContext WRITE setUseNewContext)
 
     friend class DBRelatedElementsViewPrivate;
 
@@ -147,6 +148,8 @@ public:
     void setBeforeRemoveExistingScript(const QString &value);
     QString afterRemoveExistingScript() const;
     void setAfterRemoveExistingScript(const QString &value);
+    bool useNewContext() const;
+    void setUseNewContext(bool value);
 
     AlephERP::ObserverType observerType(BaseBean *)
     {

@@ -60,6 +60,8 @@ public:
     bool m_promptForDelete;
     int m_newRow;
     QModelIndex m_newRowParent;
+    bool m_useNewContextDirectDescents;
+    bool m_useNewContextExistingPrevious;
 
     DBDetailViewPrivate(DBDetailView *qq) : q_ptr(qq)
     {
@@ -71,6 +73,8 @@ public:
         m_useDefaultShortcut = true;
         m_promptForDelete = true;
         m_newRow = -1;
+        m_useNewContextDirectDescents = false;
+        m_useNewContextExistingPrevious = true;
     }
 
     BaseBeanSharedPointer insertRow();
@@ -275,6 +279,26 @@ bool DBDetailView::enableAtRowsEndNewRow()
     return d->m_inlineEdit;
 }
 
+bool DBDetailView::useNewContextDirectDescents() const
+{
+    return d->m_useNewContextDirectDescents;
+}
+
+void DBDetailView::setUseNewContextDirectDescents(bool value)
+{
+    d->m_useNewContextDirectDescents = value;
+}
+
+bool DBDetailView::useNewContextExistingPrevious() const
+{
+    return d->m_useNewContextExistingPrevious;
+}
+
+void DBDetailView::setUseNewContextExistingPrevious(bool value)
+{
+    d->m_useNewContextExistingPrevious = value;
+}
+
 bool DBDetailView::promptForDelete() const
 {
     return d->m_promptForDelete;
@@ -332,7 +356,6 @@ void DBDetailView::editRecord(const QString &action)
     filterModel()->freezeModel();
 
     AERPBaseDialog *containerDlg = CommonsFunctions::aerpParentDialog(this);
-    QString contextName = QUuid::createUuid().toString();
     if ( containerDlg != NULL )
     {
         QScriptValue result;
@@ -351,7 +374,6 @@ void DBDetailView::editRecord(const QString &action)
                 return;
             }
         }
-        contextName = containerDlg->contextName();
     }
 
     int row = -1;
@@ -401,7 +423,7 @@ void DBDetailView::editRecord(const QString &action)
         // Y ahora creamos el formulario que presentará los datos de este bean
         QPointer<DBRecordDlg> dlg = new DBRecordDlg(bean.data(),
                                                     openType,
-                                                    contextName,
+                                                    d->m_useNewContextDirectDescents,
                                                     this);
         if ( dlg->openSuccess() && dlg->init() )
         {
@@ -535,7 +557,12 @@ void DBDetailView::addExisting()
         return;
     }
     QString contextName = QUuid::createUuid().toString();
-    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(rel->metadata()->tableName(), contextName, this));
+    AERPBaseDialog *containerDlg = CommonsFunctions::aerpParentDialog(this);
+    if ( !d->m_useNewContextExistingPrevious && containerDlg != NULL )
+    {
+        contextName = containerDlg->contextName();
+    }
+    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(rel->metadata()->tableName(), d->m_useNewContextExistingPrevious, this));
     if ( dlg->openSuccess() )
     {
         QString filter;

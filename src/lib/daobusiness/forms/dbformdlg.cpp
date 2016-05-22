@@ -934,14 +934,12 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
         return;
     }
 
-    QString contextName = QUuid::createUuid().toString();
-
     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
     QPointer<DBRecordDlg> dlg;
     if ( d->m_metadata->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
     {
 #if defined(ALEPHERP_ADVANCED_EDIT) && defined (ALEPHERP_DEVTOOLS)
-        dlg = new AERPSystemObjectEditDlg(bean.data(), openType, contextName, this);
+        dlg = new AERPSystemObjectEditDlg(bean.data(), openType, true, this);
 #else
         d->m_canDefrostModel = true;
         d->m_itemView->defrostModel();
@@ -950,7 +948,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     }
     else
     {
-        dlg = new DBRecordDlg(bean.data(), openType, contextName, this);
+        dlg = new DBRecordDlg(bean.data(), openType, true, this);
     }
     CommonsFunctions::restoreOverrideCursor();
     if ( !uiCode.isEmpty() )
@@ -1058,8 +1056,7 @@ void DBFormDlg::insertChild()
                         model->invalidate();
                     }
                     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
-                    QString contextName = QUuid::createUuid().toString();
-                    QPointer<DBRecordDlg> dlg = new DBRecordDlg(bean.data(), AlephERP::Insert, contextName, this);
+                    QPointer<DBRecordDlg> dlg = new DBRecordDlg(bean.data(), AlephERP::Insert, true, this);
                     CommonsFunctions::restoreOverrideCursor();
                     if ( dlg->openSuccess() && dlg->init() )
                     {
@@ -1361,8 +1358,7 @@ void DBFormDlg::search(void)
     d->m_canDefrostModel = true;
     d->m_itemView->freezeModel();
 
-    QString contextName = QUuid::createUuid().toString();
-    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName(), contextName, this));
+    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName(), true, this));
     if ( dlg->openSuccess() )
     {
         dlg->setModal(true);
@@ -2065,11 +2061,10 @@ void DBFormDlg::view()
     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
     BaseBeanSharedPointer bean = model->beanToBeEdited(d->rowIndexSelected());
     QPointer<DBRecordDlg> dlg;
-    QString contextName = QUuid::createUuid().toString();
     if ( d->m_metadata->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
     {
 #if defined(ALEPHERP_ADVANCED_EDIT) && defined (ALEPHERP_DEVTOOLS)
-        dlg = new AERPSystemObjectEditDlg(bean.data(), openType, QString(), this);
+        dlg = new AERPSystemObjectEditDlg(bean.data(), openType, true, this);
 #else
         d->m_canDefrostModel = true;
         if ( !d->m_mainWindow->isVisibleRelatedWidget() )
@@ -2081,7 +2076,7 @@ void DBFormDlg::view()
     }
     else
     {
-        dlg = new DBRecordDlg(bean.data(), openType, contextName, this);
+        dlg = new DBRecordDlg(bean.data(), openType, true, this);
     }
     CommonsFunctions::restoreOverrideCursor();
     if ( dlg->openSuccess() && dlg->init() )

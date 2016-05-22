@@ -60,8 +60,9 @@ public:
     QString m_scriptBeforeExecute;
     BaseBeanPointer m_masterBean;
     QString m_scriptAfterClear;
-    QAction *m_actionClear;
-    QAction *m_actionEdit;
+    QPointer<QAction> m_actionClear;
+    QPointer<QAction> m_actionEdit;
+    QPointer<QAction> m_actionView;
     QString m_searchFieldName;
     DBSearchDlg::DBSearchButtons m_dbSearchButtons;
     bool m_useNewContext;
@@ -76,11 +77,15 @@ public:
         m_actionClear = new QAction(q_ptr);
         m_actionClear->setText("Deseleccionar el registro seleccionado");
         m_actionClear->setIcon(QIcon(":/mime/mimeicons/empty.png"));
+        m_actionView = new QAction(q_ptr);
+        m_actionView->setText(("Visualizar el registro seleccionado"));
+        m_actionView->setIcon(QIcon(":/generales/images/edit_view.png"));
         m_actionEdit = new QAction(q_ptr);
         m_actionEdit->setText(("Editar el registro seleccionado"));
         m_actionEdit->setIcon(QIcon(":/generales/images/edit_edit.png"));
         QObject::connect(m_actionClear, SIGNAL(triggered()), q_ptr, SLOT(clear()));
         QObject::connect(m_actionEdit, SIGNAL(triggered()), q_ptr, SLOT(editRecord()));
+        QObject::connect(m_actionView, SIGNAL(triggered()), q_ptr, SLOT(viewRecord()));
         m_dbSearchButtons = (DBSearchDlg::DBSearchButtons) DBSearchDlg::Ok | DBSearchDlg::Close | DBSearchDlg::EditRecord | DBSearchDlg::NewRecord;
         m_useNewContext = true;
     }
@@ -92,7 +97,6 @@ public:
     AERPBaseDialog *aerpParentDialog();
     bool checkPreviousInserted();
     void setSelectedBean(const BaseBeanPointer &bean);
-    QString contextName();
 };
 
 /**
@@ -409,7 +413,7 @@ void DBChooseRecordButton::buttonClicked()
 
     if ( !tableName.isEmpty() )
     {
-        QPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName, d->contextName(), this));
+        QPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName, d->m_useNewContext, this));
         if ( !d->m_masterBean.isNull() )
         {
             dlg->setMasterBean(d->m_masterBean);
@@ -589,20 +593,6 @@ void DBChooseRecordButtonPrivate::setSelectedBean(const BaseBeanPointer &bean)
             thisForm->callQSMethod(scriptName, args);
         }
     }
-}
-
-QString DBChooseRecordButtonPrivate::contextName()
-{
-    if ( m_useNewContext )
-    {
-        return QUuid::createUuid().toString();
-    }
-    AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(q_ptr);
-    if ( thisForm != NULL )
-    {
-        return thisForm->contextName();
-    }
-    return QUuid::createUuid().toString();
 }
 
 /*!
@@ -802,7 +792,24 @@ void DBChooseRecordButton::editRecord()
             beforeInsertBeanQs(editedBean.data());
         }
     }
-    QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(editedBean.data(), AlephERP::Update, d->contextName(), this));
+    QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(editedBean.data(), AlephERP::Update, d->m_useNewContext, this));
+    if ( dlg->openSuccess() && dlg->init() )
+    {
+        dlg->setModal(true);
+        dlg->exec();
+    }
+    // No está de más refrescar cambios.
+    BaseBeanPointer b = beanFromContainer();
+    if ( b && b->observer() )
+    {
+        b->observer()->sync();
+    }
+}
+
+void DBChooseRecordButton::viewRecord()
+{
+    BaseBeanPointer editedBean = d->selectedBean();
+    QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(editedBean.data(), AlephERP::ReadOnly, d->m_useNewContext, this));
     if ( dlg->openSuccess() && dlg->init() )
     {
         dlg->setModal(true);
@@ -850,19 +857,21 @@ void DBChooseRecordButton::contextMenuEvent(QContextMenuEvent *event)
         }
         else
         {
+            contextMenu.addAction(d->m_actionView);
             if ( !rel->metadata()->readOnly() )
             {
                 d->m_actionEdit->setText(trUtf8("Editar registro seleccionado"));
-                d->m_actionClear->setText(trUtf8("Deseleccionar el registro antes seleccionado"));
                 contextMenu.addAction(d->m_actionEdit);
-                contextMenu.addAction(d->m_actionClear);
             }
+            d->m_actionClear->setText(trUtf8("Deseleccionar el registro antes seleccionado"));
+            contextMenu.addAction(d->m_actionClear);
         }
     }
     else
     {
         d->m_actionEdit->setText(trUtf8("Editar registro seleccionado"));
         d->m_actionClear->setText(trUtf8("Deseleccionar el registro antes seleccionado"));
+        contextMenu.addAction(d->m_actionView);
         contextMenu.addAction(d->m_actionEdit);
         contextMenu.addAction(d->m_actionClear);
     }
@@ -890,7 +899,7 @@ bool DBChooseRecordButtonPrivate::checkPreviousInserted()
                                             QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
             if ( ret == QMessageBox::Yes )
             {
-                QPointer<DBRecordDlg> dlg = new DBRecordDlg(father, AlephERP::Update, contextName(), q_ptr);
+                QPointer<DBRecordDlg> dlg = new DBRecordDlg(father, AlephERP::Update, m_useNewContext, q_ptr);
                 if ( dlg->openSuccess() && dlg->init() )
                 {
                     dlg->setModal(true);

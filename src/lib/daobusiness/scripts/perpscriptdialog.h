@@ -88,7 +88,7 @@ class AERPScriptDialog : public QObject, public QScriptable
     /** Indica si el formulario es modal (aplicable sólo en algunos casos) */
     Q_PROPERTY(bool modal READ modal WRITE setModal)
     /** Contexto de la transacción (Si vacío, crea una nueva) */
-    Q_PROPERTY(QString contextName READ contextName WRITE setContextName)
+    Q_PROPERTY(bool useNewContext READ useNewContext WRITE setUseNewContext)
 
 private:
     AERPScriptDialogPrivate *d;
@@ -113,8 +113,8 @@ public:
     QString uiName();
     void setReportName(const QString &name);
     QString reportName() const;
-    void setContextName(const QString &name);
-    QString contextName() const;
+    void setUseNewContext(bool name);
+    bool useNewContext() const;
 
     QString fieldToSearch();
     void setFieldToSearch(const QString &value);

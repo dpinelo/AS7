@@ -123,7 +123,6 @@ public:
     bool m_canChangeModality;
     /** En ventanas que inician un contexto, se deberá utilizar la información del contexto para saber si hay cambios
      * por guardar. Esto es lo que indica ese flag */
-    bool m_useTransactionContextForWindowModified;
 #ifdef ALEPHERP_DOC_MANAGEMENT
     /** Widget que mostrará los documentos */
     QPointer<DBDocumentView> m_documentWidget;
@@ -141,6 +140,7 @@ public:
     bool m_forceSaveToDb;
     bool m_canNavigate;
     DBRecordDlg::DBRecordButtons m_visibleButtons;
+    QString m_originalBeanContext;
 
     DBRecordDlgPrivate(DBRecordDlg *qq) : q_ptr(qq)
     {
@@ -153,7 +153,6 @@ public:
         m_openType = AlephERP::Insert;
         m_lockId = -1;
         m_canChangeModality = false;
-        m_useTransactionContextForWindowModified = false;
         m_saveAndNewWithAllFieldsValidated = false;
         m_closing = false;
         m_advancedNavigation = false;
@@ -178,6 +177,7 @@ public:
     void showNavigationBeanWidget();
     void addBeanToNavigationWidget(BaseBeanPointer bean, AlephERP::FormOpenType openType);
     BeansOnNavigation navigationWidgetSelectCurrentBean();
+    void discardContext();
 };
 
 /**
@@ -392,6 +392,15 @@ BeansOnNavigation DBRecordDlgPrivate::navigationWidgetSelectCurrentBean()
     return BeansOnNavigation();
 }
 
+void DBRecordDlgPrivate::discardContext()
+{
+    AERPTransactionContext::instance()->discardContext(q_ptr->contextName());
+    if ( !m_originalBeanContext.isEmpty() )
+    {
+        AERPTransactionContext::instance()->addToContext(m_originalBeanContext, m_bean);
+    }
+}
+
 DBRecordDlg::DBRecordDlg(QWidget *parent, Qt::WindowFlags fl) :
     AERPBaseDialog(parent, fl),
     ui(new Ui::DBRecordDlg),
@@ -400,9 +409,18 @@ DBRecordDlg::DBRecordDlg(QWidget *parent, Qt::WindowFlags fl) :
 
 }
 
+/**
+ * @brief DBRecordDlg::DBRecordDlg
+ * @param bean
+ * @param openType
+ * @param transaction
+ * @param parent
+ * @param fl
+ * Si transaction no está vacío, se entiende que este formulario debe iniciar una nueva transacción por su cuenta
+ */
 DBRecordDlg::DBRecordDlg(BaseBeanPointer bean,
                          AlephERP::FormOpenType openType,
-                         QString transaction,
+                         bool initTransaction,
                          QWidget* parent,
                          Qt::WindowFlags fl) :
     AERPBaseDialog(parent, fl),
@@ -413,11 +431,15 @@ DBRecordDlg::DBRecordDlg(BaseBeanPointer bean,
     // Este chivato indica si el registro lo guardará este formulario en base de datos o no
     d->m_openType = openType;
     // Indica si este formulario inicia una nueva transacción.
-    if ( !transaction.isEmpty() )
+    d->m_initContext = initTransaction;
+    if ( d->m_initContext )
     {
-        d->m_initContext = true;
-        setContextName(transaction);
-        d->m_useTransactionContextForWindowModified = true;
+        d->m_originalBeanContext = bean->actualContext();
+        setContextName(QUuid::createUuid().toString());
+    }
+    else
+    {
+        setContextName(bean->actualContext());
     }
     // Si se pulsa Guardar, se pondrá esto a true
     ui->setupUi(this);
@@ -1103,7 +1125,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
     {
         if ( d->m_initContext && !d->m_forceSaveToDb )
         {
-            AERPTransactionContext::instance()->discardContext(contextName());
+            d->discardContext();
         }
         event->accept();
         d->m_closing = true;
@@ -1121,7 +1143,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
         }
         if ( d->m_initContext && !d->m_forceSaveToDb )
         {
-            AERPTransactionContext::instance()->discardContext(contextName());
+            d->discardContext();
         }
         event->accept();
         d->m_closing = true;
@@ -1208,7 +1230,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
     }
     if ( d->m_initContext && !d->m_forceSaveToDb )
     {
-        AERPTransactionContext::instance()->discardContext(contextName());
+        d->discardContext();
     }
     d->m_closing = true;
     event->accept();
@@ -1600,7 +1622,7 @@ void DBRecordDlg::setWindowModified(BaseBean *bean, bool value)
     bool valueToSet = value;
     // Es importante hacer la segunda comprobación del "sender()" ya que permitirá que cuando se llame
     // a setWindowModified para establecer de forma directa el estado de la ventana
-    if ( d->m_useTransactionContextForWindowModified && sender() == AERPTransactionContext::instance() )
+    if ( d->m_initContext && sender() == AERPTransactionContext::instance() )
     {
         valueToSet = AERPTransactionContext::instance()->isDirty(d->m_bean->actualContext());
     }

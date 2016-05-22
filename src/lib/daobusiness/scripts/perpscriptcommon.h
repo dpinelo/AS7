@@ -272,7 +272,7 @@ public:
     Q_INVOKABLE QScriptValue chooseChildFromComboBox(BaseBean *bean, const QString &relationName, const QString &fieldToShow, const QString &label = "", const QString &filter = "");
     Q_INVOKABLE void openRecordDialog(BaseBean *bean,
                                       AlephERP::FormOpenType openType,
-                                      const QString &contextName,
+                                      bool useNewContext,
                                       QWidget* parent = 0);
 
     // ------------------------------------------------

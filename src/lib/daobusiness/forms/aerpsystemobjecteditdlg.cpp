@@ -36,8 +36,8 @@ public:
     }
 };
 
-AERPSystemObjectEditDlg::AERPSystemObjectEditDlg(BaseBeanPointer bean, AlephERP::FormOpenType openType, const QString &contextName, QWidget *parent, Qt::WindowFlags fl) :
-    DBRecordDlg(bean, openType, contextName, parent, fl), d(new AERPSystemObjectEditDlgPrivate)
+AERPSystemObjectEditDlg::AERPSystemObjectEditDlg(BaseBeanPointer bean, AlephERP::FormOpenType openType, bool initContext, QWidget *parent, Qt::WindowFlags fl) :
+    DBRecordDlg(bean, openType, initContext, parent, fl), d(new AERPSystemObjectEditDlgPrivate)
 {
 }
 

@@ -611,8 +611,7 @@ void AERPSystemObjectEditorWidget::validateOkClicked()
 
 void AERPSystemObjectEditorWidget::selectOrigin()
 {
-    QString context = QUuid::createUuid().toString();
-    DBSearchDlg *dlg = new DBSearchDlg("alepherp_system", context, this);
+    DBSearchDlg *dlg = new DBSearchDlg("alepherp_system", true, this);
     if ( dlg->openSuccess() )
     {
         dlg->setModal(true);

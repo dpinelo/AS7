@@ -407,7 +407,7 @@ void AERPInlineEditItemDelegate::buttonClicked(const QModelIndex &index)
                                                         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
                         if ( ret == QMessageBox::Yes )
                         {
-                            QPointer<DBRecordDlg> dlg = new DBRecordDlg(father, AlephERP::Update, 0);
+                            QPointer<DBRecordDlg> dlg = new DBRecordDlg(father, AlephERP::Update, true, 0);
                             if ( dlg->openSuccess() && dlg->init() )
                             {
                                 dlg->setModal(true);

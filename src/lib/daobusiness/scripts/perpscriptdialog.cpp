@@ -80,7 +80,7 @@ public:
     QPointer<DBReportRunDlg> m_dialogReport;
     bool m_staysOnTop;
     bool m_modal;
-    QString m_contextName;
+    bool m_useNewContext;
 
     AERPScriptDialogPrivate()
     {
@@ -88,7 +88,7 @@ public:
         m_parentWidget = NULL;
         m_staysOnTop = false;
         m_modal = true;
-        m_contextName = QUuid::createUuid().toString();
+        m_useNewContext = true;
     }
 };
 
@@ -204,14 +204,14 @@ QString AERPScriptDialog::reportName() const
     return d->m_reportName;
 }
 
-void AERPScriptDialog::setContextName(const QString &name)
+void AERPScriptDialog::setUseNewContext(bool name)
 {
-    d->m_contextName = name;
+    d->m_useNewContext = name;
 }
 
-QString AERPScriptDialog::contextName() const
+bool AERPScriptDialog::useNewContext() const
 {
-    return d->m_contextName;
+    return d->m_useNewContext;
 }
 
 QString AERPScriptDialog::fieldToSearch()
@@ -326,7 +326,7 @@ void AERPScriptDialog::newSearchDlg()
     {
         delete d->m_dialogSearch;
     }
-    d->m_dialogSearch = new DBSearchDlg(d->m_tableName, d->m_contextName, d->m_parentWidget);
+    d->m_dialogSearch = new DBSearchDlg(d->m_tableName, d->m_useNewContext, d->m_parentWidget);
     QHashIterator<QString, QObject *> itObjects(d->m_objects);
     QHashIterator<QString, QVariant> itData(d->m_data);
 
@@ -416,7 +416,7 @@ void AERPScriptDialog::newRecordDlg()
     {
         delete d->m_dialogRecord;
     }
-    d->m_dialogRecord = new DBRecordDlg(beanToEdit, openType, d->m_contextName, d->m_parentWidget);
+    d->m_dialogRecord = new DBRecordDlg(beanToEdit, openType, d->m_useNewContext, d->m_parentWidget);
     QHashIterator<QString, QObject *> itObjects(d->m_objects);
     QHashIterator<QString, QVariant> itData(d->m_data);
     if ( d->m_staysOnTop )

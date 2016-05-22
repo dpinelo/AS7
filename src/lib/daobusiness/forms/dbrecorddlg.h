@@ -129,7 +129,7 @@ public:
     explicit DBRecordDlg(QWidget *parent = 0, Qt::WindowFlags fl = 0);
     DBRecordDlg(BaseBeanPointer bean,
                 AlephERP::FormOpenType openType,
-                QString transaction,
+                bool initTransaction,
                 QWidget* parent = 0,
                 Qt::WindowFlags fl = 0);
     ~DBRecordDlg();

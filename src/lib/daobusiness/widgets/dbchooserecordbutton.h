@@ -185,6 +185,7 @@ public slots:
     void updateFields();
     void clear();
     void editRecord();
+    void viewRecord();
     void addDefaultValue(const QString &dbFieldName, const QVariant &value);
     virtual void askToRecalculateCounterField()
     {

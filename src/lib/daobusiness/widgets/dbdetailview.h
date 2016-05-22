@@ -105,6 +105,10 @@ class ALEPHERP_DLL_EXPORT DBDetailView : public QWidget, public DBAbstractViewIn
     Q_PROPERTY (QString visibleColumns READ visibleColumns WRITE setVisibleColumns)
     /** Pide confirmación para la eliminación de un registro */
     Q_PROPERTY (bool promptForDelete READ promptForDelete WRITE setPromptForDelete)
+    /** Utiliza su propia transacción para los registros hijos */
+    Q_PROPERTY(bool useNewContextDirectDescents READ useNewContextDirectDescents WRITE setUseNewContextDirectDescents)
+    /** Utiliza su propia transacción para los registros hijos */
+    Q_PROPERTY(bool useNewContextExistingPrevious READ useNewContextExistingPrevious WRITE setUseNewContextExistingPrevious)
 
     friend class DBDetailViewPrivate;
 
@@ -200,6 +204,11 @@ public:
 
     virtual void setAtRowsEndNewRow(bool value);
     bool enableAtRowsEndNewRow();
+
+    bool useNewContextDirectDescents() const;
+    void setUseNewContextDirectDescents(bool value);
+    bool useNewContextExistingPrevious() const;
+    void setUseNewContextExistingPrevious(bool value);
 
     bool promptForDelete() const;
     void setPromptForDelete(bool value);
