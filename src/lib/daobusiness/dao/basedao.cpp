@@ -2945,7 +2945,7 @@ void BaseDAO::readSerialValuesAfterInsert(BaseBean *bean, qlonglong oid, const Q
 /*!
   Esta función recarga de base de datos el bean correspondiente
   */
-bool BaseDAO::reloadBeanFromDB(const BaseBeanSharedPointer &bean, const QString &connectionName)
+bool BaseDAO::reloadBeanFromDB(const BaseBeanPointer &bean, const QString &connectionName)
 {
     BaseBeanSharedPointer copy = selectByPk(bean->pkValue(), bean->metadata()->tableName(), connectionName);
     if ( copy.isNull() )

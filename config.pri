@@ -53,7 +53,7 @@ TWAINSUPPORT=N
 JASPERSERVERSUPPORT=N
 BARCODESUPPORT=N
 QTDESIGNERBUILTIN=N
-QTSCRIPTBINDING=N
+QTSCRIPTBINDING=Y
 TESTPARTS=N
 # Puede ser, xbase64, xbase2 o dbase-code
 DBASELIBRARY=dbase-code
@@ -64,14 +64,13 @@ VMIMESMTPSUPPORT=N
 POCOSMTPSUPPORT=N
 QXTSMTPSUPPORT=N
 CSSMTPSUPPORT=N
+SMTPSUPPORT=Y
 
 CONFIG += debug_and_release
 
 #-----------------------------------------------------------------------------------------------------
 # Hasta aquí
 #-----------------------------------------------------------------------------------------------------
-
-SMTPSUPPORT=N
 
 CONFIG += c++11
 

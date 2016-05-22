@@ -1871,12 +1871,14 @@ void DBRecordDlg::advancedNavigationListRowChanged(int row)
 
 void DBRecordDlg::accept()
 {
+    emit accepted(d->m_bean, d->m_userSaveData);
     QDialog::accept();
     close();
 }
 
 void DBRecordDlg::reject()
 {
+    emit rejected(d->m_bean, d->m_userSaveData);
     QDialog::reject();
     close();
 }

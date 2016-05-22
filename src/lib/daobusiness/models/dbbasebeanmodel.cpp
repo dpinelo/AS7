@@ -1328,7 +1328,7 @@ BaseBeanSharedPointer DBBaseBeanModel::bean (const QModelIndex &index, bool relo
                  reloadIfNeeded &&
                  bean->loadTime().msecsTo(QDateTime::currentDateTime()) > alephERPSettings->timeBetweenReloads() )
             {
-                BaseDAO::reloadBeanFromDB(bean);
+                BaseDAO::reloadBeanFromDB(bean.data());
             }
             else
             {

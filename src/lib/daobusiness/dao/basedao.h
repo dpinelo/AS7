@@ -120,7 +120,7 @@ public:
     static QString serializePk(const QVariant &pk);
     static QString serializedPkToSqlWhere(const QString &pkey);
 
-    static bool reloadBeanFromDB(const BaseBeanSharedPointer &bean, const QString &connectionName = "");
+    static bool reloadBeanFromDB(const BaseBeanPointer &bean, const QString &connectionName = "");
     static bool reloadBeansFromDB(const BaseBeanSharedPointerList &list, const QString &connectionName = "");
     static bool reloadFieldChangedAfterSave(BaseBean *bean, const QString &connectionName = "");
 

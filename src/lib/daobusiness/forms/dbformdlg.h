@@ -211,8 +211,8 @@ protected slots:
 
 private slots:
     void specialEdit(const QString code);
-    void recordDlgClosed(bool userSaveData);
-    void recordDlgCanceled(bool userSaveData);
+    void recordDlgClosed(BaseBeanPointer bean, bool userSaveData);
+    void recordDlgCanceled(BaseBeanPointer bean, bool userSaveData);
 
 signals:
     void sigSplashInfo(const QString &);

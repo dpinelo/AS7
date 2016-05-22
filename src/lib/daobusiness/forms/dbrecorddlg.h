@@ -223,6 +223,10 @@ public slots:
 #ifdef ALEPHERP_DEVTOOLS
     virtual void inspectBean();
 #endif
+
+signals:
+    void accepted(BaseBeanPointer bean, bool userSaveData);
+    void rejected(BaseBeanPointer bean, bool userSaveData);
 };
 
 Q_DECLARE_METATYPE(DBRecordDlg*)

@@ -809,7 +809,7 @@ void DBChooseRecordButton::editRecord()
 void DBChooseRecordButton::viewRecord()
 {
     BaseBeanPointer editedBean = d->selectedBean();
-    QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(editedBean.data(), AlephERP::ReadOnly, d->m_useNewContext, this));
+    QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(editedBean.data(), AlephERP::ReadOnly, false, this));
     if ( dlg->openSuccess() && dlg->init() )
     {
         dlg->setModal(true);
