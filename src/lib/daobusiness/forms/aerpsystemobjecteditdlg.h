@@ -40,6 +40,7 @@ private:
 public:
     AERPSystemObjectEditDlg(BaseBeanPointer bean,
                             AlephERP::FormOpenType openType,
+                            const QString &contextName,
                             QWidget* parent = 0, Qt::WindowFlags fl = 0);
     ~AERPSystemObjectEditDlg();
 

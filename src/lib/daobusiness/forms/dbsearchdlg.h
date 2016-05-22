@@ -98,7 +98,7 @@ protected:
 
 public:
     explicit DBSearchDlg(QWidget *parent = 0);
-    explicit DBSearchDlg(const QString &tableName, QWidget *parent = 0);
+    explicit DBSearchDlg(const QString &tableName, const QString &contextName, QWidget *parent = 0);
     ~DBSearchDlg();
 
     BaseBeanSharedPointer selectedBean();

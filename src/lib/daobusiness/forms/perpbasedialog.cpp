@@ -108,6 +108,16 @@ bool AERPBaseDialog::openSuccess()
     return d->m_openSuccess;
 }
 
+QString AERPBaseDialog::contextName() const
+{
+    return d->m_contextName;
+}
+
+void AERPBaseDialog::setContextName(const QString &contextName)
+{
+    d->m_contextName = contextName;
+}
+
 void AERPBaseDialog::setOpenSuccess(bool value)
 {
     d->m_openSuccess = value;

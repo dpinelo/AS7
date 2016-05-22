@@ -250,7 +250,8 @@ void DBChooseRelatedRecordButton::chooseMasterBean()
     }
 
     QString metadataName = d->m_allowedMetadatas.at(prettyAllowedMetadatas.indexOf(selectedMetadata));
-    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(metadataName, this));
+    QString contextName = QUuid::createUuid().toString();
+    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(metadataName, contextName, this));
     dlg->setModal(true);
     if ( dlg->openSuccess() && dlg->init() )
     {

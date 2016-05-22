@@ -933,12 +933,15 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
                              tr("Ha ocurrido un error inesperado. Cierre el formulario y vuelva a intentarlo."));
         return;
     }
+
+    QString contextName = QUuid::createUuid().toString();
+
     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
     QPointer<DBRecordDlg> dlg;
     if ( d->m_metadata->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
     {
 #if defined(ALEPHERP_ADVANCED_EDIT) && defined (ALEPHERP_DEVTOOLS)
-        dlg = new AERPSystemObjectEditDlg(bean.data(), openType, this);
+        dlg = new AERPSystemObjectEditDlg(bean.data(), openType, contextName, this);
 #else
         d->m_canDefrostModel = true;
         d->m_itemView->defrostModel();
@@ -947,7 +950,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     }
     else
     {
-        dlg = new DBRecordDlg(bean.data(), openType, this);
+        dlg = new DBRecordDlg(bean.data(), openType, contextName, this);
     }
     CommonsFunctions::restoreOverrideCursor();
     if ( !uiCode.isEmpty() )
@@ -1055,7 +1058,8 @@ void DBFormDlg::insertChild()
                         model->invalidate();
                     }
                     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
-                    QPointer<DBRecordDlg> dlg = new DBRecordDlg(bean.data(), AlephERP::Insert, this);
+                    QString contextName = QUuid::createUuid().toString();
+                    QPointer<DBRecordDlg> dlg = new DBRecordDlg(bean.data(), AlephERP::Insert, contextName, this);
                     CommonsFunctions::restoreOverrideCursor();
                     if ( dlg->openSuccess() && dlg->init() )
                     {
@@ -1357,7 +1361,8 @@ void DBFormDlg::search(void)
     d->m_canDefrostModel = true;
     d->m_itemView->freezeModel();
 
-    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName(), this));
+    QString contextName = QUuid::createUuid().toString();
+    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName(), contextName, this));
     if ( dlg->openSuccess() )
     {
         dlg->setModal(true);
@@ -1389,7 +1394,7 @@ void DBFormDlg::copy()
     BaseBeanSharedPointerList copies;
     QModelIndexList indexesCopy;
     QHash<int, QModelIndex> addedRows;
-
+    QString dbContext = QUuid::createUuid().toString();
 
     if ( indexes.size() > 0 )
     {
@@ -1421,10 +1426,10 @@ void DBFormDlg::copy()
                         if ( !dest.isNull() )
                         {
                             // Creamos un contexto para esta transacción de copia.
-                            AERPTransactionContext::instance()->addToContext(AERPTransactionContext::instance()->masterContext(), dest.data());
+                            AERPTransactionContext::instance()->addToContext(dbContext, dest.data());
                             if ( !BaseDAO::copyBaseBean(orig.data(), dest.data()) )
                             {
-                                AERPTransactionContext::instance()->discardContext(AERPTransactionContext::instance()->masterContext());
+                                AERPTransactionContext::instance()->discardContext(dbContext);
                                 CommonsFunctions::restoreOverrideCursor();
                                 if ( !d->m_mainWindow->isVisibleRelatedWidget() )
                                 {
@@ -1437,9 +1442,9 @@ void DBFormDlg::copy()
                     }
                 }
             }
-            AERPTransactionContextProgressDlg::showDialog(AERPTransactionContext::instance()->masterContext(), this);
-            bool commitResult = AERPTransactionContext::instance()->commit(AERPTransactionContext::instance()->masterContext());
-            AERPTransactionContext::instance()->waitCommitToEnd(AERPTransactionContext::instance()->masterContext());
+            AERPTransactionContextProgressDlg::showDialog(dbContext, this);
+            bool commitResult = AERPTransactionContext::instance()->commit(dbContext);
+            AERPTransactionContext::instance()->waitCommitToEnd(dbContext);
             if ( !commitResult )
             {
                 QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ha ocurrido un error generando la copia."), QMessageBox::Ok);
@@ -2060,10 +2065,11 @@ void DBFormDlg::view()
     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
     BaseBeanSharedPointer bean = model->beanToBeEdited(d->rowIndexSelected());
     QPointer<DBRecordDlg> dlg;
+    QString contextName = QUuid::createUuid().toString();
     if ( d->m_metadata->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
     {
 #if defined(ALEPHERP_ADVANCED_EDIT) && defined (ALEPHERP_DEVTOOLS)
-        dlg = new AERPSystemObjectEditDlg(bean.data(), openType, this);
+        dlg = new AERPSystemObjectEditDlg(bean.data(), openType, QString(), this);
 #else
         d->m_canDefrostModel = true;
         if ( !d->m_mainWindow->isVisibleRelatedWidget() )
@@ -2075,7 +2081,7 @@ void DBFormDlg::view()
     }
     else
     {
-        dlg = new DBRecordDlg(bean.data(), openType, this);
+        dlg = new DBRecordDlg(bean.data(), openType, contextName, this);
     }
     CommonsFunctions::restoreOverrideCursor();
     if ( dlg->openSuccess() && dlg->init() )

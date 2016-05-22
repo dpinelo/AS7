@@ -149,7 +149,7 @@ void DBLabel::openLink()
     DBField *fld = qobject_cast<DBField *>(observer()->entity());
     if ( fld != NULL && fld->bean() != beanFromContainer() )
     {
-        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(fld->bean().data(), AlephERP::ReadOnly, this));
+        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(fld->bean().data(), AlephERP::ReadOnly, QString(), this));
         if ( dlg->openSuccess() && dlg->init() )
         {
             dlg->setModal(true);

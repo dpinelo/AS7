@@ -1948,7 +1948,8 @@ bool BatchDAOPrivate::updateRecordOnRemote(BaseBeanMetadata *metadata, const QSt
             return false;
         }
         // Hay un error de validación del bean. Ofrecemos al usuario la posibilidad de solventarlo, editando el registro
-        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(beanLocal.data(), AlephERP::Update));
+        QString contextName = QUuid::createUuid().toString();
+        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(beanLocal.data(), AlephERP::Update, contextName));
         dlg->setModal(true);
         if ( !dlg->openSuccess() || !dlg->init() )
         {
@@ -2011,7 +2012,8 @@ bool BatchDAOPrivate::insertRecordOnRemote(BaseBeanMetadata *metadata, const QSt
             return false;
         }
         // Hay un error de validación del bean. Ofrecemos al usuario la posibilidad de solventarlo, editando el registro
-        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(bean.data(), AlephERP::Update));
+        QString contextName = QUuid::createUuid().toString();
+        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(bean.data(), AlephERP::Update, contextName));
         dlg->setModal(true);
         if ( !dlg->openSuccess() || !dlg->init() )
         {

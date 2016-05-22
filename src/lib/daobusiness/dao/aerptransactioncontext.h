@@ -48,7 +48,6 @@ public:
     ~AERPTransactionContext();
 
     static AERPTransactionContext * instance();
-    static QString masterContext();
 
     bool addPreviousSqlToContext(const QString &contextName, const QString &sql);
     bool addFinalSqlToContext(const QString &contextName, const QString &sql);
@@ -73,14 +72,13 @@ public:
     bool doingCommit(const QString &contextName = "");
 
 signals:
-    void beforeSaveBean(const QString &contextName, BaseBean *bean);
-    void beforeDeleteBean(const QString &contextName, BaseBean *bean);
-    void beforeAction(const QString &contextName, BaseBean *bean);
-    void beanSaved(const QString &contexName, BaseBean *bean);
-    void beanDeleted(const QString &contexName, BaseBean *bean);
-    void workingWithBean(const QString &contexName, BaseBean *bean);
-    void beanModified(bool);
-    void beanModified(BaseBean *bean, bool);
+    void beforeSaveBean(BaseBean *bean);
+    void beforeDeleteBean(BaseBean *bean);
+    void beforeAction(BaseBean *bean);
+    void beanSaved(BaseBean *bean);
+    void beanDeleted(BaseBean *bean);
+    void workingWithBean(BaseBean *bean);
+    void beanModified(BaseBean *bean, bool modified);
     void beanAddedToContext(QString contextName, BaseBean *bean);
     void transactionInited(QString contextName, int items);
     void transactionCommited(QString contextName);

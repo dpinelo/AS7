@@ -198,6 +198,11 @@ QWidget *ScriptDlg::contentWidget() const
     return d->m_widget;
 }
 
+QString ScriptDlg::contextName() const
+{
+    return QString();
+}
+
 void ScriptDlg::keyPressEvent (QKeyEvent * e)
 {
     bool accept = true;

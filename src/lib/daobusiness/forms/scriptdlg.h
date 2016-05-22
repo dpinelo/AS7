@@ -44,6 +44,8 @@ private:
 
     QWidget *contentWidget() const;
 
+    QString contextName() const;
+
 protected:
     void showEvent (QShowEvent *event);
     void closeEvent (QCloseEvent * event);

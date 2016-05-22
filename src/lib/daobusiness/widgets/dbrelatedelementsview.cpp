@@ -572,7 +572,8 @@ void DBRelatedElementsView::addRelatedElement()
         RelatedElement *element = d->m_model->insertRow(metadata, category);
         if ( element != NULL )
         {
-            QScopedPointer<DBRecordDlg> dlg(new DBRecordDlg(element->relatedBean().data(), AlephERP::Insert));
+            QString contextName = QUuid::createUuid().toString();
+            QScopedPointer<DBRecordDlg> dlg(new DBRecordDlg(element->relatedBean().data(), AlephERP::Insert, contextName, this));
             dlg->setModal(true);
             if ( !dlg->openSuccess() || !dlg->init() )
             {
@@ -635,7 +636,8 @@ void DBRelatedElementsView::addExisting()
         }
     }
 
-    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(metadata, this));
+    QString contextName = QUuid::createUuid().toString();
+    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(metadata, contextName, this));
     if ( dlg->openSuccess() )
     {
         QString filter;
@@ -803,7 +805,8 @@ void DBRelatedElementsView::editRelatedElement()
                 return;
             }
         }
-        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(bean.data(), AlephERP::Update, this));
+        QString contextName = QUuid::createUuid().toString();
+        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(bean.data(), AlephERP::Update, contextName, this));
         if ( dlg->openSuccess() && dlg->init() )
         {
             // Guardar los datos de los hijos agregados, será responsabilidad del bean padre
@@ -842,7 +845,7 @@ void DBRelatedElementsView::viewRelatedElement()
     BaseBeanPointer bean = element->relatedBean();
     if ( !bean.isNull() )
     {
-        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(bean.data(), AlephERP::ReadOnly, this));
+        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(bean.data(), AlephERP::ReadOnly, QString(), this));
         if ( dlg->openSuccess() && dlg->init() )
         {
             // Guardar los datos de los hijos agregados, será responsabilidad del bean padre
@@ -962,7 +965,8 @@ void DBRelatedElementsView::itemClicked(const QModelIndex &idx)
     else
     {
         QApplication::setOverrideCursor(Qt::WaitCursor);
-        QPointer<DBRecordDlg> dlg = new DBRecordDlg(element->relatedBean().data(), openType, this);
+        QString contextName = QUuid::createUuid().toString();
+        QPointer<DBRecordDlg> dlg = new DBRecordDlg(element->relatedBean().data(), openType, contextName, this);
         QApplication::restoreOverrideCursor();
         if ( dlg->openSuccess() && dlg->init() )
         {

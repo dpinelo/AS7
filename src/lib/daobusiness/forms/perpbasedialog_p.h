@@ -51,6 +51,7 @@ public:
     /** En las búsquedas, especialmente, si se hacen por SQL, interesa bastante saber el isntante de la última pulsación
      * de una tecla, para así no saturar de peticiones intermedias a la base de datos */
     QDateTime m_lastKeyPressTimeStamp;
+    QString m_contextName;
 
     AERPBaseDialog *q_ptr;
 

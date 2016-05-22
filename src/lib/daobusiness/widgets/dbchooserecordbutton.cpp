@@ -64,6 +64,7 @@ public:
     QAction *m_actionEdit;
     QString m_searchFieldName;
     DBSearchDlg::DBSearchButtons m_dbSearchButtons;
+    bool m_useNewContext;
 
     DBChooseRecordButton *q_ptr;
 
@@ -81,6 +82,7 @@ public:
         QObject::connect(m_actionClear, SIGNAL(triggered()), q_ptr, SLOT(clear()));
         QObject::connect(m_actionEdit, SIGNAL(triggered()), q_ptr, SLOT(editRecord()));
         m_dbSearchButtons = (DBSearchDlg::DBSearchButtons) DBSearchDlg::Ok | DBSearchDlg::Close | DBSearchDlg::EditRecord | DBSearchDlg::NewRecord;
+        m_useNewContext = true;
     }
 
     BaseBeanPointer selectedBean();
@@ -90,6 +92,7 @@ public:
     AERPBaseDialog *aerpParentDialog();
     bool checkPreviousInserted();
     void setSelectedBean(const BaseBeanPointer &bean);
+    QString contextName();
 };
 
 /**
@@ -301,6 +304,16 @@ void DBChooseRecordButton::setDbSearchButtons(DBSearchDlg::DBSearchButtons butto
     d->m_dbSearchButtons = buttons;
 }
 
+bool DBChooseRecordButton::useNewContext() const
+{
+    return d->m_useNewContext;
+}
+
+void DBChooseRecordButton::setUseNewContext(bool value)
+{
+    d->m_useNewContext = value;
+}
+
 void DBChooseRecordButton::showEvent(QShowEvent *event)
 {
     if ( this->icon().isNull() )
@@ -396,7 +409,7 @@ void DBChooseRecordButton::buttonClicked()
 
     if ( !tableName.isEmpty() )
     {
-        QPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName, this));
+        QPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName, d->contextName(), this));
         if ( !d->m_masterBean.isNull() )
         {
             dlg->setMasterBean(d->m_masterBean);
@@ -576,6 +589,20 @@ void DBChooseRecordButtonPrivate::setSelectedBean(const BaseBeanPointer &bean)
             thisForm->callQSMethod(scriptName, args);
         }
     }
+}
+
+QString DBChooseRecordButtonPrivate::contextName()
+{
+    if ( m_useNewContext )
+    {
+        return QUuid::createUuid().toString();
+    }
+    AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(q_ptr);
+    if ( thisForm != NULL )
+    {
+        return thisForm->contextName();
+    }
+    return QUuid::createUuid().toString();
 }
 
 /*!
@@ -775,7 +802,7 @@ void DBChooseRecordButton::editRecord()
             beforeInsertBeanQs(editedBean.data());
         }
     }
-    QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(editedBean.data(), AlephERP::Update, this));
+    QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(editedBean.data(), AlephERP::Update, d->contextName(), this));
     if ( dlg->openSuccess() && dlg->init() )
     {
         dlg->setModal(true);
@@ -863,7 +890,7 @@ bool DBChooseRecordButtonPrivate::checkPreviousInserted()
                                             QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
             if ( ret == QMessageBox::Yes )
             {
-                QPointer<DBRecordDlg> dlg = new DBRecordDlg(father, AlephERP::Update, q_ptr);
+                QPointer<DBRecordDlg> dlg = new DBRecordDlg(father, AlephERP::Update, contextName(), q_ptr);
                 if ( dlg->openSuccess() && dlg->init() )
                 {
                     dlg->setModal(true);

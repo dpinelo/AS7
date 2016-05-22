@@ -49,15 +49,15 @@ class ALEPHERP_DLL_EXPORT DBChooseRecordButton : public QPushButton, public DBBa
      Este botón sólo tiene sentido para buscar registros de tablas en una jerarquía mayor (por ejemplo, para buscar el cliente
      en un formulario de creación de facturas. Por tanto busca la primera tabla MANY_TO_ONE de todas las posibles relaciones
      que pudiese existir. */
-    Q_PROPERTY (QString fieldName READ fieldName WRITE setFieldName)
+    Q_PROPERTY(QString fieldName READ fieldName WRITE setFieldName)
     /** Al pincharse este botón se abre un formulario de búsqueda sobre la tabla asociada o relacionada a \a fieldName.
       Es posible que se quiera realizar un filtrado sobre esa tabla de búsqueda, que se especifica aquí. Es un filtrado SQL */
-    Q_PROPERTY (QString relationFilter READ relationFilter WRITE setRelationFilter)
-    Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
-    Q_PROPERTY (bool aerpControl READ aerpControl)
-    Q_PROPERTY (bool userModified READ userModified WRITE setUserModified)
-    Q_PROPERTY (QVariant value READ value WRITE setValue)
-    Q_PROPERTY (bool dataFromParentDialog READ dataFromParentDialog WRITE setDataFromParentDialog)
+    Q_PROPERTY(QString relationFilter READ relationFilter WRITE setRelationFilter)
+    Q_PROPERTY(bool dataEditable READ dataEditable WRITE setDataEditable)
+    Q_PROPERTY(bool aerpControl READ aerpControl)
+    Q_PROPERTY(bool userModified READ userModified WRITE setUserModified)
+    Q_PROPERTY(QVariant value READ value WRITE setValue)
+    Q_PROPERTY(bool dataFromParentDialog READ dataFromParentDialog WRITE setDataFromParentDialog)
 
     /** Tabla en la que buscar el registro. Si este valor está vacío se buscará en la tabla
     relacionada de la columna indicada por fieldName. */
@@ -77,7 +77,7 @@ class ALEPHERP_DLL_EXPORT DBChooseRecordButton : public QPushButton, public DBBa
     Q_PROPERTY(BaseBean* beanSearchList READ beanSearchList WRITE setBeanSearchList)
     /** Es posible indicar, de esa tabla de búsqueda, la columna que contiene el dato que se dará a la columna del registro actual
      * especificada por fieldName */
-    Q_PROPERTY (QString searchFieldName READ searchFieldName WRITE setSearchFieldName)
+    Q_PROPERTY(QString searchFieldName READ searchFieldName WRITE setSearchFieldName)
 
     /** También puede ser interesante realizar algunas acciones, justo antes de abrir el formulario de búsqueda, por ejemplo,
      * estableciendo un searchFilter determinado, o unos valores por defecto de búsqueda predefinidos para el usuario (defaultValues).
@@ -85,7 +85,7 @@ class ALEPHERP_DLL_EXPORT DBChooseRecordButton : public QPushButton, public DBBa
      * a una función miembro fieldNameScriptBeforeExecute del formulario que contiene este control.
      * A esa función se le pasará como parámetro este mismo botón. Las dos propiedades hacen lo mismo, pero scriptBeforeExecute
        estatá DEPRECATED por mantenimibilidad de nombres*/
-    Q_PROPERTY (QString scriptExecuteBeforeChoose READ scriptBeforeExecute WRITE setScriptBeforeExecute)
+    Q_PROPERTY(QString scriptExecuteBeforeChoose READ scriptBeforeExecute WRITE setScriptBeforeExecute)
     Q_PROPERTY(QString scriptBeforeExecute READ scriptBeforeExecute WRITE setScriptBeforeExecute)
     /** Después de realizar una búsqueda, puede ser interesante ejecutar un determinado script. Es script será una función
       miembro del DBRecord que será invocada, y aquí se especifica el nombre sin parámetros. Esta función deberá tener
@@ -97,7 +97,7 @@ class ALEPHERP_DLL_EXPORT DBChooseRecordButton : public QPushButton, public DBBa
       Este script sólo se invoca si el usuario ha hecho CLICK en Ok, y por tanto, ha seleccionado un registro.
       A la función que se invoca en este script, se le pasa el bean seleccionado.
       */
-    Q_PROPERTY (QString scriptExecuteAfterChoose READ scriptExecuteAfterChoose WRITE setScriptExecuteAfterChoose)
+    Q_PROPERTY(QString scriptExecuteAfterChoose READ scriptExecuteAfterChoose WRITE setScriptExecuteAfterChoose)
     /** Tras limpiar un bean, puede ser interesante llamar a algún script. Aquí se puede hacer */
     Q_PROPERTY(QString scriptAfterClear READ scriptAfterClear WRITE setScriptAfterClear)
     /** Este script se ejecuta justo antes de que el usuario abra el formulario de inserción de un nuevo registro
@@ -109,7 +109,9 @@ class ALEPHERP_DLL_EXPORT DBChooseRecordButton : public QPushButton, public DBBa
     */
     Q_PROPERTY(QString scriptBeforeInsert READ scriptBeforeInsert WRITE setScriptBeforeInsert)
     /** Permite controlar los botones que mostrará el formulario de búsqueda que se abre al pinchar este botón */
-    Q_PROPERTY (DBSearchDlg::DBSearchButtons dbSearchButtons READ dbSearchButtons WRITE setDbSearchButtons)
+    Q_PROPERTY(DBSearchDlg::DBSearchButtons dbSearchButtons READ dbSearchButtons WRITE setDbSearchButtons)
+    /** Indica si los formularios de inserción de registros que se pueden abrir desde este botón, tienen contexto propio */
+    Q_PROPERTY(bool useNewContext READ useNewContext WRITE setUseNewContext)
 
     friend class DBChooseRecordButtonPrivate;
 
@@ -152,6 +154,8 @@ public:
     void setScriptAfterClear(const QString &value);
     DBSearchDlg::DBSearchButtons dbSearchButtons() const;
     void setDbSearchButtons(DBSearchDlg::DBSearchButtons buttons);
+    bool useNewContext() const;
+    void setUseNewContext(bool value);
 
     AlephERP::ObserverType observerType(BaseBean *)
     {

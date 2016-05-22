@@ -402,6 +402,7 @@ DBRecordDlg::DBRecordDlg(QWidget *parent, Qt::WindowFlags fl) :
 
 DBRecordDlg::DBRecordDlg(BaseBeanPointer bean,
                          AlephERP::FormOpenType openType,
+                         QString transaction,
                          QWidget* parent,
                          Qt::WindowFlags fl) :
     AERPBaseDialog(parent, fl),
@@ -411,6 +412,13 @@ DBRecordDlg::DBRecordDlg(BaseBeanPointer bean,
     d->m_bean = bean;
     // Este chivato indica si el registro lo guardará este formulario en base de datos o no
     d->m_openType = openType;
+    // Indica si este formulario inicia una nueva transacción.
+    if ( !transaction.isEmpty() )
+    {
+        d->m_initContext = true;
+        setContextName(transaction);
+        d->m_useTransactionContextForWindowModified = true;
+    }
     // Si se pulsa Guardar, se pondrá esto a true
     ui->setupUi(this);
 
@@ -452,7 +460,7 @@ DBRecordDlg::DBRecordDlg(BaseBeanPointer bean,
     connect (d->m_signalMapper, SIGNAL(mapped(const QString &)), this, SLOT(navigate(const QString &)));
 }
 
-bool DBRecordDlg::init(bool doConnections)
+bool DBRecordDlg::init()
 {
     if ( d->m_bean.isNull() )
     {
@@ -499,10 +507,7 @@ bool DBRecordDlg::init(bool doConnections)
             d->m_helpWidget->showUrl(d->m_helpUrl);
         }
         ui->pbHelp->setVisible(d->m_helpWidget->existsUrl(d->m_helpUrl));
-        if ( doConnections )
-        {
-            connect(ui->pbHelp, SIGNAL(clicked()), this, SLOT(showOrHideHelp()));
-        }
+        connect(ui->pbHelp, SIGNAL(clicked()), this, SLOT(showOrHideHelp()));
     }
     else
     {
@@ -523,30 +528,19 @@ bool DBRecordDlg::init(bool doConnections)
         }
     }
 
-    if ( AERPTransactionContext::instance()->objectsContextSize(AERPTransactionContext::instance()->masterContext()) == 0 )
+    if ( d->m_initContext )
     {
-        d->m_initContext = true;
-        // Si esta es la ventana que inicia una transacción, deberá estar atenta y vigilante con todos los beans agregados
-        // y que deban ser modificados.
-        AERPTransactionContext::instance()->addToContext(AERPTransactionContext::instance()->masterContext(), d->m_bean);
-        if ( doConnections )
-        {
-            connect(AERPTransactionContext::instance(), SIGNAL(beanModified(bool)), this, SLOT(setWindowModified(bool)));
-        }
-        d->m_useTransactionContextForWindowModified = true;
+        connect(AERPTransactionContext::instance(), SIGNAL(beanModified(BaseBean *, bool)), this, SLOT(setWindowModified(BaseBean *, bool)));
     }
-    AERPTransactionContext::instance()->addToContext(AERPTransactionContext::instance()->masterContext(), d->m_bean.data());
-    if ( doConnections )
-    {
-        connect(AERPTransactionContext::instance(), SIGNAL(beanAddedToContext(QString,BaseBean*)), this, SLOT(possibleRecordToSave(QString,BaseBean*)));
-    }
+    AERPTransactionContext::instance()->addToContext(contextName(), d->m_bean.data());
+    connect(AERPTransactionContext::instance(), SIGNAL(beanAddedToContext(QString,BaseBean*)), this, SLOT(possibleRecordToSave(QString,BaseBean*)));
 
     // Veamos si esta tabla permite el filtrar registros por usuario
     if ( !d->m_bean->metadata()->filterRowByUser() || !AERPLoggedUser::instance()->isSuperAdmin() || d->m_openType != AlephERP::Update )
     {
         ui->pbUserAccessRow->setVisible(false);
     }
-    else if ( doConnections )
+    else
     {
         connect(ui->pbUserAccessRow, SIGNAL(clicked()), this, SLOT(setUserAccess()));
     }
@@ -575,36 +569,30 @@ bool DBRecordDlg::init(bool doConnections)
     d->m_observer = qobject_cast<BaseBeanObserver *>(d->m_bean->observer());
     d->m_bean->observer()->installWidget(this);
 
-    if ( doConnections )
-    {
-        connect (ui->pbClose, SIGNAL(clicked()), this, SLOT(close()));
-        connect (ui->pbSave, SIGNAL(clicked()), this, SLOT(saveRecord()));
-        connect (ui->pbSaveAndClose, SIGNAL(clicked()), this, SLOT(saveAndClose()));
-        connect (ui->pbSaveAndNew, SIGNAL(clicked()), this, SLOT(saveAndNew()));
-        connect (ui->pbEditScript, SIGNAL(clicked()), aerpQsEngine(), SLOT(editScript()));
-        connect (ui->pbJsExecuteMethod, SIGNAL(clicked()), this, SLOT(executeJsMethod()));
-        connect (ui->pbHistory, SIGNAL(clicked()), this, SLOT(showHistory()));
-        connect (ui->pbEmail, SIGNAL(clicked()), this, SLOT(emailRecord()));
-        connect (ui->pbPrint, SIGNAL(clicked()), this, SLOT(printRecord()));
-        connect (ui->pbRelatedElements, SIGNAL(clicked()), this, SLOT(showOrHideRelatedElements()));
+    connect (ui->pbClose, SIGNAL(clicked()), this, SLOT(close()));
+    connect (ui->pbSave, SIGNAL(clicked()), this, SLOT(saveRecord()));
+    connect (ui->pbSaveAndClose, SIGNAL(clicked()), this, SLOT(saveAndClose()));
+    connect (ui->pbSaveAndNew, SIGNAL(clicked()), this, SLOT(saveAndNew()));
+    connect (ui->pbEditScript, SIGNAL(clicked()), aerpQsEngine(), SLOT(editScript()));
+    connect (ui->pbJsExecuteMethod, SIGNAL(clicked()), this, SLOT(executeJsMethod()));
+    connect (ui->pbHistory, SIGNAL(clicked()), this, SLOT(showHistory()));
+    connect (ui->pbEmail, SIGNAL(clicked()), this, SLOT(emailRecord()));
+    connect (ui->pbPrint, SIGNAL(clicked()), this, SLOT(printRecord()));
+    connect (ui->pbRelatedElements, SIGNAL(clicked()), this, SLOT(showOrHideRelatedElements()));
 #ifdef ALEPHERP_DOC_MANAGEMENT
-        connect (ui->pbDocuments, SIGNAL(clicked()), this, SLOT(showOrHideDocuments()));
+    connect (ui->pbDocuments, SIGNAL(clicked()), this, SLOT(showOrHideDocuments()));
 #endif
 #ifdef ALEPHERP_DEVTOOLS
-        connect (ui->pbInspectBean, SIGNAL(clicked()), this, SLOT(inspectBean()));
+    connect (ui->pbInspectBean, SIGNAL(clicked()), this, SLOT(inspectBean()));
 #else
-        ui->pbInspectBean->setVisible(false);
+    ui->pbInspectBean->setVisible(false);
 #endif
-    }
 
-    if ( doConnections )
+    QSqlDatabase db = Database::getQDatabase();
+    QStringList tmp = db.driver()->subscribedToNotifications();
+    foreach (const QString &a, tmp)
     {
-        QSqlDatabase db = Database::getQDatabase();
-        QStringList tmp = db.driver()->subscribedToNotifications();
-        foreach (const QString &a, tmp)
-        {
-            QLogger::QLog_Debug(AlephERP::stLogOther, trUtf8("DBRecordDlg::init: Notificaciones suscritas: %1").arg(a));
-        }
+        QLogger::QLog_Debug(AlephERP::stLogOther, trUtf8("DBRecordDlg::init: Notificaciones suscritas: %1").arg(a));
     }
 
     // Hacemos una copia de seguridad de los datos, por si hay cancelación
@@ -619,11 +607,7 @@ bool DBRecordDlg::init(bool doConnections)
         }
     }
 
-    if ( doConnections )
-    {
-        QSqlDatabase db = Database::getQDatabase();
-        connect (db.driver(), SIGNAL(notification(const QString &)), this, SLOT(lockBreaked(const QString &)));
-    }
+    connect (db.driver(), SIGNAL(notification(const QString &)), this, SLOT(lockBreaked(const QString &)));
     installEventFilters();
     setWindowModified(false);
     // Código propio del formulario
@@ -634,7 +618,7 @@ bool DBRecordDlg::init(bool doConnections)
     ui->pbInspectBean->setVisible(alephERPSettings->debuggerEnabled());
     ui->pbJsExecuteMethod->setVisible(alephERPSettings->debuggerEnabled());
     ui->pbShowDebugger->setVisible(alephERPSettings->debuggerEnabled() && !aerpQsEngine()->scriptName().isEmpty());
-    if ( alephERPSettings->debuggerEnabled() && doConnections )
+    if ( alephERPSettings->debuggerEnabled() )
     {
         connect(ui->pbShowDebugger, SIGNAL(clicked()), this, SLOT(showDebugger()));
     }
@@ -857,11 +841,6 @@ bool DBRecordDlg::saveAndNewWithAllFieldsValidated() const
 void DBRecordDlg::setSaveAndNewWithAllFieldsValidated(bool value)
 {
     d->m_saveAndNewWithAllFieldsValidated = value;
-}
-
-QString DBRecordDlg::contextName() const
-{
-    return AERPTransactionContext::instance()->masterContext();
 }
 
 AlephERP::FormOpenType DBRecordDlg::openType() const
@@ -1124,7 +1103,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
     {
         if ( d->m_initContext && !d->m_forceSaveToDb )
         {
-            AERPTransactionContext::instance()->discardContext(AERPTransactionContext::instance()->masterContext());
+            AERPTransactionContext::instance()->discardContext(contextName());
         }
         event->accept();
         d->m_closing = true;
@@ -1142,7 +1121,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
         }
         if ( d->m_initContext && !d->m_forceSaveToDb )
         {
-            AERPTransactionContext::instance()->discardContext(AERPTransactionContext::instance()->masterContext());
+            AERPTransactionContext::instance()->discardContext(contextName());
         }
         event->accept();
         d->m_closing = true;
@@ -1229,7 +1208,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
     }
     if ( d->m_initContext && !d->m_forceSaveToDb )
     {
-        AERPTransactionContext::instance()->discardContext(AERPTransactionContext::instance()->masterContext());
+        AERPTransactionContext::instance()->discardContext(contextName());
     }
     d->m_closing = true;
     event->accept();
@@ -1555,10 +1534,10 @@ bool DBRecordDlg::save()
                     return false;
                 }
             }
-            AERPTransactionContextProgressDlg::showDialog(AERPTransactionContext::instance()->masterContext(), this);
+            AERPTransactionContextProgressDlg::showDialog(contextName(), this);
             // No necesitamos descartar el contexto ahora, ya que éste será automáticamente descartado en el closeEvent
-            result = AERPTransactionContext::instance()->commit(AERPTransactionContext::instance()->masterContext(), false);
-            AERPTransactionContext::instance()->waitCommitToEnd(AERPTransactionContext::instance()->masterContext());
+            result = AERPTransactionContext::instance()->commit(contextName(), false);
+            AERPTransactionContext::instance()->waitCommitToEnd(contextName());
             if ( !result )
             {
                 QMessageBox::warning(this, qApp->applicationName(),
@@ -1609,7 +1588,12 @@ bool DBRecordDlg::save()
 
 void DBRecordDlg::setWindowModified(bool value)
 {
-    if ( d->m_openType == AlephERP::ReadOnly || d->m_bean.isNull() )
+    setWindowModified(d->m_bean, value);
+}
+
+void DBRecordDlg::setWindowModified(BaseBean *bean, bool value)
+{
+    if ( d->m_openType == AlephERP::ReadOnly || d->m_bean.isNull() || contextName() != bean->actualContext() )
     {
         return;
     }
@@ -1968,7 +1952,7 @@ void DBRecordDlg::showOrHideHelp()
  */
 void DBRecordDlg::restoreContext()
 {
-    AERPTransactionContext::instance()->addToContext(AERPTransactionContext::masterContext(), d->m_bean);
+    AERPTransactionContext::instance()->addToContext(contextName(), d->m_bean);
 }
 
 #ifdef ALEPHERP_DEVTOOLS
@@ -1980,9 +1964,9 @@ void DBRecordDlg::inspectBean()
         d->m_inspectorWidget->setAttribute(Qt::WA_DeleteOnClose);
         d->m_inspectorWidget->setWindowFlags(Qt::Tool);
         d->m_inspectorWidget->inspect(d->m_bean.data());
-        d->m_inspectorWidget->inspect(AERPTransactionContext::instance()->masterContext());
+        d->m_inspectorWidget->inspect(contextName());
         // Vamos a agregar todos los beans también del contexto
-        BaseBeanPointerList list = AERPTransactionContext::instance()->beansOnContext(AERPTransactionContext::instance()->masterContext());
+        BaseBeanPointerList list = AERPTransactionContext::instance()->beansOnContext(contextName());
         foreach (BaseBeanPointer b, list)
         {
             if ( !b.isNull() && b->objectName() != d->m_bean->objectName() )

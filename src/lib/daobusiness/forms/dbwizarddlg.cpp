@@ -54,12 +54,11 @@ public:
     QModelIndex m_index;
     /** Motor de script para las funciones */
     AERPScriptQsObject m_engine;
-
-    bool m_initContext;
+    QString m_contextName;
 
     DBWizardDlgPrivate(DBWizardDlg *qq) : q_ptr(qq)
     {
-        m_initContext = false;
+        m_contextName = QUuid::createUuid().toString();
     }
 
     bool insertRow(QItemSelectionModel *selectionModel);
@@ -237,14 +236,15 @@ bool DBWizardDlg::init()
         return false;
     }
 
-    if ( AERPTransactionContext::instance()->objectsContextSize(AERPTransactionContext::instance()->masterContext()) == 0 )
-    {
-        d->m_initContext = true;
-        // Si esta es la ventana que inicia una transacción, deberá estar atenta y vigilante con todos los beans agregados
-        // y que deban ser modificados.
-        connect(AERPTransactionContext::instance(), SIGNAL(beanModified(bool)), this, SLOT(setWindowModified(bool)));
-    }
-    AERPTransactionContext::instance()->addToContext(AERPTransactionContext::instance()->masterContext(), d->m_bean.data());
+    // Si esta es la ventana que inicia una transacción, deberá estar atenta y vigilante con todos los beans agregados
+    // y que deban ser modificados.
+    connect(AERPTransactionContext::instance(), &AERPTransactionContext::beanModified, [=](BaseBean *bean, bool modified) {
+        if ( bean->actualContext() == d->m_contextName )
+        {
+            this->setWindowModified(modified);
+        }
+    });
+    AERPTransactionContext::instance()->addToContext(d->m_contextName, d->m_bean.data());
     connect(AERPTransactionContext::instance(), SIGNAL(beanAddedToContext(QString,BaseBean*)), this, SLOT(possibleRecordToSave(QString,BaseBean*)));
 
     setWindowFlags(windowFlags() |
@@ -488,26 +488,18 @@ void DBWizardDlg::accept()
     if ( qsValidate && validate() )
     {
         callQSMethod("beanSaved");
-        // Sólo hacemos un commit si fue el record que inició el contexto
-        if ( d->m_initContext )
+        AERPTransactionContextProgressDlg::showDialog(d->m_contextName, this);
+        result = AERPTransactionContext::instance()->commit(d->m_contextName, false);
+        AERPTransactionContext::instance()->waitCommitToEnd(d->m_contextName);
+        if ( !result )
         {
-            AERPTransactionContextProgressDlg::showDialog(AERPTransactionContext::instance()->masterContext(), this);
-            result = AERPTransactionContext::instance()->commit(AERPTransactionContext::instance()->masterContext(), false);
-            AERPTransactionContext::instance()->waitCommitToEnd(AERPTransactionContext::instance()->masterContext());
-            if ( !result )
-            {
-                QMessageBox::warning(this, qApp->applicationName(),
-                                     trUtf8("Se ha producido un error guardando los datos. \nEl error es: %1").
-                                     arg(AERPTransactionContext::instance()->lastErrorMessage()), QMessageBox::Ok);
-            }
-            /** Este método se invoca en el formulario, cuando todos los datos editados en este formulario, se
-             * han guardado definitivamente en base de datos */
-            callQSMethod("transactionCommit");
+            QMessageBox::warning(this, qApp->applicationName(),
+                                 trUtf8("Se ha producido un error guardando los datos. \nEl error es: %1").
+                                 arg(AERPTransactionContext::instance()->lastErrorMessage()), QMessageBox::Ok);
         }
-        else
-        {
-            result = true;
-        }
+        /** Este método se invoca en el formulario, cuando todos los datos editados en este formulario, se
+         * han guardado definitivamente en base de datos */
+        callQSMethod("transactionCommit");
     }
     if ( result )
     {

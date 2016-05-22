@@ -2033,14 +2033,19 @@ QScriptValue AERPScriptCommon::chooseChildFromComboBox(BaseBean *bean, const QSt
  * @param parent
  * @return
  */
-void AERPScriptCommon::openRecordDialog(BaseBean *bean, AlephERP::FormOpenType openType, QWidget *parent)
+void AERPScriptCommon::openRecordDialog(BaseBean *bean, AlephERP::FormOpenType openType, const QString &contextName, QWidget *parent)
 {
     if ( bean == NULL )
     {
         return;
     }
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-    QScopedPointer<DBRecordDlg> dlg(new DBRecordDlg(bean, openType, parent));
+    QString transactionContextName = contextName;
+    if ( transactionContextName.isEmpty() )
+    {
+        transactionContextName = QUuid::createUuid().toString();
+    }
+    QScopedPointer<DBRecordDlg> dlg(new DBRecordDlg(bean, openType, transactionContextName, parent));
     CommonsFunctions::restoreOverrideCursor();
     if ( dlg->openSuccess() && dlg->init() )
     {

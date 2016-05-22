@@ -82,8 +82,6 @@ class ALEPHERP_DLL_EXPORT DBRecordDlg : public AERPBaseDialog
      * con pistolas de códigos de barra, por ejemplo). Cuando todos los campos del registro están validados (el bean está validado)
      * guarda automáticamente el registro y crea uno nuevo */
     Q_PROPERTY(bool saveAndNewWithAllFieldsValidated READ saveAndNewWithAllFieldsValidated WRITE setSaveAndNewWithAllFieldsValidated)
-    /** Nombre de la transacción de base de datos en la que se encuentran las acciones actuales */
-    Q_PROPERTY(QString contextName READ contextName)
     /** Indica en qué modo se ha abierto el formulario */
     Q_PROPERTY(AlephERP::FormOpenType openType READ openType WRITE setOpenType)
     /** Con esta propiedad a true, se pone el formulario en modo de edición diferente. Si se navega a un registro, el formulario
@@ -131,6 +129,7 @@ public:
     explicit DBRecordDlg(QWidget *parent = 0, Qt::WindowFlags fl = 0);
     DBRecordDlg(BaseBeanPointer bean,
                 AlephERP::FormOpenType openType,
+                QString transaction,
                 QWidget* parent = 0,
                 Qt::WindowFlags fl = 0);
     ~DBRecordDlg();
@@ -149,7 +148,6 @@ public:
     void setHelpFile(const QString &value);
     bool saveAndNewWithAllFieldsValidated() const;
     void setSaveAndNewWithAllFieldsValidated(bool value);
-    QString contextName() const;
     AlephERP::FormOpenType openType() const;
     void setOpenType(AlephERP::FormOpenType &type);
     bool advancedNavigation() const;
@@ -180,7 +178,7 @@ protected slots:
 public slots:
     virtual void accept();
     virtual void reject();
-    virtual bool init(bool doConnections = true);
+    virtual bool init();
     virtual bool save();
     virtual bool validate();
     virtual bool beforeSave();
@@ -201,6 +199,7 @@ public slots:
         navigate("last");
     }
     void setWindowModified(bool value);
+    void setWindowModified(BaseBean *bean, bool value);
     virtual void cancel();
     virtual void showHistory();
     virtual void saveAndNew();

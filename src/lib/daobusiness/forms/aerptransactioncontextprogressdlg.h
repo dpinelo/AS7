@@ -54,7 +54,7 @@ public:
 
 public slots:
     void cancel();
-    void showInfo(const QString &contextName, BaseBean *bean);
+    void showInfo(BaseBean *bean);
     void mustClose(const QString &contextName);
     void transactionInited(const QString &contextName, int count);
 

@@ -49,6 +49,7 @@ private:
     Q_PROPERTY(QString tableName READ tableName WRITE setTableName)
     Q_PROPERTY(QScriptValue parentDialog READ parentDialog)
     Q_PROPERTY(QScriptValue thisForm READ thisForm)
+    Q_PROPERTY(QString contextName READ contextName)
 
 protected:
     QHash<int, QWidgetList> setupWidgetFromBaseBeanMetadata(BaseBeanMetadata *metadata,
@@ -73,6 +74,8 @@ public:
     virtual QString tableName();
     virtual bool setTableName(const QString &value);
     virtual bool openSuccess();
+    virtual QString contextName() const;
+    virtual void setContextName(const QString &contextName);
 
     /** Hecho asi por retrocompatibilidad con algunas aplicaciones ya funcionando en QS. No utilizar */
     Q_INVOKABLE QScriptValue callMethod(const QString &method)

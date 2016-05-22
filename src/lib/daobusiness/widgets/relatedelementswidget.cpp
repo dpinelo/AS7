@@ -242,7 +242,7 @@ void RelatedElementsWidget::openRecord()
     }
     if ( !bean.isNull() )
     {
-        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(bean.data(), AlephERP::ReadOnly, this));
+        QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(bean.data(), AlephERP::ReadOnly, QString(), this));
         if ( dlg->openSuccess() && dlg->init() )
         {
             // Guardar los datos de los hijos agregados, será responsabilidad del bean padre

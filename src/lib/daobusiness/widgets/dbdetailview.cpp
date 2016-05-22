@@ -332,6 +332,7 @@ void DBDetailView::editRecord(const QString &action)
     filterModel()->freezeModel();
 
     AERPBaseDialog *containerDlg = CommonsFunctions::aerpParentDialog(this);
+    QString contextName = QUuid::createUuid().toString();
     if ( containerDlg != NULL )
     {
         QScriptValue result;
@@ -350,6 +351,7 @@ void DBDetailView::editRecord(const QString &action)
                 return;
             }
         }
+        contextName = containerDlg->contextName();
     }
 
     int row = -1;
@@ -399,6 +401,7 @@ void DBDetailView::editRecord(const QString &action)
         // Y ahora creamos el formulario que presentará los datos de este bean
         QPointer<DBRecordDlg> dlg = new DBRecordDlg(bean.data(),
                                                     openType,
+                                                    contextName,
                                                     this);
         if ( dlg->openSuccess() && dlg->init() )
         {
@@ -531,7 +534,8 @@ void DBDetailView::addExisting()
         QMessageBox::information(this, qApp->applicationName(), trUtf8("La aplicación está mal configurada. No existe la relación: ").arg(mdl->tableName()), QMessageBox::Ok);
         return;
     }
-    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(rel->metadata()->tableName(), this));
+    QString contextName = QUuid::createUuid().toString();
+    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(rel->metadata()->tableName(), contextName, this));
     if ( dlg->openSuccess() )
     {
         QString filter;

@@ -146,6 +146,9 @@ public:
     QHash<QString, QVariant> m_defaultValues;
     /** Timer para controlar las pulsaciones de teclas y evitar muchas llamadas para búsquedas */
     QTimer m_keyPressTimer;
+    /** Si este diálogo se abre desde otra ventana (un record) con contexto, puede controlar si los formularios de edición o apertura de registros
+     * pertenecen a esa transacción o no*/
+    QString m_contextName;
 
     DBSearchDlgPrivate(DBSearchDlg *qq) : q_ptr(qq)
     {
@@ -189,11 +192,12 @@ DBSearchDlg::DBSearchDlg(QWidget *parent) :
     setOpenSuccess(true);
 }
 
-DBSearchDlg::DBSearchDlg(const QString &tableName, QWidget *parent) :
+DBSearchDlg::DBSearchDlg(const QString &tableName, const QString &contextName, QWidget *parent) :
     AERPBaseDialog(parent),
     ui(new Ui::DBSearchDlg),
     d(new DBSearchDlgPrivate(this))
 {
+    d->m_contextName = contextName;
     if ( setTableName(tableName) )
     {
         setOpenSuccess(true);
@@ -947,14 +951,14 @@ void DBSearchDlg::edit()
         if ( d->m_selectedBean->metadata()->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
         {
 #if defined(ALEPHERP_ADVANCED_EDIT) && defined (ALEPHERP_DEVTOOLS)
-            dlg = new AERPSystemObjectEditDlg(d->m_selectedBean.data(), openType, this);
+            dlg = new AERPSystemObjectEditDlg(d->m_selectedBean.data(), openType, d->m_contextName, this);
 #else
             return;
 #endif
         }
         else
         {
-            dlg = new DBRecordDlg(d->m_selectedBean.data(), openType, this);
+            dlg = new DBRecordDlg(d->m_selectedBean.data(), openType, d->m_contextName, this);
         }
         CommonsFunctions::restoreOverrideCursor();
         if ( dlg->openSuccess() && dlg->init() )
@@ -992,14 +996,14 @@ void DBSearchDlg::view()
         if ( d->m_selectedBean->metadata()->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
         {
 #if defined(ALEPHERP_ADVANCED_EDIT) && defined (ALEPHERP_DEVTOOLS)
-            dlg = new AERPSystemObjectEditDlg(d->m_selectedBean.data(), openType, this);
+            dlg = new AERPSystemObjectEditDlg(d->m_selectedBean.data(), openType, d->m_contextName, this);
 #else
             return;
 #endif
         }
         else
         {
-            dlg = new DBRecordDlg(d->m_selectedBean.data(), openType, this);
+            dlg = new DBRecordDlg(d->m_selectedBean.data(), openType, d->m_contextName, this);
         }
         CommonsFunctions::restoreOverrideCursor();
         if ( dlg->openSuccess() && dlg->init() )
@@ -1077,7 +1081,7 @@ void DBSearchDlg::newRecord()
     emit beanAboutToBeInserted(d->m_beanToInsert.data());
 
     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
-    QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(insertBean, openType, this));
+    QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(insertBean, openType, d->m_contextName, this));
     CommonsFunctions::restoreOverrideCursor();
     if ( dlg->openSuccess() && dlg->init() )
     {
