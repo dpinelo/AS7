@@ -104,22 +104,6 @@ void DBNumberEdit::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void DBNumberEdit::connectToSqlWorker()
-{
-    if ( m_sqlConnectedToWorker )
-    {
-        return;
-    }
-    m_sqlConnectedToWorker = true;
-    connect(DBBaseWidgetTimerWorker::instance(), &DBBaseWidgetTimerWorker::newDataAvailable, [=](const QString &uuid, const QVariant &value)
-    {
-        if ( uuid == m_sqlWorkerUUID )
-        {
-            setValue(value);
-        }
-    });
-}
-
 DBNumberEdit::DBNumberEdit(QWidget * parent)
     : QLineEdit(parent), DBBaseWidget(), d(new DBNumberEditPrivate)
 {

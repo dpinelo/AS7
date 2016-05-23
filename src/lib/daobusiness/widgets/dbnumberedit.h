@@ -87,7 +87,6 @@ protected:
         QWidget::hideEvent(event);
     }
     void mouseReleaseEvent(QMouseEvent *event);
-    void connectToSqlWorker();
 
 public:
     explicit DBNumberEdit(QWidget * parent = 0);

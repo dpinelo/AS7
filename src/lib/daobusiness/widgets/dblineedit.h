@@ -139,8 +139,6 @@ protected:
     virtual bool enableAutoCompletePopupSizeOnDesigner();
     virtual bool enableAutoCompleteVisibleFieldsOnDesigner();
 
-    virtual void connectToSqlWorker();
-
 public:
     explicit DBLineEdit(QWidget *parent = 0);
     ~DBLineEdit();
