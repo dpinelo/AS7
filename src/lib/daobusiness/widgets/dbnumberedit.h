@@ -70,6 +70,9 @@ class ALEPHERP_DLL_EXPORT DBNumberEdit : public QLineEdit, public DBBaseWidget
     Q_PROPERTY (int sqlExecutionTimeout READ sqlExecutionTimeout WRITE setSqlExecutionTimeout)
     /** Es posible definir una expresión para que este objeto muestre un cálculo */
     Q_PROPERTY (QString calculatedExpression READ calculatedExpression WRITE setCalculatedExpression)
+    /** Para algunos controles simples, es posible definir o decidir que obtengan sus datos directamente de una consulta
+     * de base de datos. La consulta se define aquí, y si el SELECT devuelve más de una columna, siempre se escogerá la primera */
+    Q_PROPERTY (QString sqlData READ sqlData WRITE setSqlData)
 
 private:
     DBNumberEditPrivate *d;
@@ -84,6 +87,7 @@ protected:
         QWidget::hideEvent(event);
     }
     void mouseReleaseEvent(QMouseEvent *event);
+    void connectToSqlWorker();
 
 public:
     explicit DBNumberEdit(QWidget * parent = 0);

@@ -93,6 +93,8 @@ protected:
     int m_sqlExecutionTimeout;
     /** Para los casos anteriores, el UUID proporcionada por el worker encargado de esa tarea */
     QString m_sqlWorkerUUID;
+    /** Indica si se ha realizado la conexión a la señal del worker (para no duplicar conexiones) */
+    bool m_sqlConnectedToWorker;
     /** Indica si el widget muestra una animación de espera... */
     bool m_animationVisible;
     /** Para saber si quien introduce datos es un lector de código de barras... */
@@ -115,6 +117,8 @@ protected:
     virtual BaseBeanPointer beanFromContainer();
 
     virtual QString processSqlWhere(const QString &where);
+
+    virtual void connectToSqlWorker();
 
 public:
     DBBaseWidget();

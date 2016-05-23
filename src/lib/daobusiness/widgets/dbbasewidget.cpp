@@ -62,6 +62,7 @@ DBBaseWidget::DBBaseWidget()
     m_barCodeReaderAllowed = false;
     m_onBarCodeReadNextFocus = false;
     m_previousKeyPress = QDateTime::currentDateTime();
+    m_sqlConnectedToWorker = false;
 }
 
 DBBaseWidget::~DBBaseWidget()
@@ -281,6 +282,7 @@ void DBBaseWidget::setSqlData(const QString &value)
     m_dataEditable = false;
     if ( !m_sqlData.isEmpty() )
     {
+        connectToSqlWorker();
         if ( m_sqlWorkerUUID.isEmpty() )
         {
             m_sqlWorkerUUID = DBBaseWidgetTimerWorker::instance()->addData(this, m_sqlData, m_sqlExecutionTimeout);
@@ -633,6 +635,22 @@ QString DBBaseWidget::processSqlWhere(const QString &where)
         result = result.replace("false", "0");
     }
     return result;
+}
+
+void DBBaseWidget::connectToSqlWorker()
+{
+    if ( m_sqlConnectedToWorker )
+    {
+        return;
+    }
+    m_sqlConnectedToWorker = true;
+    QObject::connect(DBBaseWidgetTimerWorker::instance(), &DBBaseWidgetTimerWorker::newDataAvailable, [=](const QString &uuid, const QVariant &value)
+    {
+        if ( uuid == m_sqlWorkerUUID )
+        {
+            setValue(value);
+        }
+    });
 }
 
 /**

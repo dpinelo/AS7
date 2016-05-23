@@ -30,6 +30,7 @@
 #include "dao/dbfieldobserver.h"
 #include "business/aerpbuiltinexpressioncalculator.h"
 #include "globales.h"
+#include "dbbasewidgettimerworker.h"
 
 DBNumberEditKeyPressEater::DBNumberEditKeyPressEater(QObject *parent) : QObject(parent)
 {
@@ -101,6 +102,22 @@ void DBNumberEdit::mouseReleaseEvent(QMouseEvent *event)
     {
         setCursorPosition(0);
     }
+}
+
+void DBNumberEdit::connectToSqlWorker()
+{
+    if ( m_sqlConnectedToWorker )
+    {
+        return;
+    }
+    m_sqlConnectedToWorker = true;
+    connect(DBBaseWidgetTimerWorker::instance(), &DBBaseWidgetTimerWorker::newDataAvailable, [=](const QString &uuid, const QVariant &value)
+    {
+        if ( uuid == m_sqlWorkerUUID )
+        {
+            setValue(value);
+        }
+    });
 }
 
 DBNumberEdit::DBNumberEdit(QWidget * parent)
