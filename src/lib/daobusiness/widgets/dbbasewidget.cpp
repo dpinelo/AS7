@@ -285,7 +285,9 @@ void DBBaseWidget::setSqlData(const QString &value)
         connectToSqlWorker();
         if ( m_sqlWorkerUUID.isEmpty() )
         {
+            QWidget *thisWidget = dynamic_cast<QWidget *>(this);
             m_sqlWorkerUUID = DBBaseWidgetTimerWorker::instance()->addData(this, m_sqlData, m_sqlExecutionTimeout);
+            thisWidget->setProperty(AlephERP::stSqlWorkerUUID, m_sqlWorkerUUID);
         }
         else
         {
@@ -650,9 +652,13 @@ void DBBaseWidget::connectToSqlWorker()
                      thisWidget,
                      [thisWidget](const QString &uuid, const QVariant &value)
     {
-        if ( uuid == m_sqlWorkerUUID )
+        if ( thisWidget->property(AlephERP::stSqlWorkerUUID).isValid() )
         {
-            setValue(value);
+            QString sqlWorkerUUID = thisWidget->property(AlephERP::stSqlWorkerUUID).toString();
+            if ( uuid == sqlWorkerUUID )
+            {
+                setValue(value);
+            }
         }
     });
 }
