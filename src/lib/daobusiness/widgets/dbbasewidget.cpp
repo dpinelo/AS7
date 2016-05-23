@@ -644,7 +644,11 @@ void DBBaseWidget::connectToSqlWorker()
         return;
     }
     m_sqlConnectedToWorker = true;
-    QObject::connect(DBBaseWidgetTimerWorker::instance(), &DBBaseWidgetTimerWorker::newDataAvailable, [=](const QString &uuid, const QVariant &value)
+    QWidget *thisWidget = dynamic_cast<QWidget *>(this);
+    QObject::connect(DBBaseWidgetTimerWorker::instance(),
+                     &DBBaseWidgetTimerWorker::newDataAvailable,
+                     thisWidget,
+                     [thisWidget](const QString &uuid, const QVariant &value)
     {
         if ( uuid == m_sqlWorkerUUID )
         {
