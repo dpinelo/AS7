@@ -73,7 +73,12 @@ CONFIG +=   warn_on \
             exceptions \
             shared
 
-QT += widgets qml help webenginewidgets
+QT += widgets qml help
+
+win32-msvc*:win64-msvc*:unix:macx {
+    QT += webenginewidgets
+}
+
 SOURCES += business/aerpqmlextension.cpp
 HEADERS += business/aerpqmlextension.h
 !ios {
@@ -439,7 +444,6 @@ SOURCES += globales.cpp \
     business/aerploggeduser.cpp \
     business/aerpgeocodedatamanager.cpp \
     business/aerpspreadsheet.cpp \
-    widgets/dbmapposition.cpp \
     reports/reportrun.cpp \
     aerpcommon.cpp \
     uiloader.cpp \
@@ -547,7 +551,6 @@ HEADERS += globales.h \
     widgets/aerpbackgroundanimation.h \
     widgets/aerphelpbrowser.h \
     widgets/aerphelpwidget.h \
-    widgets/dbmapposition.h \
     widgets/dbbasewidgettimerworker.h \
     forms/perpbasedialog.h \
     forms/dbsearchdlg.h \
@@ -634,8 +637,13 @@ FORMS += \
     forms/aerpuseraccessrow.ui \
     forms/aerpedituseraccessrow.ui \
     forms/aerptransactioncontextprogressdlg.ui \
-    widgets/dbfullscheduleview.ui \
-    widgets/dbmapposition.ui
+    widgets/dbfullscheduleview.ui
+
+win32-msvc*:win64-msvc*:unix:macx {
+    SOURCES += widgets/dbmapposition.cpp
+    HEADERS += widgets/dbmapposition.h
+    FORMS += widgets/dbmapposition.ui
+}
 
 !contains(QT_VERSION, ^4\\.[0-8]\\..*) {
 #    SOURCES += scripts/bindings/qtscript_Qt.cpp \

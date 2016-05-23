@@ -44,7 +44,9 @@ DBCommonsPlugin::DBCommonsPlugin(QObject *parent) :
     m_widgets.append(new DBLabelPlugin(this));
     m_widgets.append(new DBLineEditPlugin(this));
     m_widgets.append(new DBListViewPlugin(this));
+#ifdef ALEPHERP_WEBENGINE
     m_widgets.append(new DBMapPositionPlugin(this));
+#endif
     m_widgets.append(new DBNumberEditPlugin(this));
     m_widgets.append(new DBScheduleViewPlugin(this));
     m_widgets.append(new DBRelatedElementsViewPlugin(this));

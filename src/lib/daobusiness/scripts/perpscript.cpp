@@ -663,12 +663,24 @@ QScriptValue AERPScript::callQsFunction(const QString &scriptFunctionName)
     return returnValue;
 }
 
-QVariant AERPScript::toVariant(const QScriptValue &value)
+QVariant AERPScript::toVariant(const QScriptValue &value, QVariant::Type variantType)
 {
     QVariant data;
     if ( value.isValid() && !value.isUndefined() && !value.isNull() && !value.isError() )
     {
-        data = value.toVariant();
+        if ( variantType == QVariant::Invalid )
+        {
+            data = value.toVariant();
+        }
+        else if ( variantType == QVariant::Double )
+        {
+            if ( value.isNumber() )
+            {
+                qsreal val = value.toNumber();
+                double dVal = (double) val;
+                data = QVariant(dVal);
+            }
+        }
     }
     return data;
 }

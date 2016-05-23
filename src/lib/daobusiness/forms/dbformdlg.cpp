@@ -960,8 +960,14 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     }
     if ( beanExists )
     {
-        QMessageBox::information(this, qApp->applicationName(), tr("Ya está editando este registro."), QMessageBox::Ok);
-        return;
+        // Mostramos la ventana de ese registro
+        foreach (DBRecordDlg *dlg, d->m_recordDlgs)
+        {
+            if ( dlg != NULL && dlg->bean()->dbOid() == bean->dbOid() && dlg->bean()->metadata()->tableName() == bean->metadata()->tableName() )
+            {
+                dlg->show();
+            }
+        }
     }
     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
     QPointer<DBRecordDlg> dlg;
@@ -1156,6 +1162,7 @@ void DBFormDlg::recordDlgClosed(BaseBeanPointer bean, bool userSaveData)
 {
     DBRecordDlg *dlg = qobject_cast<DBRecordDlg *>(sender());
     d->m_recordDlgs.removeAll(dlg);
+    d->removeBeanFromWorkingBeans(bean);
     BaseDAO::reloadBeanFromDB(bean);
     emit afterEdit(userSaveData);
     if (!userSaveData)
@@ -2096,7 +2103,7 @@ void DBFormDlg::view()
     else
     {
         d->m_recordDlgs.removeAll(dlg);
-        d->m_beansOnForms.removeAll(bean);
+        d->removeBeanFromWorkingBeans(bean.data());
         delete dlg;
     }
 }

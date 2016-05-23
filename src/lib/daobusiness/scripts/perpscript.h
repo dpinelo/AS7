@@ -99,7 +99,7 @@ public:
     virtual QScriptValue evaluateObjectScript();
     virtual QScriptValue executeScript();
     virtual QScriptValue callQsFunction(const QString &scriptFunctionName);
-    virtual QVariant toVariant(const QScriptValue &value);
+    virtual QVariant toVariant(const QScriptValue &value, QVariant::Type variantType = QVariant::Invalid);
     virtual QString lastMessage() const;
     virtual QStringList backTrace() const;
 

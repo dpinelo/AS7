@@ -20,9 +20,12 @@ CONFIG(debug, debug|release) {
 TARGET = dbcommonsplugin
 TEMPLATE = lib
 
-QT += widgets uitools designer webenginewidgets
+QT += widgets uitools designer sql script network
 
-QT += sql script network
+win32-msvc*:win64-msvc*:unix:macx {
+    DEFINES += ALEPHERP_WEBENGINE
+    QT += webenginewidgets
+}
 
 LIBS += -ldaobusiness
 
@@ -60,7 +63,6 @@ HEADERS = dbcomboboxplugin.h \
     dbchoosefieldnamedlg.h \
     dbchooserecordbuttontaskmenu.h \
     dbchooserecordbuttonassignfieldsdlg.h \
-    dbmappositionplugin.h \
     dbgrouprelationmmhelperplugin.h
 
 SOURCES = dbcomboboxplugin.cpp \
@@ -96,7 +98,6 @@ SOURCES = dbcomboboxplugin.cpp \
     dbchoosefieldnamedlg.cpp \
     dbchooserecordbuttontaskmenu.cpp \
     dbchooserecordbuttonassignfieldsdlg.cpp \
-    dbmappositionplugin.cpp \
     dbgrouprelationmmhelperplugin.cpp
 
 FORMS += \
@@ -143,4 +144,9 @@ contains(AERPADVANCEDEDIT, Y) {
 contains(AERPDOCMNGSUPPORT, Y) {
     HEADERS += dbrecorddocumentsplugin.h
     SOURCES += dbrecorddocumentsplugin.cpp
+}
+
+win32-msvc*:win64-msvc*:unix:macx {
+    HEADERS += dbmappositionplugin.h \
+    SOURCES += dbmappositionplugin.cpp \
 }

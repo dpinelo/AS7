@@ -1590,7 +1590,7 @@ QVariant DBFieldMetadata::calculateDefaultValue(DBField *parent)
         d->m_engine->addFunctionArgument("bean", parent->bean());
         d->m_engine->addFunctionArgument("dbField", parent);
         d->m_engine->setScript(d->m_scriptDefaultValue, QString("%1.%2.defaultValue.js").arg(beanMetadata()->tableName()).arg(d->m_dbFieldName));
-        data = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("defaultValue")));
+        data = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("defaultValue")), d->m_type);
         if ( d->m_type == QVariant::Invalid )
         {
             d->m_type = data.type();
@@ -1697,7 +1697,7 @@ QVariant DBFieldMetadata::calculateValue(DBField *fld)
         d->m_engine->addFunctionArgument("dbField", fld);
         d->m_engine->setScript(d->m_script, QString("%1.%2.value.js").arg(beanMetadata()->tableName()).arg(d->m_dbFieldName));
         fld->registerCalculatingOnBean();
-        data = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("value")));
+        data = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("value")), d->m_type);
         if ( d->m_type == QVariant::Invalid )
         {
             d->m_type = data.type();
@@ -1706,9 +1706,10 @@ QVariant DBFieldMetadata::calculateValue(DBField *fld)
     }
     fld->restoreOverrideOnExecution();
     qint64 elapsed = timer.elapsed();
-    QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBFieldMetadata::calculateValue: fieldName: %1.%2. Calculate Value: [%3] ms").
+    QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBFieldMetadata::calculateValue: fieldName: %1.%2. Calculate Value: [%3] Time: [%4] ms").
                arg(fld->bean()->metadata()->tableName()).
                arg(d->m_dbFieldName).
+               arg(data.toString()).
                arg(elapsed));
     if ( elapsed > AlephERP::warningCalculatedTime )
     {
@@ -1738,7 +1739,7 @@ QVariant DBFieldMetadata::calculateAggregateScript(DBField *fld, const QString &
     }
     d->m_engine->setScript(script, QString("%1.%2.value.js").arg(beanMetadata()->tableName()).arg(d->m_dbFieldName));
     fld->registerCalculatingOnBean();
-    data = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("value")));
+    data = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("value")), d->m_type);
     fld->unregisterCalculatingOnBean();
     fld->restoreOverrideOnExecution();
     return data;

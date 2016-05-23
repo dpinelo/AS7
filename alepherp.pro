@@ -57,7 +57,9 @@ SUBDIRS += src/lib/daobusiness
 
 !android:!ios {
     contains (JASPERSERVERSUPPORT, Y) {
-        SUBDIRS += src/lib/jasperserver
+        win32-msvc*:win64-msvc*:unix:macx {
+            SUBDIRS += src/lib/jasperserver
+        }
     }
     !contains(QT_VERSION, ^4\\.[0-8]\\..*) {
         contains(XLSSUPPORT, Y) {
@@ -88,8 +90,10 @@ contains (AERPADVANCEDEDIT, Y) {
 
 !android:!ios {
     contains (JASPERSERVERSUPPORT, Y) {
-        SUBDIRS += src/plugins/scriptjasperserverplugin
-        SUBDIRS += src/plugins/jasperserverwebviewplugin
+        win32-msvc*:win64-msvc*:unix:macx {
+            SUBDIRS += src/plugins/scriptjasperserverplugin
+            SUBDIRS += src/plugins/jasperserverwebviewplugin
+        }
     }
 }
 

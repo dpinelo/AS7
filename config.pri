@@ -52,7 +52,7 @@ TWAINSUPPORT=N
 JASPERSERVERSUPPORT=N
 BARCODESUPPORT=N
 QTDESIGNERBUILTIN=N
-QTSCRIPTBINDING=N
+QTSCRIPTBINDING=Y
 TESTPARTS=N
 # Puede ser, xbase64, xbase2 o dbase-code
 DBASELIBRARY=dbase-code
@@ -89,6 +89,9 @@ win64-g++ {
 }
 win32-msvc* {
     BUILDTYPE=win32/msvc
+}
+win64-msvc* {
+    BUILDTYPE=win64/msvc
 }
 
 unix {
