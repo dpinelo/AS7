@@ -657,7 +657,7 @@ void DBBaseWidget::connectToSqlWorker()
             QString sqlWorkerUUID = thisWidget->property(AlephERP::stSqlWorkerUUID).toString();
             if ( uuid == sqlWorkerUUID )
             {
-                setValue(value);
+                thisWidget->setProperty(AlephERP::stValue, value);
             }
         }
     });

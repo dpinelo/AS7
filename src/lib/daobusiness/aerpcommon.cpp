@@ -105,6 +105,7 @@ const char * AlephERP::stShowTextLine = "showTextLine";
 const char * AlephERP::stShowTextLineExactlySearch = "exactlySearch";
 const char * AlephERP::stShowTextLineAutocomplete = "autocomplete";
 const char * AlephERP::stSqlWorkerUUID = "sqlWorkerUUID";
+const char * AlephERP::stValue = "value";
 
 #ifdef ALEPHERP_DEVTOOLS
 const char * AlephERP::stWebInspector = "aerpWebInspector";

@@ -137,6 +137,7 @@ public:
     static const char * stShowTextLineExactlySearch;
     static const char * stShowTextLineAutocomplete;
     static const char * stSqlWorkerUUID;
+    static const char * stValue;
 
     static const char * stLogDB;
     static const char * stLogScript;
