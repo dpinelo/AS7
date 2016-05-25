@@ -1001,6 +1001,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
         d->m_beansOnForms.append(bean);
         d->m_itemView->disableRestoreSaveState();
         dlg->setAttribute(Qt::WA_DeleteOnClose, true);
+        dlg->setWindowFlags(Qt::Window);
         dlg->setCanChangeModality(true);
         connect(dlg.data(), SIGNAL(accepted(BaseBeanPointer,bool)), this, SLOT(recordDlgClosed(BaseBeanPointer,bool)));
         connect(dlg.data(), SIGNAL(rejected(BaseBeanPointer,bool)), this, SLOT(recordDlgCanceled(BaseBeanPointer,bool)));

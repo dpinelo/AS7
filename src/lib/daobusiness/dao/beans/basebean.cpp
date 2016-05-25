@@ -496,7 +496,9 @@ void BaseBean::init(BaseBeanMetadata *m, bool hastToSetDefaultValue, BaseBeanPoi
     makeCalculatedFieldsConnections();
     if ( hastToSetDefaultValue )
     {
+        bool b = blockAllSignals(true);
         d->setDefaultValues(fatherBeans);
+        blockAllSignals(b);
     }
     uncheckModifiedFields();
     uncheckModifiedRelatedElements();
