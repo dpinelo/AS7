@@ -681,6 +681,14 @@ QVariant AERPScript::toVariant(const QScriptValue &value, QVariant::Type variant
                 data = QVariant(dVal);
             }
         }
+        else if ( variantType == QVariant::Bool )
+        {
+            data = value.toBool();
+        }
+        else
+        {
+            data = value.toVariant();
+        }
     }
     return data;
 }

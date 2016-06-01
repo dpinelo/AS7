@@ -45,6 +45,9 @@ class ALEPHERP_DLL_EXPORT DBAbstractFilterView : public QWidget
 {
     Q_OBJECT
 
+    /** Beans seleccionados */
+    Q_PROPERTY (BaseBeanSharedPointerList selectedBeans READ selectedBeans)
+
     friend class DBAbstractFilterViewPrivate;
 
 protected:
@@ -87,6 +90,8 @@ public:
     Q_INVOKABLE BaseBeanPointer selectedBean();
     Q_INVOKABLE void setSelectedBean(const BaseBeanSharedPointer &bean);
     Q_INVOKABLE QVariant filterValue(const QString &dbfieldName);
+
+    BaseBeanSharedPointerList selectedBeans();
 
 protected slots:
     virtual void fastFilterByText();

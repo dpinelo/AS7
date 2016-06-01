@@ -496,6 +496,8 @@ void BaseBean::init(BaseBeanMetadata *m, bool hastToSetDefaultValue, BaseBeanPoi
     makeCalculatedFieldsConnections();
     if ( hastToSetDefaultValue )
     {
+        // Se bloquean señales porque el setDefaultValues, puede invocar a setFather, que a su
+        // vez genera una cascada de notificaciones que buscan al padre... genera inconsistencias.
         bool b = blockAllSignals(true);
         d->setDefaultValues(fatherBeans);
         blockAllSignals(b);

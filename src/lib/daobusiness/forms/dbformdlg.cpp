@@ -1163,8 +1163,11 @@ void DBFormDlg::recordDlgClosed(BaseBeanPointer bean, bool userSaveData)
 {
     DBRecordDlg *dlg = qobject_cast<DBRecordDlg *>(sender());
     d->m_recordDlgs.removeAll(dlg);
-    d->removeBeanFromWorkingBeans(bean);
-    BaseDAO::reloadBeanFromDB(bean);
+    if ( !bean.isNull() )
+    {
+        d->removeBeanFromWorkingBeans(bean);
+        BaseDAO::reloadBeanFromDB(bean);
+    }
     emit afterEdit(userSaveData);
     if (!userSaveData)
     {

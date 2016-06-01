@@ -1147,6 +1147,28 @@ QVariant DBAbstractFilterView::filterValue(const QString &dbFieldName)
     return v;
 }
 
+BaseBeanSharedPointerList DBAbstractFilterView::selectedBeans()
+{
+    BaseBeanSharedPointerList beans;
+    QItemSelectionModel *selectionModel = d->m_itemView->selectionModel();
+    if ( selectionModel != NULL && filterModel() )
+    {
+        QModelIndexList list = selectionModel->selectedRows();
+        foreach (const QModelIndex &idx, list)
+        {
+            if ( idx.isValid() )
+            {
+                BaseBeanSharedPointer b = filterModel()->bean(idx);
+                if ( !b.isNull() )
+                {
+                    beans.append(b);
+                }
+            }
+        }
+    }
+    return beans;
+}
+
 bool DBAbstractFilterView::isFrozenModel() const
 {
     if ( d->m_model != NULL )

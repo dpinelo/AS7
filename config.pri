@@ -19,7 +19,7 @@ win32 {
         FIREBIRDPATH=/usr
         ADDITIONALLIBS=/home/david/src/alepherp/build.win64
     }
-    win32-msvc* {
+    win32-msvc*:win64-msvc* {
         #FIREBIRDPATH=C:/Users/David/programacion/Firebird-2.5.2.26540
         #ADDITIONALLIBS=C:/Users/David/programacion/libraries/win32/msvc
         FIREBIRDPATH=C:/Users/David/src/Firebird-2.5.2.26540

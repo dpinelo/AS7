@@ -2947,6 +2947,10 @@ void BaseDAO::readSerialValuesAfterInsert(BaseBean *bean, qlonglong oid, const Q
   */
 bool BaseDAO::reloadBeanFromDB(const BaseBeanPointer &bean, const QString &connectionName)
 {
+    if ( bean.isNull() )
+    {
+        return false;
+    }
     BaseBeanSharedPointer copy = selectByPk(bean->pkValue(), bean->metadata()->tableName(), connectionName);
     if ( copy.isNull() )
     {
@@ -2977,7 +2981,10 @@ bool BaseDAO::reloadBeansFromDB(const BaseBeanSharedPointerList &list, const QSt
     QVariantList ids;
     foreach ( BaseBeanSharedPointer bean, list )
     {
-        ids.append(bean->pkValue());
+        if ( !bean.isNull() )
+        {
+            ids.append(bean->pkValue());
+        }
     }
     if ( !BaseDAO::selectSeveralByPk(copies, ids, list.at(0)->metadata()->tableName(), connectionName) )
     {
@@ -2987,7 +2994,7 @@ bool BaseDAO::reloadBeansFromDB(const BaseBeanSharedPointerList &list, const QSt
     {
         foreach ( BaseBeanSharedPointer beanOrig, list )
         {
-            if ( beanOrig->pkEqual(beanCopy->pkValue()) )
+            if ( !beanOrig.isNull() && beanOrig->pkEqual(beanCopy->pkValue()) )
             {
                 QList<DBField *> fldsOrig = beanOrig->fields();
                 QList<DBField *> fldsRead = beanCopy->fields();
