@@ -579,52 +579,59 @@ DBField *BaseBean::newField(DBFieldMetadata *m)
 
 void BaseBean::makeCalculatedFieldsConnections(const QString &fieldToCalc, const QStringList &fieldsOnCalcArg)
 {
+    QList<DBField *> fieldsToCalculate;
     foreach (DBField *field, d->m_fields)
     {
         // Vamos a conectarnos a los objetos que deben recalculares
         if ( field->metadata()->calculated() && (fieldToCalc.isEmpty() || field->metadata()->dbFieldName() == fieldToCalc) )
         {
-            QStringList fieldsOnCalc;
-            if ( fieldsOnCalcArg.isEmpty() )
+            fieldsToCalculate << field;
+        }
+    }
+    std::stable_sort(fieldsToCalculate.begin(), fieldsToCalculate.end(), CompareCalculatedDBField());
+
+    foreach (DBField *field, fieldsToCalculate)
+    {
+        QStringList fieldsOnCalc;
+        if ( fieldsOnCalcArg.isEmpty() )
+        {
+            fieldsOnCalc = d->m->fieldsNecessaryToCalculate(field->metadata()->dbFieldName());
+        }
+        else
+        {
+            fieldsOnCalc = fieldsOnCalcArg;
+        }
+        foreach (const QString &path, fieldsOnCalc)
+        {
+            DBObject *obj = navigateThroughProperties(path);
+            if ( obj != NULL )
             {
-                fieldsOnCalc = d->m->fieldsNecessaryToCalculate(field->metadata()->dbFieldName());
-            }
-            else
-            {
-                fieldsOnCalc = fieldsOnCalcArg;
-            }
-            foreach (const QString &path, fieldsOnCalc)
-            {
-                DBObject *obj = navigateThroughProperties(path);
-                if ( obj != NULL )
+                DBField *fieldOnCalc = qobject_cast<DBField *>(obj);
+                if ( fieldOnCalc )
                 {
-                    DBField *fieldOnCalc = qobject_cast<DBField *>(obj);
-                    if ( fieldOnCalc )
-                    {
-                        connect(fieldOnCalc, SIGNAL(valueModified(QVariant)), field, SLOT(recalculate()));
-                    }
-                    DBRelation *rel = qobject_cast<DBRelation *> (obj);
-                    if ( rel )
-                    {
-                        connect (rel, SIGNAL(childDbStateModified(BaseBean*,int)), field, SLOT(recalculate()));
-                        connect (rel, SIGNAL(childModified(BaseBean*,bool)), field, SLOT(recalculate()));
-                        connect (rel, SIGNAL(fatherLoaded(BaseBean*)), field, SLOT(recalculate()));
-                        connect (rel, SIGNAL(fatherUnloaded()), field, SLOT(recalculate()));
-                        connect (field, SIGNAL(valueModified(QVariant)), field, SLOT(recalculate()));
-                    }
+                    connect(fieldOnCalc, SIGNAL(valueModified(QVariant)), field, SLOT(recalculate()));
+                }
+                DBRelation *rel = qobject_cast<DBRelation *> (obj);
+                if ( rel )
+                {
+                    connect (rel, SIGNAL(childDbStateModified(BaseBean*,int)), field, SLOT(recalculate()));
+                    connect (rel, SIGNAL(childModified(BaseBean*,bool)), field, SLOT(recalculate()));
+                    connect (rel, SIGNAL(fatherLoaded(BaseBean*)), field, SLOT(recalculate()));
+                    connect (rel, SIGNAL(fatherUnloaded()), field, SLOT(recalculate()));
+                    connect (field, SIGNAL(valueModified(QVariant)), field, SLOT(recalculate()));
                 }
             }
-            // Nos conectamos también a las relaciones agregadas
-            if ( field->metadata()->aggregate() )
+        }
+        // Nos conectamos también a las relaciones agregadas
+        if ( field->metadata()->aggregate() )
+        {
+            foreach (const QString &rel, field->metadata()->aggregateCalc().relation)
             {
-                foreach (const QString &rel, field->metadata()->aggregateCalc().relation)
+                DBRelation *r = relation(rel);
+                if ( r != NULL )
                 {
-                    DBRelation *r = relation(rel);
-                    if ( r != NULL )
-                    {
-                        connect (r, SIGNAL(childDbStateModified(BaseBean*,int)), field, SLOT(recalculate()));
-                        connect (r, SIGNAL(childModified(BaseBean*,bool)), field, SLOT(recalculate()));
-                    }
+                    connect (r, SIGNAL(childDbStateModified(BaseBean*,int)), field, SLOT(recalculate()));
+                    connect (r, SIGNAL(childModified(BaseBean*,bool)), field, SLOT(recalculate()));
                 }
             }
         }
@@ -1514,7 +1521,18 @@ void BaseBean::recalculateCalculatedFields()
     }
     QElapsedTimer timer;
     timer.start();
+
+    QList<DBField *> fieldsToCalculate;
     foreach ( DBField *fld, d->m_fields )
+    {
+        if ( fld->metadata()->calculated() && fld != sender() && !fld->isWorking() )
+        {
+            fieldsToCalculate << fld;
+        }
+    }
+    std::stable_sort(fieldsToCalculate.begin(), fieldsToCalculate.end(), CompareCalculatedDBField());
+
+    foreach ( DBField *fld, fieldsToCalculate )
     {
         if ( fld->metadata()->calculated() && fld != sender() && !fld->isWorking() )
         {

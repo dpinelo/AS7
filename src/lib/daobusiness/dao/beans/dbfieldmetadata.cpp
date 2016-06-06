@@ -92,6 +92,7 @@ public:
     /** A veces es interesante que los cálculos se hagan sólo mientras el bean sea INSERT. Después ya no será
      * modificado */
     bool m_calculatedOnlyOnInsert;
+    int m_calculatedOrder;
     /** Con determinados campos calculados, puede ser deseable estar conectados a las modificaciones
       que se producen en campos de beans de relaciones dependientes. Esta opción puede causar
       un determinado proceso recursivo que puede producirse cuando hay vinculaciones entre campos calculados
@@ -287,6 +288,7 @@ public:
         m_lowerCase = false;
         m_upperCase = false;
         m_noSpaces = false;
+        m_calculatedOrder = 0;
     }
 
     QString fieldName();
@@ -532,6 +534,16 @@ void DBFieldMetadata::setCalculatedOnlyOnInsert(bool value)
 bool DBFieldMetadata::calculatedOnlyOnInsert() const
 {
     return d->m_calculatedOnlyOnInsert;
+}
+
+int DBFieldMetadata::calculatedOrder() const
+{
+    return d->m_calculatedOrder;
+}
+
+void DBFieldMetadata::setCalculatedOrder(int value)
+{
+    d->m_calculatedOrder = value;
 }
 
 QString DBFieldMetadata::script() const

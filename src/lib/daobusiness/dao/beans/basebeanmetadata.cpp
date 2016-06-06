@@ -2207,6 +2207,7 @@ void BaseBeanMetadataPrivate::setConfig()
                     }
                     field->setCalculatedSaveOnDb(e.attribute("saveOnDb", "false") == QLatin1String("true") ? true : false);
                     field->setCalculatedOnlyOnInsert(e.attribute("onlyOnInsert", "false") == QLatin1String("true") ? true : false);
+                    field->setCalculatedOrder(e.attribute("order").toInt());
                 }
                 else if ( e.tagName() == QLatin1String("builtInExpression") )
                 {
@@ -2684,6 +2685,10 @@ void BaseBeanMetadataPrivate::readAggregate(const QDomElement &e, DBFieldMetadat
     QDomNodeList aggregateNodes = e.elementsByTagName("aggregate");
     field->setAggregate(true);
     field->setCalculated(true);
+    if ( e.hasAttribute("order") )
+    {
+        field->setCalculatedOrder(e.attribute("order").toInt());
+    }
     if ( e.hasAttribute("saveOnDb") )
     {
         field->setCalculatedSaveOnDb(e.attribute("saveOnDb") == QLatin1String("true") ? true : false);

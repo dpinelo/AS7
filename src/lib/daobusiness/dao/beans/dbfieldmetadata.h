@@ -168,6 +168,8 @@ class ALEPHERP_DLL_EXPORT DBFieldMetadata : public QObject, public QScriptable
     /** A veces es interesante que los cálculos se hagan sólo mientras el bean sea INSERT. Después ya no será
      * modificado */
     Q_PROPERTY(bool calculatedOnlyOnInsert READ calculatedOnlyOnInsert WRITE setCalculatedOnlyOnInsert)
+    /** En los recálculos, puede ser interesante especificar un orden de cálculo de los campos por eficiencia.*/
+    Q_PROPERTY(int calculatedOrder READ calculatedOrder WRITE setCalculatedOrder)
     /** Algunos campos podrán ser calculados, a partir de los datos del propio bean.
       El cálculo de esos campos se realiza mediante el script que almacena esta variable
       */
@@ -398,6 +400,8 @@ public:
     bool calculatedConnectToChildModifications() const;
     void setCalculatedOnlyOnInsert(bool value);
     bool calculatedOnlyOnInsert() const;
+    int calculatedOrder() const;
+    void setCalculatedOrder(int value);
     QString script() const;
     void setScript(const QString &value);
     bool canBeNull() const;

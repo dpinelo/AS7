@@ -31,6 +31,7 @@
 #include <alepherpglobal.h>
 #include <aerpcommon.h>
 #include "dao/beans/basebean.h"
+#include "dao/beans/dbfieldmetadata.h"
 #include "dao/dbobject.h"
 
 class BaseBean;
@@ -275,6 +276,15 @@ private slots:
     void onChangeEvent();
     void backgroundDataAvailable(const QString &id, bool result);
     void setValueIsOld();
+};
+
+// Para comparar campos calculados
+class CompareCalculatedDBField {
+public:
+    bool operator() (const DBField* e1, const DBField* e2)
+    {
+        return e1->metadata()->calculatedOrder() < e2->metadata()->calculatedOrder();
+    }
 };
 
 Q_DECLARE_METATYPE(QList<DBField*>)
