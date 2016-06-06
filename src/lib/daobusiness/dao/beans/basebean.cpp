@@ -614,11 +614,11 @@ void BaseBean::makeCalculatedFieldsConnections(const QString &fieldToCalc, const
                 DBRelation *rel = qobject_cast<DBRelation *> (obj);
                 if ( rel )
                 {
+                    connect (field, SIGNAL(valueModified(QVariant)), field, SLOT(recalculate()));
                     connect (rel, SIGNAL(childDbStateModified(BaseBean*,int)), field, SLOT(recalculate()));
                     connect (rel, SIGNAL(childModified(BaseBean*,bool)), field, SLOT(recalculate()));
                     connect (rel, SIGNAL(fatherLoaded(BaseBean*)), field, SLOT(recalculate()));
                     connect (rel, SIGNAL(fatherUnloaded()), field, SLOT(recalculate()));
-                    connect (field, SIGNAL(valueModified(QVariant)), field, SLOT(recalculate()));
                 }
             }
         }
