@@ -579,7 +579,7 @@ QString QFreeDesktopMime::fromFileName (const QString& fileName)
                         QString type = matchNode.attribute("type");
                         QByteArray parsedValue, parsedMask;
 
-                        if (type == "string")
+                        if (type == QStringLiteral("string"))
                         {
                             parsedValue = convert_string(value.toLatin1());
                             if (!mask.isEmpty())
@@ -595,7 +595,7 @@ QString QFreeDesktopMime::fromFileName (const QString& fileName)
                         {
                             parse_int_value(4, value.toLatin1(), mask.toLatin1(), &parsedValue, &parsedMask, type[0] != 'l');
                         }
-                        else if (type == "byte")
+                        else if (type == QStringLiteral("byte"))
                         {
                             parse_int_value(1, value.toLatin1(), mask.toLatin1(), &parsedValue, &parsedMask, false);
                         }

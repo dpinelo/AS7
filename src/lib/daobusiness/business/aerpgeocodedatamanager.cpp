@@ -230,7 +230,7 @@ void AERPGeocodeTaskPrivate::replyFinishedGoogle(QNetworkReply *reply)
 #endif
 
     QString status = result["status"].toString();
-    if (status.toLower() == "zero results")
+    if (status.toLower() == QStringLiteral("zero results"))
     {
         emit q_ptr->coordinatesReady(m_uuid, r);
         emit q_ptr->taskFinished(m_uuid);

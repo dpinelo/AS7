@@ -197,7 +197,7 @@ AERPSystemModule *ModulesDAOPrivate::importModuleMetaData(const QDomElement &roo
             QDomElement iconTextElement = exportElement.firstChildElement("icon");
             QString iconText = iconTextElement.text();
             QDomElement enabledElement = exportElement.firstChildElement("enabled");
-            bool enabled = enabledElement.text() == "true" ? true : false;
+            bool enabled = enabledElement.text() == QStringLiteral("true") ? true : false;
             QDomElement tableCreationOptionsElement = exportElement.firstChildElement("tableCreationOptions");
             QString tableCreationOptions = tableCreationOptionsElement.text();
 
@@ -384,7 +384,7 @@ bool ModulesDAOPrivate::importModuleFiles(const QString &xmlOrigin, const QStrin
                     if ( f.open(QIODevice::ReadOnly) )
                     {
                         QString content;
-                        if ( itemToImport["type"] == "rcc" || itemToImport["type"] == "help" || itemToImport["type"] == "binary" )
+                        if ( itemToImport["type"] == QStringLiteral("rcc") || itemToImport["type"] == QStringLiteral("help") || itemToImport["type"] == QStringLiteral("binary") )
                         {
                             QByteArray encodeContent = f.readAll();
                             content = QString(encodeContent);
@@ -439,7 +439,7 @@ bool ModulesDAOPrivate::importModuleFiles(const QString &xmlOrigin, const QStrin
             {
                 QHash<QString, QString> hash = itemsToImport.at(i);
                 AERPSystemObject *so = importFile(hash["objectName"], hash["version"].toInt(),
-                                       hash["debug"] == "true" ? true : false, hash["debugOnInit"] == "true" ? true : false,
+                                       hash["debug"] == QStringLiteral("true") ? true : false, hash["debugOnInit"] == QStringLiteral("true") ? true : false,
                                        hash["type"], module, hash["device"].split(","), hash["contentToImport"]);
                 if ( so != NULL )
                 {
@@ -465,7 +465,7 @@ bool ModulesDAOPrivate::importModuleFiles(const QString &xmlOrigin, const QStrin
                 QDomElement fileSQLPostgreSQL = elementScript.firstChildElement("postgresql");
                 QDomElement fileSQLite = elementScript.firstChildElement("sqlite");
                 QDomElement fileSQLFirebird = elementScript.firstChildElement("firebird");
-                if ( Database::getQDatabase().driverName() == "QPSQL" || Database::getQDatabase().driverName() == "AERPCLOUD" )
+                if ( Database::getQDatabase().driverName() == QStringLiteral("QPSQL") || Database::getQDatabase().driverName() == QStringLiteral("AERPCLOUD") )
                 {
                     if ( !fileSQLPostgreSQL.isNull() )
                     {
@@ -475,7 +475,7 @@ bool ModulesDAOPrivate::importModuleFiles(const QString &xmlOrigin, const QStrin
                         }
                     }
                 }
-                else if ( Database::getQDatabase().driverName() == "QSQLITE" )
+                else if ( Database::getQDatabase().driverName() == QStringLiteral("QSQLITE") )
                 {
                     if ( !fileSQLite.isNull() )
                     {
@@ -485,7 +485,7 @@ bool ModulesDAOPrivate::importModuleFiles(const QString &xmlOrigin, const QStrin
                         }
                     }
                 }
-                else if ( Database::getQDatabase().driverName() == "QIBASE" )
+                else if ( Database::getQDatabase().driverName() == QStringLiteral("QIBASE") )
                 {
                     if ( !fileSQLFirebird.isNull() )
                     {
@@ -585,13 +585,13 @@ bool importTableRecords(QDomNodeList &recordsElements, const QString tableName)
     {
         QHash<QString, QString> recordData;
         QDomElement recordElement = recordsElements.at(recCount).toElement();
-        if ( recordElement.tagName() == "record" )
+        if ( recordElement.tagName() == QStringLiteral("record") )
         {
             QDomNodeList columnElements = recordElement.childNodes();
             for ( int columnCount = 0 ; columnCount < columnElements.size() ; columnCount++ )
             {
                 QDomElement element = columnElements.at(columnCount).toElement();
-                if ( element.tagName() == "column" )
+                if ( element.tagName() == QStringLiteral("column") )
                 {
                     recordData[element.attribute("name")] = element.text();
                 }
@@ -835,7 +835,7 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
     QList<AERPSystemObject *> orderedList, listTableDef, listTable, listView, listOthers;
     foreach (AERPSystemObject *item, list)
     {
-        if ( item->type() == "table" )
+        if ( item->type() == QStringLiteral("table") )
         {
             BaseBeanMetadata *m = BeansFactory::metadataBean(item->name());
             if ( m != NULL )
@@ -850,7 +850,7 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
                 }
             }
         }
-        else if ( item->type() == "tableTemp" )
+        else if ( item->type() == QStringLiteral("tableTemp") )
         {
             listTableDef.append(item);
         }
@@ -887,7 +887,7 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
             {
                 QFile file;
                 QString fileName;
-                if ( systemObject->type() == "table" || systemObject->type() == "tableTemp" || systemObject->type() == "report" || systemObject->type() == "reportDef" || systemObject->type() == "job" )
+                if ( systemObject->type() == QStringLiteral("table") || systemObject->type() == QStringLiteral("tableTemp") || systemObject->type() == QStringLiteral("report") || systemObject->type() == QStringLiteral("reportDef") || systemObject->type() == QStringLiteral("job") )
                 {
                     fileName = QString ("%1.%2").arg(systemObject->name()).arg(systemObject->type());
                 }
@@ -1049,7 +1049,7 @@ void ModulesDAO::updateModuleMetadata(const QString &moduleId, const QString &pa
     // Se hacen varias pasadas: Lo primero es almacenar definiciones de tabla, despues tablas, vistas...
     foreach (AERPSystemObject *item, list)
     {
-        if ( item->type() == "table" )
+        if ( item->type() == QStringLiteral("table") )
         {
             BaseBeanMetadata *m = BeansFactory::metadataBean(item->name());
             if ( m != NULL )
@@ -1064,7 +1064,7 @@ void ModulesDAO::updateModuleMetadata(const QString &moduleId, const QString &pa
                 }
             }
         }
-        else if ( item->type() == "tableTemp" )
+        else if ( item->type() == QStringLiteral("tableTemp") )
         {
             listTableDef.append(item);
         }
@@ -1083,23 +1083,23 @@ void ModulesDAO::updateModuleMetadata(const QString &moduleId, const QString &pa
         if ( item->module()->id() == moduleId )
         {
             QString fileName;
-            if ( item->type() == "table" )
+            if ( item->type() == QStringLiteral("table") )
             {
                 fileName = QString ("%1.table").arg(item->name());
             }
-            else if ( item->type() == "tableTemp" )
+            else if ( item->type() == QStringLiteral("tableTemp") )
             {
                 fileName = QString ("%1.tableTemp").arg(item->name());
             }
-            else if ( item->type() == "report" )
+            else if ( item->type() == QStringLiteral("report") )
             {
                 fileName = QString ("%1.report").arg(item->name());
             }
-            else if ( item->type() == "reportDef" )
+            else if ( item->type() == QStringLiteral("reportDef") )
             {
                 fileName = QString ("%1.reportDef").arg(item->name());
             }
-            else if ( item->type() == "job" )
+            else if ( item->type() == QStringLiteral("job") )
             {
                 fileName = QString("%1.job").arg(item->name());
             }
@@ -1226,7 +1226,7 @@ bool ModulesDAO::exportData(const QList<BaseBeanMetadata *> metadatasToExport, c
         bool found = false;
         foreach ( BaseBeanMetadata *m, metadatasToExport )
         {
-            if ( m->tableName() == systemObject->name() && systemObject->type() == "table" )
+            if ( m->tableName() == systemObject->name() && systemObject->type() == QStringLiteral("table") )
             {
                 found = true;
             }

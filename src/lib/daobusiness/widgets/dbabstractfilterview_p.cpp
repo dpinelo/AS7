@@ -791,11 +791,11 @@ void DBAbstractFilterViewPrivate::createSubTotals()
                 le->setMaximumWidth(width);
                 le->setMinimumWidth(width);
             }
-            if ( subTotal["lineEditAlign"].toLower() == "right" )
+            if ( subTotal["lineEditAlign"].toLower() == QStringLiteral("right") )
             {
                 le->setAlignment(Qt::AlignRight);
             }
-            else if ( subTotal["lineEditAlign"].toLower() == "left" )
+            else if ( subTotal["lineEditAlign"].toLower() == QStringLiteral("left") )
             {
                 le->setAlignment(Qt::AlignLeft);
             }

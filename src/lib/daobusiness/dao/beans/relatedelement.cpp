@@ -620,15 +620,15 @@ QString RelatedElement::typeToString(AlephERP::RelatedElementTypes type)
 
 AlephERP::RelatedElementTypes RelatedElement::stringToType(const QString &value)
 {
-    if ( value == "email" )
+    if ( value == QStringLiteral("email") )
     {
         return AlephERP::Email;
     }
-    else if ( value == "record" )
+    else if ( value == QStringLiteral("record") )
     {
         return AlephERP::Record;
     }
-    else if ( value == "document" )
+    else if ( value == QStringLiteral("document") )
     {
         return AlephERP::Document;
     }

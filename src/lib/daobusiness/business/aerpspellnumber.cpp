@@ -434,7 +434,7 @@ QString AERPSpellNumber::spellNumber(double n, int decimalPlaces, const QString 
     Spellable decimalPart = (Spellable) ((CommonsFunctions::round(n, decimalPlaces) - integerPart) * pow(10, decimalPlaces));
     QString strIntegerPart, strDecimalPart;
 
-    if ( language == "en" )
+    if ( language == QStringLiteral("en") )
     {
         strIntegerPart = englishSpellNumber(integerPart);
         if ( decimalPart != 0 )
@@ -442,7 +442,7 @@ QString AERPSpellNumber::spellNumber(double n, int decimalPlaces, const QString 
             strDecimalPart = englishSpellNumber(decimalPart);
         }
     }
-    else if ( language == "es" )
+    else if ( language == QStringLiteral("es") )
     {
         strIntegerPart = spanishSpellNumber(integerPart);
         if ( decimalPart != 0 )

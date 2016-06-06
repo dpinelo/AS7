@@ -352,7 +352,7 @@ QVariant BaseBeanModel::data(DBField *field, const QModelIndex &item, int role) 
             return QVariant();
         }
         QStringList chkColumns = checkColumns();
-        if ( QString(metaObject()->className()) == "RelationBaseBeanModel" && fldMetadata->type() == QVariant::Bool )
+        if ( QString(metaObject()->className()) == QStringLiteral("RelationBaseBeanModel") && fldMetadata->type() == QVariant::Bool )
         {
             if ( flags(item).testFlag(Qt::ItemIsEditable) )
             {

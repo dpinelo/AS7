@@ -506,7 +506,7 @@ void DBAbstractFilterView::fastFilterByCombo(int index)
             QString val = data.toString();
             if ( !val.isEmpty() )
             {
-                bool v = val == "true" ? true : false;
+                bool v = val == QStringLiteral("true") ? true : false;
                 d->m_modelFilter->setFilterKeyColumn(dbFieldName, v, "=", d->m_filterLevel);
             }
         }
@@ -588,7 +588,7 @@ void DBAbstractFilterView::filterWithSql()
                 QString val = ui->cbFastFilterValue->itemData(ui->cbFastFilterValue->currentIndex()).toString();
                 if ( !val.isEmpty() )
                 {
-                    bool v = val == "true" ? true : false;
+                    bool v = val == QStringLiteral("true") ? true : false;
                     aditionalSql = fld->sqlWhere("=", v);
                 }
             }
@@ -903,7 +903,7 @@ void DBAbstractFilterView::init(bool initStrongFilter)
             if ( list.at(i)->dbFieldName() == initOrderColumn )
             {
                 bool blockState = tv->horizontalHeader()->blockSignals(true);
-                tv->horizontalHeader()->setSortIndicator(i, initOrderColumnSort.toUpper() == "DESC" ? Qt::DescendingOrder : Qt::AscendingOrder);
+                tv->horizontalHeader()->setSortIndicator(i, initOrderColumnSort.toUpper() == QStringLiteral("DESC") ? Qt::DescendingOrder : Qt::AscendingOrder);
                 tv->horizontalHeader()->setSortIndicatorShown(true);
                 tv->horizontalHeader()->blockSignals(blockState);
                 break;
@@ -921,7 +921,7 @@ void DBAbstractFilterView::init(bool initStrongFilter)
             {
                 // Hacemos esto porque debemos evitar que se salve el estado.
                 tree->setIsOnInit(true);
-                tree->header()->setSortIndicator(i, initOrderColumnSort.toUpper() == "DESC" ? Qt::DescendingOrder : Qt::AscendingOrder);
+                tree->header()->setSortIndicator(i, initOrderColumnSort.toUpper() == QStringLiteral("DESC") ? Qt::DescendingOrder : Qt::AscendingOrder);
                 tree->header()->setSortIndicatorShown(true);
                 tree->setIsOnInit(false);
                 break;

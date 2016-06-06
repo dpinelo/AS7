@@ -322,7 +322,7 @@ void AERPQueryModel::setQuery (const QString &query)
     if ( d->m_useThread )
     {
         // Introducimos los límites y el offset sólo cuando cargamos por thread
-        if ( d->m_db.driverName() == "QIBASE" )
+        if ( d->m_db.driverName() == QStringLiteral("QIBASE") )
         {
             sql = QString("%1 ROWS 1 TO %2").arg(d->m_sql).arg(d->m_limit);
         }
@@ -566,7 +566,7 @@ void AERPReadDataWorker::fetchData()
             QScopedPointer<QSqlQuery> query (new QSqlQuery(d->m_db));
             while ( offset < rowCount )
             {
-                if ( d->m_db.driverName() == "QIBASE" )
+                if ( d->m_db.driverName() == QStringLiteral("QIBASE") )
                 {
                     sql = QString("%1 ROWS %2 TO %3").arg(d->m_sql).arg(offset).arg(offset + d->m_limit);
                 }

@@ -57,8 +57,8 @@ AERPScheduledJobViewer::AERPScheduledJobViewer(QWidget *parent) :
     {
         if ( job->metadata()->userName() == AERPLoggedUser::instance()->userName() ||
                 AERPLoggedUser::instance()->hasRole(job->metadata()->roleName()) ||
-                job->metadata()->userName() == "*" ||
-                job->metadata()->roleName() == "*" )
+                job->metadata()->userName() == QStringLiteral("*") ||
+                job->metadata()->roleName() == QStringLiteral("*") )
         {
             ui->tableWidgetScheduledJobs->setRowCount(ui->tableWidgetScheduledJobs->rowCount() + 1);
             QTableWidgetItem *item = new QTableWidgetItem(job->metadata()->alias().isEmpty() ? job->metadata()->name() : job->metadata()->alias());
@@ -114,8 +114,8 @@ void AERPScheduledJobViewer::refreshTable()
     {
         if ( job->metadata()->userName() == AERPLoggedUser::instance()->userName() ||
                 AERPLoggedUser::instance()->hasRole(job->metadata()->roleName()) ||
-                job->metadata()->userName() == "*" ||
-                job->metadata()->roleName() == "*" )
+                job->metadata()->userName() == QStringLiteral("*") ||
+                job->metadata()->roleName() == QStringLiteral("*") )
         {
             QTableWidgetItem *itemLeft = ui->tableWidgetScheduledJobs->item(row, 1);
             QTableWidgetItem *itemNext = ui->tableWidgetScheduledJobs->item(row, 2);

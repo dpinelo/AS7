@@ -943,12 +943,12 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
             QString temp = levelInfo->image;
             QStringList img = temp.split(":");
             QPixmap pixmap;
-            if ( img.at(0) == "field" && !b.isNull() )
+            if ( img.at(0) == QStringLiteral("field") && !b.isNull() )
             {
                 QByteArray imgData = b->fieldValue(img.at(1)).toByteArray();
                 pixmap = QPixmap(imgData.constData());
             }
-            else if ( img.at(0) == "file" )
+            else if ( img.at(0) == QStringLiteral("file") )
             {
                 pixmap = QPixmap(QString(":%1").arg(img.at(1)));
             }

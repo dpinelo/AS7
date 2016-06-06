@@ -367,7 +367,7 @@ bool RelatedDAO::deleteRelations(BaseBean *bean, const QString &idTransaction, c
         foreach (const AlephERP::RelatedElementsContentToBeDeleted &item, bean->metadata()->relatedElementsContentToBeDelete() )
         {
             RelatedElementPointerList itemsToBeDeleted;
-            if ( item.category.isEmpty() || item.category == "*" )
+            if ( item.category.isEmpty() || item.category == QStringLiteral("*") )
             {
                 itemsToBeDeleted = bean->getRelatedElements(item.type, item.cardinality);
             }
@@ -381,7 +381,7 @@ bool RelatedDAO::deleteRelations(BaseBean *bean, const QString &idTransaction, c
                 {
                     if ( element->type() == AlephERP::Record )
                     {
-                        if ( item.tableName == "*" || item.tableName == element->relatedTableName() )
+                        if ( item.tableName == QStringLiteral("*") || item.tableName == element->relatedTableName() )
                         {
                             if ( bean->actualContext().isEmpty() || !AERPTransactionContext::instance()->isOnTransaction(element->relatedBean()) )
                             {

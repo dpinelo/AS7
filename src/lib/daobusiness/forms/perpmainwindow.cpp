@@ -912,13 +912,13 @@ bool AERPMainWindow::eventFilter(QObject *target, QEvent *event)
 {
     // Vamos a controlar en este punto la posilibidad de mover los botones, los toolButton de las barras de herramientas,
     // dando así oportunidad al usuario de configurarlas como guste.
-    if ( QString(target->metaObject()->className()) == "QToolButton" )
+    if ( QString(target->metaObject()->className()) == QStringLiteral("QToolButton") )
     {
         d->dragDropOperationsForToolButton(target, event);
     }
     if ( event != NULL && event->type() == QEvent::DragEnter )
     {
-        if ( QString(target->metaObject()->className()) == "QToolBar" )
+        if ( QString(target->metaObject()->className()) == QStringLiteral("QToolBar") )
         {
             QDragEnterEvent *dragEvent = static_cast<QDragEnterEvent *>(event);
             if ( dragEvent->mimeData()->formats().contains(AlephERP::stMimeDataAction) || dragEvent->mimeData()->formats().contains(AlephERP::stMimeDataToolButton) )
@@ -934,7 +934,7 @@ bool AERPMainWindow::eventFilter(QObject *target, QEvent *event)
     }
     if ( event != NULL && event->type() == QEvent::Drop )
     {
-        if ( QString(target->metaObject()->className()) == "QToolBar" )
+        if ( QString(target->metaObject()->className()) == QStringLiteral("QToolBar") )
         {
             if (d->dropOnToolBar(target, event))
             {

@@ -122,7 +122,7 @@ SystemItemsDlg::SystemItemsDlg(const QString &module, const QString &type, QWidg
 
     d->addModules();
 
-    if ( type == "table" )
+    if ( type == QStringLiteral("table") )
     {
         QHeaderView *hv = ui->tableWidget->horizontalHeader();
         hv->hideSection(3);

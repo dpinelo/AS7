@@ -681,7 +681,7 @@ void AERPBaseDialog::exposeAERPControlToQsEngine(QDialog *dlg, AERPScriptQsObjec
             engine->addPropertyToThisForm(widget->objectName(), widget);
             dlg->setProperty(widget->objectName().toUtf8(), QVariant::fromValue((void *) widget));
         }
-        else if ( QString(widget->metaObject()->className()) == "DBChooseRelatedRecordButton" )
+        else if ( QString(widget->metaObject()->className()) == QStringLiteral("DBChooseRelatedRecordButton") )
         {
             engine->addPropertyToThisForm(widget->objectName(), widget);
             dlg->setProperty(widget->objectName().toUtf8(), QVariant::fromValue((void *) widget));
@@ -756,7 +756,7 @@ bool AERPBaseDialog::eventFilter (QObject *target, QEvent *event)
                     qDebug() << qApp->focusWidget()->metaObject()->className();
                     // Los datetimeedit tienen varios controles anidados... hay que hacer este hack.
                     DBDateTimeEdit *de = qobject_cast<DBDateTimeEdit *>(target);
-                    if ( de != NULL && QString(qApp->focusWidget()->metaObject()->className()) == "QToolButton" )
+                    if ( de != NULL && QString(qApp->focusWidget()->metaObject()->className()) == QStringLiteral("QToolButton") )
                     {
                         focusNextChild();
                     }

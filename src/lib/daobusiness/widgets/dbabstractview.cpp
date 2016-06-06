@@ -286,12 +286,12 @@ void DBAbstractViewInterface::saveColumnsOrder()
     }
     QStringList finalOrders, finalSorts, orders, sorts;
     QList<DBFieldMetadata *> fields = filterModel()->visibleFields();
-    if ( className() == "DBTableView" )
+    if ( className() == QStringLiteral("DBTableView") )
     {
         orders = alephERPSettings->viewColumnsOrder<QTableView>(dynamic_cast<QTableView*>(this));
         sorts = alephERPSettings->viewColumnsSort<QTableView>(dynamic_cast<QTableView*>(this));
     }
-    else if ( className() == "DBTreeView" )
+    else if ( className() == QStringLiteral("DBTreeView") )
     {
         orders = alephERPSettings->viewColumnsOrder<QTreeView>(dynamic_cast<QTreeView*>(this));
         sorts = alephERPSettings->viewColumnsSort<QTreeView>(dynamic_cast<QTreeView*>(this));
@@ -312,11 +312,11 @@ void DBAbstractViewInterface::saveColumnsOrder()
             if ( field->isOnDb() )
             {
                 QString strSort = h->sortIndicatorOrder() == Qt::AscendingOrder ? "ASC" : "DESC";
-                if ( className() == "DBTableView" )
+                if ( className() == QStringLiteral("DBTableView") )
                 {
                     alephERPSettings->saveViewIndicatorColumnOrder<QTableView>(dynamic_cast<QTableView*>(this), field->dbFieldName(), strSort);
                 }
-                else if ( className() == "DBTreeView" )
+                else if ( className() == QStringLiteral("DBTreeView") )
                 {
                     alephERPSettings->saveViewIndicatorColumnOrder<QTreeView>(dynamic_cast<QTreeView*>(this), field->dbFieldName(), strSort);
                 }
@@ -535,7 +535,7 @@ bool DBAbstractViewInterface::setupInternalModel()
     }
     else
     {
-        if ( m_tableName.toLower() == "metadatas" )
+        if ( m_tableName.toLower() == QStringLiteral("metadatas") )
         {
             m_sourceModel = new AERPMetadataModel(m_thisWidget);
         }
@@ -871,12 +871,12 @@ void DBAbstractViewInterface::prepareColumns()
             i++;
         }
     }
-    if ( className() == "DBTableView" )
+    if ( className() == QStringLiteral("DBTableView") )
     {
         alephERPSettings->applyViewState<QTableView>(qobject_cast<QTableView *>(itemView));
         orderColumns(alephERPSettings->viewColumnsOrder<QTableView>(qobject_cast<QTableView *>(itemView)));
     }
-    else if ( className() == "DBTreeView" )
+    else if ( className() == QStringLiteral("DBTreeView") )
     {
         alephERPSettings->applyViewState<QTreeView>(qobject_cast<QTreeView *>(itemView));
         orderColumns(alephERPSettings->viewColumnsOrder<QTreeView>(qobject_cast<QTreeView *>(itemView)));
@@ -911,11 +911,11 @@ void DBAbstractViewInterface::fromMenuHideColumn()
 {
     QTableView *table = NULL;
     QTreeView *tree = NULL;
-    if ( className() == "DBTableView" )
+    if ( className() == QStringLiteral("DBTableView") )
     {
         table = qobject_cast<QTableView *>(m_thisWidget);
     }
-    else if ( className() == "DBTreeView" )
+    else if ( className() == QStringLiteral("DBTreeView") )
     {
         tree = qobject_cast<QTreeView *>(m_thisWidget);
     }
@@ -925,11 +925,11 @@ void DBAbstractViewInterface::fromMenuHideColumn()
     }
     if ( m_clickedColumn != -1)
     {
-        if ( className() == "DBTableView" )
+        if ( className() == QStringLiteral("DBTableView") )
         {
             table->hideColumn(m_clickedColumn);
         }
-        else if ( className() == "DBTreeView" )
+        else if ( className() == QStringLiteral("DBTreeView") )
         {
             tree->hideColumn(m_clickedColumn);
         }

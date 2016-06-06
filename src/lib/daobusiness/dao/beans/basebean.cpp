@@ -2020,17 +2020,17 @@ bool BaseBean::checkFilter(const QString &filterExpression, Qt::CaseSensitivity 
         }
         if ( fld->metadata()->type() == QVariant::Bool )
         {
-            if ( op == "=" )
+            if ( op == QStringLiteral("=") )
             {
-                bool v = (data == "true" ? true : false);
+                bool v = (data == QStringLiteral("true") ? true : false);
                 if (!fld->checkValue(v))
                 {
                     return false;
                 }
             }
-            else if ( op == "!=" )
+            else if ( op == QStringLiteral("!=") )
             {
-                bool v = (data == "true" ? true : false);
+                bool v = (data == QStringLiteral("true") ? true : false);
                 if (fld->checkValue(v))
                 {
                     return false;
@@ -2621,11 +2621,11 @@ bool BaseBeanPrivate::checkAccess(QChar access)
     {
         if ( item.access().contains(access) )
         {
-            if ( item.userName() == "*" || item.userName() == AERPLoggedUser::instance()->userName() )
+            if ( item.userName() == QStringLiteral("*") || item.userName() == AERPLoggedUser::instance()->userName() )
             {
                 return true;
             }
-            if ( item.roleName() == "*" || AERPLoggedUser::instance()->hasRole(item.idRole() ) )
+            if ( item.roleName() == QStringLiteral("*") || AERPLoggedUser::instance()->hasRole(item.idRole() ) )
             {
                 return true;
             }
@@ -3526,7 +3526,7 @@ void BaseBean::setValuesFromFilter(const QVariantMap &filter)
     while ( it.hasNext() )
     {
         it.next();
-        if ( it.key() == "filter" )
+        if ( it.key() == QStringLiteral("filter") )
         {
             setValuesFromFilter(it.value().toString());
         }
@@ -4120,7 +4120,7 @@ void BaseBean::prepareToDeleteRelatedElements()
         foreach (const AlephERP::RelatedElementsContentToBeDeleted &item, d->m->relatedElementsContentToBeDelete() )
         {
             RelatedElementPointerList itemsToBeDeleted;
-            if ( item.category.isEmpty() || item.category == "*" )
+            if ( item.category.isEmpty() || item.category == QStringLiteral("*") )
             {
                 itemsToBeDeleted = getRelatedElements(item.type, item.cardinality, true);
             }
@@ -4134,7 +4134,7 @@ void BaseBean::prepareToDeleteRelatedElements()
                 {
                     if ( element->type() == AlephERP::Record )
                     {
-                        if ( item.tableName == "*" || item.tableName == element->relatedTableName() )
+                        if ( item.tableName == QStringLiteral("*") || item.tableName == element->relatedTableName() )
                         {
                             element->relatedBean()->setDbState(BaseBean::TO_BE_DELETED);
                             element->relatedBean()->prepareToDeleteRelatedElements();
@@ -4159,7 +4159,7 @@ bool BaseBean::removeConfiguredRelatedElements(const QString &idTransaction)
         foreach (const AlephERP::RelatedElementsContentToBeDeleted &item, d->m->relatedElementsContentToBeDelete() )
         {
             RelatedElementPointerList itemsToBeDeleted;
-            if ( item.category.isEmpty() || item.category == "*" )
+            if ( item.category.isEmpty() || item.category == QStringLiteral("*") )
             {
                 itemsToBeDeleted = getRelatedElements(item.type, item.cardinality, true);
             }
@@ -4173,7 +4173,7 @@ bool BaseBean::removeConfiguredRelatedElements(const QString &idTransaction)
                 {
                     if ( element->type() == AlephERP::Record )
                     {
-                        if ( item.tableName == "*" || item.tableName == element->relatedTableName() )
+                        if ( item.tableName == QStringLiteral("*") || item.tableName == element->relatedTableName() )
                         {
                             if (!BaseDAO::remove(element->relatedBean(), idTransaction))
                             {

@@ -70,7 +70,7 @@ void AERPEditUserAccessRow::init()
     foreach (const AlephERP::User &user, d->m_allowedUser)
     {
         QListWidgetItem *item = new QListWidgetItem(user.userName, ui->lwUsers);
-        if ( d->m_item != NULL && (d->m_item->userName() == user.userName || d->m_item->userName() == "*") )
+        if ( d->m_item != NULL && (d->m_item->userName() == user.userName || d->m_item->userName() == QStringLiteral("*")) )
         {
             item->setCheckState(Qt::Checked);
         }

@@ -1907,7 +1907,7 @@ void DBRecordDlg::keyPressEvent (QKeyEvent *e)
         return;
     }
     QString widgetFocusClassName = QString(widgetFocus->metaObject()->className());
-    if ( e->modifiers() == Qt::ControlModifier && !(widgetFocusClassName == "QEditor" || widgetFocusClassName == "QPlainTextEdit" || widgetFocusClassName == "QTextEdit") )
+    if ( e->modifiers() == Qt::ControlModifier && !(widgetFocusClassName == QStringLiteral("QEditor") || widgetFocusClassName == QStringLiteral("QPlainTextEdit") || widgetFocusClassName == QStringLiteral("QTextEdit")) )
     {
         if ( e->key() == Qt::Key_PageDown )
         {

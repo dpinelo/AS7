@@ -352,23 +352,23 @@ QVariant RelatedElementsRecordModel::headerData(int section, Qt::Orientation ori
         {
             if (AERP_CHECK_INDEX_OK(section, d->m_visibleFields))
             {
-                if ( d->m_visibleFields.at(section).toLower() == "tablename" )
+                if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("tablename") )
                 {
                     return trUtf8("Tabla");
                 }
-                else if ( d->m_visibleFields.at(section).toLower() == "categoria" )
+                else if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("categoria") )
                 {
                     return trUtf8("Categoria");
                 }
-                else if ( d->m_visibleFields.at(section).toLower() == "tabla" )
+                else if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("tabla") )
                 {
                     return trUtf8("Tabla");
                 }
-                else if ( d->m_visibleFields.at(section).toLower() == "registros" )
+                else if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("registros") )
                 {
                     return trUtf8("Registros");
                 }
-                else if ( d->m_visibleFields.at(section).toLower() == "informacionadicional" )
+                else if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("informacionadicional") )
                 {
                     return trUtf8("Información adicional");
                 }
@@ -512,23 +512,23 @@ QVariant RelatedElementsRecordModel::data(const QModelIndex &item, int role) con
             {
                 if ( AERP_CHECK_INDEX_OK(column, d->m_visibleFields) )
                 {
-                    if ( d->m_visibleFields.at(column).toLower() == "tablename" )
+                    if ( d->m_visibleFields.at(column).toLower() == QStringLiteral("tablename") )
                     {
                         return bean->metadata()->alias();
                     }
-                    else if ( d->m_visibleFields.at(column).toLower() == "categoria" )
+                    else if ( d->m_visibleFields.at(column).toLower() == QStringLiteral("categoria") )
                     {
                         return element->categories().join(", ");
                     }
-                    else if ( d->m_visibleFields.at(column).toLower() == "tabla" )
+                    else if ( d->m_visibleFields.at(column).toLower() == QStringLiteral("tabla") )
                     {
                         return element->relatedBean()->metadata()->alias();
                     }
-                    else if ( d->m_visibleFields.at(column).toLower() == "registros" )
+                    else if ( d->m_visibleFields.at(column).toLower() == QStringLiteral("registros") )
                     {
                         return element->relatedBean()->toString();
                     }
-                    else if ( d->m_visibleFields.at(column).toLower() == "informacionadicional" )
+                    else if ( d->m_visibleFields.at(column).toLower() == QStringLiteral("informacionadicional") )
                     {
                         return element->additionalInfo();
                     }
@@ -945,23 +945,23 @@ bool RelatedElementsRecordModel::isLinkColumn(int section) const
     {
         if (AERP_CHECK_INDEX_OK(section, d->m_visibleFields))
         {
-            if ( d->m_visibleFields.at(section).toLower() == "tablename" )
+            if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("tablename") )
             {
                 return BaseBeanModel::linkColumns().contains("tabla");
             }
-            else if ( d->m_visibleFields.at(section).toLower() == "categoria" )
+            else if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("categoria") )
             {
                 return BaseBeanModel::linkColumns().contains("categorias");
             }
-            else if ( d->m_visibleFields.at(section).toLower() == "tabla" )
+            else if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("tabla") )
             {
                 return BaseBeanModel::linkColumns().contains("tabla");
             }
-            else if ( d->m_visibleFields.at(section).toLower() == "registros" )
+            else if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("registros") )
             {
                 return BaseBeanModel::linkColumns().contains("registros");
             }
-            else if ( d->m_visibleFields.at(section).toLower() == "informacionadicional" )
+            else if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("informacionadicional") )
             {
                 return BaseBeanModel::linkColumns().contains("informacionadicional");
             }

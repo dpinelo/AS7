@@ -830,7 +830,7 @@ void DBTreeView::orderColumns(const QStringList &order)
     {
         return;
     }
-    if ( sourceModel->fieldsView().last() == "*" )
+    if ( sourceModel->fieldsView().last() == QStringLiteral("*") )
     {
         BaseBeanMetadata *metadata = BeansFactory::metadataBean(sourceModel->tableNames().last());
         if ( metadata != NULL )

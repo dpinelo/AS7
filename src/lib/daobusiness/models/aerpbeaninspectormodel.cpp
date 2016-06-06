@@ -126,7 +126,7 @@ InspectorTreeItem *InspectorTreeItem::child(int row)
 
 int InspectorTreeItem::childCount() const
 {
-    if ( m_propertyName == "father" )
+    if ( m_propertyName == QStringLiteral("father") )
     {
         DBRelation *rel = qobject_cast<DBRelation *> (m_obj);
         if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
@@ -135,7 +135,7 @@ int InspectorTreeItem::childCount() const
         }
         return 0;
     }
-    if ( m_propertyName == "relatedBean" )
+    if ( m_propertyName == QStringLiteral("relatedBean") )
     {
         RelatedElement *rel = qobject_cast<RelatedElement *>(m_obj);
         if ( rel != NULL && !rel->relatedBean().isNull() )
@@ -144,7 +144,7 @@ int InspectorTreeItem::childCount() const
         }
         return 0;
     }
-    else if ( m_propertyName == "items" )
+    else if ( m_propertyName == QStringLiteral("items") )
     {
         DBRelation *rel = qobject_cast<DBRelation *> (m_obj);
         if ( rel != NULL && rel->metadata()->type() != DBRelationMetadata::MANY_TO_ONE )
@@ -482,23 +482,23 @@ bool AERPBeanInspectorModel::canFetchMore(const QModelIndex &parent) const
     InspectorTreeItem *item = static_cast<InspectorTreeItem*>(parent.internalPointer());
     if ( item != NULL )
     {
-        if ( (item->propertyName() == "father" || item->propertyName() == "items") )
+        if ( (item->propertyName() == QStringLiteral("father") || item->propertyName() == QStringLiteral("items")) )
         {
             DBRelation *rel = qobject_cast<DBRelation *>(item->object());
             if ( rel != NULL )
             {
-                if ( item->propertyName() == "father" && rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
+                if ( item->propertyName() == QStringLiteral("father") && rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
                 {
                     return true;
                 }
-                else if ( item->propertyName() == "items" && rel->metadata()->type() != DBRelationMetadata::MANY_TO_ONE && rel->childrenCount() > 0 )
+                else if ( item->propertyName() == QStringLiteral("items") && rel->metadata()->type() != DBRelationMetadata::MANY_TO_ONE && rel->childrenCount() > 0 )
                 {
 
                 }
                 return true;
             }
         }
-        else if ( item->propertyName() == "relatedBean" )
+        else if ( item->propertyName() == QStringLiteral("relatedBean") )
         {
             RelatedElement *relEl = qobject_cast<RelatedElement *>(item->object());
             if ( relEl != NULL && !relEl->relatedBean().isNull() )
@@ -523,11 +523,11 @@ void AERPBeanInspectorModel::fetchMore(const QModelIndex &parent)
         DBRelation *rel = qobject_cast<DBRelation *>(item->object());
         if ( rel != NULL )
         {
-            if ( item->propertyName() == "father" )
+            if ( item->propertyName() == QStringLiteral("father") )
             {
                 d->populateBean(rel->father().data(), item);
             }
-            else if ( item->propertyName() == "items" )
+            else if ( item->propertyName() == QStringLiteral("items") )
             {
                 foreach (BaseBeanPointer child, rel->children())
                 {
@@ -538,7 +538,7 @@ void AERPBeanInspectorModel::fetchMore(const QModelIndex &parent)
         RelatedElement *relEl = qobject_cast<RelatedElement *>(item->object());
         if ( relEl != NULL )
         {
-            if ( item->propertyName() == "relatedBean" )
+            if ( item->propertyName() == QStringLiteral("relatedBean") )
             {
                 d->populateBean(relEl->relatedBean().data(), item);
             }
@@ -579,7 +579,7 @@ void AERPBeanInspectorModel::removeFatherItem(InspectorTreeItem *itemRelation)
     {
         for (int i = 0 ; i < itemRelation->childCount() ;i++)
         {
-            if ( itemRelation->child(i)->propertyName() == "father" )
+            if ( itemRelation->child(i)->propertyName() == QStringLiteral("father") )
             {
                 itemRelation->child(i)->removeChildren();
             }
@@ -602,7 +602,7 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
         QString propertyName = bean->metaObject()->property(i).name();
         if ( m_inspectableProperties.contains(propertyName) )
         {
-            if ( propertyName == "metadata" )
+            if ( propertyName == QStringLiteral("metadata") )
             {
                 InspectorTreeItem *rootField = new InspectorTreeItem(bean->metadata(), QObject::trUtf8("Metadata"), "", item, q_ptr);
                 item->appendChild(rootField);
@@ -616,7 +616,7 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
                     }
                 }
             }
-            else if ( propertyName == "fields" )
+            else if ( propertyName == QStringLiteral("fields") )
             {
                 InspectorTreeItem *rootField = new InspectorTreeItem(bean, QObject::trUtf8("Fields"), "", item, q_ptr);
                 item->appendChild(rootField);
@@ -629,7 +629,7 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
                     for (int fPropIdx = 0 ; fPropIdx < fld->metaObject()->propertyCount() ; fPropIdx++)
                     {
                         QString mPropName = fld->metaObject()->property(fPropIdx).name();
-                        if ( mPropName == "metadata" )
+                        if ( mPropName == QStringLiteral("metadata") )
                         {
                             InspectorTreeItem *mField = new InspectorTreeItem(fld->metadata(), QObject::trUtf8("Metadata"), "", itemField, q_ptr);
                             itemField->appendChild(mField);
@@ -652,7 +652,7 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
                     }
                 }
             }
-            else if ( propertyName == "relations" )
+            else if ( propertyName == QStringLiteral("relations") )
             {
                 InspectorTreeItem *rootRelation = new InspectorTreeItem(bean, QObject::trUtf8("Relations"), "", item, q_ptr);
                 item->appendChild(rootRelation);
@@ -665,7 +665,7 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
                     for (int rPropIdx = 0 ; rPropIdx < rel->metaObject()->propertyCount() ; rPropIdx++)
                     {
                         QString mPropName = rel->metaObject()->property(rPropIdx).name();
-                        if ( mPropName == "metadata" )
+                        if ( mPropName == QStringLiteral("metadata") )
                         {
                             InspectorTreeItem *mRel = new InspectorTreeItem(rel->metadata(), QObject::trUtf8("Metadata"), "", itemRelation, q_ptr);
                             itemRelation->appendChild(mRel);
@@ -687,7 +687,7 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
                     }
                 }
             }
-            else if ( propertyName == "relatedElements" )
+            else if ( propertyName == QStringLiteral("relatedElements") )
             {
                 InspectorTreeItem *rootRelation = new InspectorTreeItem(bean, QObject::trUtf8("Related Elements"), "", item, q_ptr);
                 item->appendChild(rootRelation);

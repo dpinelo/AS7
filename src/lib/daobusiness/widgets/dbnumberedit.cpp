@@ -380,7 +380,7 @@ bool DBNumberEditKeyPressEater::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::KeyPress)
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if ( keyEvent->text() == "." && alephERPSettings->locale()->decimalPoint() != '.' )
+        if ( keyEvent->text() == QStringLiteral(".") && alephERPSettings->locale()->decimalPoint() != '.' )
         {
             QKeyEvent *ev = new QKeyEvent(QEvent::KeyPress, Qt::Key_Comma, 0, alephERPSettings->locale()->decimalPoint());
             QApplication::sendEvent(parent(), ev);

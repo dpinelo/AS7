@@ -415,7 +415,7 @@ void ReportMetadataPrivate::setConfig()
         n = root.firstChildElement("exportPutHeader");
         if ( !n.isNull() )
         {
-            m_exportPutHeader = n.toElement().text().toUtf8().toLower() == "true" ? true : false;
+            m_exportPutHeader = n.toElement().text().toUtf8().toLower() == QStringLiteral("true") ? true : false;
         }
         n = root.firstChildElement("exportMetadataFields");
         if ( !n.isNull() )
@@ -434,18 +434,18 @@ void ReportMetadataPrivate::readParameterBinding(const QDomNode &e)
     QDomNodeList n = e.childNodes();
     for ( int i = 0 ; i < n.size() ; i++ )
     {
-        if ( n.at(i).toElement().tagName() == "binding" )
+        if ( n.at(i).toElement().tagName() == QStringLiteral("binding") )
         {
             QDomNodeList p = n.at(i).childNodes();
             QString parameter, field;
             for ( int j = 0 ; j < p.size() ; j++ )
             {
                 QDomElement final = p.at(j).toElement();
-                if ( final.tagName() == "parameter" )
+                if ( final.tagName() == QStringLiteral("parameter") )
                 {
                     parameter = final.text();
                 }
-                else if ( final.tagName() == "field" )
+                else if ( final.tagName() == QStringLiteral("field") )
                 {
                     field = final.text();
                 }
@@ -472,18 +472,18 @@ void ReportMetadataPrivate::readEnvVarParameterBinding(const QDomNode &e)
     QDomNodeList n = e.childNodes();
     for ( int i = 0 ; i < n.size() ; i++ )
     {
-        if ( n.at(i).toElement().tagName() == "binding" )
+        if ( n.at(i).toElement().tagName() == QStringLiteral("binding") )
         {
             QDomNodeList p = n.at(i).childNodes();
             QString parameter, field;
             for ( int j = 0 ; j < p.size() ; j++ )
             {
                 QDomElement final = p.at(j).toElement();
-                if ( final.tagName() == "parameter" )
+                if ( final.tagName() == QStringLiteral("parameter") )
                 {
                     parameter = final.text();
                 }
-                else if ( final.tagName() == "envVar" )
+                else if ( final.tagName() == QStringLiteral("envVar") )
                 {
                     field = final.text();
                 }

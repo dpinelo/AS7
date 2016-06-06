@@ -35,7 +35,7 @@ public:
     AERPSystemModulePrivate()
     {
         m_enabled = false;
-        if ( QSqlDatabase::database(BASE_CONNECTION).driverName() == "QPSQL" )
+        if ( QSqlDatabase::database(BASE_CONNECTION).driverName() == QStringLiteral("QPSQL") )
         {
             m_tableCreationOptions = AlephERP::WithForeignKeys | AlephERP::CreateIndexOnRelationColumns;
         }

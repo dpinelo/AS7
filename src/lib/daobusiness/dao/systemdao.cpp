@@ -667,7 +667,7 @@ bool SystemDAO::checkAlephERPSystemTables(QStringList &notExists, const QString 
     QStringList systemTables = SystemDAO::systemTables();
     QSqlDatabase db = QSqlDatabase::database(connectionName);
 
-    if ( db.driverName() == "QODBC" )
+    if ( db.driverName() == QStringLiteral("QODBC") )
     {
         QScopedPointer<QSqlQuery> qry(new QSqlQuery(db));
         QString sql = QString(SQL_CHECK_SYSTEM_TABLES).arg(alephERPSettings->systemTablePrefix());
@@ -715,7 +715,7 @@ bool SystemDAO::checkIfTableExists(const QString &tableName, const QString &conn
                             arg(tableList.size()).arg(connection));
     }
     QString sqlTableName;
-    if ( Database::getQDatabase(connection).driverName() == "QPSQL" )
+    if ( Database::getQDatabase(connection).driverName() == QStringLiteral("QPSQL") )
     {
         if ( alephERPSettings->dbSchema() != "public" )
         {
@@ -1672,7 +1672,7 @@ bool SystemDAO::createSystemTables(const QString &connectionName)
     QStringList sqls;
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(db));
     SystemDAO::clearLastDbMessage();
-    if ( db.driverName() == "QPSQL" || db.driverName() == "AERPCLOUD" )
+    if ( db.driverName() == QStringLiteral("QPSQL") || db.driverName() == QStringLiteral("AERPCLOUD") )
     {
         sqls = SystemDAO::systemTablesPSQL.split(';');
     }
@@ -1711,7 +1711,7 @@ bool SystemDAO::createSystemTables(const QString &connectionName)
         return false;
     }
 #ifdef ALEPHERP_FIREBIRD_SUPPORT
-    if ( db.driverName() == "QIBASE" )
+    if ( db.driverName() == QStringLiteral("QIBASE") )
     {
         db.transaction();
         foreach ( QString sql, AERPFirebirdDatabase::initialData() )

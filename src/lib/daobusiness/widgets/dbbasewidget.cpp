@@ -631,7 +631,7 @@ QString DBBaseWidget::processSqlWhere(const QString &where)
     // Realizamos algunos reemplazos de algunas reglas
     QString result = where;
     result = result.replace("${user}", AERPLoggedUser::instance()->userName());
-    if ( Database::getQDatabase(BASE_CONNECTION).driverName() == "QSQLITE" )
+    if ( Database::getQDatabase(BASE_CONNECTION).driverName() == QStringLiteral("QSQLITE") )
     {
         result = result.replace("true", "1");
         result = result.replace("false", "0");

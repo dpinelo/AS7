@@ -130,26 +130,26 @@ bool AERPEditConnectOptionsDlg::eventFilter(QObject *target, QEvent *event)
     if ( event->type() == QEvent::DynamicPropertyChange )
     {
         QDynamicPropertyChangeEvent *ev = static_cast<QDynamicPropertyChangeEvent *>(event);
-        if ( ev->propertyName() == "typeName" )
+        if ( ev->propertyName() == QStringLiteral("typeName") )
         {
             disconnect(ui->cbType, SIGNAL(currentIndexChanged(int)), this, SLOT(setView(int)));
-            if ( ui->cbType->property(AlephERP::stTypeName) == "PSQL" )
+            if ( ui->cbType->property(AlephERP::stTypeName) == QStringLiteral("PSQL") )
             {
                 ui->cbType->setCurrentIndex(0);
             }
-            else if ( ui->cbType->property(AlephERP::stTypeName) == "ODBC" )
+            else if ( ui->cbType->property(AlephERP::stTypeName) == QStringLiteral("ODBC") )
             {
                 ui->cbType->setCurrentIndex(1);
             }
-            else if ( ui->cbType->property(AlephERP::stTypeName) == "SQLITE" )
+            else if ( ui->cbType->property(AlephERP::stTypeName) == QStringLiteral("SQLITE") )
             {
                 ui->cbType->setCurrentIndex(2);
             }
-            else if ( ui->cbType->property(AlephERP::stTypeName) == "CLOUD" )
+            else if ( ui->cbType->property(AlephERP::stTypeName) == QStringLiteral("CLOUD") )
             {
                 ui->cbType->setCurrentIndex(3);
             }
-            else if ( ui->cbType->property(AlephERP::stTypeName) == "FIREBIRD" )
+            else if ( ui->cbType->property(AlephERP::stTypeName) == QStringLiteral("FIREBIRD") )
             {
                 ui->cbType->setCurrentIndex(4);
             }

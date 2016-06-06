@@ -96,7 +96,7 @@ void AERPUserAccessRow::refreshTableWidget()
         ui->tableWidget->insertRow(row);
         QTableWidgetItem *cell = new QTableWidgetItem(item.roleName());
         ui->tableWidget->setItem(row, 0, cell);
-        if ( item.userName() == "*" )
+        if ( item.userName() == QStringLiteral("*") )
         {
             if ( d->m_items.size() == 1 )
             {
@@ -203,7 +203,7 @@ void AERPUserAccessRow::removeAccess()
     int row = selectedItems.at(0)->row();
     if ( AERP_CHECK_INDEX_OK(row, d->m_items) )
     {
-        if ( d->m_items.at(row).userName() == "*" )
+        if ( d->m_items.at(row).userName() == QStringLiteral("*") )
         {
             QMessageBox::information(this, qApp->applicationName(), trUtf8("No es posible borrar esta línea. Siempre debe indicarse qué permisos tendrán el grupo genérico de usuarios."), QMessageBox::Ok);
             return;

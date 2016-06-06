@@ -141,7 +141,7 @@ void RelationBaseBeanModelPrivate::loadBeansFromRelations(BaseBean *rootBean, co
         // TODO: Esto deberia hacerse con navigateThrough del rootBean!!!!
         for (int i = 0 ; i < pathList.size() ; i++ )
         {
-            if ( pathList.at(i) == "father" || pathList.at(i) == "children" || pathList.at(i) == "brother" )
+            if ( pathList.at(i) == QStringLiteral("father") || pathList.at(i) == QStringLiteral("children") || pathList.at(i) == QStringLiteral("brother") )
             {
                 i++;
                 break;

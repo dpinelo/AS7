@@ -2395,7 +2395,7 @@ void DBRelationPrivate::sortChildren(BaseBeanPointerList &list, const QString &o
 {
     QStringList parts = order.split(" ");
     Quicksort(list, 0, list.size() -1 , parts.at(0));
-    if ( parts.size() > 1 && parts.at(1).toUpper() == "DESC" )
+    if ( parts.size() > 1 && parts.at(1).toUpper() == QStringLiteral("DESC") )
     {
         for ( int i = 0 ; i < (int) (list.size() / 2) ; i++ )
         {

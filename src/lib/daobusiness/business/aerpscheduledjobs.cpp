@@ -112,7 +112,7 @@ void AERPScheduledJobsMetadataPrivate::setConfig()
         n = root.firstChildElement("needsDatabaseConnection");
         if ( !n.isNull() )
         {
-            m_needsDatabaseConnection = checkWildCards(n).toUtf8() == "true" ? true : false;
+            m_needsDatabaseConnection = checkWildCards(n).toUtf8() == QStringLiteral("true") ? true : false;
         }
 
     }
@@ -356,8 +356,8 @@ bool AERPScheduledJob::init()
 {
     if ( d->m->userName() == AERPLoggedUser::instance()->userName() ||
             AERPLoggedUser::instance()->hasRole(d->m->roleName()) ||
-            d->m->userName() == "*" ||
-            d->m->roleName() == "*" )
+            d->m->userName() == QStringLiteral("*") ||
+            d->m->roleName() == QStringLiteral("*") )
     {
         QLogger::QLog_Debug(AlephERP::stLogJob, QString::fromUtf8("Iniciando tarea programada: [%1]").arg(d->m->name()));
         d->m_isActive = QMetaObject::invokeMethod(d->m_worker, "init", Qt::QueuedConnection);
@@ -472,7 +472,7 @@ int AERPScheduledJobWorkerPrivate::processCronPart(const QString &part, int now)
     bool ok;
     if ( part.contains(QStringLiteral("*")) || part.contains(QStringLiteral("/")) || part.contains(QStringLiteral(",")) )
     {
-        if ( part == "*" )
+        if ( part == QStringLiteral("*") )
         {
             result = 0;
         }

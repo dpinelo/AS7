@@ -890,7 +890,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
 
     d->m_itemView->freezeModel();
 
-    if ( insert == "false" )
+    if ( insert == QStringLiteral("false") )
     {
         openType = AlephERP::Update;
         functionName = "beforeEdit";
@@ -1078,7 +1078,7 @@ void DBFormDlg::insertChild()
                 BaseBeanSharedPointer bean = sourceModel->bean(childIdx);
                 if ( bean )
                 {
-                    if ( QString(sourceModel->metaObject()->className()) == "TreeBaseBeanModel" )
+                    if ( QString(sourceModel->metaObject()->className()) == QStringLiteral("TreeBaseBeanModel") )
                     {
                         // Los modelos en árbol hacen cosas raras con los filtros... no andan finos. Mejor invalidamos.
                         model->invalidate();
@@ -1882,7 +1882,7 @@ QHash<QString, QVariant> DBFormDlg::filterValuesToSetOnBean()
     {
         if ( hash.contains(AlephERP::stSetFilterValueOnNewRecords) )
         {
-            bool setFilterValue = hash[AlephERP::stSetFilterValueOnNewRecords] == "true" ? true : false;
+            bool setFilterValue = hash[AlephERP::stSetFilterValueOnNewRecords] == QStringLiteral("true") ? true : false;
             if ( setFilterValue )
             {
                 QVariant filterValue = d->m_itemView->filterValue(hash.value(AlephERP::stFieldToFilter));

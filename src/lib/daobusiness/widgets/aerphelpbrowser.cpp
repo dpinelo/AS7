@@ -46,7 +46,7 @@ void AERPHelpBrowser::setHelpEngine(QHelpEngine *helpEngine)
 
 QVariant AERPHelpBrowser::loadResource(int type, const QUrl &name)
 {
-    if (name.scheme() == "qthelp" && d->m_engine != NULL)
+    if (name.scheme() == QStringLiteral("qthelp") && d->m_engine != NULL)
     {
         return d->m_engine->fileData(name);
     }

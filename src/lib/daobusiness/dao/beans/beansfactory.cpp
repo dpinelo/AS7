@@ -101,7 +101,7 @@ bool BeansFactory::buildMetadataBeans()
         foreach (AERPSystemObject *object, list)
         {
             // ¿Existe un objeto hijo de éste, que se referencie y esté en otro módulo? Si es así, se escogerá ese
-            if ( object->type() == "table" && !BeansFactory::hasDependObject(object) )
+            if ( object->type() == QStringLiteral("table") && !BeansFactory::hasDependObject(object) )
             {
                 QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::buildMetadataBeans: Metadata disponible: [%1][%2]").
                                     arg(object->module()->name()).arg(object->name()));
@@ -128,7 +128,7 @@ bool BeansFactory::buildMetadataBeans()
 void BeansFactory::insertMetadataBean(AERPSystemObject *object)
 {
     // ¿Existe un objeto hijo de éste, que se referencie y esté en otro módulo? Si es así, se escogerá ese
-    if ( object->type() == "table" && !BeansFactory::hasDependObject(object) )
+    if ( object->type() == QStringLiteral("table") && !BeansFactory::hasDependObject(object) )
     {
         BaseBeanMetadata *metadata = new BaseBeanMetadata(qApp);
         metadata->setTableName(object->name());
@@ -171,7 +171,7 @@ bool BeansFactory::buildUIWidgets()
     {
         foreach (AERPSystemObject *object, list)
         {
-            if ( object->type() == "ui" && !BeansFactory::hasDependObject(object) )
+            if ( object->type() == QStringLiteral("ui") && !BeansFactory::hasDependObject(object) )
             {
                 QString fileName = QString("%1/%2").
                                    arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
@@ -216,12 +216,12 @@ bool BeansFactory::buildScripts()
     {
         foreach (AERPSystemObject *systemObject, list)
         {
-            if ( (systemObject->type() == "qs" || systemObject->type() == "js") && !BeansFactory::hasDependObject(systemObject) )
+            if ( (systemObject->type() == QStringLiteral("qs") || systemObject->type() == QStringLiteral("js")) && !BeansFactory::hasDependObject(systemObject) )
             {
-                if ( systemObject->name() == "__init__.js" || systemObject->name().contains("/") )
+                if ( systemObject->name() == QStringLiteral("__init__.js") || systemObject->name().contains("/") )
                 {
                     QString fileName, dir, fullDir, fullFileName;
-                    if ( systemObject->name() == "__init__.js" )
+                    if ( systemObject->name() == QStringLiteral("__init__.js") )
                     {
                         dir = "script/";
                         fileName = "__init__.js";
@@ -291,7 +291,7 @@ bool BeansFactory::buildTableReports()
     {
         foreach (AERPSystemObject *systemObject, list)
         {
-            if ( systemObject->type() == "report" && !BeansFactory::hasDependObject(systemObject) )
+            if ( systemObject->type() == QStringLiteral("report") && !BeansFactory::hasDependObject(systemObject) )
             {
                 QString fileName = QString("%1/%2").
                                    arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
@@ -342,9 +342,9 @@ bool BeansFactory::buildResources()
     {
         foreach (AERPSystemObject *systemObject, list)
         {
-            if ( (systemObject->type() == "rcc" || systemObject->type() == "binary") && !BeansFactory::hasDependObject(systemObject) )
+            if ( (systemObject->type() == QStringLiteral("rcc") || systemObject->type() == QStringLiteral("binary")) && !BeansFactory::hasDependObject(systemObject) )
             {
-                bool canRegister = systemObject->type() == "rcc";
+                bool canRegister = systemObject->type() == QStringLiteral("rcc");
                 QByteArray binaryContent = QByteArray::fromBase64(systemObject->content().toUtf8());
                 QString fileName = QString("%1/%2").
                                    arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
@@ -389,7 +389,7 @@ bool BeansFactory::buildMetadataReports()
     {
         foreach (AERPSystemObject *systemObject, list)
         {
-            if ( systemObject->type() == "reportDef" && !BeansFactory::hasDependObject(systemObject) )
+            if ( systemObject->type() == QStringLiteral("reportDef") && !BeansFactory::hasDependObject(systemObject) )
             {
                 ReportMetadata *metadata = new ReportMetadata(qApp);
                 metadata->setName(systemObject->name());
@@ -413,7 +413,7 @@ bool BeansFactory::buildScheduledJobs()
     {
         foreach (AERPSystemObject *systemObject, list)
         {
-            if ( systemObject->type() == "job" && !BeansFactory::hasDependObject(systemObject) )
+            if ( systemObject->type() == QStringLiteral("job") && !BeansFactory::hasDependObject(systemObject) )
             {
                 AERPScheduledJobMetadata *metadata = new AERPScheduledJobMetadata(qApp);
                 metadata->setName(systemObject->name());
@@ -437,7 +437,7 @@ bool BeansFactory::buildHelpResources()
     {
         foreach (AERPSystemObject *systemObject, list)
         {
-            if ( systemObject->type() == "help" && !BeansFactory::hasDependObject(systemObject) )
+            if ( systemObject->type() == QStringLiteral("help") && !BeansFactory::hasDependObject(systemObject) )
             {
                 QByteArray binaryContent = QByteArray::fromBase64(systemObject->content().toUtf8());
                 QString fileName = QString("%1/%2").
@@ -468,9 +468,9 @@ void BeansFactory::initJobs()
     foreach (AERPScheduledJobMetadata *m, BeansFactory::metadataJobs)
     {
         if ( m->userName() == AERPLoggedUser::instance()->userName() ||
-                m->userName() == "*" ||
+                m->userName() == QStringLiteral("*") ||
                 AERPLoggedUser::instance()->hasRole(m->roleName()) ||
-                m->roleName() == "*" )
+                m->roleName() == QStringLiteral("*") )
         {
             AERPScheduledJob *job = new AERPScheduledJob(m, qApp);
             BeansFactory::jobs.append(job);
@@ -1091,7 +1091,7 @@ bool BeansFactory::checkConsistencyMetadataDatabase(QVariantList &log)
                             do
                             {
                                 columnTypes[qry->value(0).toString()] = qry->value(1).toString();
-                                nullable[qry->value(0).toString()] = qry->value(2).toString() == "YES" ? true : false;
+                                nullable[qry->value(0).toString()] = qry->value(2).toString() == QStringLiteral("YES") ? true : false;
                                 maxChars[qry->value(0).toString()] = qry->value(3).toInt();
                             }
                             while ( qry->next() );
@@ -1168,7 +1168,7 @@ bool BeansFactory::checkConsistencyMetadataDatabase(QVariantList &log)
                                 DBFieldMetadata *fld = m->field(qry->value(0).toString());
                                 if ( fld == NULL )
                                 {
-                                    bool nullable = qry->value(2).toString() == "YES" ? true : false;
+                                    bool nullable = qry->value(2).toString() == QStringLiteral("YES") ? true : false;
                                     QHash<QString, QVariant> errors;
                                     AlephERP::ConsistencyTableErrors flagErrors;
                                     errors["tablename"] = m->tableName();
@@ -1448,14 +1448,14 @@ bool BeansFactory::updateSystemObject(const QString &type, const QString &object
         object->setOnInitDebug(debugOnInit);
         object->setVersion(version);
     }
-    if ( type == "qs" )
+    if ( type == QStringLiteral("qs") )
     {
         BeansFactory::systemScripts[objectName] = content;
         BeansFactory::systemScriptsDebug[objectName] = debug;
         BeansFactory::systemScriptsDebugOnInit[objectName] = debugOnInit;
         r = true;
     }
-    else if ( type == "ui" )
+    else if ( type == QStringLiteral("ui") )
     {
         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
         BeansFactory::refreshSystemObject(objectName, "ui", idOrigin);

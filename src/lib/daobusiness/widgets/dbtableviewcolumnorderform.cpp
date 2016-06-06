@@ -127,7 +127,7 @@ void DBTableViewColumnOrderForm::init()
             {
                 if ( d->m_order->at(j).first == fld->dbFieldName() )
                 {
-                    textOrder = d->m_order->at(j).second == "ASC" ? trUtf8(TEXT_ORDER_ASC) : trUtf8(TEXT_ORDER_DESC);
+                    textOrder = d->m_order->at(j).second == QStringLiteral("ASC") ? trUtf8(TEXT_ORDER_ASC) : trUtf8(TEXT_ORDER_DESC);
                 }
             }
             QListWidgetItem *item = new QListWidgetItem (ui->listWidget);
@@ -148,7 +148,7 @@ void DBTableViewColumnOrderForm::init()
 
 bool DBTableViewColumnOrderForm::eventFilter (QObject *target, QEvent *event)
 {
-    if ( target->objectName() == "listWidget" )
+    if ( target->objectName() == QStringLiteral("listWidget") )
     {
         if ( event->spontaneous() )
         {

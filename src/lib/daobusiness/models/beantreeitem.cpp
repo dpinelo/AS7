@@ -112,7 +112,7 @@ BaseBeanSharedPointerList BeanTreeItem::allBeanDescendants()
 */
 int BeanTreeItem::columnCount() const
 {
-    if ( !d->m_bean.isNull() && d->m_fieldView == "*" )
+    if ( !d->m_bean.isNull() && d->m_fieldView == QStringLiteral("*") )
     {
         // Devolvemos el número de campos visibles
         int count = 0;
@@ -235,7 +235,7 @@ bool BeanTreeItem::checkFilter(QHash<int, QVariantMap> totalFilter)
         itItems.next();
         QString dbFieldName = itItems.key();
         QVariantMap filterValues = itItems.value().toMap();
-        if ( dbFieldName == "*" )
+        if ( dbFieldName == QStringLiteral("*") )
         {
             return d->m_bean->toString().contains(filterValues.value("value").toString());
         }

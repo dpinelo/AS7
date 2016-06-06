@@ -302,19 +302,19 @@ void AERPScriptDialog::setParentWidget(QWidget *parent)
 
 void AERPScriptDialog::show()
 {
-    if ( d->m_type == "search" )
+    if ( d->m_type == QStringLiteral("search") )
     {
         newSearchDlg();
     }
-    else if ( d->m_type == "record" )
+    else if ( d->m_type == QStringLiteral("record") )
     {
         newRecordDlg();
     }
-    else if ( d->m_type == "script" )
+    else if ( d->m_type == QStringLiteral("script") )
     {
         newScriptDlg();
     }
-    else if ( d->m_type == "report" )
+    else if ( d->m_type == QStringLiteral("report") )
     {
         newReportDlg();
     }
@@ -546,15 +546,15 @@ void AERPScriptDialog::addPropertyValueToThisForm(const QString &name, QVariant 
   */
 QScriptValue AERPScriptDialog::readPropertyFromThisForm(const QString &name)
 {
-    if ( d->m_type == "search" && d->m_dialogSearch )
+    if ( d->m_type == QStringLiteral("search") && d->m_dialogSearch )
     {
         return d->m_dialogSearch->readPropertyFromThisForm(name);
     }
-    else if ( d->m_type == "record" && d->m_dialogRecord )
+    else if ( d->m_type == QStringLiteral("record") && d->m_dialogRecord )
     {
         return d->m_dialogRecord->readPropertyFromThisForm(name);
     }
-    else if ( d->m_type == "script" && d->m_dialogScript )
+    else if ( d->m_type == QStringLiteral("script") && d->m_dialogScript )
     {
         return d->m_dialogScript->readPropertyFromThisForm(name);
     }

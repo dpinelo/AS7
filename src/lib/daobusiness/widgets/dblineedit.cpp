@@ -356,7 +356,7 @@ void DBLineEdit::setValue(const QVariant &value)
                 }
                 else
                 {
-                    if ( fld->metadata()->type() != QVariant::String && newText == "0" )
+                    if ( fld->metadata()->type() != QVariant::String && newText == QStringLiteral("0") )
                     {
                         newText = "";
                     }
@@ -747,7 +747,7 @@ void DBLineEdit::keyPressEvent(QKeyEvent *event)
         // ¿Debemos empezar a filtrar con el wildcard? Si es así, informémosle al modelo
         if ( !d->m_replacePointCharacter.isNull() && !d->m_completerBeanModel.isNull() )
         {
-            if ( event->text() == "." )
+            if ( event->text() == QStringLiteral(".") )
             {
                 d->m_completerBeanModel->setWildCard(d->m_replacePointCharacter);
             }

@@ -386,7 +386,7 @@ void DBCodeEdit::setCodeLanguage(const QString &value)
     {
         delete d->m_lexer;
     }
-    if ( d->m_codeLanguage == "qs" || d->m_codeLanguage == "js" || d->m_codeLanguage == "javascript" || d->m_codeLanguage == "qtscript" )
+    if ( d->m_codeLanguage == QStringLiteral("qs") || d->m_codeLanguage == QStringLiteral("js") || d->m_codeLanguage == QStringLiteral("javascript") || d->m_codeLanguage == QStringLiteral("qtscript") )
     {
         d->m_lexer = new QsciLexerJavaScript(this);
         d->m_api = new QsciAPIs(d->m_lexer.data());
@@ -395,7 +395,7 @@ void DBCodeEdit::setCodeLanguage(const QString &value)
         d->m_api->prepare();
 
     }
-    else if ( d->m_codeLanguage == "table" || d->m_codeLanguage == "xml" )
+    else if ( d->m_codeLanguage == QStringLiteral("table") || d->m_codeLanguage == QStringLiteral("xml") )
     {
         d->m_lexer = new QsciLexerXML(this);
     }

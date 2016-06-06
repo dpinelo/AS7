@@ -532,7 +532,7 @@ AlephERP::DBObjectType BaseDAO::databaseObjectType(BaseBeanMetadata *metadata, c
     QSqlDatabase db = Database::getQDatabase(connectionName);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(db));
 
-    if ( db.driverName() == "AERPCLOUD" )
+    if ( db.driverName() == QStringLiteral("AERPCLOUD") )
     {
         QString sql = QString("SELECT table_type FROM information_schema.tables WHERE table_name=:tablename");
         QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::databaseObjectType: [%1]").arg(sql));
@@ -552,7 +552,7 @@ AlephERP::DBObjectType BaseDAO::databaseObjectType(BaseBeanMetadata *metadata, c
         if ( qry->size() > 0 )
         {
             qry->first();
-            if ( qry->value(0).toString() == "VIEW" )
+            if ( qry->value(0).toString() == QStringLiteral("VIEW") )
             {
                 return AlephERP::View;
             }
@@ -592,7 +592,7 @@ AlephERP::DBObjectType BaseDAO::databaseObjectType(BaseBeanMetadata *metadata, c
             }
         }
     }
-    else if ( db.driverName() == "QIBASE" || db.driverName() == "QPSQL" || db.driverName() == "QSQLITE" )
+    else if ( db.driverName() == QStringLiteral("QIBASE") || db.driverName() == QStringLiteral("QPSQL") || db.driverName() == QStringLiteral("QSQLITE") )
     {
         static QStringList tables;
         static QStringList views;
@@ -815,7 +815,7 @@ bool BaseDAO::loadUserEnvVars(const QString &connection)
         }
     }
     // Ahora obtenemos las de usuario
-    if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == "true" )
+    if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == QStringLiteral("true") )
     {
         sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_CI).arg(alephERPSettings->systemTablePrefix()).
               arg(AERPLoggedUser::instance()->userName());
@@ -879,7 +879,7 @@ QVariant BaseDAO::loadUserEnvVar(const QString &userName, const QString &envVar,
         }
     }
     // Ahora obtenemos las de usuario
-    if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == "true" )
+    if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == QStringLiteral("true") )
     {
         sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_CI_AND_VAR).arg(alephERPSettings->systemTablePrefix()).
               arg(userName).arg(envVar);
@@ -927,7 +927,7 @@ QString BaseDAO::buildSqlSelectWithLimits(BaseBeanMetadata *metadata, const QStr
     }
     if ( numRows != -1 && offset != -1 )
     {
-        if ( dialect == "QIBASE" )
+        if ( dialect == QStringLiteral("QIBASE") )
         {
             sql = sql % QString(" ROWS %2 TO %3").arg(offset + 1).arg(numRows + offset);
         }
@@ -1224,7 +1224,7 @@ bool BaseDAO::selectFirst(BaseBean *bean, const QString &where, const QString &o
     {
         return false;
     }
-    if ( Database::driverConnection() == "QIBASE" )
+    if ( Database::driverConnection() == QStringLiteral("QIBASE") )
     {
         sql = QString("%1 ROWS 1").arg(sql);
     }
@@ -1770,7 +1770,7 @@ qlonglong BaseDAO::lastInsertOid(QSqlQuery *qry, BaseBean *bean, const QString &
             return oid.toLongLong();
         }
     }
-    if ( Database::getQDatabase(connectionName).driverName() == "QIBASE" )
+    if ( Database::getQDatabase(connectionName).driverName() == QStringLiteral("QIBASE") )
     {
 #ifdef ALEPHERP_FIREBIRD_SUPPORT
         return AERPFirebirdDatabase::lastOid(bean);
@@ -1946,7 +1946,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
         }
     }
     sql = QString("INSERT INTO %1 (%2) VALUES (%3)").arg(bean->metadata()->sqlTableName()).arg(sqlFields).arg(sqlValues);
-    if ( Database::getQDatabase(connectionName).driverName() == "QPSQL" )
+    if ( Database::getQDatabase(connectionName).driverName() == QStringLiteral("QPSQL") )
     {
         // Vamos a utilizar una opción muy ventajosa de PostgreSQL
         QStringList pkFieldNames;
@@ -2010,7 +2010,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
         {
             BaseDAO::cleanCachedDataIfRequired(bean->metadata()->tableName());
         }
-        if ( Database::getQDatabase(connectionName).driverName() == "QPSQL" )
+        if ( Database::getQDatabase(connectionName).driverName() == QStringLiteral("QPSQL") )
         {
             qry->first();
             foreach (DBField *fld, pkFields)
@@ -3186,15 +3186,15 @@ bool BaseDAO::alterTableForForeignKeys(const QString &connectionName)
 {
     QSqlQuery qry (Database::getQDatabase(connectionName));
 
-    if ( Database::getQDatabase(connectionName).driverName() == "QPSQL" )
+    if ( Database::getQDatabase(connectionName).driverName() == QStringLiteral("QPSQL") )
     {
         qry.prepare("SELECT 1 FROM pg_constraint WHERE conname = :foreign_key_name");
     }
-    else if ( Database::getQDatabase(connectionName).driverName() == "QSQLITE" )
+    else if ( Database::getQDatabase(connectionName).driverName() == QStringLiteral("QSQLITE") )
     {
         qry.prepare("SELECT 1 FROM sqlite_master WHERE type='trigger' and name = :foreign_key_name");
     }
-    else if ( Database::getQDatabase(connectionName).driverName() == "QIBASE" )
+    else if ( Database::getQDatabase(connectionName).driverName() == QStringLiteral("QIBASE") )
     {
         qry.prepare("SELECT 1 FROM RDB$TRIGGERS WHERE RDB$TRIGGER_NAME = :foreign_key_name");
     }
@@ -3210,7 +3210,7 @@ bool BaseDAO::alterTableForForeignKeys(const QString &connectionName)
                 qry.bindValue(":foreign_key_name", rel->sqlForeignKeyName(metadata->module()->tableCreationOptions(), Database::getQDatabase(connectionName).driverName()));
                 if ( qry.exec() )
                 {
-                    if ( qry.first() && qry.value(0).toString() == "1" )
+                    if ( qry.first() && qry.value(0).toString() == QStringLiteral("1") )
                     {
                         exists = true;
                     }

@@ -290,7 +290,7 @@ void EmailObject::setXml(const QString &value)
             QDomNodeList nodeList = n.childNodes();
             for ( int i = 0 ; i < nodeList.size() ; i++ )
             {
-                if ( nodeList.at(i).toElement().tagName() == "recipient" )
+                if ( nodeList.at(i).toElement().tagName() == QStringLiteral("recipient") )
                 {
                     m_to.append(nodeList.at(i).toElement().text());
                 }
@@ -302,7 +302,7 @@ void EmailObject::setXml(const QString &value)
             QDomNodeList nodeList = n.childNodes();
             for ( int i = 0 ; i < nodeList.size() ; i++ )
             {
-                if ( nodeList.at(i).toElement().tagName() == "recipient" )
+                if ( nodeList.at(i).toElement().tagName() == QStringLiteral("recipient") )
                 {
                     m_copy.append(nodeList.at(i).toElement().text());
                 }
@@ -314,7 +314,7 @@ void EmailObject::setXml(const QString &value)
             QDomNodeList nodeList = n.childNodes();
             for ( int i = 0 ; i < nodeList.size() ; i++ )
             {
-                if ( nodeList.at(i).toElement().tagName() == "recipient" )
+                if ( nodeList.at(i).toElement().tagName() == QStringLiteral("recipient") )
                 {
                     m_blindCopy.append(nodeList.at(i).toElement().text());
                 }

@@ -549,7 +549,7 @@ bool FilterBaseBeanModelPrivate::checkFilterForBean(BaseBeanPointer bean, const 
         itItems.next();
         QString dbFieldName = itItems.key();
         QVariantMap filterValues = itItems.value().toMap();
-        if ( dbFieldName == "*" )
+        if ( dbFieldName == QStringLiteral("*") )
         {
             return bean->toString().contains(filterValues.value("value").toString());
         }
@@ -639,7 +639,7 @@ bool FilterBaseBeanModel::lessThan(const QModelIndex &left, const QModelIndex &r
             QStringList actualOrderField = actualOrder.split(" ");
             if ( actualOrderField.size() > 1 ) {
                 if ( actualOrderField.at(0) == fld->dbFieldName() ) {
-                    if ( actualOrderField.at(1).toLower() == "asc" ) {
+                    if ( actualOrderField.at(1).toLower() == QStringLiteral("asc") ) {
                         return true;
                     } else {
                         return false;

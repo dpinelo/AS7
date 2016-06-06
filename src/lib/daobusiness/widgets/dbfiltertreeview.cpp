@@ -94,9 +94,9 @@ void DBFilterTreeViewPrivate::initDataStructures()
         m_tableNames.append(hash.value("name").toString());
         m_visibleFields.append(hash.value("visibleField").toString());
         m_images.append(hash.value("image").toString());
-        m_allowInsert.append(hash.value("allowInsert").toString() == "true" ? true : false);
-        m_allowEdit.append(hash.value("allowEdit").toString() == "true" ? true : false);
-        m_allowDelete.append(hash.value("allowDelete").toString() == "true" ? true : false);
+        m_allowInsert.append(hash.value("allowInsert").toString() == QStringLiteral("true") ? true : false);
+        m_allowEdit.append(hash.value("allowEdit").toString() == QStringLiteral("true") ? true : false);
+        m_allowDelete.append(hash.value("allowDelete").toString() == QStringLiteral("true") ? true : false);
         if ( metadata != NULL )
         {
             if ( metadata->initOrderSort().isEmpty() )

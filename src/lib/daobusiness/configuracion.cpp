@@ -216,7 +216,7 @@ QDate AlephERPSettings::minimumDate()
     QDate d;
     if ( !dDate.isNull() && !dDate.isEmpty() )
     {
-        if ( dDate == "now" )
+        if ( dDate == QStringLiteral("now") )
         {
             d = QDate::currentDate();
         }
@@ -290,7 +290,7 @@ QString AlephERPSettings::deviceTypeSize()
 bool AlephERPSettings::firstUse() const
 {
     QSettings settings (qApp->organizationName(), qApp->applicationName());
-    if ( settings.value(KEY_FIRST_USE, "empty").toString() == "empty" )
+    if ( settings.value(KEY_FIRST_USE, "empty").toString() == QStringLiteral("empty") )
     {
         return true;
     }
@@ -656,7 +656,7 @@ void AlephERPSettings::restoreToolBarActions(QToolBar *toolBar)
         {
             if ( !actionName.isEmpty() )
             {
-                if ( actionName == "separator" )
+                if ( actionName == QStringLiteral("separator") )
                 {
                     toolBar->addSeparator();
                 }
@@ -770,31 +770,31 @@ Qt::DayOfWeek AlephERPSettings::firstDayOfWeek()
 void AlephERPSettings::setFirstDayOfWeek(const QString &temp)
 {
     QMutexLocker lock(&mutex);
-    if ( temp.toLower() == "monday" )
+    if ( temp.toLower() == QStringLiteral("monday") )
     {
         m_firstDayOfWeek = Qt::Monday;
     }
-    else if ( temp.toLower() == "tuesday" )
+    else if ( temp.toLower() == QStringLiteral("tuesday") )
     {
         m_firstDayOfWeek = Qt::Tuesday;
     }
-    else if ( temp.toLower() == "wednesday" )
+    else if ( temp.toLower() == QStringLiteral("wednesday") )
     {
         m_firstDayOfWeek = Qt::Wednesday;
     }
-    else if ( temp.toLower() == "thursday" )
+    else if ( temp.toLower() == QStringLiteral("thursday") )
     {
         m_firstDayOfWeek = Qt::Thursday;
     }
-    else if ( temp.toLower() == "friday" )
+    else if ( temp.toLower() == QStringLiteral("friday") )
     {
         m_firstDayOfWeek = Qt::Friday;
     }
-    else if ( temp.toLower() == "saturday" )
+    else if ( temp.toLower() == QStringLiteral("saturday") )
     {
         m_firstDayOfWeek = Qt::Saturday;
     }
-    else if ( temp.toLower() == "sunday" )
+    else if ( temp.toLower() == QStringLiteral("sunday") )
     {
         m_firstDayOfWeek = Qt::Sunday;
     }

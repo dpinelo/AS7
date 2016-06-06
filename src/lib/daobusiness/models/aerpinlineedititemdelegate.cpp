@@ -66,13 +66,13 @@ QWidget *AERPInlineEditItemDelegate::createEditor(QWidget *parent, const QStyleO
     DBField *fld = static_cast<DBField *>(pointer.value<void *>());
     if ( fld != NULL )
     {
-        if ( d->m_type == "DBChooseRecordButton" )
+        if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
         {
             QPushButton *button = new QPushButton(parent);
             setEditor(button);
             return button;
         }
-        else if ( d->m_type == "DBLineEdit" )
+        else if ( d->m_type == QStringLiteral("DBLineEdit") )
         {
             DBLineEdit *le = new DBLineEdit(parent);
             setEditor(le);
@@ -87,9 +87,9 @@ QWidget *AERPInlineEditItemDelegate::createEditor(QWidget *parent, const QStyleO
                 if ( le->property(key.constData()).isValid() )
                 {
                     QVariant v;
-                    if ( it.value().toString() == "true" || it.value().toString() == "false" )
+                    if ( it.value().toString() == QStringLiteral("true") || it.value().toString() == QStringLiteral("false") )
                     {
-                        v = it.value().toString() == "true";
+                        v = it.value().toString() == QStringLiteral("true");
                     }
                     else
                     {
@@ -147,7 +147,7 @@ QWidget *AERPInlineEditItemDelegate::createEditor(QWidget *parent, const QStyleO
             le->setDataEditable(true);
             return le;
         }
-        else if ( d->m_type == "DBComboBox" )
+        else if ( d->m_type == QStringLiteral("DBComboBox") )
         {
             DBComboBox *combo = new DBComboBox(parent);
             setEditor(combo);
@@ -189,7 +189,7 @@ void AERPInlineEditItemDelegate::setEditorData(QWidget *editor, const QModelInde
     DBField *fld = static_cast<DBField *>(pointer.value<void *>());
     if ( fld != NULL )
     {
-        if ( d->m_type == "DBChooseRecordButton" )
+        if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
         {
 /*
             QPushButton *button = qobject_cast<QPushButton *> (editor);
@@ -199,7 +199,7 @@ void AERPInlineEditItemDelegate::setEditorData(QWidget *editor, const QModelInde
             }
 */
         }
-        else if ( d->m_type == "DBComboBox" )
+        else if ( d->m_type == QStringLiteral("DBComboBox") )
         {
             DBComboBox *combo = qobject_cast<DBComboBox *> (editor);
             if ( combo != NULL )
@@ -208,7 +208,7 @@ void AERPInlineEditItemDelegate::setEditorData(QWidget *editor, const QModelInde
                 combo->setValue(fld->value());
             }
         }
-        else if ( d->m_type == "DBLineEdit" )
+        else if ( d->m_type == QStringLiteral("DBLineEdit") )
         {
             DBLineEdit *le = qobject_cast<DBLineEdit *> (editor);
             if ( le != NULL )
@@ -223,14 +223,14 @@ void AERPInlineEditItemDelegate::setEditorData(QWidget *editor, const QModelInde
 
 void AERPInlineEditItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-    if ( d->m_type == "DBChooseRecordButton" )
+    if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
     {
         /*        DBChooseRecordButton *button = qobject_cast<DBChooseRecordButton *>(editor);
                 if ( button != NULL ) {
                     model->setData(index, button->value());
                 }*/
     }
-    else if ( d->m_type == "DBComboBox" )
+    else if ( d->m_type == QStringLiteral("DBComboBox") )
     {
         DBComboBox *combo = qobject_cast<DBComboBox *>(editor);
         if ( combo != NULL )
@@ -238,7 +238,7 @@ void AERPInlineEditItemDelegate::setModelData(QWidget *editor, QAbstractItemMode
             model->setData(index, combo->value());
         }
     }
-    else if ( d->m_type == "DBLineEdit" )
+    else if ( d->m_type == QStringLiteral("DBLineEdit") )
     {
         DBLineEdit *le = qobject_cast<DBLineEdit *> (editor);
         if ( le != NULL )
@@ -302,7 +302,7 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
             }
         }
         painter->save();
-        if ( d->m_type == "DBChooseRecordButton" )
+        if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
         {
             QStyleOptionButton buttonOption;
             buttonOption.state = QStyle::State_Enabled | QStyle::State_AutoRaise | QStyle::State_Active;
@@ -329,7 +329,7 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
                 optionText.widget->style()->drawControl(QStyle::CE_ItemViewItem, &optionText, painter, optionText.widget);
             }
         }
-        else if ( d->m_type == "DBComboBox" )
+        else if ( d->m_type == QStringLiteral("DBComboBox") )
         {
             QStyleOptionViewItemV4 options = option;
             initStyleOption(&options, index);
@@ -337,7 +337,7 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
             options.text = text;
             options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter, options.widget);
         }
-        else if ( d->m_type == "DBLineEdit" )
+        else if ( d->m_type == QStringLiteral("DBLineEdit") )
         {
             QStyleOptionViewItemV4 options = option;
             initStyleOption(&options, index);
@@ -352,7 +352,7 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
 
 bool AERPInlineEditItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
-    if ( event->type() == QEvent::MouseButtonPress && d->m_type == "DBChooseRecordButton" )
+    if ( event->type() == QEvent::MouseButtonPress && d->m_type == QStringLiteral("DBChooseRecordButton") )
     {
         buttonClicked(index);
         return true;
@@ -483,7 +483,7 @@ void AERPInlineEditItemDelegate::buttonUpdateFields(DBField *fld, BaseBean *sele
     while ( iterator.hasNext() )
     {
         iterator.next();
-        if ( iterator.key() == "replaceFields" )
+        if ( iterator.key() == QStringLiteral("replaceFields") )
         {
             QStringList items = iterator.value().toString().split(';');
             if ( items.size() == 2 && selectedBean->field(items.at(0)) != NULL )

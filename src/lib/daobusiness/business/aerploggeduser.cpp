@@ -120,7 +120,7 @@ bool AERPLoggedUser::hasRole(const QString &roleName)
     {
         return false;
     }
-    if ( roleName == "*" )
+    if ( roleName == QStringLiteral("*") )
     {
         return true;
     }
@@ -154,7 +154,7 @@ bool AERPLoggedUser::hasOnlyRole(const QString &roleName)
     {
         return false;
     }
-    if ( roleName == "*" )
+    if ( roleName == QStringLiteral("*") )
     {
         return true;
     }

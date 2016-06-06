@@ -300,7 +300,7 @@ int main(int argc, char *argv[])
 
     // Si la aplicación soporta gestión documental, es el momento de comprobar si el repositorio esta iniciado
 #ifdef ALEPHERP_DOC_MANAGEMENT
-    if ( EnvVars::instance()->var(AlephERP::stDocMngmntEnabled).toString() == "true" )
+    if ( EnvVars::instance()->var(AlephERP::stDocMngmntEnabled).toString() == QStringLiteral("true") )
     {
         QString error;
         if ( !CommonsFunctions::isRepoInit(error) )
@@ -452,7 +452,7 @@ void setStyle()
         QStringList styles = QStyleFactory::keys();
         foreach (const QString &style, styles)
         {
-            if ( style == "Android" )
+            if ( style == QStringLiteral("Android") )
             {
                 alephERPSettings->setLookAndFeel(style);
                 alephERPSettings->save();

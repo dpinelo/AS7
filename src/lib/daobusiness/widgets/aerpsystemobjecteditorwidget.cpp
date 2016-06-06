@@ -159,7 +159,7 @@ void AERPSystemObjectEditorWidget::init()
 
     ui->stackedWidget->setCurrentIndex(0);
     BaseBean *bean = dlg->bean();
-    if ( bean->fieldValue("type").toString() == "qs" )
+    if ( bean->fieldValue("type").toString() == QStringLiteral("qs") )
     {
         ui->db_contenido->setCodeLanguage("QtScript");
         ui->pbDesigner->setVisible(false);
@@ -170,7 +170,7 @@ void AERPSystemObjectEditorWidget::init()
         ui->db_on_init_debug->setVisible(true);
         ui->chkValidate->setVisible(false);
     }
-    else if ( bean->fieldValue("type").toString() == "rcc" || bean->fieldValue("type").toString() == "help" || bean->fieldValue("type").toString() == "binary" )
+    else if ( bean->fieldValue("type").toString() == QStringLiteral("rcc") || bean->fieldValue("type").toString() == QStringLiteral("help") || bean->fieldValue("type").toString() == QStringLiteral("binary") )
     {
         ui->pbDesigner->setVisible(false);
         ui->pbImportBinaryFile->setVisible(true);
@@ -180,7 +180,7 @@ void AERPSystemObjectEditorWidget::init()
         ui->db_on_init_debug->setVisible(false);
         ui->chkValidate->setVisible(false);
     }
-    else if ( bean->fieldValue("type").toString() == "ui" )
+    else if ( bean->fieldValue("type").toString() == QStringLiteral("ui") )
     {
         ui->db_contenido->setCodeLanguage("XML");
         ui->pbDesigner->setVisible(true);
@@ -191,7 +191,7 @@ void AERPSystemObjectEditorWidget::init()
         ui->db_on_init_debug->setVisible(false);
         ui->chkValidate->setVisible(false);
     }
-    else if ( bean->fieldValue("type").toString() == "table" || bean->fieldValue("type").toString() == "tableTemp" )
+    else if ( bean->fieldValue("type").toString() == QStringLiteral("table") || bean->fieldValue("type").toString() == QStringLiteral("tableTemp") )
     {
         ui->db_contenido->setCodeLanguage("XML");
         ui->pbDesigner->setVisible(false);
@@ -202,7 +202,7 @@ void AERPSystemObjectEditorWidget::init()
         ui->db_on_init_debug->setVisible(false);
         ui->chkValidate->setVisible(true);
     }
-    else if ( bean->fieldValue("type").toString() == "report" )
+    else if ( bean->fieldValue("type").toString() == QStringLiteral("report") )
     {
         ui->db_contenido->setCodeLanguage("XML");
         ui->pbDesigner->setVisible(false);
@@ -213,7 +213,7 @@ void AERPSystemObjectEditorWidget::init()
         ui->db_on_init_debug->setVisible(false);
         ui->chkValidate->setVisible(false);
     }
-    else if ( bean->fieldValue("type").toString() == "reportDef" )
+    else if ( bean->fieldValue("type").toString() == QStringLiteral("reportDef") )
     {
         ui->db_contenido->setCodeLanguage("XML");
         ui->pbDesigner->setVisible(false);
@@ -224,7 +224,7 @@ void AERPSystemObjectEditorWidget::init()
         ui->db_on_init_debug->setVisible(false);
         ui->chkValidate->setVisible(true);
     }
-    else if ( bean->fieldValue("type").toString() == "job" )
+    else if ( bean->fieldValue("type").toString() == QStringLiteral("job") )
     {
         ui->db_contenido->setCodeLanguage("XML");
         ui->pbDesigner->setVisible(true);
@@ -512,27 +512,27 @@ void AERPSystemObjectEditorWidget::setTemplate()
     BaseBean *bean = dlg->bean();
     if ( bean != NULL )
     {
-        if ( bean->fieldValue("type").toString() == "ui" )
+        if ( bean->fieldValue("type").toString() == QStringLiteral("ui") )
         {
             d->importTemplate(QString(":/aplicacion/templates/uitemplate.ui"));
             ui->chkValidate->setVisible(false);
         }
-        else if ( bean->fieldValue("type").toString() == "qs" )
+        else if ( bean->fieldValue("type").toString() == QStringLiteral("qs") )
         {
             d->importTemplate(QString(":/aplicacion/templates/qstemplate.qs"));
             ui->chkValidate->setVisible(false);
         }
-        else if ( bean->fieldValue("type").toString() == "table" )
+        else if ( bean->fieldValue("type").toString() == QStringLiteral("table") )
         {
             d->importTemplate(QString(":/aplicacion/templates/table.xml"));
             ui->chkValidate->setVisible(true);
         }
-        else if ( bean->fieldValue("type").toString() == "reportDef" )
+        else if ( bean->fieldValue("type").toString() == QStringLiteral("reportDef") )
         {
             d->importTemplate(QString(":/aplicacion/templates/report.xml"));
             ui->chkValidate->setVisible(true);
         }
-        else if ( bean->fieldValue("type").toString() == "job" )
+        else if ( bean->fieldValue("type").toString() == QStringLiteral("job") )
         {
             d->importTemplate(QString(":/aplicacion/templates/job.xml"));
             ui->chkValidate->setVisible(true);

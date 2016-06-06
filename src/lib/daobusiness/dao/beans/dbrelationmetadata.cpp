@@ -375,17 +375,17 @@ QString DBRelationMetadata::sqlForeignKey(AlephERP::CreationTableSqlOptions opti
 QString DBRelationMetadata::sqlDropForeignKey(AlephERP::CreationTableSqlOptions options, const QString &dialect)
 {
     QString sql;
-    if ( dialect == "QPSQL" )
+    if ( dialect == QStringLiteral("QPSQL") )
     {
         sql = QString("ALTER TABLE %1 DROP CONSTRAINT IF EXISTS %2").
                 arg(sqlTableName(dialect)).
                 arg(sqlForeignKeyName(options, dialect));
     }
-    else if ( dialect == "QIBASE" )
+    else if ( dialect == QStringLiteral("QIBASE") )
     {
         sql = QString("DROP TRIGGER %1").arg(sqlForeignKeyName(options, dialect));
     }
-    else if ( dialect == "QSQLITE" )
+    else if ( dialect == QStringLiteral("QSQLITE") )
     {
         sql = QString("DROP TRIGGER %1").arg(sqlForeignKeyName(options, dialect));
     }

@@ -947,11 +947,11 @@ void DBFieldMetadata::setMetadataTypeName(const QString &value)
 QString DBFieldMetadata::databaseType(const QString &dialect) const
 {
     QString type;
-    if ( d->m_metadataTypeName == "string" || d->m_metadataTypeName == "password" )
+    if ( d->m_metadataTypeName == QStringLiteral("string") || d->m_metadataTypeName == QStringLiteral("password") )
     {
         type = QString("character varying(%1)").arg(d->m_length == 0 ? 1 : d->m_length);
     }
-    else if ( d->m_metadataTypeName == "stringlist" )
+    else if ( d->m_metadataTypeName == QStringLiteral("stringlist") )
     {
         if ( dialect == QString("QIBASE") )
         {
@@ -962,11 +962,11 @@ QString DBFieldMetadata::databaseType(const QString &dialect) const
             type = QString("text");
         }
     }
-    else if ( d->m_metadataTypeName == "double" )
+    else if ( d->m_metadataTypeName == QStringLiteral("double") )
     {
         type = QString("double precision");
     }
-    else if ( d->m_metadataTypeName == "int" || d->m_metadataTypeName == "integer" )
+    else if ( d->m_metadataTypeName == QStringLiteral("int") || d->m_metadataTypeName == QStringLiteral("integer") )
     {
         /* De la documentación de SQLIte: http://www.sqlite.org/lang_createtable.html
          * With one exception, if a table has a primary key that consists of a single column, and the declared type of that
@@ -977,7 +977,7 @@ QString DBFieldMetadata::databaseType(const QString &dialect) const
          * unique index, not as an alias for the rowid.
          * Y esto genera un problema con las foreign key al asumirse como alias de la rowid. Las foreign key no se pueden asociar a un rowid. */
         type = QString("integer");
-        if ( dialect == "QSQLITE" )
+        if ( dialect == QStringLiteral("QSQLITE") )
         {
             if ( d->m_primaryKey )
             {
@@ -985,7 +985,7 @@ QString DBFieldMetadata::databaseType(const QString &dialect) const
             }
         }
     }
-    else if ( d->m_metadataTypeName == "long" )
+    else if ( d->m_metadataTypeName == QStringLiteral("long") )
     {
         /* De la documentación de SQLIte: http://www.sqlite.org/lang_createtable.html
          * With one exception, if a table has a primary key that consists of a single column, and the declared type of that
@@ -996,7 +996,7 @@ QString DBFieldMetadata::databaseType(const QString &dialect) const
          * unique index, not as an alias for the rowid.
          * Y esto genera un problema con las foreign key al asumirse como alias de la rowid. Las foreign key no se pueden asociar a un rowid. */
         type = QString("bigint");
-        if ( dialect == "QSQLITE" )
+        if ( dialect == QStringLiteral("QSQLITE") )
         {
             if ( d->m_primaryKey )
             {
@@ -1004,12 +1004,12 @@ QString DBFieldMetadata::databaseType(const QString &dialect) const
             }
         }
     }
-    else if ( d->m_metadataTypeName == "serial" )
+    else if ( d->m_metadataTypeName == QStringLiteral("serial") )
     {
         /* Por la razón anterior, los campos serial sólo se adminten para primary keys. SQLIte los asocia a un rowid.
          * Además, en relaciones de integridad referencial, no se pueden utilizar rowid. Es por ello que no utilizaremos
          * serial en SQL generando las sequencias de forma a mano, desde AlephERP */
-        if ( dialect == "QSQLITE" )
+        if ( dialect == QStringLiteral("QSQLITE") )
         {
             if ( d->m_primaryKey )
             {
@@ -1020,7 +1020,7 @@ QString DBFieldMetadata::databaseType(const QString &dialect) const
                 type = QString("int");
             }
         }
-        else if ( dialect == "QIBASE")
+        else if ( dialect == QStringLiteral("QIBASE"))
         {
             type = QString("int");
         }
@@ -1029,21 +1029,21 @@ QString DBFieldMetadata::databaseType(const QString &dialect) const
             type = QString("serial");
         }
     }
-    else if ( d->m_metadataTypeName == "date" )
+    else if ( d->m_metadataTypeName == QStringLiteral("date") )
     {
         type = QString("date");
     }
-    else if ( d->m_metadataTypeName == "datetime" )
+    else if ( d->m_metadataTypeName == QStringLiteral("datetime") )
     {
         type = QString("timestamp");
     }
-    else if ( d->m_metadataTypeName == "bool" || d->m_metadataTypeName == "boolean" )
+    else if ( d->m_metadataTypeName == QStringLiteral("bool") || d->m_metadataTypeName == QStringLiteral("boolean") )
     {
         type = QString("boolean");
     }
-    else if ( d->m_metadataTypeName == "image" )
+    else if ( d->m_metadataTypeName == QStringLiteral("image") )
     {
-        if ( dialect == "QIBASE" )
+        if ( dialect == QStringLiteral("QIBASE") )
         {
             type = QString("BLOB");
         }
@@ -1596,7 +1596,7 @@ QVariant DBFieldMetadata::calculateDefaultValue(DBField *parent)
             d->m_type = data.type();
         }
         QString temp = data.toString();
-        if ( temp.toLower() == "nan" )
+        if ( temp.toLower() == QStringLiteral("nan") )
         {
             data = QVariant();
         }
@@ -1897,7 +1897,7 @@ QString DBFieldMetadata::sqlWhere(const QString &op, const QVariant &value, cons
 {
     QString result;
 
-    if ( dialect == "QSQLITE" && op == "=" && d->m_type == QVariant::Bool )
+    if ( dialect == QStringLiteral("QSQLITE") && op == QStringLiteral("=") && d->m_type == QVariant::Bool )
     {
         if ( value.toBool() == true )
         {
@@ -2021,7 +2021,7 @@ QVariant DBFieldMetadata::parseValue(const QString &v)
     }
     else if ( type() == QVariant::Bool )
     {
-        result = QVariant(value.toLower() == "true" ? true : false);
+        result = QVariant(value.toLower() == QStringLiteral("true") ? true : false);
     }
     else if ( type() == QVariant::String )
     {
@@ -2093,7 +2093,7 @@ QVariant DBFieldMetadata::variantValueFromSqlRawData(const QString &data)
     }
     else if ( type() == QVariant::Bool )
     {
-        bool temp = data == "true" ? true : false;
+        bool temp = data == QStringLiteral("true") ? true : false;
         result = QVariant(temp);
     }
     else if ( type() == QVariant::String )

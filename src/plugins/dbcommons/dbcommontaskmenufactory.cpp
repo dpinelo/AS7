@@ -34,7 +34,7 @@ QObject * DBCommonTaskMenuFactory::createExtension(QObject *object, const QStrin
 
     if ( QWidget *widget = qobject_cast<QWidget *>(object) )
     {
-        if ( QString(widget->metaObject()->className()) == "DBChooseRecordButton" )
+        if ( QString(widget->metaObject()->className()) == QStringLiteral("DBChooseRecordButton") )
         {
             return new DBChooseRecordButtonTaskMenu(qobject_cast<DBChooseRecordButton *>(widget), parent);
         }

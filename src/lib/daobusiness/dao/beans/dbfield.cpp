@@ -290,7 +290,7 @@ bool DBFieldPrivate::checkNull()
         {
             QString temp = q_ptr->value().toString();
             // También puede ocurrir, que el campo sea un combobox.
-            if ( temp.isEmpty() || ( q_ptr->metadata()->optionsList().size() > 0 && temp == "-1" ))
+            if ( temp.isEmpty() || ( q_ptr->metadata()->optionsList().size() > 0 && temp == QStringLiteral("-1") ))
             {
                 result = false;
             }
@@ -763,7 +763,7 @@ QString DBFieldPrivate::sqlValue(const QVariant &val, bool includeQuotesOnString
     }
     else if ( m->type() == QVariant::Bool )
     {
-        if ( driverName == "QIBASE" )
+        if ( driverName == QStringLiteral("QIBASE") )
         {
             result = (val.toBool() ? QString("1") : QString("0"));
         }
@@ -887,7 +887,7 @@ QVariant DBField::value()
     {
         d->m_memoLoaded = BaseDAO::selectField(this);
     }
-    if ( d->m->serial() && d->m_bean->dbState() == BaseBean::INSERT && Database::getQDatabase().driverName() == "QSQLITE" )
+    if ( d->m->serial() && d->m_bean->dbState() == BaseBean::INSERT && Database::getQDatabase().driverName() == QStringLiteral("QSQLITE") )
     {
         /** Para SQLite debemos calcular y generar los valores de las secuencias desde AlephERP. Lo podemos hacer
          * en este punto, ya que se supone que las base de datos SQLite son locales */
@@ -1711,19 +1711,19 @@ bool DBField::checkValue(const QVariant &chkValue, const QString &op, Qt::CaseSe
 
     if ( d->m->type() == QVariant::Int )
     {
-        if ( op == "<" )
+        if ( op == QStringLiteral("<") )
         {
             return ( chkValue.toInt() > value().toInt() );
         }
-        else if ( op == ">" )
+        else if ( op == QStringLiteral(">") )
         {
             return ( chkValue.toInt() < value().toInt() );
         }
-        else if ( op == "=" )
+        else if ( op == QStringLiteral("=") )
         {
             return ( chkValue.toInt() == value().toInt() );
         }
-        else if ( op == "!=" )
+        else if ( op == QStringLiteral("!=") )
         {
             return ( chkValue.toInt() != value().toInt() );
         }
@@ -1734,19 +1734,19 @@ bool DBField::checkValue(const QVariant &chkValue, const QString &op, Qt::CaseSe
     }
     else if ( d->m->type() == QVariant::LongLong )
     {
-        if ( op == "<" )
+        if ( op == QStringLiteral("<") )
         {
             return ( chkValue.toDouble() > value().toLongLong() );
         }
-        else if ( op == ">" )
+        else if ( op == QStringLiteral(">") )
         {
             return ( chkValue.toDouble() < value().toLongLong() );
         }
-        else if ( op == "=" )
+        else if ( op == QStringLiteral("=") )
         {
             return ( chkValue.toDouble() == value().toLongLong() );
         }
-        else if ( op == "!=" )
+        else if ( op == QStringLiteral("!=") )
         {
             return ( chkValue.toDouble() != value().toLongLong() );
         }
@@ -1757,19 +1757,19 @@ bool DBField::checkValue(const QVariant &chkValue, const QString &op, Qt::CaseSe
     }
     else if ( d->m->type() == QVariant::Double )
     {
-        if ( op == "<" )
+        if ( op == QStringLiteral("<") )
         {
             return ( chkValue.toDouble() > value().toDouble() );
         }
-        else if ( op == ">" )
+        else if ( op == QStringLiteral(">") )
         {
             return ( chkValue.toDouble() < value().toDouble() );
         }
-        else if ( op == "=" )
+        else if ( op == QStringLiteral("=") )
         {
             return ( chkValue.toDouble() == value().toDouble() );
         }
-        else if ( op == "!=" )
+        else if ( op == QStringLiteral("!=") )
         {
             return ( chkValue.toDouble() != value().toDouble() );
         }
@@ -1780,19 +1780,19 @@ bool DBField::checkValue(const QVariant &chkValue, const QString &op, Qt::CaseSe
     }
     else if ( d->m->type() == QVariant::Date )
     {
-        if ( op == "<" )
+        if ( op == QStringLiteral("<") )
         {
             return ( value().toDate() < chkValue.toDate());
         }
-        else if ( op == ">" )
+        else if ( op == QStringLiteral(">") )
         {
             return ( value().toDate() > chkValue.toDate() );
         }
-        else if ( op == "=" )
+        else if ( op == QStringLiteral("=") )
         {
             return ( value().toDate() == chkValue.toDate() );
         }
-        else if ( op == "!=" )
+        else if ( op == QStringLiteral("!=") )
         {
             return ( value().toDate() != chkValue.toDate() );
         }
@@ -1803,19 +1803,19 @@ bool DBField::checkValue(const QVariant &chkValue, const QString &op, Qt::CaseSe
     }
     else if ( d->m->type() == QVariant::DateTime )
     {
-        if ( op == "<" )
+        if ( op == QStringLiteral("<") )
         {
             return ( value().toDateTime() < chkValue.toDateTime());
         }
-        else if ( op == ">" )
+        else if ( op == QStringLiteral(">") )
         {
             return ( value().toDateTime() > chkValue.toDateTime() );
         }
-        else if ( op == "=" )
+        else if ( op == QStringLiteral("=") )
         {
             return ( value().toDateTime() == chkValue.toDateTime() );
         }
-        else if ( op == "!=" )
+        else if ( op == QStringLiteral("!=") )
         {
             return ( value().toDateTime() != chkValue.toDateTime() );
         }
@@ -1826,7 +1826,7 @@ bool DBField::checkValue(const QVariant &chkValue, const QString &op, Qt::CaseSe
     }
     else if ( d->m->type() == QVariant::Bool )
     {
-        bool invert = ( op == "!=" ? true : false );
+        bool invert = ( op == QStringLiteral("!=") ? true : false );
         result = (chkValue.toBool() == value().toBool());
         if ( invert )
         {
@@ -1856,7 +1856,7 @@ bool DBField::checkValue(const QVariant &chkValue, const QString &op, Qt::CaseSe
             tmp = QRegExp(tmpChkValue);
             val = value().toString();
         }
-        bool invert = ( op == "!=" ? true : false );
+        bool invert = ( op == QStringLiteral("!=") ? true : false );
         if ( tmp.isValid() )
         {
             int index = tmp.indexIn(val);
@@ -1874,7 +1874,7 @@ bool DBField::checkValue(const QVariant &chkValue, const QString &op, Qt::CaseSe
     else
     {
         qCritical() << "checkValue: DBField: " << d->m->dbFieldName() << ". No tiene definido un tipo de datos. Asignando el tipo por defecto.";
-        bool invert = ( op == "!=" ? true : false );
+        bool invert = ( op == QStringLiteral("!=") ? true : false );
         result = value().toString().contains(chkValue.toString(), Qt::CaseInsensitive);
         if ( invert )
         {
@@ -2002,15 +2002,15 @@ QVariant DBFieldPrivate::calculateAggregateValue()
             }
         }
     }
-    if ( calc.operation == "sum" )
+    if ( calc.operation == QStringLiteral("sum") )
     {
         result = QVariant(sumResult);
     }
-    else if ( calc.operation == "count" )
+    else if ( calc.operation == QStringLiteral("count") )
     {
         result = QVariant(countResult);
     }
-    else if ( calc.operation == "avg" )
+    else if ( calc.operation == QStringLiteral("avg") )
     {
         result = QVariant (sumResult / countResult);
     }

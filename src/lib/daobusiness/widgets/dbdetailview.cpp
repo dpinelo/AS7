@@ -340,15 +340,15 @@ void DBDetailView::editRecord(const QString &action)
         qDebug() << "DBDetailView::editRecord: m_filterModel es nulo, o el modelo m_model no es de tipo BaseBeanModel";
         return;
     }
-    if ( action == "edit" )
+    if ( action == QStringLiteral("edit") )
     {
         openType = AlephERP::Update;
     }
-    else if ( action == "add" )
+    else if ( action == QStringLiteral("add") )
     {
         openType = AlephERP::Insert;
     }
-    else if ( action == "view" )
+    else if ( action == QStringLiteral("view") )
     {
         openType = AlephERP::ReadOnly;
     }

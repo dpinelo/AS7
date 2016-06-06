@@ -69,7 +69,7 @@ bool AERPSystemObjectEditDlg::validate()
     {
         return false;
     }
-    if (b->fieldValue("type").toString() == "qs")
+    if (b->fieldValue("type").toString() == QStringLiteral("qs"))
     {
         QString error = "";
         int line = 0;
@@ -88,7 +88,7 @@ bool AERPSystemObjectEditDlg::validate()
             }
         }
     }
-    else if (b->fieldValue("type").toString() == "table")
+    else if (b->fieldValue("type").toString() == QStringLiteral("table"))
     {
         QFile schemaFile(QString(":/aplicacion/xmlschemas/metadata.xsd"));
         schemaFile.open(QIODevice::ReadOnly);
@@ -148,7 +148,7 @@ bool AERPSystemObjectEditDlg::save()
                                          b->fieldValue("on_init_debug").toBool(),
                                          b->fieldValue("debug").toBool(),
                                          b->fieldValue("idorigin").toInt());
-        if ( EnvVars::instance()->var("exportSystemFiles").toString() == "true" )
+        if ( EnvVars::instance()->var("exportSystemFiles").toString() == QStringLiteral("true") )
         {
             QString path = EnvVars::instance()->var("pathSystemFiles").toString();
             QDir dir(path);
@@ -162,19 +162,19 @@ bool AERPSystemObjectEditDlg::save()
                 EnvVars::instance()->setDbVar("pathSystemFiles", QDir::fromNativeSeparators(path));
             }
             QString fileName = path + "/" + b->fieldValue("module").toString() + "/" + b->fieldValue("nombre").toString();
-            if ( b->fieldValue("type").toString() == "table" )
+            if ( b->fieldValue("type").toString() == QStringLiteral("table") )
             {
                 fileName = fileName + ".table";
             }
-            else if ( b->fieldValue("type").toString() == "tableTemp" )
+            else if ( b->fieldValue("type").toString() == QStringLiteral("tableTemp") )
             {
                 fileName = fileName + ".tableTemp";
             }
-            else if ( b->fieldValue("type").toString() == "reportDef" )
+            else if ( b->fieldValue("type").toString() == QStringLiteral("reportDef") )
             {
                 fileName = fileName + ".reportDef";
             }
-            else if ( b->fieldValue("type").toString() == "job" )
+            else if ( b->fieldValue("type").toString() == QStringLiteral("job") )
             {
                 fileName = fileName + ".job";
             }

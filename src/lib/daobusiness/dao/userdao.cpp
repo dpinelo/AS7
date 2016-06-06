@@ -54,7 +54,7 @@ UserDAO::LoginMessages UserDAO::login (QString &userName, const QString &passwor
 {
     bool result = false;
     QString sql;
-    if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == "true" )
+    if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == QStringLiteral("true") )
     {
         sql = QString(SQL_SELECT_USER_CI).arg(alephERPSettings->systemTablePrefix());
     }
@@ -135,7 +135,7 @@ QHash<QString, QVariant> UserDAO::metadataAccess(const QString &userName, const 
         {
             while ( qry->next() )
             {
-                if ( qry->value(0).toString() == "*" )
+                if ( qry->value(0).toString() == QStringLiteral("*") )
                 {
                     return grantAllAccess();
                 }
@@ -144,7 +144,7 @@ QHash<QString, QVariant> UserDAO::metadataAccess(const QString &userName, const 
         }
         QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("UserDAO::permission: [%1]").arg(qry->lastQuery()));
     }
-    if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == "true" )
+    if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == QStringLiteral("true") )
     {
         sql = QString(SQL_SELECT_PERMISSIONS_BY_USER_CI).arg(alephERPSettings->systemTablePrefix());
     }
@@ -158,7 +158,7 @@ QHash<QString, QVariant> UserDAO::metadataAccess(const QString &userName, const 
     {
         while ( qry->next() )
         {
-            if ( qry->value(0).toString() == "*" )
+            if ( qry->value(0).toString() == QStringLiteral("*") )
             {
                 return grantAllAccess();
             }
@@ -213,7 +213,7 @@ QHash<QString, QVariant> UserDAO::grantAllAccess()
 bool UserDAO::changePassword (QString &userName, const QString &oldPassword, const QString &newPassword)
 {
     QString sql;
-    if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == "true" )
+    if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == QStringLiteral("true") )
     {
         sql = QString(SQL_CHANGE_PASSWORD_CI).arg(alephERPSettings->systemTablePrefix());
     }
@@ -258,7 +258,7 @@ QList<AlephERP::RoleInfo> UserDAO::userRoles(const QString &userName)
     QList<AlephERP::RoleInfo> result;
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase()));
 
-    if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive).toString() == "true" )
+    if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive).toString() == QStringLiteral("true") )
     {
         sql = QString(SQL_SELECT_USER_ROLES_CI).arg(alephERPSettings->systemTablePrefix());
     }

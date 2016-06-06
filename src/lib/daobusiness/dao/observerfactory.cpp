@@ -75,15 +75,15 @@ AbstractObserver *ObserverFactory::newObserver(DBObject *entity)
 {
     AbstractObserver *obj = NULL;
     QString className (entity->metaObject()->className());
-    if ( className == "BaseBean" )
+    if ( className == QStringLiteral("BaseBean") )
     {
         obj = new BaseBeanObserver(entity);
     }
-    else if ( className == "DBField" )
+    else if ( className == QStringLiteral("DBField") )
     {
         obj = new DBFieldObserver(entity);
     }
-    else if ( className == "DBRelation" )
+    else if ( className == QStringLiteral("DBRelation") )
     {
         obj = new DBRelationObserver(entity);
     }
