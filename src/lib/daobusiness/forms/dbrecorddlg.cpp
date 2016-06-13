@@ -727,7 +727,9 @@ void DBRecordDlg::printRecord()
         return;
     }
     ReportRun run;
-    run.setBean(d->m_bean);
+    BaseBeanPointerList beans;
+    beans << d->m_bean;
+    run.setBeans(beans);
     run.setParentWidget(this);
     run.showDialog();
 }
@@ -750,7 +752,9 @@ void DBRecordDlg::emailRecord()
             {
                 // Ejecutamos el informe asociado, a este bean.
                 ReportRun reportRun;
-                reportRun.setBean(d->m_bean);
+                BaseBeanPointerList beans;
+                beans << d->m_bean;
+                reportRun.setBeans(beans);
                 reportRun.setParentWidget(this);
                 if ( !reportRun.pdf(1, false) )
                 {

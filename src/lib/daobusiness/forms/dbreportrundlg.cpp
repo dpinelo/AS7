@@ -160,7 +160,7 @@ void DBReportRunDlg::unsetBean()
     {
         return;
     }
-    d->m_run->setBean(NULL);
+    d->m_run->setBeans(BaseBeanPointerList());
 }
 
 bool DBReportRunDlg::init()
@@ -262,7 +262,7 @@ void DBReportRunDlgPrivate::setDefaultValueParemeters()
     {
         return;
     }
-    if ( m_run->bean().isNull() )
+    if ( m_run->beans().isEmpty() )
     {
         return;
     }
@@ -275,14 +275,21 @@ void DBReportRunDlgPrivate::setDefaultValueParemeters()
             QVariant binding = widget->property("reportParameterBinding");
             if ( binding.isValid() && binding.canConvert<QString>() )
             {
-                QString propertyBinding = binding.toString();
-                QString fieldName = m_run->metadata()->fieldNameForParameter(propertyBinding);
-                QVariant defaultValue = m_run->bean()->fieldValue(fieldName);
-                if ( defaultValue.isValid() )
+                if ( m_run->beans().isEmpty() )
                 {
-                    DBBaseWidget *dbWidget = dynamic_cast<DBBaseWidget *>(widget);
-                    dbWidget->setValue(defaultValue);
-                    QObject::connect(widget, SIGNAL(valueEdited(QVariant)), q_ptr, SLOT(unsetBean()));
+                    BaseBeanPointer bean = m_run->beans().first();
+                    if ( !bean.isNull() )
+                    {
+                        QString propertyBinding = binding.toString();
+                        QString fieldName = m_run->metadata()->fieldNameForParameter(propertyBinding);
+                        QVariant defaultValue = bean->fieldValue(fieldName);
+                        if ( defaultValue.isValid() )
+                        {
+                            DBBaseWidget *dbWidget = dynamic_cast<DBBaseWidget *>(widget);
+                            dbWidget->setValue(defaultValue);
+                            QObject::connect(widget, SIGNAL(valueEdited(QVariant)), q_ptr, SLOT(unsetBean()));
+                        }
+                    }
                 }
             }
         }
@@ -344,7 +351,7 @@ void DBReportRunDlgPrivate::buildUIParameters()
         return;
     }
 
-    if ( m_run->bean().isNull() )
+    if ( m_run->beans().isEmpty() || m_run->beans().first().isNull() )
     {
         q_ptr->ui->gbParameters->setVisible(false);
         QLogger::QLog_Debug(AlephERP::stLogOther, QObject::trUtf8("Este informe no está asociado a ninguna tabla. No puede crearse una interfaz automática."));
@@ -352,7 +359,8 @@ void DBReportRunDlgPrivate::buildUIParameters()
     }
     QList<AlephERP::ReportParameterInfo> paramList = m_run->parametersRequired();
     QVBoxLayout *lay = new QVBoxLayout;
-    BaseBeanMetadata *m = m_run->bean()->metadata();
+    BaseBeanPointer bean = m_run->beans().first();
+    BaseBeanMetadata *m = bean->metadata();
     if ( m == NULL )
     {
         q_ptr->ui->gbParameters->setVisible(false);
@@ -455,13 +463,17 @@ void DBReportRunDlgPrivate::buildUIChooseReport()
         return;
     }
     QString reps;
-    if ( m_run->bean().isNull() )
+    if ( m_run->beans().isEmpty() )
     {
         reps = m_run->linkedTo();
     }
     else
     {
-        reps = m_run->bean()->metadata()->tableName();
+        BaseBeanPointer bean = m_run->beans().first();
+        if ( !bean.isNull() )
+        {
+            reps = bean->metadata()->tableName();
+        }
     }
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     QList<ReportMetadata *> reports = m_run->availableReports(reps);

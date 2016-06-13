@@ -39,7 +39,7 @@ class ReportRun : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString reportName READ reportName WRITE setReportName)
-    Q_PROPERTY(BaseBeanPointer bean READ bean WRITE setBean)
+    Q_PROPERTY(BaseBeanPointerList beans READ beans WRITE setBeans)
     Q_PROPERTY(ReportMetadata* metadata READ metadata)
     Q_PROPERTY(QString linkedTo READ linkedTo WRITE setLinkedTo)
 
@@ -53,8 +53,8 @@ public:
     ReportMetadata *metadata();
     void setReportName (const QString &reportName);
     QString reportName() const;
-    BaseBeanPointer bean();
-    void setBean(BaseBeanPointer bean);
+    BaseBeanPointerList beans();
+    void setBeans(BaseBeanPointerList beans);
     void setParentWidget(QWidget *parent);
     void setParameters(const QVariantMap &parameters);
     QString linkedTo() const;

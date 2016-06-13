@@ -41,7 +41,7 @@ class ReportRunPrivate
 public:
     ReportRun *q_ptr;
     QPointer<ReportMetadata> m_metadata;
-    BaseBeanPointer m_bean;
+    BaseBeanPointerList m_beans;
     QString m_lastErrorMessage;
     QWidget *m_parentWidget;
     QString m_reportName;
@@ -57,8 +57,8 @@ public:
     }
 
     QVariantMap buildEnvVarParameterBinding();
-    QVariantMap buildParameterBindingForBean();
-    bool prepareReport();
+    QVariantMap buildParameterBindingForBean(BaseBeanPointer bean);
+    bool prepareReport(BaseBeanPointer bean);
     void setParametersOnIface(const QVariantMap &parameters);
 };
 
@@ -130,17 +130,22 @@ QString ReportRun::reportName() const
     return d->m_reportName;
 }
 
-BaseBeanPointer ReportRun::bean()
+BaseBeanPointerList ReportRun::beans()
 {
-    return d->m_bean;
+    return d->m_beans;
 }
 
-void ReportRun::setBean(BaseBeanPointer bean)
+void ReportRun::setBeans(BaseBeanPointerList beans)
 {
-    d->m_bean = bean;
+    d->m_beans = beans;
     // Si el bean sólo tiene un único informe seleccionado, lo asociamos a este motor
-    if ( d->m_bean )
+    if ( !d->m_beans.isEmpty() )
     {
+        BaseBeanPointer bean = d->m_beans.first();
+        if ( bean.isNull() )
+        {
+            return;
+        }
         QList<ReportMetadata *> reports;
         if ( bean->metadata()->viewForTable().isEmpty() )
         {
@@ -213,7 +218,7 @@ QList<ReportMetadata *> ReportRun::availableReports(const QString &tableName)
 
 /**
  * @brief ReportRun::availableReports
- * Devuelve los informes disponibles para el bean pasado a esta instancia del motor.
+ * Devuelve los informes disponibles para los beans pasado a esta instancia del motor.
  * Si no se ha pasado ningún bean, y no se ha dado un nombre de informe por reportName, se presentan
  * todos los posibles informes del sistema.
  * @return
@@ -221,7 +226,7 @@ QList<ReportMetadata *> ReportRun::availableReports(const QString &tableName)
 QList<ReportMetadata *> ReportRun::availableReports()
 {
     QList<ReportMetadata *> list;
-    if ( d->m_bean.isNull() )
+    if ( d->m_beans.isEmpty() )
     {
         foreach (ReportMetadata *m, BeansFactory::metadataReports)
         {
@@ -233,13 +238,17 @@ QList<ReportMetadata *> ReportRun::availableReports()
     }
     else
     {
-        if ( d->m_bean->metadata()->viewForTable().isEmpty() )
+        BaseBeanPointer bean = d->m_beans.first();
+        if ( !bean.isNull() )
         {
-            list = ReportRun::availableReports(d->m_bean->metadata()->tableName());
-        }
-        else
-        {
-            list = ReportRun::availableReports(d->m_bean->metadata()->viewForTable());
+            if ( bean->metadata()->viewForTable().isEmpty() )
+            {
+                list = ReportRun::availableReports(bean->metadata()->tableName());
+            }
+            else
+            {
+                list = ReportRun::availableReports(bean->metadata()->viewForTable());
+            }
         }
     }
     return list;
@@ -348,7 +357,7 @@ bool ReportRun::canExportSpreadSheet()
 
 bool ReportRun::needsUserToEnterParameters()
 {
-    if ( !d->m_bean.isNull() && !d->m_metadata.isNull() && d->m_metadata->parameterForm().isEmpty() )
+    if ( !d->m_beans.isEmpty() && !d->m_metadata.isNull() && d->m_metadata->parameterForm().isEmpty() )
     {
         return false;
     }
@@ -385,13 +394,13 @@ QVariantMap ReportRunPrivate::buildEnvVarParameterBinding()
  * Construye un mapa con los valores reales de los registros por cada parámetro del informe, para su ejecución.
  * @return
  */
-QVariantMap ReportRunPrivate::buildParameterBindingForBean()
+QVariantMap ReportRunPrivate::buildParameterBindingForBean(BaseBeanPointer bean)
 {
     QVariantMap binding;
     AERPMultiStringMap parameterBinding = m_metadata->parameterBinding();
-    if ( !m_bean.isNull() )
+    if ( !bean.isNull() )
     {
-        foreach (DBField *fld, m_bean->fields())
+        foreach (DBField *fld, bean->fields())
         {
             if ( parameterBinding.contains(fld->metadata()->dbFieldName()) )
             {
@@ -540,26 +549,26 @@ void ReportRun::fromScriptValue(const QScriptValue &object, ReportRun *&out)
  * Se preparará el informe, cargando el plugin si es necesario, solicitando los parámetros adecuados...
  * @return
  */
-bool ReportRunPrivate::prepareReport()
+bool ReportRunPrivate::prepareReport(BaseBeanPointer bean)
 {
     // ¿Ejecutamos el informe porque tenemos un bean?
-    if ( !m_bean.isNull() )
+    if ( !bean.isNull() )
     {
         if ( m_reportName.isEmpty() )
         {
             // ¿El bean tiene definido más de un informe? Si es así, tendremos que preguntar qué informe queremos enviar
             QList<ReportMetadata *> metadatas;
-            if ( m_bean->metadata()->viewForTable().isEmpty() )
+            if ( bean->metadata()->viewForTable().isEmpty() )
             {
-                metadatas = BeansFactory::metadataReportsByLinkedTo(m_bean->metadata()->tableName());
+                metadatas = BeansFactory::metadataReportsByLinkedTo(bean->metadata()->tableName());
             }
             else
             {
-                metadatas = BeansFactory::metadataReportsByLinkedTo(m_bean->metadata()->viewForTable());
+                metadatas = BeansFactory::metadataReportsByLinkedTo(bean->metadata()->viewForTable());
             }
             if ( metadatas.size() == 0 )
             {
-                m_lastErrorMessage = QObject::trUtf8("No hay definido ningún informe para %1").arg(m_bean->metadata()->alias());
+                m_lastErrorMessage = QObject::trUtf8("No hay definido ningún informe para %1").arg(bean->metadata()->alias());
                 return false;
             }
             else if ( m_reportName.isEmpty() )
@@ -589,9 +598,9 @@ bool ReportRunPrivate::prepareReport()
     {
         return false;
     }
-    if ( !m_bean.isNull() )
+    if ( !bean.isNull() )
     {
-        setParametersOnIface(buildParameterBindingForBean());
+        setParametersOnIface(buildParameterBindingForBean(bean));
     }
     else if ( !m_metadata.isNull() )
     {
@@ -627,14 +636,32 @@ bool ReportRun::print(int numCopies)
     {
         return false;
     }
-    if ( !d->prepareReport() )
+    // Si tenemos un listado de beans, se ejecuta por cada bean
+    if ( !d->m_beans.isEmpty() )
     {
-        return false;
+        foreach (BaseBeanPointer bean, d->m_beans)
+        {
+            if ( !bean.isNull() && d->prepareReport(bean) )
+            {
+                if ( !iface()->print(numCopies) )
+                {
+                    d->m_lastErrorMessage = iface()->lastErrorMessage();
+                    return false;
+                }
+            }
+        }
     }
-    if ( !iface()->print(numCopies) )
+    else
     {
-        d->m_lastErrorMessage = iface()->lastErrorMessage();
-        return false;
+        if ( !d->prepareReport(BaseBeanPointer()) )
+        {
+            return false;
+        }
+        if ( !iface()->print(numCopies) )
+        {
+            d->m_lastErrorMessage = iface()->lastErrorMessage();
+            return false;
+        }
     }
     return true;
 }
@@ -642,7 +669,16 @@ bool ReportRun::print(int numCopies)
 bool ReportRun::preview(int numCopies)
 {
     d->m_lastErrorMessage = "";
-    if ( iface() == NULL || !d->prepareReport() )
+    if ( iface() == NULL )
+    {
+        return false;
+    }
+    BaseBeanPointer bean;
+    if ( !d->m_beans.isEmpty() )
+    {
+        bean = d->m_beans.first();
+    }
+    if ( !d->prepareReport(bean) )
     {
         return false;
     }
@@ -668,24 +704,65 @@ bool ReportRun::preview(int numCopies)
 bool ReportRun::pdf(int numCopies, bool open)
 {
     d->m_lastErrorMessage = "";
-    if ( iface() == NULL || !d->prepareReport() )
+    if ( iface() == NULL )
+    {
+        return false;
+    }
+    BaseBeanPointer bean;
+    if ( !d->m_beans.isEmpty() )
+    {
+        bean = d->m_beans.first();
+    }
+    if ( !d->prepareReport(bean) )
     {
         return false;
     }
     if ( iface()->canCreatePDF() )
     {
-        CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-        bool result = !iface()->pdf(d->m_pdfGeneratedFilePath, numCopies);
-        CommonsFunctions::restoreOverrideCursor();
-        if ( result )
+        if ( d->m_beans.size() > 1 )
         {
-            d->m_lastErrorMessage = iface()->lastErrorMessage();
-            return false;
+            QString path = QFileDialog::getExistingDirectory(0,
+                                                             tr("Seleccione el directorio en el que se generarán todos los PDFs."),
+                                                             QDir::homePath());
+            if ( !path.isEmpty() )
+            {
+                QString pdfFilePath = QString("%1/%2.pdf").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).arg(alephERPSettings->uniqueId());
+                foreach (BaseBeanPointer bean, d->m_beans)
+                {
+                    if ( !bean.isNull() && d->prepareReport(bean) )
+                    {
+                        CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+                        bool result = !iface()->pdf(pdfFilePath, numCopies);
+                        CommonsFunctions::restoreOverrideCursor();
+                        if ( result )
+                        {
+                            d->m_lastErrorMessage = iface()->lastErrorMessage();
+                            return false;
+                        }
+                        if ( open )
+                        {
+                            QUrl url(QString("file:///%1").arg(path), QUrl::TolerantMode);
+                            QDesktopServices::openUrl(url);
+                        }
+                    }
+                }
+            }
         }
-        if ( open )
+        else
         {
-            QUrl url(QString("file:///%1").arg(d->m_pdfGeneratedFilePath), QUrl::TolerantMode);
-            QDesktopServices::openUrl(url);
+            CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+            bool result = !iface()->pdf(d->m_pdfGeneratedFilePath, numCopies);
+            CommonsFunctions::restoreOverrideCursor();
+            if ( result )
+            {
+                d->m_lastErrorMessage = iface()->lastErrorMessage();
+                return false;
+            }
+            if ( open )
+            {
+                QUrl url(QString("file:///%1").arg(d->m_pdfGeneratedFilePath), QUrl::TolerantMode);
+                QDesktopServices::openUrl(url);
+            }
         }
     }
     else
@@ -749,7 +826,7 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
 
     // Construimos los parámetros de entorno
     QVariantMap parameters;
-    if ( !d->m_bean.isNull() )
+    if ( !d->m_beans.isNull() )
     {
         parameters = d->buildParameterBindingForBean();
     }

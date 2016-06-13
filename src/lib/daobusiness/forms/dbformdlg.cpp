@@ -1922,6 +1922,7 @@ void DBFormDlg::printRecord()
     QModelIndexList indexes = selModel->selectedRows();
 
     ReportRun run;
+    BaseBeanPointerList beans;
     if ( !indexes.isEmpty() )
     {
         FilterBaseBeanModel *model = d->m_itemView->filterModel();
@@ -1932,11 +1933,11 @@ void DBFormDlg::printRecord()
                 BaseBeanSharedPointer bean = model->beanToBeEdited(rowIndex);
                 if ( !bean.isNull() )
                 {
-                    // Se pasa de forma redundante el tableName ya que este puede ser
-                    run.setBean(bean.data());
+                    beans << bean.data();
                 }
             }
         }
+        run.setBeans(beans);
     }
     else
     {
@@ -1974,7 +1975,9 @@ void DBFormDlg::emailRecord()
             {
                 // Ejecutamos el informe asociado, a este bean.
                 ReportRun reportRun;
-                reportRun.setBean(bean.data());
+                BaseBeanPointerList beans;
+                beans << bean;
+                reportRun.setBeans(beans);
                 reportRun.setParentWidget(this);
                 if ( !reportRun.pdf(1, false) )
                 {
