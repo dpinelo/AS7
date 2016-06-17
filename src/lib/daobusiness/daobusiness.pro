@@ -13,9 +13,6 @@ contains(BARCODESUPPORT, Y) {
     SOURCES += widgets/dbbarcode.cpp
     HEADERS += widgets/dbbarcode.h
     LIBS += -lzint
-    unix {
-        LIBS += -lpng
-    }
 }
 
 !android {
@@ -60,6 +57,12 @@ contains (AERPADVANCEDEDIT, Y) {
 
 LIBS += -lmuparser
 
+win32-msvc* {
+    message("DAOBUSINESS: Opciones de configuración para MSVC 32 bits")
+}
+win64-msvc* {
+    message("DAOBUSINESS: Opciones de configuración para MSVC 64 bits")
+}
 win32-msvc* {
     LIBS += -llibpng -ljpeg -lzlib -lUser32
 }
@@ -639,10 +642,10 @@ FORMS += \
     forms/aerptransactioncontextprogressdlg.ui \
     widgets/dbfullscheduleview.ui
 
-win32-msvc*:win64-msvc*:unix:macx {
-    SOURCES += widgets/dbmapposition.cpp
-    HEADERS += widgets/dbmapposition.h
-    FORMS += widgets/dbmapposition.ui
+win32-msvc*:unix:macx {
+    #SOURCES += widgets/dbmapposition.cpp
+    #HEADERS += widgets/dbmapposition.h
+    #FORMS += widgets/dbmapposition.ui
 }
 
 !contains(QT_VERSION, ^4\\.[0-8]\\..*) {

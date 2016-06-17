@@ -966,6 +966,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
             if ( dlg != NULL && dlg->bean()->dbOid() == bean->dbOid() && dlg->bean()->metadata()->tableName() == bean->metadata()->tableName() )
             {
                 dlg->show();
+                return;
             }
         }
     }

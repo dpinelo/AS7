@@ -726,11 +726,11 @@ bool ReportRun::pdf(int numCopies, bool open)
                                                              QDir::homePath());
             if ( !path.isEmpty() )
             {
-                QString pdfFilePath = QString("%1/%2.pdf").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).arg(alephERPSettings->uniqueId());
                 foreach (BaseBeanPointer bean, d->m_beans)
                 {
                     if ( !bean.isNull() && d->prepareReport(bean) )
                     {
+                        QString pdfFilePath = QString("%1/%2.pdf").arg(QDir::fromNativeSeparators(path)).arg(alephERPSettings->uniqueId());
                         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
                         bool result = !iface()->pdf(pdfFilePath, numCopies);
                         CommonsFunctions::restoreOverrideCursor();
@@ -826,9 +826,10 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
 
     // Construimos los parámetros de entorno
     QVariantMap parameters;
-    if ( !d->m_beans.isNull() )
+    if ( !d->m_beans.isEmpty() )
     {
-        parameters = d->buildParameterBindingForBean();
+        // TODO: Hay que ver esto.
+        // parameters = d->buildParameterBindingForBean();
     }
     else if ( !d->m_metadata.isNull() )
     {

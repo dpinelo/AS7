@@ -148,7 +148,7 @@ void DBTableView::setTableName(const QString &name)
   */
 void DBTableView::showEvent(QShowEvent *event)
 {
-    setStyleSheet("QTableView {selection-background-color: blue};");
+    setStyleSheet("QTableView {selection-background-color: blue; selection-color: white};");
     if ( !this->m_externalModel )
     {
         DBBaseWidget::showEvent(event);

@@ -147,6 +147,6 @@ contains(AERPDOCMNGSUPPORT, Y) {
 }
 
 win32-msvc*:win64-msvc*:unix:macx {
-    HEADERS += dbmappositionplugin.h \
-    SOURCES += dbmappositionplugin.cpp \
+    #HEADERS += dbmappositionplugin.h \
+    #SOURCES += dbmappositionplugin.cpp \
 }

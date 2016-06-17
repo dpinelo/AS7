@@ -19,7 +19,7 @@ win32 {
         FIREBIRDPATH=/usr
         ADDITIONALLIBS=/home/david/src/alepherp/build.win64
     }
-    win32-msvc*:win64-msvc* {
+    win32-msvc* {
         #FIREBIRDPATH=C:/Users/David/programacion/Firebird-2.5.2.26540
         #ADDITIONALLIBS=C:/Users/David/programacion/libraries/win32/msvc
         FIREBIRDPATH=C:/Users/David/src/Firebird-2.5.2.26540
@@ -57,7 +57,8 @@ TESTPARTS=N
 # Puede ser, xbase64, xbase2 o dbase-code
 DBASELIBRARY=dbase-code
 LINUX32BITS=N
-XLSSUPPORT=N
+XLSSUPPORT=Y
+ODSSUPPORT=Y
 
 VMIMESMTPSUPPORT=N
 POCOSMTPSUPPORT=N
@@ -89,6 +90,8 @@ win64-g++ {
 }
 win32-msvc* {
     BUILDTYPE=win32/msvc
+    XLSSUPPORT=N
+    ODSSUPPORT=N
 }
 win64-msvc* {
     BUILDTYPE=win64/msvc
