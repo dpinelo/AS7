@@ -75,6 +75,7 @@ public:
     QPointer<AERPScript> m_engine;
     QHash<QString, QLineEdit *> m_subTotalsQuerys;
     QHash<QString, DBFieldMetadata *> m_subTotalsFields;
+    QHash<int, QHBoxLayout *> m_layouts;
     bool m_onInit;
     /** Indica a qué nivel se aplican los filtros creados por metadatos */
     int m_filterLevel;
@@ -86,8 +87,8 @@ public:
     QString initOrderedColumn();
     QString initOrderedColumnSort();
     void createStrongFilter();
-    void createComboStringFilter(const QHash<QString, QString> &filter, DBFieldMetadata *fld, bool viewAll, int i, const QString &order, const QString &fieldToFilter, const QString &relationFieldToShow);
-    void createLineTextStringFilter(DBFieldMetadata *fld, int i, bool exactlySearch, bool autocomplete);
+    void createComboStringFilter(const QHash<QString, QString> &filter, DBFieldMetadata *fld, bool viewAll, int i, const QString &order, const QString &fieldToFilter, const QString &relationFieldToShow, int row);
+    void createLineTextStringFilter(DBFieldMetadata *fld, int i, bool exactlySearch, bool autocomplete, int row);
     QString sqlFilterForStrongFilter(const QString &tableName, const QHash<QString, QString> &filter);
     void destroyStrongFilter(const QString &dbFieldName);
     bool filterTypeToApply(QObject *obj, const QString &textFilter, int rowCount, int filterCount);

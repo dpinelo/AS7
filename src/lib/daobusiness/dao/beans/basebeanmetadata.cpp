@@ -1953,7 +1953,8 @@ void BaseBeanMetadataPrivate::setConfig()
 
         QDomElement e = root.firstChildElement("itemsFilterColumn");
         if ( !e.isNull() )
-        {            readItemsFilterColumn(e);
+        {
+            readItemsFilterColumn(e);
         }
         e = root.firstChildElement("envVars");
         if ( !e.isNull() )
@@ -3083,6 +3084,17 @@ void BaseBeanMetadataPrivate::readItemsFilterColumn(const QDomElement &e)
                     hash[AlephERP::stViewAllOption] = checkWildCards(final);
                 }
             }
+
+            if ( n.at(i).toElement().hasAttribute(AlephERP::stRow) )
+            {
+                hash[AlephERP::stRow] = n.at(i).toElement().attribute(AlephERP::stRow);
+            }
+            else
+            {
+                hash[AlephERP::stRow] = "0";
+            }
+
+
             QString idFilter = QString("%1;%2;%3;%4;%5;%6;%7").arg(hash[AlephERP::stFieldToFilter]).arg(hash[AlephERP::stRelationFieldToShow]).arg(hash[AlephERP::stOrder])
                                .arg(hash[AlephERP::stSetFilterValueOnNewRecords]).arg(hash[AlephERP::stRelationFilter]).arg(hash[AlephERP::stRelationFilterScript])
                                .arg(hash[AlephERP::stViewAllOption]);

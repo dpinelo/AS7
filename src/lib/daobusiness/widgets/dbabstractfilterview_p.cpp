@@ -246,6 +246,7 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
             bool showTextLineExactlySearch = filter[AlephERP::stShowTextLineExactlySearch] == QLatin1Literal("true") ? true: false;
             bool viewAll = filter[AlephERP::stViewAllOption].isEmpty() || filter[AlephERP::stViewAllOption] == QLatin1Literal("true") ? true : false;
             bool autocomplete = filter[AlephERP::stShowTextLineAutocomplete] == QLatin1Literal("true") ? true : false;
+            int row = filter[AlephERP::stRow].toInt();
 
             if ( fieldToFilter.isEmpty() )
             {
@@ -263,11 +264,11 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
             {
                 if ( showTextLine )
                 {
-                    createLineTextStringFilter(fld, i, showTextLineExactlySearch, autocomplete);
+                    createLineTextStringFilter(fld, i, showTextLineExactlySearch, autocomplete, row);
                 }
                 else
                 {
-                    createComboStringFilter(filter, fld, viewAll, i, order, fieldToFilter, relationFieldToShow);
+                    createComboStringFilter(filter, fld, viewAll, i, order, fieldToFilter, relationFieldToShow, row);
                 }
                 i++;
             }
@@ -285,19 +286,43 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
                                                           int i,
                                                           const QString &order,
                                                           const QString &fieldToFilter,
-                                                          const QString &relationFieldToShow)
+                                                          const QString &relationFieldToShow,
+                                                          int row)
 {
     QComboBox *cb = new QComboBox(q_ptr);
     QLabel *lbl = new QLabel(q_ptr);
-    QHBoxLayout *lay = qobject_cast<QHBoxLayout *>(q_ptr->ui->gbFilter->layout());
+    QVBoxLayout *lay = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbFilter->layout());
     if ( lay == NULL )
     {
         return;
     }
+    QHBoxLayout *layout;
+    if ( m_layouts.contains(row) )
+    {
+        layout = m_layouts[row];
+    }
+    else
+    {
+        if ( row == 0 )
+        {
+            layout = lay->findChild<QHBoxLayout *>();
+            if ( layout == NULL )
+            {
+                layout = new QHBoxLayout;
+            }
+        }
+        else
+        {
+            layout = new QHBoxLayout;
+            lay->addLayout(layout);
+        }
+        m_layouts[row] = layout;
+    }
     cb->setObjectName(QString("cbStrongFilter%1").arg(fld->dbFieldName()));
     lbl->setObjectName(QString("lblStrongFilter%1").arg(fld->dbFieldName()));
-    lay->insertWidget(i*2, lbl);
-    lay->insertWidget(i*2 + 1, cb);
+    lbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
+    layout->insertWidget(i*2, lbl);
+    layout->insertWidget(i*2 + 1, cb);
     lbl->setText(fld->fieldName());
     if ( fld->type() == QVariant::Bool )
     {
@@ -374,21 +399,44 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
     q_ptr->connect(cb, SIGNAL(currentIndexChanged(int)), q_ptr, SLOT(saveStrongFilterWidgetStatus()));
 }
 
-void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fld, int i, bool exactlySearch, bool autocomplete)
+void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fld, int i, bool exactlySearch, bool autocomplete, int row)
 {
     DBLineEdit *le = new DBLineEdit(q_ptr);
     QLabel *lbl = new QLabel(q_ptr);
-    QHBoxLayout *lay = qobject_cast<QHBoxLayout *>(q_ptr->ui->gbFilter->layout());
+    QVBoxLayout *lay = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbFilter->layout());
     if ( lay == NULL )
     {
         return;
     }
+    QHBoxLayout *layout;
+    if ( m_layouts.contains(row) )
+    {
+        layout = m_layouts[row];
+    }
+    else
+    {
+        if ( row == 0 )
+        {
+            layout = lay->findChild<QHBoxLayout *>();
+            if ( layout == NULL )
+            {
+                layout = new QHBoxLayout;
+            }
+        }
+        else
+        {
+            layout = new QHBoxLayout;
+            lay->addLayout(layout);
+        }
+        m_layouts[row] = layout;
+    }
     le->setObjectName(QString("leStrongFilter%1").arg(fld->dbFieldName()));
     lbl->setObjectName(QString("lblStrongFilter%1").arg(fld->dbFieldName()));
+    lbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
     le->setProperty(AlephERP::stShowTextLineExactlySearch, exactlySearch);
     le->setProperty(AlephERP::stFieldName, fld->dbFieldName());
-    lay->insertWidget(i*2, lbl);
-    lay->insertWidget(i*2 + 1, le);
+    layout->insertWidget(i*2, lbl);
+    layout->insertWidget(i*2 + 1, le);
     lbl->setText(fld->fieldName());
 
     if ( autocomplete )
