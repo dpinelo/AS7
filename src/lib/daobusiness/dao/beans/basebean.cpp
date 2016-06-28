@@ -92,6 +92,7 @@ public:
     bool m_restoringValues;
     QMutex m_mutex;
     bool m_calculateFieldsEnabled;
+    QString m_lastError;
 
     BaseBeanPrivate(BaseBean *qq);
 
@@ -1722,6 +1723,7 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore)
         }
     }
 
+    d->m_lastError.clear();
     if ( dbState() == BaseBean::INSERT )
     {
         result = BaseDAO::insert(this, transaction);
@@ -1758,6 +1760,10 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore)
         blockAllSignals(deleteBeanStateBlockSignals);
         // Ejecutamos las acciones tras insertar.
         metadata()->afterSaveScriptExecute(this);
+    }
+    else
+    {
+        d->m_lastError = BaseDAO::lastErrorMessage();
     }
     if ( result && idTransaction.isEmpty() )
     {
@@ -3243,6 +3249,11 @@ bool BaseBean::setReadOnly(bool value)
 bool BaseBean::calculatedFieldsEnabled() const
 {
     return d->m_calculateFieldsEnabled;
+}
+
+QString BaseBean::lastError() const
+{
+
 }
 
 void BaseBean::setLoadTime(const QDateTime &time)

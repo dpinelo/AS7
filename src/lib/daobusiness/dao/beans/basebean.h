@@ -141,6 +141,7 @@ class ALEPHERP_DLL_EXPORT BaseBean : public DBObject
     Q_PROPERTY(QString rawHash READ hash)
     Q_PROPERTY(bool allSignalsBlocked READ allSignalsBlocked)
     Q_PROPERTY(bool calculatedFieldsEnabled READ calculatedFieldsEnabled)
+    Q_PROPERTY(QString lastError READ lastError)
 
     /** BaseDAO utiliza unas funciones específicas de DBField y BaseBean para así saber
       cuándo la lectura de un dato se ha producid por lectura de base de datos, de modo
@@ -216,6 +217,8 @@ public:
     bool setReadOnly(bool value);
 
     bool calculatedFieldsEnabled() const;
+
+    QString lastError() const;
 
     QList<DBField *> fields() const;
     QVariantMap fieldsMap() const;
