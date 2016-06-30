@@ -11,7 +11,7 @@ CONFIG += staticlib
     TEMPLATE = lib
 }
 
-QMAKE_CXXFLAGS += -std=c++11 -Wall -pedantic
+QMAKE_CXXFLAGS += -Wall -pedantic
 
 SOURCES += \
     mpVariable.cpp \
