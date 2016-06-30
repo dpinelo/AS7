@@ -80,6 +80,8 @@ android {
 
 macx {
     BUILDTYPE=macos
+    CONFIG-=app_bundle
+    QMAKE_CXXFLAGS = -stdlib=libc++
 }
 
 win32-g++ {
@@ -108,10 +110,6 @@ unix {
         QMAKE_LFLAGS = -m64
         QMAKE_CXXFLAGS = -m64
     }
-}
-
-macx {
-    CONFIG-=app_bundle
 }
 
 BUILDPATH=$$ALEPHERPPATH/build/$$QT_VERSION/$$BUILDTYPE
