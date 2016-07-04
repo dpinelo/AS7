@@ -3253,7 +3253,7 @@ bool BaseBean::calculatedFieldsEnabled() const
 
 QString BaseBean::lastError() const
 {
-
+    return d->m_lastError;
 }
 
 void BaseBean::setLoadTime(const QDateTime &time)
