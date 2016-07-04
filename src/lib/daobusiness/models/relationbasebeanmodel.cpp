@@ -224,9 +224,18 @@ void RelationBaseBeanModelPrivate::unloadBeans()
         }
     }
     unloadBeans(m_rootBean, m_path);
-    m_beans.clear();
-    m_fathers.clear();
-    m_relations.clear();
+    if ( !m_beans.isEmpty() )
+    {
+        m_beans.clear();
+    }
+    if ( !m_fathers.isEmpty() )
+    {
+        m_fathers.clear();
+    }
+    if ( !m_relations.isEmpty() )
+    {
+        m_relations.clear();
+    }
 }
 
 void RelationBaseBeanModelPrivate::unloadBeans(BaseBean *rootBean, const QStringList &pathList)
