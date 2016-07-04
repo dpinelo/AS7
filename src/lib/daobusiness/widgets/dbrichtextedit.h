@@ -25,6 +25,9 @@
 #include <alepherpglobal.h>
 #include <aerpcommon.h>
 #include "widgets/dbbasewidget.h"
+#include "widgets/aerpbackgroundanimation.h"
+
+class DBRichTextEditPrivate;
 
 /**
   Para la edición de textos largos, con formato, en HTML y ligados a un DBField de un BaseBean
@@ -32,7 +35,7 @@
   @see QTextEdit
   @see DBBaseWidget
   */
-class ALEPHERP_DLL_EXPORT DBRichTextEdit : public QwwRichTextEdit, public DBBaseWidget
+class ALEPHERP_DLL_EXPORT DBRichTextEdit : public QwwRichTextEdit, public DBBaseWidget, public AERPBackgroundAnimation
 {
     Q_OBJECT
     Q_PROPERTY (QString fieldName READ fieldName WRITE setFieldName)
@@ -46,15 +49,16 @@ class ALEPHERP_DLL_EXPORT DBRichTextEdit : public QwwRichTextEdit, public DBBase
       que lo contiene. Esta propiedad marca esto */
     Q_PROPERTY (bool dataFromParentDialog READ dataFromParentDialog WRITE setDataFromParentDialog)
 
+private:
+    DBRichTextEditPrivate *d;
+
 protected:
-    void showEvent(QShowEvent *event)
-    {
-        DBBaseWidget::showEvent(event);
-    }
+    void showEvent(QShowEvent *event);
     void hideEvent(QHideEvent *event)
     {
         DBBaseWidget::hideEvent(event);
     }
+    void paintEvent(QPaintEvent *event);
     QString processHtml(const QString &html);
 
 public:
@@ -85,6 +89,8 @@ public slots:
         DBBaseWidget::askToRecalculateCounterField();
     }
     void setFocus() { QWidget::setFocus(); }
+    void showAnimation();
+    void hideAnimation();
 
 private slots:
     void emitValueEdited();

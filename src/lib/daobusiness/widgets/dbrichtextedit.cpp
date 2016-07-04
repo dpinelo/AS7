@@ -31,15 +31,40 @@
 #include "dao/observerfactory.h"
 #include "dao/dbfieldobserver.h"
 
-DBRichTextEdit::DBRichTextEdit(QWidget *parent) :
-    QwwRichTextEdit(parent)
+class DBRichTextEditPrivate
 {
+public:
+    DBRichTextEdit *q_ptr;
+    bool m_connectedToObserver;
+
+    DBRichTextEditPrivate(DBRichTextEdit *qq) : q_ptr(qq)
+    {
+        m_connectedToObserver = false;
+    }
+
+    void connections();
+};
+
+DBRichTextEdit::DBRichTextEdit(QWidget *parent) :
+    QwwRichTextEdit(parent),
+    DBBaseWidget(),
+    AERPBackgroundAnimation(viewport()),
+    d(new DBRichTextEditPrivate(this))
+{
+    setAnimation(":/generales/images/animatedWait.gif");
     connect(this, SIGNAL(textChanged()), this, SLOT(emitValueEdited()));
 }
 
 DBRichTextEdit::~DBRichTextEdit()
 {
     emit destroyed(this);
+    delete d;
+}
+
+void DBRichTextEdit::paintEvent(QPaintEvent *event)
+{
+    QwwRichTextEdit::paintEvent(event);
+    AERPBackgroundAnimation::paintAnimation(event);
 }
 
 void DBRichTextEdit::setValue(const QVariant &value)
@@ -117,8 +142,36 @@ void DBRichTextEdit::refresh()
     observer();
     if ( m_observer != NULL )
     {
+        d->connections();
         m_observer->sync();
     }
+}
+
+void DBRichTextEdit::showEvent(QShowEvent *event)
+{
+    observer(false);
+    showtMandatoryWildcardForLabel();
+    if ( m_observer )
+    {
+        if ( !property(AlephERP::stInited).toBool() )
+        {
+            d->connections();
+            setProperty(AlephERP::stInited, true);
+        }
+        m_observer->sync();
+    }
+}
+
+void DBRichTextEdit::showAnimation()
+{
+    setReadOnly(true);
+    AERPBackgroundAnimation::showAnimation();
+}
+
+void DBRichTextEdit::hideAnimation()
+{
+    setReadOnly(!dataEditable());
+    AERPBackgroundAnimation::hideAnimation();
 }
 
 /*!
@@ -133,7 +186,6 @@ void DBRichTextEdit::fromScriptValue(const QScriptValue &object, DBRichTextEdit 
 {
     out = qobject_cast<DBRichTextEdit *>(object.toQObject());
 }
-
 
 /**
  * @brief DBRichTextEdit::processHtml
@@ -163,4 +215,20 @@ QString DBRichTextEdit::processHtml(const QString &html)
         processed = domDocument.toString();
     }
     return processed;
+}
+
+void DBRichTextEditPrivate::connections()
+{
+    if ( !m_connectedToObserver )
+    {
+        DBFieldObserver *obs = qobject_cast<DBFieldObserver *>(q_ptr->observer());
+        if ( obs != NULL )
+        {
+            q_ptr->connect(obs, SIGNAL(initBackgroundLoad()), q_ptr, SLOT(showAnimation()));
+            q_ptr->connect(obs, SIGNAL(dataAvailable(QVariant)), q_ptr, SLOT(setValue(QVariant)));
+            q_ptr->connect(obs, SIGNAL(dataAvailable(QVariant)), q_ptr, SLOT(hideAnimation()));
+            q_ptr->connect(obs, SIGNAL(errorBackgroundLoad(QString)), q_ptr, SLOT(hideAnimation()));
+        }
+        m_connectedToObserver = true;
+    }
 }
