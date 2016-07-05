@@ -577,6 +577,13 @@ void DBRelation::updateChildrens()
                 if ( rootField->rawValue().isValid() && d->haveToSearchOnDatabase(rootField) )
                 {
                     QString where = QString("%1 = %2").arg(d->m->childFieldName()).arg(rootField->sqlValue(true, "", true));
+                    // Como vamos a obtener el nuevo padre, habrá que limpiarlo (por ejemplo, si tiene
+                    // hijos de una relación)
+                    foreach (DBRelation *rel, d->m_father->relations())
+                    {
+                        rel->unloadChildren();
+                    }
+
                     if ( BaseDAO::selectFirst(d->m_father.data(), where) )
                     {
                         bool blockSignalsState = d->m_father->blockSignals(true);
