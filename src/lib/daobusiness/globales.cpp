@@ -81,8 +81,45 @@ void CommonsFunctions::processEvents()
     }
 }
 
-double CommonsFunctions::round(double value, int Digits)
+double CommonsFunctions::round(double value, int decimalPoints)
 {
+/* METODO DE REDONDEO
+a) 4,123 ⇒ Regla 1: Si el dígito a la derecha del último requerido es menor que 5, el último dígito requerido se deja intacto. Respuesta: 4,12
+b) 8,627 ⇒ Regla 2: Si el dígito a la derecha del último requerido es mayor que 5, el último dígito requerido se aumenta una unidad. Respuesta: 8,63
+c) 9,425110 ⇒ Regla 3: Si el dígito a la derecha del último requerido es un 5 no seguido de ceros, el último dígito requerido se aumenta una unidad. Respuesta: 9,43
+d) 7,385 o 7,385000 ⇒ Regla 4: Si el dígito a la derecha del último requerido es un 5 seguido de ceros, el último dígito requerido se deja intacto si es par. Respuesta: 7,38
+e) 6,275 o 6,275000 ⇒ Regla 5: Si el dígito a la derecha del último requerido es un 5 o seguido de ceros, el último dígito requerido se aumenta una unidad si es impar. Respuesta: 6,28
+*/
+    double numLeft = value;
+    double numRight = value;
+    double numTopLeft = value;
+    int digitLeft, digitRight, digitTopLeft;
+
+    numLeft *= pow(10, decimalPoints + 1);
+    numTopLeft *= pow(10, decimalPoints + 2);
+    digitLeft = fmod(numLeft, 10);
+    digitTopLeft = fmod(numTopLeft, 10);
+
+    if (digitLeft == 5 && digitTopLeft == 0)
+    {
+        numRight *= pow(10, decimalPoints);
+        digitRight = fmod(numRight, 10);
+
+        if (digitRight % 2 == 0) // if even
+        {
+            return floor(value * pow(10, decimalPoints)) / pow(10, decimalPoints);
+        }
+        else // otherwise it's odd
+        {
+            return ceil(value * pow(10, decimalPoints)) / pow(10, decimalPoints);
+        }
+    }
+    else // standard round-to-nearest
+    {
+        return std::round(value * pow(10, decimalPoints)) / pow(10, decimalPoints);
+    }
+
+    /*
     double rounded;
     if( value > 0.0 )
     {
@@ -93,6 +130,7 @@ double CommonsFunctions::round(double value, int Digits)
         rounded = ((qlonglong)(value * pow( 10.0, Digits) - 0.5 )) / pow(10.0, Digits);
     }
     return rounded;
+    */
 }
 
 /**

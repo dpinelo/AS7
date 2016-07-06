@@ -76,6 +76,26 @@ int main(int argc, char *argv[])
 
     AERPApplication app(argc, argv);
 
+    // Comprobamos las reglas de redondeo a par.
+    double d1 = CommonsFunctions::round(2.341, 2);
+    Q_ASSERT(d1 == 2.34);
+    d1 = CommonsFunctions::round(2.347, 2);
+    Q_ASSERT(d1 == 2.35);
+    d1 = CommonsFunctions::round(2.3451, 2);
+    Q_ASSERT(d1 == 2.35);
+    d1 = CommonsFunctions::round(2.3450, 2);
+    Q_ASSERT(d1 == 2.34);
+    d1 = CommonsFunctions::round(2.345, 2);
+    Q_ASSERT(d1 == 2.34);
+    d1 = CommonsFunctions::round(2.345, 2);
+    Q_ASSERT(d1 != 2.35);
+    d1 = CommonsFunctions::round(2.335, 2);
+    Q_ASSERT(d1 == 2.34);
+    d1 = CommonsFunctions::round(2.3350, 2);
+    Q_ASSERT(d1 == 2.34);
+    d1 = CommonsFunctions::round(2.3351, 2);
+    Q_ASSERT(d1 == 2.34);
+
     // Estas variables deben estar establecidas para poder acceder a la configuración
     Q_INIT_RESOURCE(resources);
     app.setApplicationName(QString::fromUtf8("AlephERP"));
