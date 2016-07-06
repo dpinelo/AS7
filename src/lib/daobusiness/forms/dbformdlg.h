@@ -189,6 +189,7 @@ public slots:
 
 protected slots:
     void edit();
+    void editCalledFromTableView();
     void edit(const QString &insert);
     void edit(const QString &insert, const QString &uiCode, const QString &qsCode);
     void insertChild();

@@ -762,8 +762,8 @@ void DBFormDlg::showEvent(QShowEvent *ev)
     if ( !property(AlephERP::stInited).toBool() )
     {
         // Importante hacerlo aquí ya que sabemos seguro que se ha inicializado los items.
-        connect (d->m_itemView->itemView(), SIGNAL(enterPressedOnValidIndex(QModelIndex)), ui->actionEdit, SLOT(trigger()));
-        connect (d->m_itemView->itemView(), SIGNAL(doubleClickOnValidIndex(const QModelIndex&)), ui->actionEdit, SLOT(trigger()));
+        connect (d->m_itemView->itemView(), SIGNAL(enterPressedOnValidIndex(QModelIndex)), this, SLOT(editCalledFromTableView()));
+        connect (d->m_itemView->itemView(), SIGNAL(doubleClickOnValidIndex(const QModelIndex&)), this, SLOT(editCalledFromTableView()));
         connect (d->m_itemView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(availableButtonsFromBean()));
         connect (d->m_itemView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(setBeanOnRelatedWidget()));
         connect (d->m_itemView->itemView(), SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
@@ -876,6 +876,19 @@ void DBFormDlg::exposeAERPControlToQsEngine()
 void DBFormDlg::edit()
 {
     edit("false", "", "");
+}
+
+void DBFormDlg::editCalledFromTableView()
+{
+    // Si se invoca desde el table view, debemos distinguir si hacemos edit o abrimos en modo visualización
+    if ( ui->pbEdit->isVisible() )
+    {
+        edit("false", "", "");
+    }
+    else if ( ui->pbView->isVisible() )
+    {
+        view();
+    }
 }
 
 void DBFormDlg::edit(const QString &insert)
