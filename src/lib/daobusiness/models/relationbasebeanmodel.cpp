@@ -876,7 +876,7 @@ void RelationBaseBeanModel::removeBaseBean ( const BaseBeanSharedPointer &bean )
 /*!
   Inserta una nueva línea... crea internamente, dentro de la DBRelation * el nuevo bean.
   */
-bool RelationBaseBeanModel::insertRows ( int row, int count, const QModelIndex & parent )
+bool RelationBaseBeanModel::insertRows(int row, int count, const QModelIndex & parent)
 {
     Q_UNUSED (parent);
     if ( d->m_relations.size() != 1 )
