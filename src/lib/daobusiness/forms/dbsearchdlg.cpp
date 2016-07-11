@@ -698,6 +698,7 @@ bool DBSearchDlgPrivate::setupExternalWidget()
             m_widget->setParent(q_ptr);
             q_ptr->ui->widgetLayout->setContentsMargins(0, 0, 0, 0);
             q_ptr->ui->widgetLayout->addWidget(m_widget);
+            m_widget->setFocusProxy(CommonsFunctions::firstFocusWidget(m_widget));
             m_widget->show();
         }
         else

@@ -59,7 +59,9 @@
 
 #define TRANSITION_TIME_MS 250
 
-AERPBaseDialog::AERPBaseDialog(QWidget* parent, Qt::WindowFlags fl) : QDialog(parent, fl), d(new AERPBaseDialogPrivate(this))
+AERPBaseDialog::AERPBaseDialog(QWidget* parent, Qt::WindowFlags fl) :
+    QDialog(parent, fl),
+    d(new AERPBaseDialogPrivate(this))
 {
     RegisteredDialogs::registerDialog(this);
     QMainWindow *main = (QMainWindow *) qApp->property(AlephERP::stMainWindowPointer).value<void *>();
@@ -300,6 +302,10 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBRecordDlg(BaseBeanMetadata
                 widList.prepend(lbl);
                 rowWidgets[row] = widList;
                 row++;
+                if ( m_firstFocusWidget.isNull() )
+                {
+                    m_firstFocusWidget = widList.at(0);
+                }
             }
         }
     }
@@ -421,6 +427,10 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBSearchDlg(BaseBeanMetadata
             }
             if ( widList.size() > 0 )
             {
+                if ( m_firstFocusWidget.isNull() )
+                {
+                    m_firstFocusWidget = widList.at(0);
+                }
                 QLabel *lbl = new QLabel(q_ptr);
                 lbl->setText(fld->fieldName());
                 lbl->setBuddy(widList.at(0));
@@ -735,7 +745,7 @@ bool AERPBaseDialog::eventFilter (QObject *target, QEvent *event)
     if ( event->type() == QEvent::KeyPress )
     {
         QKeyEvent *ev = static_cast<QKeyEvent *>(event);
-    if ( ev->key() == Qt::Key_Escape /*&& !ev->isAccepted()*/ )
+        if ( ev->key() == Qt::Key_Escape /*&& !ev->isAccepted()*/ )
         {
             if ( tmp4 == NULL )
             {
@@ -825,6 +835,14 @@ void AERPBaseDialog::setFocusOnFirstWidget()
         else
         {
             setTabOrder(0, contentWidget());
+            contentWidget()->setFocus();
+        }
+    }
+    else
+    {
+        if ( d->m_firstFocusWidget )
+        {
+            d->m_firstFocusWidget.data()->setFocus();
         }
     }
 }

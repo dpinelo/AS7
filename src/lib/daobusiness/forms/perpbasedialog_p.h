@@ -52,6 +52,7 @@ public:
      * de una tecla, para así no saturar de peticiones intermedias a la base de datos */
     QDateTime m_lastKeyPressTimeStamp;
     QString m_contextName;
+    QPointer<QWidget> m_firstFocusWidget;
 
     AERPBaseDialog *q_ptr;
 

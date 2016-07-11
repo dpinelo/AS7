@@ -20,6 +20,9 @@
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
     <widget class="QGroupBox" name="gbSearchFields">
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
      <property name="title">
       <string>Introduzca los parámetros de búsqueda</string>
      </property>
@@ -231,7 +234,10 @@
   </customwidget>
  </customwidgets>
  <tabstops>
+  <tabstop>gbSearchFields</tabstop>
   <tabstop>tvResults</tabstop>
+  <tabstop>pbCheckAll</tabstop>
+  <tabstop>pbUncheckAll</tabstop>
   <tabstop>pbOk</tabstop>
   <tabstop>pbNewRecord</tabstop>
   <tabstop>pbView</tabstop>
