@@ -584,7 +584,17 @@ bool DBRecordDlg::init()
     }
     else
     {
-        setWindowTitle(trUtf8("Edición de %1 [*]").arg(d->m_bean->metadata()->alias()));
+        if ( !d->m_bean->metadata()->toStringScript().isEmpty() )
+        {
+            setWindowTitle(trUtf8("Edición de %1 [*] - %2").
+                                    arg(d->m_bean->metadata()->alias()).
+                                    arg(d->m_bean->toString()));
+        }
+        else
+        {
+            setWindowTitle(trUtf8("Edición de %1 [*]").
+                                    arg(d->m_bean->metadata()->alias()));
+        }
     }
 
     // Para poder visualizar el contenido de los beans

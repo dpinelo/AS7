@@ -139,6 +139,7 @@ public:
     static const char * stRow;
     static const char * stSqlWorkerUUID;
     static const char * stValue;
+    static const char * stInsertRecord;
 
     static const char * stLogDB;
     static const char * stLogScript;

@@ -921,6 +921,15 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     }
     else
     {
+        // No vamos a permitir abrir muchas veces un registro en modo inserción... (Puede provocar refrescos
+        // en el modelo).
+        foreach (DBRecordDlg *dlg, d->m_recordDlgs)
+        {
+            if ( dlg->openType() == AlephERP::Insert )
+            {
+                return;
+            }
+        }
         openType = AlephERP::Insert;
         functionName = "beforeInsert";
         if ( !ui->pbNew->isVisible() )
@@ -988,7 +997,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     if ( d->m_metadata->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
     {
 #if defined(ALEPHERP_ADVANCED_EDIT) && defined (ALEPHERP_DEVTOOLS)
-        dlg = new AERPSystemObjectEditDlg(bean.data(), openType, true, this);
+        dlg = new AERPSystemObjectEditDlg(bean.data(), openType, true);
 #else
         d->m_canDefrostModel = true;
         d->m_itemView->defrostModel();
@@ -997,7 +1006,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     }
     else
     {
-        dlg = new DBRecordDlg(bean.data(), openType, true, this);
+        dlg = new DBRecordDlg(bean.data(), openType, true);
     }
     CommonsFunctions::restoreOverrideCursor();
     if ( !uiCode.isEmpty() )
@@ -1020,6 +1029,12 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
         connect(dlg.data(), SIGNAL(accepted(BaseBeanPointer,bool)), this, SLOT(recordDlgClosed(BaseBeanPointer,bool)));
         connect(dlg.data(), SIGNAL(rejected(BaseBeanPointer,bool)), this, SLOT(recordDlgCanceled(BaseBeanPointer,bool)));
         dlg->show();
+        // Vamos a evitar que el usuario pueda de nuevo pinchar al botón de añadir registro
+        if ( dlg->openType() == AlephERP::Insert && ui->pbNew->isVisible() )
+        {
+            dlg->setProperty(AlephERP::stInsertRecord, true);
+            ui->pbNew->setEnabled(false);
+        }
     }
     else
     {
@@ -1104,7 +1119,7 @@ void DBFormDlg::insertChild()
                     {
                         d->m_beansOnForms.append(bean);
                         d->m_itemView->disableRestoreSaveState();
-                        // dlg->setModal(true);
+                        dlg->setModal(true);
                         dlg->setCanChangeModality(true);
                         int ret = dlg->exec();
                         bool userSaveData = dlg->userSaveData();
@@ -1177,6 +1192,13 @@ void DBFormDlg::recordDlgClosed(BaseBeanPointer bean, bool userSaveData)
 {
     DBRecordDlg *dlg = qobject_cast<DBRecordDlg *>(sender());
     d->m_recordDlgs.removeAll(dlg);
+    if ( dlg != NULL )
+    {
+        if ( dlg->property(AlephERP::stInsertRecord).toBool() )
+        {
+            ui->pbNew->setEnabled(true);
+        }
+    }
     if ( !bean.isNull() )
     {
         d->removeBeanFromWorkingBeans(bean);
@@ -2108,7 +2130,7 @@ void DBFormDlg::view()
     }
     else
     {
-        dlg = new DBRecordDlg(bean.data(), openType, true, this);
+        dlg = new DBRecordDlg(bean.data(), openType, true);
     }
     CommonsFunctions::restoreOverrideCursor();
     if ( dlg->openSuccess() && dlg->init() )

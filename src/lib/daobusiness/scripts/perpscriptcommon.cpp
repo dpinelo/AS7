@@ -1751,10 +1751,13 @@ bool AERPScriptCommon::sendEmail(const QString &to, const QString &cc, const QSt
     }
 
     QScopedPointer<SMTPObject> smtp (iface->smtpObject(this));
+    QStringList tos(to);
+    smtp->setTo(tos);
     smtp->setBlindCopy(bcc.split(","));
     smtp->setBody(body);
     smtp->setCopy(cc.split(","));
     smtp->setFrom(from);
+    smtp->setSubject(subject);
     smtp->setServerAddress(EnvVars::instance()->var(AlephERP::stEmailServerAddress).toString());
     smtp->setPort(EnvVars::instance()->var(AlephERP::stEmailServerPort).toInt());
     smtp->setSmtpUserName(EnvVars::instance()->var(AlephERP::stEmailUsername).toString());
