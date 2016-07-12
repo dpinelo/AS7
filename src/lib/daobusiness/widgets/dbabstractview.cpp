@@ -798,16 +798,14 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
                     return;
                 }
             }
-            QPointer<DBRecordDlg> dlg = new DBRecordDlg(b, openType, true, m_thisWidget);
+            QPointer<DBRecordDlg> dlg = new DBRecordDlg(b, openType, true);
             QApplication::restoreOverrideCursor();
             if ( dlg->openSuccess() && dlg->init() )
             {
-                // Guardar los datos de los hijos agregados, será responsabilidad del bean padre
-                // que se está editando
-                dlg->setModal(true);
-                dlg->exec();
+                dlg->setAttribute(Qt::WA_DeleteOnClose, true);
+                dlg->setCanChangeModality(true);
+                dlg->show();
             }
-            delete dlg;
         }
     }
 }

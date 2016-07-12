@@ -82,8 +82,10 @@ win32-msvc*:win64-msvc*:unix:macx {
     QT += webenginewidgets
 }
 
-SOURCES += business/aerpqmlextension.cpp
-HEADERS += business/aerpqmlextension.h
+SOURCES += business/aerpqmlextension.cpp \
+    forms/openedrecords.cpp
+HEADERS += business/aerpqmlextension.h \
+    forms/openedrecords.h
 !ios {
     QT += uitools
 }

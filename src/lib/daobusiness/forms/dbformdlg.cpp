@@ -974,7 +974,10 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     bool beanExists = false;
     foreach (BaseBeanSharedPointer b, d->m_beansOnForms)
     {
-        if ( !b.isNull() && !bean.isNull() && b->dbOid() == bean->dbOid() && b->metadata()->tableName() == bean->metadata()->tableName() )
+        if ( !b.isNull() &&
+             !bean.isNull() &&
+             b->dbOid() == bean->dbOid() &&
+             b->metadata()->tableName() == bean->metadata()->tableName() )
         {
             beanExists = true;
             break;
@@ -985,9 +988,18 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
         // Mostramos la ventana de ese registro
         foreach (DBRecordDlg *dlg, d->m_recordDlgs)
         {
-            if ( dlg != NULL && dlg->bean()->dbOid() == bean->dbOid() && dlg->bean()->metadata()->tableName() == bean->metadata()->tableName() )
+            if ( dlg != NULL &&
+                 dlg->bean()->dbOid() == bean->dbOid() &&
+                 dlg->bean()->metadata()->tableName() == bean->metadata()->tableName() )
             {
-                dlg->show();
+                if ( dlg->isVisible() )
+                {
+                    dlg->setFocus();
+                }
+                else
+                {
+                    dlg->show();
+                }
                 return;
             }
         }
@@ -1024,7 +1036,6 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
         d->m_beansOnForms.append(bean);
         d->m_itemView->disableRestoreSaveState();
         dlg->setAttribute(Qt::WA_DeleteOnClose, true);
-        dlg->setWindowFlags(Qt::Window);
         dlg->setCanChangeModality(true);
         connect(dlg.data(), SIGNAL(accepted(BaseBeanPointer,bool)), this, SLOT(recordDlgClosed(BaseBeanPointer,bool)));
         connect(dlg.data(), SIGNAL(rejected(BaseBeanPointer,bool)), this, SLOT(recordDlgCanceled(BaseBeanPointer,bool)));
