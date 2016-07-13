@@ -65,6 +65,7 @@
 #include "reports/reportrun.h"
 #include "forms/perpmainwindow.h"
 #include "business/aerpspreadsheet.h"
+#include "forms/openedrecords.h"
 
 class DBFormDlgPrivate
 {
@@ -92,8 +93,7 @@ public:
     QString m_helpUrl;
     QPersistentModelIndex m_currentIndex;
     QModelIndex m_recentInsertSourceIndex;
-    BaseBeanSharedPointerList m_beansOnForms;
-    QList<QPointer<DBRecordDlg> > m_recordDlgs;
+    QList<DBRecordDlg *> m_recordDlgs;
 
     DBFormDlgPrivate(DBFormDlg *qq) : q_ptr(qq)
     {
@@ -112,7 +112,6 @@ public:
     void setFilterFieldValuesOnNewBean(BaseBeanSharedPointer b);
     QModelIndex rowIndexSelected();
     BaseBeanPointer nextIndex(const QString &direction);
-    void removeBeanFromWorkingBeans(BaseBeanPointer bean);
 };
 
 /**
@@ -429,24 +428,6 @@ BaseBeanPointer DBFormDlgPrivate::nextIndex(const QString &direction)
         selectionModel->setCurrentIndex(next, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     }
     return b;
-}
-
-void DBFormDlgPrivate::removeBeanFromWorkingBeans(BaseBeanPointer bean)
-{
-    if ( bean.isNull() )
-    {
-        return;
-    }
-    for (int i = 0 ; i < m_beansOnForms.size() ; ++i)
-    {
-        if ( !m_beansOnForms.at(i).isNull() &&
-             m_beansOnForms.at(i)->dbOid() == bean->dbOid() &&
-             m_beansOnForms.at(i)->metadata()->tableName() == bean->metadata()->tableName() )
-        {
-            m_beansOnForms.removeAt(i);
-            i = 0;
-        }
-    }
 }
 
 DBFormDlg::DBFormDlg(QWidget *parent, Qt::WindowFlags f)
@@ -971,37 +952,21 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
         return;
     }
     // Debemos comprobar si este bean ya está abierto
-    bool beanExists = false;
-    foreach (BaseBeanSharedPointer b, d->m_beansOnForms)
-    {
-        if ( !b.isNull() &&
-             !bean.isNull() &&
-             b->dbOid() == bean->dbOid() &&
-             b->metadata()->tableName() == bean->metadata()->tableName() )
-        {
-            beanExists = true;
-            break;
-        }
-    }
+    bool beanExists = OpenedRecords::instance()->isBeanOpened(bean.data());
     if ( beanExists )
     {
-        // Mostramos la ventana de ese registro
-        foreach (DBRecordDlg *dlg, d->m_recordDlgs)
+        QPointer<DBRecordDlg> dlg = OpenedRecords::instance()->dialogForBean(bean.data());
+        if ( dlg != NULL )
         {
-            if ( dlg != NULL &&
-                 dlg->bean()->dbOid() == bean->dbOid() &&
-                 dlg->bean()->metadata()->tableName() == bean->metadata()->tableName() )
+            if ( dlg->isVisible() )
             {
-                if ( dlg->isVisible() )
-                {
-                    dlg->setFocus();
-                }
-                else
-                {
-                    dlg->show();
-                }
-                return;
+                dlg->setFocus();
             }
+            else
+            {
+                dlg->show();
+            }
+            return;
         }
     }
     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1033,7 +998,6 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     if ( dlg->openSuccess() && dlg->init() )
     {
         d->m_recordDlgs.append(dlg);
-        d->m_beansOnForms.append(bean);
         d->m_itemView->disableRestoreSaveState();
         dlg->setAttribute(Qt::WA_DeleteOnClose, true);
         dlg->setCanChangeModality(true);
@@ -1049,8 +1013,6 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     }
     else
     {
-        d->m_recordDlgs.removeAll(dlg);
-        d->removeBeanFromWorkingBeans(bean.data());
         delete dlg;
         if ( !d->m_mainWindow->isVisibleRelatedWidget() && d->m_recordDlgs.isEmpty() )
         {
@@ -1128,7 +1090,6 @@ void DBFormDlg::insertChild()
                     CommonsFunctions::restoreOverrideCursor();
                     if ( dlg->openSuccess() && dlg->init() )
                     {
-                        d->m_beansOnForms.append(bean);
                         d->m_itemView->disableRestoreSaveState();
                         dlg->setModal(true);
                         dlg->setCanChangeModality(true);
@@ -1212,7 +1173,6 @@ void DBFormDlg::recordDlgClosed(BaseBeanPointer bean, bool userSaveData)
     }
     if ( !bean.isNull() )
     {
-        d->removeBeanFromWorkingBeans(bean);
         BaseDAO::reloadBeanFromDB(bean);
     }
     emit afterEdit(userSaveData);
@@ -2147,7 +2107,6 @@ void DBFormDlg::view()
     if ( dlg->openSuccess() && dlg->init() )
     {
         d->m_recordDlgs.append(dlg);
-        d->m_beansOnForms.append(bean);
         dlg->setAttribute(Qt::WA_DeleteOnClose, true);
         dlg->setCanChangeModality(true);
         connect(dlg.data(), SIGNAL(accepted(BaseBeanPointer,bool)), this, SLOT(recordDlgClosed(BaseBeanPointer,bool)));
@@ -2157,7 +2116,6 @@ void DBFormDlg::view()
     else
     {
         d->m_recordDlgs.removeAll(dlg);
-        d->removeBeanFromWorkingBeans(bean.data());
         delete dlg;
     }
 }

@@ -50,6 +50,7 @@
 #include "widgets/dbtreeview.h"
 #include "widgets/dbtableview.h"
 #include "business/aerploggeduser.h"
+#include "forms/openedrecords.h"
 
 DBAbstractViewInterface::DBAbstractViewInterface(QWidget *widget, QHeaderView *header)
 {
@@ -797,6 +798,12 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
                     CommonsFunctions::restoreOverrideCursor();
                     return;
                 }
+            }
+            // ¿Está el formulario abierto?
+            if ( OpenedRecords::instance()->isBeanOpened(b) )
+            {
+                QApplication::restoreOverrideCursor();
+                return;
             }
             QPointer<DBRecordDlg> dlg = new DBRecordDlg(b, openType, true);
             QApplication::restoreOverrideCursor();

@@ -56,6 +56,7 @@
 #include "forms/historyviewdlg.h"
 #include "forms/aerpuseraccessrow.h"
 #include "forms/aerptransactioncontextprogressdlg.h"
+#include "forms/openedrecords.h"
 #ifdef ALEPHERP_SMTP_SUPPORT
 #include "forms/sendemaildlg.h"
 #include "dao/emaildao.h"
@@ -490,6 +491,8 @@ bool DBRecordDlg::init()
     }
 
     setTableName(d->m_bean->metadata()->tableName());
+
+    OpenedRecords::instance()->registerRecord(d->m_bean, this);
 
     ui->pbNext->setVisible(d->m_canNavigate && d->m_visibleButtons.testFlag(DBRecordDlg::Next));
     ui->pbFirst->setVisible(d->m_canNavigate && d->m_visibleButtons.testFlag(DBRecordDlg::First));
