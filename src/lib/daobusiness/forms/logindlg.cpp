@@ -80,6 +80,16 @@ LoginDlg::LoginDlg(QWidget *parent) :
     d(new LoginDlgPrivate)
 {
     ui->setupUi(this);
+
+    // Si en el directorio del ejecutable, hay una imagen con nombre icon.png, utilizamos esta
+    QString imageFilePath = qApp->applicationDirPath() + QDir::separator() + "loginimage.png";
+    QFile fiIco(imageFilePath);
+    if ( !fiIco.exists() )
+    {
+        imageFilePath = ":/aplicacion/images/BolaAleph.png";
+    }
+    ui->lblImage->setPixmap(QPixmap(imageFilePath));
+
     connect (ui->pbOk, SIGNAL(clicked()), this, SLOT(okClicked()));
     connect (ui->pbCancel, SIGNAL(clicked()), this, SLOT(reject()));
     connect (&d->m_timer, SIGNAL(timeout()), this, SLOT(checkCapsOn()));

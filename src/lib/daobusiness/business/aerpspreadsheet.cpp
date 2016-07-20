@@ -509,6 +509,18 @@ void AERPSheet::fromScriptValue(const QScriptValue &object, AERPSheet *&out)
     out = qobject_cast<AERPSheet *>(object.toQObject());
 }
 
+QString AERPSpreadSheet::columnStringName(int column)
+{
+    int iPrefix = column / 26;
+    QString prefix;
+    if ( iPrefix > 0 )
+    {
+        prefix = QString("%1").arg(QChar('A' + iPrefix - 1));
+    }
+    QString strColumn = prefix + QChar('A' + column - (iPrefix * 26));
+    return strColumn;
+}
+
 AERPCell *AERPSheet::cell(int rowId, int columnId)
 {
     foreach (AERPCell *cell, d->m_cells)
@@ -546,7 +558,7 @@ AERPCell *AERPSheet::cell(int rowId, const QString &column)
 AERPCell *AERPSheet::createCell(int row, int column, const QVariant value)
 {
     QString strRow(row);
-    QString strColumn = QString('A' + column);
+    QString strColumn = AERPSpreadSheet::columnStringName(column);
     return createCell(strRow, strColumn, value);
 }
 

@@ -106,7 +106,7 @@ public:
 
     static QStringList recursiveDirEntryList(const QString &path);
 
-    static double round(double value, int Digits );
+    static double round(double value, int Digits);
 
     static void setOverrideCursor(const QCursor & cursor);
     static void restoreOverrideCursor();

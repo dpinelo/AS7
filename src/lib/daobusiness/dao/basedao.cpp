@@ -1761,6 +1761,9 @@ QString BaseDAO::sqlSelectFieldsClausule(const QList<DBFieldMetadata *> &fields,
  */
 qlonglong BaseDAO::lastInsertOid(QSqlQuery *qry, BaseBean *bean, const QString &connectionName)
 {
+#ifndef ALEPHERP_FIREBIRD_SUPPORT
+    Q_UNUSED(bean)
+#endif
     // Es importante actualizar y obtener el valor de los campos seriales
     if ( Database::getQDatabase().driver()->hasFeature(QSqlDriver::LastInsertId) )
     {

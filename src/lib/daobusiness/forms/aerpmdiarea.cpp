@@ -53,7 +53,7 @@ void AERPMdiArea::paintEvent(QPaintEvent *paintEvent)
     painter.setPen(Qt::darkGray);
     QFontMetrics fm = painter.fontMetrics();
 
-    QPixmap img(":/aplicacion/images/BolaAlephGris.png");
+    QPixmap img(":/aplicacion/images/asycom2.png");
     // Si en el directorio del ejecutable, hay una imagen con nombre icon.png, utilizamos esta
     QString mdiFilePath = qApp->applicationDirPath() + QDir::separator() + "mdiimage.png";
     QFile fiMdiFile(mdiFilePath);

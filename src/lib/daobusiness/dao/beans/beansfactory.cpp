@@ -619,6 +619,8 @@ bool BeansFactory::enterOnBatchMode(const QString &messageTemplate, bool fromIni
     }
     return false;
 #else
+    Q_UNUSED(messageTemplate)
+    Q_UNUSED(fromInit)
     return false;
 #endif
 }
@@ -653,6 +655,8 @@ bool BeansFactory::finishBatchMode(const QString &messageTemplate, QString &repo
     batchDAO = NULL;
     return result;
 #else
+    Q_UNUSED(messageTemplate)
+    Q_UNUSED(report)
     return false;
 #endif
 }

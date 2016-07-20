@@ -497,6 +497,7 @@ bool Database::openCloud(const QString &connectionName)
 
     return true;
 #else
+    Q_UNUSED(connectionName)
     return false;
 #endif
 }
@@ -800,6 +801,7 @@ bool Database::createBatchConnection(const QString &connectionName)
     }
     return result;
 #else
+    Q_UNUSED(connectionName)
     return false;
 #endif
 }

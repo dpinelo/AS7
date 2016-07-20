@@ -227,6 +227,7 @@ AERPSystemModule *ModulesDAOPrivate::importModuleMetaData(const QDomElement &roo
  */
 bool ModulesDAO::importModulesData(const QString &xmlOrigin, const QString &moduleId, bool showProgressDialog)
 {
+    Q_UNUSED(showProgressDialog)
     QFile xmlOriginFile(xmlOrigin);
     QString xmlOriginContent;
     d->m_cancelProcess = false;

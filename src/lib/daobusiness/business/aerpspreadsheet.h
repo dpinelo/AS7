@@ -91,6 +91,7 @@ public:
     };
     static QVariant::Type qtypeForAERPVariantType(Type type);
     static Type aerptypeQVariantType(QVariant::Type type);
+    static QString columnStringName(int column);
 
     QString lastMessage() const;
     void setLastMessage(const QString &value);
