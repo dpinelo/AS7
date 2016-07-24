@@ -77,7 +77,7 @@ void OpenedRecords::registerRecord(BaseBeanPointer bean, QPointer<DBRecordDlg> d
 {
     if ( !containsBean(bean) )
     {
-        connect(dlg, SIGNAL(destroyed(QObject*)), this, SLOT(recordClosed()));
+        connect(dlg, SIGNAL(destroyed(QObject*)), this, SLOT(recordClosed(QObject *)));
         OpenedRecordsData d;
         d.bean = bean;
         d.dialog = dlg;
@@ -87,6 +87,12 @@ void OpenedRecords::registerRecord(BaseBeanPointer bean, QPointer<DBRecordDlg> d
 
 bool OpenedRecords::isBeanOpened(BaseBeanPointer bean)
 {
+    // Comprobemos primero que si el bean agregado tenía un diálogo que se había cerrado, debemos eliminarlo
+    foreach (OpenedRecordsData d, m_recordBeans)
+    {
+
+    }
+
     foreach (BaseBeanPointer b, beans())
     {
         if ( !b.isNull() &&
@@ -109,14 +115,13 @@ QPointer<DBRecordDlg> OpenedRecords::dialogForBean(BaseBeanPointer bean)
     return NULL;
 }
 
-void OpenedRecords::recordClosed()
+void OpenedRecords::recordClosed(QObject *obj)
 {
-    DBRecordDlg *dlg = qobject_cast<DBRecordDlg *>(sender());
     QList<QPointer<DBRecordDlg> > list = dialogs();
     for (int i = 0 ; i < list.size() ; i++)
     {
         QPointer<DBRecordDlg> registerdDlg = list.at(i);
-        if ( registerdDlg.data() == dlg )
+        if ( registerdDlg.data() == obj )
         {
             m_recordBeans.removeAt(i);
         }

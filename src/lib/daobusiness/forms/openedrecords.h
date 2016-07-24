@@ -38,7 +38,7 @@ public:
     QPointer<DBRecordDlg> dialogForBean(BaseBeanPointer bean);
 
 protected slots:
-    void recordClosed();
+    void recordClosed(QObject *obj);
 };
 
 #endif // OPENEDRECORDS_H
