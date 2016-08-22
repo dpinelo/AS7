@@ -127,7 +127,7 @@ public:
     // FUNCIONES PARA EL PARSEADO Y FORMATEO DE DATOS
     // -----------------------------------------------
     Q_INVOKABLE QString formatNumber(const QVariant &number, int numDecimals = 2);
-    Q_INVOKABLE QString formatDate(const QScriptValue &date);
+    Q_INVOKABLE QString formatDate(const QScriptValue &date, const QString &format = QString());
     Q_INVOKABLE QString formatDateTime(const QScriptValue &date);
     Q_INVOKABLE double parseDouble(const QString &number);
     Q_INVOKABLE QString sqlDate(const QDate &date);
