@@ -108,6 +108,7 @@ const char * AlephERP::stSqlWorkerUUID = "sqlWorkerUUID";
 const char * AlephERP::stValue = "value";
 const char * AlephERP::stRow = "row";
 const char * AlephERP::stInsertRecord = "insertRecord";
+const char * AlephERP::stFilterAcceptsRowFunctionName = "filterAcceptsRow";
 
 #ifdef ALEPHERP_DEVTOOLS
 const char * AlephERP::stWebInspector = "aerpWebInspector";

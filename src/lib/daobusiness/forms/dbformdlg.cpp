@@ -67,6 +67,11 @@
 #include "business/aerpspreadsheet.h"
 #include "forms/openedrecords.h"
 
+typedef struct OpenedDBRecordDlgsStruct {
+    QPointer<DBRecordDlg> dlg;
+    BaseBeanSharedPointer bean;
+} OpenedDBRecordDlgs;
+
 class DBFormDlgPrivate
 {
 public:
@@ -93,7 +98,8 @@ public:
     QString m_helpUrl;
     QPersistentModelIndex m_currentIndex;
     QModelIndex m_recentInsertSourceIndex;
-    QList<DBRecordDlg *> m_recordDlgs;
+    // Registros abiertos y en edición actualmente.
+    QList<OpenedDBRecordDlgs> m_recordDlgs;
 
     DBFormDlgPrivate(DBFormDlg *qq) : q_ptr(qq)
     {
@@ -904,9 +910,9 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     {
         // No vamos a permitir abrir muchas veces un registro en modo inserción... (Puede provocar refrescos
         // en el modelo).
-        foreach (DBRecordDlg *dlg, d->m_recordDlgs)
+        foreach (OpenedDBRecordDlgs dlgStruct, d->m_recordDlgs)
         {
-            if ( dlg->openType() == AlephERP::Insert )
+            if ( dlgStruct.dlg->openType() == AlephERP::Insert )
             {
                 return;
             }
@@ -997,7 +1003,8 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     dlg->setCanNavigate(true);
     if ( dlg->openSuccess() && dlg->init() )
     {
-        d->m_recordDlgs.append(dlg);
+        OpenedDBRecordDlgs structDlg = { dlg, bean };
+        d->m_recordDlgs.append(structDlg);
         d->m_itemView->disableRestoreSaveState();
         dlg->setAttribute(Qt::WA_DeleteOnClose, true);
         dlg->setCanChangeModality(true);
@@ -1163,7 +1170,13 @@ void DBFormDlg::wizard()
 void DBFormDlg::recordDlgClosed(BaseBeanPointer bean, bool userSaveData)
 {
     DBRecordDlg *dlg = qobject_cast<DBRecordDlg *>(sender());
-    d->m_recordDlgs.removeAll(dlg);
+    for (int i = 0 ; i < d->m_recordDlgs.size() ; i++)
+    {
+        if ( d->m_recordDlgs.at(i).dlg.data() == dlg )
+        {
+            d->m_recordDlgs.removeAt(i);
+        }
+    }
     if ( dlg != NULL )
     {
         if ( dlg->property(AlephERP::stInsertRecord).toBool() )
@@ -2106,7 +2119,8 @@ void DBFormDlg::view()
     CommonsFunctions::restoreOverrideCursor();
     if ( dlg->openSuccess() && dlg->init() )
     {
-        d->m_recordDlgs.append(dlg);
+        OpenedDBRecordDlgs structDlg = { dlg, bean };
+        d->m_recordDlgs.append(structDlg);
         dlg->setAttribute(Qt::WA_DeleteOnClose, true);
         dlg->setCanChangeModality(true);
         connect(dlg.data(), SIGNAL(accepted(BaseBeanPointer,bool)), this, SLOT(recordDlgClosed(BaseBeanPointer,bool)));
@@ -2115,7 +2129,13 @@ void DBFormDlg::view()
     }
     else
     {
-        d->m_recordDlgs.removeAll(dlg);
+        for (int i = 0 ; i < d->m_recordDlgs.size() ; i++)
+        {
+            if ( d->m_recordDlgs.at(i).dlg.data() == dlg )
+            {
+                d->m_recordDlgs.removeAt(i);
+            }
+        }
         delete dlg;
     }
 }

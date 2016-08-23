@@ -140,6 +140,7 @@ public:
     static const char * stSqlWorkerUUID;
     static const char * stValue;
     static const char * stInsertRecord;
+    static const char * stFilterAcceptsRowFunctionName;
 
     static const char * stLogDB;
     static const char * stLogScript;

@@ -87,7 +87,6 @@ QPointer<DBObject> DBObject::owner ()
     return m_owner;
 }
 
-
 EmittedSignals::EmittedSignals()
 {
     bean = NULL;

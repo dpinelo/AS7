@@ -948,9 +948,6 @@ void startCrashHandler(int signal)
     QFile output;
     QString lin, cmd;
 
-    /** At the moment the backtrace function does not exists on MingW (Windows) this way
-      * the code that generates the stacktrace is available only on Linux/Unix systems
-      */
 #ifndef Q_OS_WIN
     void *stack[30];
     size_t stack_size;
@@ -982,7 +979,7 @@ void startCrashHandler(int signal)
 #ifndef Q_OS_WIN
         for(size_t i=0; i < stack_size; i++)
         {
-            lin=QString("[%1] ").arg(stack_size-1-i) + QString(symbols[i]) + QString("\n");
+            lin = QString("[%1] ").arg(stack_size-1-i) + QString(symbols[i]) + QString("\n");
                 output.write(lin.toStdString().c_str(), lin.size());
         }
         free(symbols);

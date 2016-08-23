@@ -44,13 +44,10 @@ int main(int argc, char **argv)
         }
     }
 
-    if ( !stackTraceFile.isEmpty() )
-    {
-        BugReportForm dlg(stackTraceFile);
-        dlg.setModal(true);
-        dlg.show();
-        app.exec();
-    }
+    BugReportForm dlg(stackTraceFile);
+    dlg.setModal(true);
+    dlg.show();
+    app.exec();
 
     return(0);
 }

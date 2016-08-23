@@ -1,4 +1,4 @@
-include( ../config.pri )
+include( ../../config.pri )
 
 TEMPLATE = app
 TARGET = alepherp-ch

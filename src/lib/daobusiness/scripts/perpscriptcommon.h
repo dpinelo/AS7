@@ -128,7 +128,7 @@ public:
     // -----------------------------------------------
     Q_INVOKABLE QString formatNumber(const QVariant &number, int numDecimals = 2);
     Q_INVOKABLE QString formatDate(const QScriptValue &date, const QString &format = QString());
-    Q_INVOKABLE QString formatDateTime(const QScriptValue &date);
+    Q_INVOKABLE QString formatDateTime(const QScriptValue &date, const QString &format = QString());
     Q_INVOKABLE double parseDouble(const QString &number);
     Q_INVOKABLE QString sqlDate(const QDate &date);
     Q_INVOKABLE QString sqlDateTime(const QDateTime &dateTime);
