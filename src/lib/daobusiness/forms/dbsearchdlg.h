@@ -36,6 +36,8 @@ class BaseBeanModel;
 class FilterBaseBeanModel;
 class BaseBeanMetadata;
 class DBSearchDlgPrivate;
+class DBTableView;
+class DBTreeView;
 
 namespace Ui
 {
@@ -73,6 +75,8 @@ class ALEPHERP_DLL_EXPORT DBSearchDlg : public AERPBaseDialog
     Q_PROPERTY (bool canInsertRecords READ canInsertRecords WRITE setCanInsertRecords)
     Q_PROPERTY (bool canEditRecords READ canEditRecords WRITE setCanEditRecords)
     Q_PROPERTY (BaseBeanPointer masterBean READ masterBean WRITE setMasterBean)
+    Q_PROPERTY (DBTableView *tableView READ tableView)
+    Q_PROPERTY (DBTreeView *treeView READ treeView)
 
     Q_FLAGS (DBSearchButtons)
 
@@ -125,6 +129,9 @@ public:
     void setVisibleButtons(DBSearchButtons buttons);
 
     BaseBean *templateBean();
+
+    DBTableView *tableView() const;
+    DBTreeView *treeView() const;
 
     BaseBeanPointer masterBean() const;
     void setMasterBean(BaseBeanPointer bean);
