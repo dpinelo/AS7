@@ -44,7 +44,7 @@ public:
 
     static bool insertEntry(BaseBeanPointerList bean, const QString &idTransaction);
 
-    static QHash<QString, AlephERP::HistoryItemList> historyEntries(BaseBeanPointer bean, const QString &connection = "");
+    static AlephERP::HistoryItemTransactionList historyEntries(BaseBeanPointer bean, const QString &connection = "");
 
 signals:
 

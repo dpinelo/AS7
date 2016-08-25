@@ -426,16 +426,21 @@ public:
 
     struct HistoryItem
     {
-        QString userName;
         QString action;
         QString tableName;
         QString pkey;
-        QDateTime timeStamp;
-        QString idTransaction;
         QString xml;
     };
 
-    typedef QList<HistoryItem> HistoryItemList;
+    struct HistoryItemTransaction
+    {
+        QDateTime timeStamp;
+        QString idTransaction;
+        QString userName;
+        QList<HistoryItem> items;
+    };
+
+    typedef QList<HistoryItemTransaction> HistoryItemTransactionList;
 
     static void initAlephERPWidgets();
 

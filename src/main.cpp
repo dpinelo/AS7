@@ -1078,3 +1078,6 @@ static void windows_stack_trace(QFile &output)
     SymCleanup(process);
 }
 #endif
+
+#ifdef _MSC_VER
+#endif

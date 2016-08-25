@@ -622,7 +622,12 @@ QVariant AERPScriptCommon::sqlSelectFirstColumn(const QString &sql, const QStrin
   */
 bool AERPScriptCommon::sqlExecute(const QString &sql, const QString &connectionName)
 {
-    return BaseDAO::execute(sql, connectionName);
+    bool r = BaseDAO::execute(sql, connectionName);
+    if ( !r )
+    {
+        d_ptr->m_lastError = BaseDAO::lastErrorMessage();
+    }
+    return r;
 }
 
 /**
