@@ -1848,7 +1848,6 @@ qreal ORFieldData::calculateHeightWithWordWrap(const QString &textToShow)
     // Si un campo con datos tiene activado wordwrap, supondremos que su height puede crecer. Aquí se hace
     // un cálculo del tamaño del mismo.
     QImage prnt(1, 1, QImage::Format_RGB32);
-    int actualHeight = rect.height();
     int calculatedHeight = 0;
 
     // ¿El campo muestra contenido HTML?
@@ -1873,6 +1872,7 @@ qreal ORFieldData::calculateHeightWithWordWrap(const QString &textToShow)
     QTextDocument doc;
     doc.setTextWidth(rect.width());
     doc.documentLayout()->setPaintDevice(&prnt);
+    doc.setDefaultFont(font);
     if ( html )
     {
         doc.setHtml(textToShow);
@@ -1882,10 +1882,20 @@ qreal ORFieldData::calculateHeightWithWordWrap(const QString &textToShow)
         doc.setPlainText(textToShow);
     }
     calculatedHeight = doc.documentLayout()->documentSize().height();
-    if ( actualHeight < calculatedHeight )
+    return calculatedHeight;
+}
+
+QSizeF ORFieldData::rectSizeToDraw(const QString &textToShow)
+{
+    // Debemos tener en cuenta que si el campo está marcado con wordwrap, hay que hacer el cálculo de
+    // tamaño siempre
+    if (align & Qt::TextWordWrap)
     {
-        rect.setHeight(calculatedHeight);
+        QRect rectToReturn = rect;
+        qreal calculatedHeight = calculateHeightWithWordWrap(textToShow);
+        rectToReturn.setHeight(calculatedHeight);
+        return rectToReturn.size();
     }
-    return rect.height();
+    return rect.size();
 }
 // dpinelo: -----------------------
