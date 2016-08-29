@@ -17,28 +17,50 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#ifndef BACKTRACE_H
+#define BACKTRACE_H
 
-#include "bugreportform.h"
-#include <QFile>
+#include <QtCore>
+#include <QtGui>
+#include <QtWidgets>
+#include <alepherpglobal.h>
 
-BugReportForm::BugReportForm(const QString &stackTraceFile, QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f)
-{
-	setupUi(this);
-    setWindowFlags(Qt::Dialog |
-                 Qt::WindowTitleHint |
-                 Qt::WindowMinMaxButtonsHint |
-                 Qt::WindowCloseButtonHint);
+#ifndef Q_OS_WIN
+#include "execinfo.h"
+#endif
 
-    connect(pbOk, SIGNAL(clicked(void)), this, SLOT(close(void)));
+#ifdef Q_OS_WIN
+#include <windows.h>
+#include <DbgHelp.h>
+#define PACKAGE foo
+#include <bfd.h>
 
-    QString text = trUtf8("Stacktrace file path: %1").arg(stackTraceFile);
+struct bfd_ctx {
+    bfd *handle;
+    asymbol **symbol;
+};
 
-    QFile fi(stackTraceFile);
-    if ( fi.open(QIODevice::ReadOnly) )
-    {
-        QByteArray content = fi.readAll();
-        text.append("\r\n\r\n");
-        text.append(content);
-    }
-    txtStackTrace->setText(text);
-}
+struct bfd_set {
+    char *name;
+    struct bfd_ctx *bc;
+    struct bfd_set *next;
+};
+
+struct find_info {
+    asymbol **symbol;
+    bfd_vma counter;
+    const char *file;
+    const char *func;
+    unsigned line;
+};
+#endif
+
+#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
+void startLinuxCrashHandler(int signal);
+#endif
+#ifdef Q_OS_WIN
+LONG WINAPI windowsExceptionFilter(LPEXCEPTION_POINTERS info);
+void windowsStackTrace(QFile &output);
+#endif
+
+#endif // BACKTRACE_H

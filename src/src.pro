@@ -9,7 +9,7 @@ TARGET = $$APPNAME
 win32 {
     CONFIG += windows
     RC_FILE = win32info.rc
-    LIBS += -lDbgHelp
+    LIBS += -lDbgHelp -lbfd -limagehlp
 }
 
 TRANSLATIONS = alepherp_english.ts \
@@ -79,7 +79,8 @@ unix {
 DEFINES += WITH_NONAMESPACES
 DEFINES += WITH_COOKIES
 
-SOURCES += main.cpp
+SOURCES += backtrace.cpp \
+           main.cpp
 
 RESOURCES +=
 
@@ -111,4 +112,7 @@ android {
 OTHER_FILES += \
     resources/dev/alepherp.api \
     win32info.rc
+
+HEADERS += \
+    backtrace.h
 

@@ -32,21 +32,13 @@
 #include <dao/database.h>
 #include <scripts/perpscriptengine.h>
 #include <signal.h>
+#include "backtrace.h"
 
 #ifdef ALEPHERP_TEST
 #include "models/test/modeltest.h"
 #include "models/treebasebeanmodel.h"
 #include "models/dbbasebeanmodel.h"
 #include "models/filterbasebeanmodel.h"
-#endif
-
-#ifndef Q_OS_WIN
-#include "execinfo.h"
-#endif
-
-#ifdef Q_OS_WIN
-#include <windows.h>
-#include <DbgHelp.h>
 #endif
 
 void setStyle();
@@ -60,19 +52,20 @@ void exportModules(const QString &moduleName);
 void exportData(const QString &moduleName);
 bool importModules(bool reinitMetadata, bool askForObjects);
 void closeApp();
-void startCrashHandler(int signal);
-
-#ifdef Q_OS_WIN
-static void windows_stack_trace(QFile &output);
-#endif
 
 QLogger::QLoggerManager *logger;
 
 int main(int argc, char *argv[])
 {
+#if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
     // Install a signal handler to start crashhandler when SIGSEGV or SIGABRT is emitted
     signal(SIGSEGV, startCrashHandler);
     signal(SIGABRT, startCrashHandler);
+#endif
+#ifdef Q_OS_WIN
+    // Arrancamos, en Windows, el proceso que nos de el backtrace de lo que ha podido pasar
+    SetUnhandledExceptionFilter(windowsExceptionFilter);
+#endif
 
     AERPApplication app(argc, argv);
 
@@ -937,147 +930,3 @@ bool isSystemStructureCreated(bool &firstCreateStructure)
     }
     return true;
 }
-
-/**
- * @brief startCrashHandler
- * Gestor de backtrace. Basado en la implementación que existe en pgModeler.
- * @param signal
- */
-void startCrashHandler(int signal)
-{
-    QFile output;
-    QString lin, cmd;
-
-#ifndef Q_OS_WIN
-    void *stack[30];
-    size_t stack_size;
-    char **symbols = nullptr;
-    stack_size = backtrace(stack, 30);
-    symbols = backtrace_symbols(stack, stack_size);
-#endif
-
-    QString stackFile = alephERPSettings->dataPath() + QDir::separator() + ".stacktrace";
-
-    cmd = qApp->applicationDirPath() + QString("/alepherp-ch -style Fusion -stackFile %1").arg(stackFile);
-
-    //C reates the stacktrace file
-    output.setFileName(stackFile);
-    output.open(QFile::WriteOnly);
-
-    if( output.isOpen() )
-    {
-        lin = QString("** alephERP crashed after receive signal: %1 **\n\nDate/Time: %2\n")
-            .arg(signal)
-            .arg(QDateTime::currentDateTime().toString(QString("yyyy-MM-dd hh:mm:ss")));
-
-        lin += QString("Compilation Qt version: %1\nRunning Qt version: %2\n\n")
-                 .arg(QT_VERSION_STR)
-                 .arg(qVersion());
-
-        output.write(lin.toStdString().c_str(), lin.size());
-
-#ifndef Q_OS_WIN
-        for(size_t i=0; i < stack_size; i++)
-        {
-            lin = QString("[%1] ").arg(stack_size-1-i) + QString(symbols[i]) + QString("\n");
-                output.write(lin.toStdString().c_str(), lin.size());
-        }
-        free(symbols);
-#else
-        windows_stack_trace(output);
-#endif
-
-        output.close();
-    }
-
-    /* Changing the working dir to the main executable in order to call the crash handler
-    if the PGMODELER_CHANDLER_PATH isn't set */
-    QDir dir;
-    dir.cd(QApplication::applicationDirPath());
-
-    exit(1 + system(cmd.toStdString().c_str()));
-}
-
-#ifdef Q_OS_WIN
-static void windows_stack_trace(QFile &output)
-{
-    HANDLE process = GetCurrentProcess();
-    HANDLE thread = GetCurrentThread();
-
-    CONTEXT context;
-    memset(&context, 0, sizeof(CONTEXT));
-    context.ContextFlags = CONTEXT_FULL;
-    RtlCaptureContext(&context);
-
-    SymInitialize(process, NULL, TRUE);
-
-    DWORD image;
-    STACKFRAME64 stackframe;
-    ZeroMemory(&stackframe, sizeof(STACKFRAME64));
-
-#ifdef _M_IX86
-    image = IMAGE_FILE_MACHINE_I386;
-    stackframe.AddrPC.Offset = context.Eip;
-    stackframe.AddrPC.Mode = AddrModeFlat;
-    stackframe.AddrFrame.Offset = context.Ebp;
-    stackframe.AddrFrame.Mode = AddrModeFlat;
-    stackframe.AddrStack.Offset = context.Esp;
-    stackframe.AddrStack.Mode = AddrModeFlat;
-#elif _M_X64
-    image = IMAGE_FILE_MACHINE_AMD64;
-    stackframe.AddrPC.Offset = context.Rip;
-    stackframe.AddrPC.Mode = AddrModeFlat;
-    stackframe.AddrFrame.Offset = context.Rsp;
-    stackframe.AddrFrame.Mode = AddrModeFlat;
-    stackframe.AddrStack.Offset = context.Rsp;
-    stackframe.AddrStack.Mode = AddrModeFlat;
-#elif _M_IA64
-    image = IMAGE_FILE_MACHINE_IA64;
-    stackframe.AddrPC.Offset = context.StIIP;
-    stackframe.AddrPC.Mode = AddrModeFlat;
-    stackframe.AddrFrame.Offset = context.IntSp;
-    stackframe.AddrFrame.Mode = AddrModeFlat;
-    stackframe.AddrBStore.Offset = context.RsBSP;
-    stackframe.AddrBStore.Mode = AddrModeFlat;
-    stackframe.AddrStack.Offset = context.IntSp;
-    stackframe.AddrStack.Mode = AddrModeFlat;
-#endif
-
-    for (size_t i = 0; i < 25; i++)
-    {
-        BOOL result = StackWalk64(
-              image, process, thread,
-              &stackframe, &context, NULL,
-              SymFunctionTableAccess64, SymGetModuleBase64, NULL);
-
-        if (!result)
-        {
-            break;
-        }
-
-        char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
-        PSYMBOL_INFO symbol = (PSYMBOL_INFO)buffer;
-        symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-        symbol->MaxNameLen = MAX_SYM_NAME;
-
-        DWORD64 displacement = 0;
-        if (SymFromAddr(process, stackframe.AddrPC.Offset, &displacement, symbol))
-        {
-            QByteArray ba(symbol->Name, symbol->NameLen);
-            QString txt = QString("[%1]: ").arg(i);
-            ba = ba.prepend(txt.toUtf8());
-            ba = ba.append("\n");
-            output.write(ba);
-        }
-        else
-        {
-            QString line = QString("[%1]: ???\n").arg(i);
-            output.write(line.toUtf8());
-        }
-    }
-    SymCleanup(process);
-}
-#endif
-
-#ifdef _MSC_VER
-#endif

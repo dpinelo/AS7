@@ -32,18 +32,14 @@ int main(int argc, char **argv)
     translator.load(translationFile, ":/translations/5", "_", ".qm");
     app.installTranslator(&translator);
 
-    QString stackTraceFile;
+    // Comprobamos si en la línea de comandos viene un nombre de fichero con espacios
+    QStringList stackTraceFileParts;
     for (int i = 1; i < argc; ++i)
     {
-        if ( qstrcmp(argv[i], "-stackFile") )
-        {
-            if ( (i+1) < argc )
-            {
-                stackTraceFile = QString(argv[i+1]);
-            }
-        }
+        stackTraceFileParts.append(QString(argv[i]));
     }
 
+    QString stackTraceFile = stackTraceFileParts.join(" ");
     BugReportForm dlg(stackTraceFile);
     dlg.setModal(true);
     dlg.show();
