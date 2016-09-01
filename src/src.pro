@@ -9,7 +9,24 @@ TARGET = $$APPNAME
 win32 {
     CONFIG += windows
     RC_FILE = win32info.rc
-    LIBS += -lDbgHelp -lbfd -limagehlp
+    LIBS += -lDbgHelp
+    win32-g++ {
+        LIBS += -lbfd -liberty -lz
+    }
+    win64-g++ {
+        LIBS += -lbfd -liberty -lz
+    }
+# ATENCIÓN: libbfd está presente en la distribución de MinGW-W64 en un directorio diferente al que contienen todas las librerías.
+# En la estructura de directorios de MinGW que incluye Qt se tiene
+# C:\Qt\Tools\mingw492_32\lib  -> Esta contiene libbfd.a
+# C:\Qt\Tools\mingw492_32\i686-w64-mingw32\lib -> Contiene todas las librerías necesarias.
+# Esto último justifica que en config.pri se tenga que incluir o hacer referencia a la primera ruta.
+# Pero hay un tema adicional más: En la versión 4.9.2 (con la que se compila Qt 5.6 y que se incluye por defecto en la distro de Qt)
+# no está presente la librería libiberty.a, sin embargo éste SE NECESITA por libbfd.a
+# Navegando por Internet, se induce que hay un error o un problema en la distribución de MinGW-W64 en 4.9.2 y no incluye esta librería.
+# La solución fue bajarme la distro de MinGW-W64 en su versión 5.3.0 que sí la incorpora desde
+# https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/5.3.0/threads-posix/dwarf/i686-5.3.0-release-posix-dwarf-rt_v4-rev0.7z/download
+# y copiar manualmente el fichero libiberty.a desde ese fichero en C:\Qt\Tools\mingw492_32\lib, y compila.
 }
 
 TRANSLATIONS = alepherp_english.ts \

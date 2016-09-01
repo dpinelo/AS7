@@ -2328,9 +2328,12 @@ QList<DBObject *> BaseBeanPrivate::iterateNavigation(DBField *fld, const QString
             QList<BaseBean *> beanList;
             if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
             {
-                bool previous = rel->blockAllSignals(true);
-                beanList.append(rel->father());
-                rel->blockAllSignals(previous);
+                if ( rel->father() )
+                {
+                    bool previous = rel->blockAllSignals(true);
+                    beanList.append(rel->father());
+                    rel->blockAllSignals(previous);
+                }
             }
             else
             {
@@ -2367,11 +2370,14 @@ QList<DBObject *> BaseBeanPrivate::iterateNavigation(DBRelation *rel, const QStr
     if ( rel != NULL )
     {
         QList<BaseBean *> beanList;
-        if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE && rel->father() )
+        if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
         {
-            bool previousState = rel->father()->blockAllSignals(true);
-            beanList.append(rel->father());
-            rel->father()->blockAllSignals(previousState);
+            if ( rel->father() )
+            {
+                bool previousState = rel->father()->blockAllSignals(true);
+                beanList.append(rel->father());
+                rel->father()->blockAllSignals(previousState);
+            }
         }
         else
         {
@@ -3298,7 +3304,7 @@ void BaseBean::clean(bool onlyFields, bool children, bool fathers)
     {
         foreach (DBRelation *rel, d->m_relations)
         {
-            if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE  )
+            if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE && rel->father() )
             {
                 rel->father()->clean(true);
             }

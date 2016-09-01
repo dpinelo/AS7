@@ -447,7 +447,7 @@ void DBRelationPrivate::updateChildren(BaseBean *father, QList<BaseBean *> &stac
                 }
                 if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
                 {
-                    if ( rel->isFatherLoaded() )
+                    if ( rel->isFatherLoaded() && rel->father() )
                     {
                         updateChildren(rel->father(), stackList);
                     }
@@ -886,7 +886,7 @@ int DBRelation::childrenCount(bool includeToBeDeleted)
 
 int DBRelation::childrenCountByState(BaseBean::DbBeanStates state)
 {
-    if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE && !d->m_fatherLoaded )
+    if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE && !d->m_fatherLoaded && father() )
     {
         if ( father()->dbState() == state )
         {
@@ -1756,7 +1756,7 @@ BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeD
             }
         }
     }
-    else if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE )
+    else if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE && father() )
     {
         BaseBeanPointerList tmp;
         // Esto está deprecated en Qt 5.0

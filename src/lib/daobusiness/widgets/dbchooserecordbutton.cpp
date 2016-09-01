@@ -741,7 +741,7 @@ void DBChooseRecordButton::updateFields()
 void DBChooseRecordButton::clear()
 {
     DBRelation *rel = relation();
-    if ( rel != NULL )
+    if ( rel != NULL && rel->father() )
     {
         rel->father()->clean(true, true);
     }
@@ -750,7 +750,7 @@ void DBChooseRecordButton::clear()
     updateFields();
     emit beanCleared();
     emit valueEdited(QVariant());
-    if ( rel != NULL )
+    if ( rel != NULL && rel->father() )
     {
         rel->father()->uncheckModifiedFields();
         BaseBeanPointer b = beanFromContainer();
@@ -837,34 +837,37 @@ void DBChooseRecordButton::contextMenuEvent(QContextMenuEvent *event)
     DBRelation *rel = relation();
     if ( rel != NULL )
     {
-        if ( rel->father()->dbState() == BaseBean::INSERT )
+        if ( rel->father() )
         {
-            if ( !rel->father()->modified() && rel->metadata()->allowedInsertChild() )
+            if ( rel->father()->dbState() == BaseBean::INSERT )
             {
-                d->m_actionEdit->setText(trUtf8("Insertar un nuevo registro"));
-                contextMenu.addAction(d->m_actionEdit);
+                if ( !rel->father()->modified() && rel->metadata()->allowedInsertChild() )
+                {
+                    d->m_actionEdit->setText(trUtf8("Insertar un nuevo registro"));
+                    contextMenu.addAction(d->m_actionEdit);
+                }
+                else
+                {
+                    if ( !rel->metadata()->readOnly() )
+                    {
+                        d->m_actionEdit->setText(trUtf8("Editar registro seleccionado"));
+                        d->m_actionClear->setText(trUtf8("Limpiar los datos antes editados"));
+                        contextMenu.addAction(d->m_actionEdit);
+                        contextMenu.addAction(d->m_actionClear);
+                    }
+                }
             }
             else
             {
+                contextMenu.addAction(d->m_actionView);
                 if ( !rel->metadata()->readOnly() )
                 {
                     d->m_actionEdit->setText(trUtf8("Editar registro seleccionado"));
-                    d->m_actionClear->setText(trUtf8("Limpiar los datos antes editados"));
                     contextMenu.addAction(d->m_actionEdit);
-                    contextMenu.addAction(d->m_actionClear);
                 }
+                d->m_actionClear->setText(trUtf8("Deseleccionar el registro antes seleccionado"));
+                contextMenu.addAction(d->m_actionClear);
             }
-        }
-        else
-        {
-            contextMenu.addAction(d->m_actionView);
-            if ( !rel->metadata()->readOnly() )
-            {
-                d->m_actionEdit->setText(trUtf8("Editar registro seleccionado"));
-                contextMenu.addAction(d->m_actionEdit);
-            }
-            d->m_actionClear->setText(trUtf8("Deseleccionar el registro antes seleccionado"));
-            contextMenu.addAction(d->m_actionClear);
         }
     }
     else

@@ -32,6 +32,7 @@
 #ifdef Q_OS_WIN
 #include <windows.h>
 #include <DbgHelp.h>
+#ifdef __MINGW32__
 #define PACKAGE foo
 #include <bfd.h>
 
@@ -55,12 +56,15 @@ struct find_info {
 };
 #endif
 
+#endif
+
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
 void startLinuxCrashHandler(int signal);
 #endif
 #ifdef Q_OS_WIN
 LONG WINAPI windowsExceptionFilter(LPEXCEPTION_POINTERS info);
-void windowsStackTrace(QFile &output);
+void windowsStackTrace(QFile &output, PCONTEXT context);
+void createMiniDump(LPEXCEPTION_POINTERS info, const QString &path);
 #endif
 
 #endif // BACKTRACE_H

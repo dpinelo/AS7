@@ -59,8 +59,8 @@ int main(int argc, char *argv[])
 {
 #if defined(Q_OS_LINUX) || defined(Q_OS_MAC)
     // Install a signal handler to start crashhandler when SIGSEGV or SIGABRT is emitted
-    signal(SIGSEGV, startCrashHandler);
-    signal(SIGABRT, startCrashHandler);
+    signal(SIGSEGV, startLinuxCrashHandler);
+    signal(SIGABRT, startLinuxCrashHandler);
 #endif
 #ifdef Q_OS_WIN
     // Arrancamos, en Windows, el proceso que nos de el backtrace de lo que ha podido pasar

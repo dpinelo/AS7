@@ -5175,18 +5175,21 @@ void BaseBeanMetadata::buildFieldsCalculatedRelations()
                                 path.append(rel->metadata()->tableName());
                                 if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
                                 {
-                                    if ( rel->father().data() == b.data() )
+                                    if ( rel->father() )
                                     {
-                                        path.append("father");
-                                        fieldsInvolvedNames.append(path);
-                                        QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBeanMetadata::buildFieldsCalculatedRelations: Tabla: [%1] Field [%2] involucra a: [%3]").
-                                                            arg(d->m_tableName).
-                                                            arg(fld->metadata()->dbFieldName()).
-                                                            arg(path));
-                                    }
-                                    else
-                                    {
-                                        dbObject = rel->father();
+                                        if ( rel->father().data() == b.data() )
+                                        {
+                                            path.append("father");
+                                            fieldsInvolvedNames.append(path);
+                                            QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBeanMetadata::buildFieldsCalculatedRelations: Tabla: [%1] Field [%2] involucra a: [%3]").
+                                                                arg(d->m_tableName).
+                                                                arg(fld->metadata()->dbFieldName()).
+                                                                arg(path));
+                                        }
+                                        else
+                                        {
+                                            dbObject = rel->father();
+                                        }
                                     }
                                 }
                                 else

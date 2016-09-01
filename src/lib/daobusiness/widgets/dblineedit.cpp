@@ -1318,9 +1318,9 @@ QString DBLineEditPrivate::setValueFromCompletition(DBField *fld)
     QList<DBRelation *> rels = fld->relations(AlephERP::ManyToOne);
     if ( rels.size() > 0 )
     {
-        BaseBean *father = rels.first()->father();
+        BaseBeanPointer father = rels.first()->father();
         // Los padres "vírgenes" no muestran datos...
-        if ( father->dbState() != BaseBean::INSERT || father->modified() )
+        if ( father && (father->dbState() != BaseBean::INSERT || father->modified()) )
         {
             newText = father->fieldValue(m_autoCompleteColumn).toString();
         }
