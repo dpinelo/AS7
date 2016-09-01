@@ -2,7 +2,7 @@
 #define PACKAGE foo
 #include "backtrace.h"
 #include <alepherpdaobusiness.h>
-#if Q_OS_WIN
+#ifdef Q_OS_WIN
 #include <tchar.h>
 #endif
 

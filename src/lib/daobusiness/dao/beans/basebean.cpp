@@ -1636,7 +1636,7 @@ void BaseBean::uncheckModifiedRelatedElements()
   a través del objeto AERPScriptCommon con el método addToContext, y persistir después los cambios
   en base de datos a través de commit.
   */
-bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore)
+bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore, bool markAsUnmodifiedIfSuccess)
 {
     QMutexLocker lock(&d->m_mutex);
     bool result = false;
@@ -1754,10 +1754,13 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore)
             d->m_dbState = BaseBean::DELETED;
             metadata()->afterDeleteScriptExecute(this);
         }
-        // Optimización: Tras una inserción, no queremos eventos que se propagen y generen recálculos innecesarios...
-        bool deleteBeanStateBlockSignals = blockAllSignals(true);
-        uncheckModifiedFields();
-        blockAllSignals(deleteBeanStateBlockSignals);
+        if ( markAsUnmodifiedIfSuccess )
+        {
+            // Optimización: Tras una inserción, no queremos eventos que se propagen y generen recálculos innecesarios...
+            bool deleteBeanStateBlockSignals = blockAllSignals(true);
+            uncheckModifiedFields();
+            blockAllSignals(deleteBeanStateBlockSignals);
+        }
         // Ejecutamos las acciones tras insertar.
         metadata()->afterSaveScriptExecute(this);
     }
@@ -1782,11 +1785,11 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore)
  * 3.- Se proporciona esta función.
  * @return
  */
-bool BaseBean::saveRelatedElements(const QString &idTransaction)
+bool BaseBean::saveRelatedElements(const QString &idTransaction, bool markAsUnmodifiedIfSuccess)
 {
     bool blockSignals = blockAllSignals(true);
     bool result = RelatedDAO::saveRelatedElements(this, idTransaction);
-    if ( result )
+    if ( result && markAsUnmodifiedIfSuccess )
     {
         uncheckModifiedRelatedElements();
     }
