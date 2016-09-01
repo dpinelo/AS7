@@ -589,7 +589,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     // Iniciamos la transacción
     if ( !BaseDAO::transaction(d->m_database) )
     {
-        d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido iniciar la transacción. ERROR: [%1]").arg(BaseDAO::lastErrorMessage());
+        d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido iniciar la transacción. \nERROR: [%1]").arg(BaseDAO::lastErrorMessage());
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
         emit transactionAborted(contextName);
         d->m_doingCommit[contextName] = false;
@@ -601,7 +601,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     {
         if ( !BaseDAO::execute(sql) )
         {
-            d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. ERROR: [%1]").arg(BaseDAO::lastErrorMessage());
+            d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. \nERROR: [%1]").arg(BaseDAO::lastErrorMessage());
             QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
             BaseDAO::rollback(d->m_database);
             emit transactionAborted(contextName);
@@ -627,7 +627,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
             emit workingWithBean(bean.data());
             if ( !bean->save(idTransaction, false, false) )
             {
-                d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. ERROR: [%1]").arg(BaseDAO::lastErrorMessage());
+                d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. \nERROR: [%1]").arg(BaseDAO::lastErrorMessage());
                 QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
                 BaseDAO::rollback(d->m_database);
                 emit transactionAborted(contextName);
@@ -662,7 +662,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     {
         if ( !saveOneToOneIds(bean, contextName) )
         {
-            d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. ERROR: [%1]").arg(BaseDAO::lastErrorMessage());
+            d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. \nERROR: [%1]").arg(BaseDAO::lastErrorMessage());
             QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
             BaseDAO::rollback(d->m_database);
             emit transactionAborted(contextName);
@@ -676,7 +676,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     {
         if ( !BaseDAO::execute(sql) )
         {
-            d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. ERROR: [%1]").arg(BaseDAO::lastErrorMessage());
+            d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. \nERROR: [%1]").arg(BaseDAO::lastErrorMessage());
             QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
             BaseDAO::rollback(d->m_database);
             emit transactionAborted(contextName);
@@ -690,7 +690,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     if ( !transactionSuccess )
     {
         BaseDAO::rollback(d->m_database);
-        d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. ERROR: [%1]").arg(BaseDAO::lastErrorMessage());
+        d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. \nERROR: [%1]").arg(BaseDAO::lastErrorMessage());
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
         emit transactionAborted(contextName);
         d->m_doingCommit[contextName] = false;
