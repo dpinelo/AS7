@@ -179,6 +179,7 @@ public:
     void addBeanToNavigationWidget(BaseBeanPointer bean, AlephERP::FormOpenType openType);
     BeansOnNavigation navigationWidgetSelectCurrentBean();
     void discardContext();
+    void checkModifiedToSave();
 };
 
 /**
@@ -399,6 +400,31 @@ void DBRecordDlgPrivate::discardContext()
     if ( !m_originalBeanContext.isEmpty() )
     {
         AERPTransactionContext::instance()->addToContext(m_originalBeanContext, m_bean);
+    }
+}
+
+void DBRecordDlgPrivate::checkModifiedToSave()
+{
+    if ( m_openType != AlephERP::ReadOnly )
+    {
+        if ( q_ptr->isWindowModified() )
+        {
+            if ( q_ptr->ui->chkNavigateSavingChanges->isChecked() )
+            {
+                q_ptr->save();
+            }
+            else
+            {
+                int ret = QMessageBox::information(q_ptr,
+                                                   qApp->applicationName(),
+                                                   QObject::trUtf8("Se han producido cambios. ¿Desea guardarlos?"),
+                                                   QMessageBox::Yes | QMessageBox::No);
+                if ( ret == QMessageBox::Yes )
+                {
+                    q_ptr->save();
+                }
+            }
+        }
     }
 }
 
@@ -1679,27 +1705,7 @@ void DBRecordDlg::navigate(const QString &direction)
         }
     }
 
-    if ( d->m_openType != AlephERP::ReadOnly )
-    {
-        if ( isWindowModified() )
-        {
-            if ( ui->chkNavigateSavingChanges->isChecked() )
-            {
-                save();
-            }
-            else
-            {
-                int ret = QMessageBox::information(this,
-                                                   qApp->applicationName(),
-                                                   trUtf8("Se han producido cambios. ¿Desea guardarlos?"),
-                                                   QMessageBox::Yes | QMessageBox::No);
-                if ( ret == QMessageBox::Yes )
-                {
-                    save();
-                }
-            }
-        }
-    }
+    d->checkModifiedToSave();
     BaseBeanPointer newBean = d->nextIndex(direction);
     if ( newBean.isNull() )
     {
@@ -1789,28 +1795,7 @@ void DBRecordDlg::navigateBean(BaseBeanPointer bean, AlephERP::FormOpenType open
 
     alephERPSettings->saveDimensionForm(this);
     d->showNavigationBeanWidget();
-
-    if ( d->m_openType != AlephERP::ReadOnly )
-    {
-        if ( isWindowModified() )
-        {
-            if ( ui->chkNavigateSavingChanges->isChecked() )
-            {
-                save();
-            }
-            else
-            {
-                int ret = QMessageBox::information(this,
-                                                   qApp->applicationName(),
-                                                   trUtf8("Se han producido cambios. ¿Desea guardarlos?"),
-                                                   QMessageBox::Yes | QMessageBox::No);
-                if ( ret == QMessageBox::Yes )
-                {
-                    save();
-                }
-            }
-        }
-    }
+    d->checkModifiedToSave();
     BaseDAO::unlock(d->m_lockId);
     if ( !d->m_bean.isNull() )
     {
@@ -1888,16 +1873,16 @@ void DBRecordDlg::advancedNavigationListRowChanged(int row)
 
 void DBRecordDlg::accept()
 {
-    emit accepted(d->m_bean, d->m_userSaveData);
     QDialog::accept();
     close();
+    emit accepted(d->m_bean, d->m_userSaveData);
 }
 
 void DBRecordDlg::reject()
 {
-    emit rejected(d->m_bean, d->m_userSaveData);
     QDialog::reject();
     close();
+    emit rejected(d->m_bean, d->m_userSaveData);
 }
 
 BaseBeanPointer DBRecordDlgPrivate::nextIndex(const QString &direction)
