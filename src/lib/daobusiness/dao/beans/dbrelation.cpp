@@ -1724,7 +1724,9 @@ BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeD
     // estarán cargados
     QString finalOrder;
     finalOrder = (order.isEmpty() ? d->m->order() : order);
-    if ( !childrenLoaded() && !ownBean.isNull() && ownBean->dbState() != BaseBean::INSERT &&
+    if ( !childrenLoaded() &&
+         !ownBean.isNull() &&
+         ownBean->dbState() != BaseBean::INSERT &&
             ( (d->m->type() == DBRelationMetadata::ONE_TO_MANY || d->m->type() == DBRelationMetadata::ONE_TO_ONE ) ) )
     {
         BaseBeanSharedPointerList results;
