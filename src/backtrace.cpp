@@ -302,13 +302,13 @@ void windowsStackTrace(QFile &output, PCONTEXT context)
 
         // Obtenemos nombre del fichero fuente, y la línea del error...
         DWORD moduleBase = SymGetModuleBase(process, stackframe.AddrPC.Offset);
-        const char *moduleName = "[unknown module]";
+        const char *moduleName = "unknown module";
         if (moduleBase &&
             GetModuleFileNameA((HINSTANCE)moduleBase, moduleNameRaw, MAX_PATH))
         {
             moduleName = moduleNameRaw;
 #ifdef __MINGW32__
-            // bc = getBc(set, moduleName);
+            bc = getBc(set, moduleName);
 #endif
         }
 
@@ -319,11 +319,13 @@ void windowsStackTrace(QFile &output, PCONTEXT context)
 #ifdef __MINGW32__
         if (bc)
         {
-            // find(bc, stackframe.AddrPC.Offset, &file, &func, &line);
+            find(bc, stackframe.AddrPC.Offset, &file, &func, &line);
         }
 #endif
 
-        QString qFileName, qFuncName, qLine;
+        QString qFileName = "unknown file name";
+        QString qFuncName = "unknown function name";
+        QString qLine;
 
         if (file == NULL)
         {
@@ -355,7 +357,7 @@ void windowsStackTrace(QFile &output, PCONTEXT context)
                 qLine = QString("%1").arg(line);
             }
         }
-        QString txt = QString("[%1]: [%2]: [%3]: [%4] ([%5])\n").
+        QString txt = QString("[%1]: [%2]: [%3]: %4 (%5)\n").
                 arg(i).
                 arg(moduleName).
                 arg(qFileName).
@@ -541,6 +543,22 @@ bool isDataSectionNeeded( const WCHAR* pModuleName )
 
     // Note: For this to work, the executable name must be "mididump.exe"
     if( wcsicmp( szFileName, L"alepherp" ) == 0 )
+    {
+        return true;
+    }
+    else if( wcsicmp( szFileName, L"daobusiness" ) == 0 )
+    {
+        return true;
+    }
+    else if( wcsicmp( szFileName, L"qscintilla2" ) == 0 )
+    {
+        return true;
+    }
+    else if( wcsicmp( szFileName, L"smtpclient" ) == 0 )
+    {
+        return true;
+    }
+    else if( wcsicmp( szFileName, L"qwwrichtextedit" ) == 0 )
     {
         return true;
     }

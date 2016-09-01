@@ -39,6 +39,9 @@
 #include "models/treebasebeanmodel.h"
 #include "models/dbbasebeanmodel.h"
 #include "models/filterbasebeanmodel.h"
+#ifdef _MSC_VER
+#define _CRTDBG_MAP_ALLOC #include <stdlib.h> #include <crtdbg.h>
+#endif
 #endif
 
 void setStyle();
@@ -65,6 +68,12 @@ int main(int argc, char *argv[])
 #ifdef Q_OS_WIN
     // Arrancamos, en Windows, el proceso que nos de el backtrace de lo que ha podido pasar
     SetUnhandledExceptionFilter(windowsExceptionFilter);
+#endif
+
+#ifdef ALEPHERP_TEST
+#ifdef _MSC_VER
+    _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+#endif
 #endif
 
     AERPApplication app(argc, argv);
