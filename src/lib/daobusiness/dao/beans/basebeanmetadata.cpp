@@ -2583,6 +2583,10 @@ void BaseBeanMetadataPrivate::readDBRelation(const QDomElement &e, DBFieldMetada
         {
             relation->setShowOnRelatedModels((checkWildCards(e) == QLatin1String("true") ? true : false));
         }
+        else if ( e.tagName() == QLatin1String("reloadFromDBAfterSave") )
+        {
+            relation->setReloadFromDBAfterSave((checkWildCards(e) == QLatin1String("true") ? true : false));
+        }
     }
     if ( relation->name().isEmpty() )
     {

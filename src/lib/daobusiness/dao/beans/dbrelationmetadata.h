@@ -77,6 +77,8 @@ class ALEPHERP_DLL_EXPORT DBRelationMetadata : public QObject
     Q_PROPERTY (bool readOnly READ readOnly WRITE setReadOnly)
     /** Indica si está permitido insertar hijos */
     Q_PROPERTY (bool allowedInsertChild READ allowedInsertChild WRITE setAllowedInsertChild)
+    /** Los hijos o padres, se recargan al guardarse el bean padre */
+    Q_PROPERTY (bool reloadFromDBAfterSave READ reloadFromDBAfterSave WRITE setReloadFromDBAfterSave)
 
 private:
     Q_DISABLE_COPY(DBRelationMetadata)
@@ -122,6 +124,8 @@ public:
     void setReadOnly(bool v);
     bool allowedInsertChild() const;
     void setAllowedInsertChild(bool b);
+    bool reloadFromDBAfterSave() const;
+    void setReloadFromDBAfterSave(bool value);
 
     QString sqlForeignKeyName(AlephERP::CreationTableSqlOptions options, const QString &dialect);
     QString sqlForeignKey(AlephERP::CreationTableSqlOptions options, const QString &dialect);

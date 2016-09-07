@@ -59,6 +59,7 @@ public:
     bool m_dbReferentialIntegrity;
     bool m_readOnly;
     bool m_allowedInsertChild;
+    bool m_reloadFromDBAfterSave;
 
     DBRelationMetadataPrivate ()
     {
@@ -73,6 +74,7 @@ public:
         m_dbReferentialIntegrity = false;
         m_readOnly = false;
         m_allowedInsertChild = true;
+        m_reloadFromDBAfterSave = false;
     }
 };
 
@@ -283,6 +285,16 @@ bool DBRelationMetadata::allowedInsertChild() const
 void DBRelationMetadata::setAllowedInsertChild(bool b)
 {
     d->m_allowedInsertChild = b;
+}
+
+bool DBRelationMetadata::reloadFromDBAfterSave() const
+{
+    return d->m_reloadFromDBAfterSave;
+}
+
+void DBRelationMetadata::setReloadFromDBAfterSave(bool value)
+{
+    d->m_reloadFromDBAfterSave = value;
 }
 
 QString DBRelationMetadata::sqlForeignKeyName(AlephERP::CreationTableSqlOptions options, const QString &dialect)

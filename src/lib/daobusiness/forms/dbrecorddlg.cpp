@@ -1611,6 +1611,7 @@ bool DBRecordDlg::save()
                 d->m_canClose = false;
                 return false;
             }
+            d->m_bean->sync();
             if ( wasInsert && d->isPrintButtonVisible() )
             {
                 ui->pbPrint->setVisible(true);

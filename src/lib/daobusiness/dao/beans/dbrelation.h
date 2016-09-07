@@ -118,7 +118,6 @@ public:
     void setFilter(const QString &filter);
     bool childrenLoaded();
     bool childrenModified();
-    bool unloadChildren(bool ignoreNotSavedBeans = true);
     /** Se proporcionar por semántica */
     bool isFatherLoaded()
     {
@@ -236,6 +235,9 @@ public slots:
     BaseBeanPointer child(int row);
     void restoreValues(bool blockSignals = false);
     void loadFather();
+    bool unloadChildren(bool ignoreNotSavedBeans = true);
+    bool unloadFather(bool ignoreNotSavedBeans = true);
+    bool unload(bool ignoreNotSavedBeans = true);
 };
 
 Q_DECLARE_METATYPE(QList<DBRelation*>)

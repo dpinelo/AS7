@@ -1323,9 +1323,9 @@ BaseBeanSharedPointer BaseDAO::selectByPk(const QVariant &id, const QString &tab
 
 /**
   Obtiene, en una única consulta, los beans con primary keys determinadas por list. Se proporciona para dar
-  un mayor rendimiento
+  un mayor rendimiento. Todos los beans deben ser de la misma tabla.
   */
-bool BaseDAO::selectSeveralByPk(BaseBeanSharedPointerList &beans, QVariantList list, const QString &tableName, const QString &connection)
+bool BaseDAO::selectSeveralByPk(BaseBeanSharedPointerList &beans, const QVariantList &list, const QString &tableName, const QString &connection)
 {
     QString whereSql, sql;
     BaseBeanMetadata *metadata = BeansFactory::metadataBean(tableName);
@@ -2035,6 +2035,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
         // Puede que haya campos que se calculen o tomen valor justo cuando la base de datos guarda
         // el valor (porque tengan un trigger activado). Aseguramos tener el último valor
         reloadFieldChangedAfterSave(bean);
+        reloadRelationsChangedAfterSave(bean);
         HistoryDAO::insertEntry(bean, idTransaction);
     }
     CommonsFunctions::restoreOverrideCursor();
@@ -2137,6 +2138,7 @@ bool BaseDAO::update(BaseBean *bean, const QString &idTransaction, const QString
             // Puede que haya campos que se calculen o tomen valor justo cuando la base de datos guarda
             // el valor (porque tengan un trigger activado). Aseguramos tener el último valor
             reloadFieldChangedAfterSave(bean);
+            reloadRelationsChangedAfterSave(bean);
         }
     }
     return result;
@@ -2215,6 +2217,7 @@ bool BaseDAO::update(DBField *field, const QString &idTransaction, const QString
             // Puede que haya campos que se calculen o tomen valor justo cuando la base de datos guarda
             // el valor (porque tengan un trigger activado). Aseguramos tener el último valor
             reloadFieldChangedAfterSave(field->bean());
+            reloadRelationsChangedAfterSave(field->bean());
         }
     }
     return result;
@@ -2978,47 +2981,71 @@ bool BaseDAO::reloadBeanFromDB(const BaseBeanPointer &bean, const QString &conne
     return true;
 }
 
-bool BaseDAO::reloadBeansFromDB(const BaseBeanSharedPointerList &list, const QString &connectionName)
+/**
+ * @brief BaseDAO::reloadBeansFromDB
+ * @param list
+ * @param connectionName
+ * @return
+ * Recarga varios registros desde base de datos.
+ */
+bool BaseDAO::reloadBeansFromDB(const BaseBeanPointerList &list, const QString &connectionName)
 {
-    BaseBeanSharedPointerList copies;
-    QVariantList ids;
-    foreach ( BaseBeanSharedPointer bean, list )
+    QHash<QString, QVariantList> ids;
+
+    if ( list.isEmpty() )
+    {
+        return true;
+    }
+
+    foreach ( BaseBeanPointer bean, list )
     {
         if ( !bean.isNull() )
         {
-            ids.append(bean->pkValue());
+            if ( !ids.contains(bean->metadata()->tableName()) )
+            {
+                ids[bean->metadata()->tableName()] = QVariantList();
+            }
+            ids[bean->metadata()->tableName()].append(bean->pkValue());
         }
     }
-    if ( !BaseDAO::selectSeveralByPk(copies, ids, list.at(0)->metadata()->tableName(), connectionName) )
+    foreach (const QString &tableName, ids.keys())
     {
-        return false;
-    }
-    foreach ( BaseBeanSharedPointer beanCopy, copies )
-    {
-        foreach ( BaseBeanSharedPointer beanOrig, list )
+        BaseBeanSharedPointerList copies;
+        if ( !BaseDAO::selectSeveralByPk(copies,
+                                         ids[tableName],
+                                         tableName,
+                                         connectionName) )
         {
-            if ( !beanOrig.isNull() && beanOrig->pkEqual(beanCopy->pkValue()) )
+            return false;
+        }
+        foreach ( BaseBeanSharedPointer beanCopy, copies )
+        {
+            foreach ( BaseBeanPointer beanOrig, list )
             {
-                QList<DBField *> fldsOrig = beanOrig->fields();
-                QList<DBField *> fldsRead = beanCopy->fields();
-                for ( int i = 0 ; i < fldsOrig.size() ; i++ )
+                if ( !beanOrig.isNull() && beanOrig->pkEqual(beanCopy->pkValue()) )
                 {
-                    if ( !fldsOrig.at(i)->metadata()->memo() )
+                    QList<DBField *> fldsOrig = beanOrig->fields();
+                    QList<DBField *> fldsRead = beanCopy->fields();
+                    for ( int i = 0 ; i < fldsOrig.size() ; i++ )
                     {
-                        if ( fldsOrig.at(i)->value() != fldsRead.at(i)->value() )
+                        if ( !fldsOrig.at(i)->metadata()->memo() )
                         {
-                            fldsOrig.at(i)->setValue(fldsRead.at(i)->value());
+                            if ( fldsOrig.at(i)->value() != fldsRead.at(i)->value() )
+                            {
+                                fldsOrig.at(i)->setValue(fldsRead.at(i)->value());
+                            }
                         }
                     }
-                }
-                foreach ( DBRelation *rel, beanOrig->relations() )
-                {
-                    rel->unloadChildren();
                 }
             }
         }
     }
     return true;
+}
+
+bool BaseDAO::reloadBeansFromDB(const BaseBeanSharedPointerList &list, const QString &connectionName)
+{
+    return BaseDAO::reloadBeansFromDB(AERP_STRONGLIST_TO_POINTERLIST(list), connectionName);
 }
 
 /**
@@ -3028,15 +3055,17 @@ bool BaseDAO::reloadFieldChangedAfterSave(BaseBean *bean, const QString &connect
 {
     bool result = false;
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
-    QList<DBFieldMetadata *> flds;
-    foreach ( DBFieldMetadata *fld, bean->metadata()->fields() )
+    QList<DBFieldMetadata *> fieldsMetadata;
+    QList<DBField *> fields;
+    foreach ( DBField *fld, bean->fields() )
     {
-        if ( fld->reloadFromDBAfterSave() )
+        if ( fld->metadata()->reloadFromDBAfterSave() )
         {
-            flds.append(fld);
+            fieldsMetadata.append(fld->metadata());
+            fields.append(fld);
         }
     }
-    if ( flds.size() == 0 )
+    if ( fieldsMetadata.size() == 0 )
     {
         return true;
     }
@@ -3049,7 +3078,7 @@ bool BaseDAO::reloadFieldChangedAfterSave(BaseBean *bean, const QString &connect
     {
         includeOid = false;
     }
-    QString sqlFields = sqlSelectFieldsClausule(flds, includeOid);
+    QString sqlFields = sqlSelectFieldsClausule(fieldsMetadata, includeOid);
     QString sql = QString("SELECT %1 FROM %2 ").arg(sqlFields, bean->metadata()->sqlTableName());
     sql = QString("%1 WHERE %2").arg(sql).arg(bean->sqlWherePk());
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
@@ -3069,18 +3098,32 @@ bool BaseDAO::reloadFieldChangedAfterSave(BaseBean *bean, const QString &connect
         int i = 0;
         result = true;
         bool blockSignalState = bean->blockSignals(true);
-        foreach ( DBField *fld, bean->fields() )
+        foreach ( DBField *fld, fields )
         {
-            if ( fld->metadata()->reloadFromDBAfterSave() )
-            {
-                fld->setInternalValue(qry->value(i), true, false);
-                fld->sync();
-            }
+            fld->setInternalValue(qry->value(i), true, false);
+            fld->sync();
+            i++;
         }
         bean->blockSignals(blockSignalState);
     }
     CommonsFunctions::restoreOverrideCursor();
     return result;
+}
+
+bool BaseDAO::reloadRelationsChangedAfterSave(BaseBean *bean)
+{
+    if ( bean == NULL )
+    {
+        return false;
+    }
+    foreach (DBRelation *relation, bean->relations())
+    {
+        if ( relation->metadata()->reloadFromDBAfterSave() )
+        {
+            relation->unload(true);
+        }
+    }
+    return true;
 }
 
 /**

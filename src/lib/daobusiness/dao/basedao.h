@@ -83,7 +83,8 @@ public:
     static QString lastErrorMessage();
 
     static BaseBeanSharedPointer selectByPk(const QVariant &id, const QString &tableName, const QString &connectionName = "");
-    static bool selectSeveralByPk(BaseBeanSharedPointerList &beans, QVariantList list, const QString &tableName = "", const QString &connection = "");
+    static QString sqlSelectSeveralByPk(QVariantList list, const QString &tableName = "");
+    static bool selectSeveralByPk(BaseBeanSharedPointerList &beans, const QVariantList &list, const QString &tableName = "", const QString &connection = "");
     static bool selectByPk(const QVariant &id, BaseBean *bean, const QString &connectionName = "");
     static bool selectByOid(qlonglong oid, BaseBean *bean, const QString &connectionName = "");
     static bool selectBySerializedPk(const QString &pkey, BaseBean *bean, const QString &connectionName = "");
@@ -121,8 +122,10 @@ public:
     static QString serializedPkToSqlWhere(const QString &pkey);
 
     static bool reloadBeanFromDB(const BaseBeanPointer &bean, const QString &connectionName = "");
+    static bool reloadBeansFromDB(const BaseBeanPointerList &list, const QString &connectionName = "");
     static bool reloadBeansFromDB(const BaseBeanSharedPointerList &list, const QString &connectionName = "");
     static bool reloadFieldChangedAfterSave(BaseBean *bean, const QString &connectionName = "");
+    static bool reloadRelationsChangedAfterSave(BaseBean *bean);
 
     static bool originalBeanFromView(BaseBeanPointer view, BaseBeanPointer original, const QString &connectionName = "");
 

@@ -2530,6 +2530,38 @@ bool DBRelation::unloadChildren(bool ignoreNotSavedBeans)
     return true;
 }
 
+bool DBRelation::unloadFather(bool ignoreNotSavedBeans)
+{
+    bool result = false;
+    if ( !ignoreNotSavedBeans )
+    {
+        if ( d->m_father->modified() )
+        {
+            return false;
+        }
+    }
+    if ( d->m_canDeleteFather )
+    {
+        setFather(NULL);
+        result = true;
+    }
+    return result;
+}
+
+bool DBRelation::unload(bool ignoreNotSavedBeans)
+{
+    bool result = false;
+    if ( d->m->type() == DBRelationMetadata::ONE_TO_MANY || d->m->type() == DBRelationMetadata::ONE_TO_ONE )
+    {
+        result = unloadChildren(ignoreNotSavedBeans);
+    }
+    else if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE )
+    {
+        result = unloadFather(ignoreNotSavedBeans);
+    }
+    return result;
+}
+
 bool DBRelation::loadChildrenOnBackground(const QString &order)
 {
     QMutexLocker lock(&d->m_mutex);

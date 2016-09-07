@@ -696,8 +696,12 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
         d->m_doingCommit[contextName] = false;
         return false;
     }
+    BaseDAO::reloadBeansFromDB(beansSaved);
     foreach (BaseBeanPointer bean, beansSaved)
     {
+        // Tras una transacción y como puede haber triggers deferred, es necesario recargar los datos de ellos
+        BaseDAO::reloadFieldChangedAfterSave(bean);
+        BaseDAO::reloadRelationsChangedAfterSave(bean);
         if ( !bean.isNull() )
         {
             bean->emitBeanCommitted();
