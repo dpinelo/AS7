@@ -262,7 +262,9 @@ class ALEPHERP_DLL_EXPORT DBFieldMetadata : public QObject, public QScriptable
       de un field, porque, por ejemplo, se ha asociado un trigger al mismo a ejecutar en el proceso de actualización,
       con lo que el valor del que dispone AlephERP puede no ser el actual. Esta propiedad permite marcar
       ese tipo de campos. Un ejemplo clásico, es un contador único que surge de una tabla de contadores, y que
-      se asigna a una tabla (por ejemplo, facturas) */
+      se asigna a una tabla (por ejemplo, facturas).
+      DEPRECATED: En las nuevas versiones del motor, siempre se produce una recarga de los registros
+      que se han incluído en una transacción, lo que lo hace innecesario. */
     Q_PROPERTY(bool reloadFromDBAfterSave READ reloadFromDBAfterSave WRITE setReloadFromDBAfterSave)
     /** Indica si este campo se crea como widget en los DBSearchDlg generados automáticamente y no mediante
       widgets de tipo .search.ui */

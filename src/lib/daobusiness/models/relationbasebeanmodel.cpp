@@ -195,6 +195,7 @@ void RelationBaseBeanModelPrivate::loadBeansFromRelations(BaseBean *rootBean, co
             else if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
             {
                 QObject::connect(rel, SIGNAL(brotherLoaded(BaseBean*)), q_ptr, SLOT(intermediateRelationModified()));
+                QObject::connect(rel, SIGNAL(childrenUnloaded()), q_ptr, SLOT(intermediateRelationModified()));
             }
             else
             {
@@ -204,6 +205,7 @@ void RelationBaseBeanModelPrivate::loadBeansFromRelations(BaseBean *rootBean, co
                 QObject::connect(rel, SIGNAL(childInserted(BaseBean*,int)), q_ptr, SLOT(childInserted(BaseBean *, int)));
                 QObject::connect(rel, SIGNAL(childDeleted(BaseBean*,int)), q_ptr, SLOT(childDeleted(BaseBean*,int)));
                 QObject::connect(rel, SIGNAL(destroyed(QObject*)), q_ptr, SLOT(intermediateRelationModified()));
+                QObject::connect(rel, SIGNAL(childrenUnloaded()), q_ptr, SLOT(intermediateRelationModified()));
             }
         }
     }

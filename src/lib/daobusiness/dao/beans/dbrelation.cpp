@@ -2527,6 +2527,7 @@ bool DBRelation::unloadChildren(bool ignoreNotSavedBeans)
     d->m_childrenLoaded = false;
     d->m_childrenModified = false;
     d->m_childrenCount = -1;
+    emit childrenUnloaded();
     return true;
 }
 
