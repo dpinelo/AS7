@@ -110,6 +110,8 @@ public:
         m_openSuccess = false;
     }
 
+    QString uiDbRecordForSelectedRow();
+    QString qsDbRecordForSelectedRow();
     bool isPrintButtonVisible();
     bool isEmailButtonVisible();
     bool hasWizard();
@@ -125,6 +127,30 @@ public:
  * Determina si el botón de imprimir documentos es visible. Será visible cuando existe algún ReportMetadata
  * con type="record" y además linkedTo = "tabla_de_este_dbrecord"
  */
+QString DBFormDlgPrivate::uiDbRecordForSelectedRow()
+{
+    QString uiDbRecord;
+    FilterBaseBeanModel *model = m_itemView->filterModel();
+    BaseBeanSharedPointer bean = model->bean(rowIndexSelected());
+    if ( !bean.isNull() )
+    {
+        uiDbRecord = bean->metadata()->uiDbRecord();
+    }
+    return uiDbRecord;
+}
+
+QString DBFormDlgPrivate::qsDbRecordForSelectedRow()
+{
+    QString qsDbRecord;
+    FilterBaseBeanModel *model = m_itemView->filterModel();
+    BaseBeanSharedPointer bean = model->bean(rowIndexSelected());
+    if ( !bean.isNull() )
+    {
+        qsDbRecord = bean->metadata()->qsDbRecord();
+    }
+    return qsDbRecord;
+}
+
 bool DBFormDlgPrivate::isPrintButtonVisible()
 {
     if ( m_metadata->viewForTable().isEmpty() )
@@ -862,7 +888,7 @@ void DBFormDlg::exposeAERPControlToQsEngine()
 
 void DBFormDlg::edit()
 {
-    edit("false", "", "");
+    edit("false", d->uiDbRecordForSelectedRow(), d->qsDbRecordForSelectedRow());
 }
 
 void DBFormDlg::editCalledFromTableView()
@@ -870,7 +896,7 @@ void DBFormDlg::editCalledFromTableView()
     // Si se invoca desde el table view, debemos distinguir si hacemos edit o abrimos en modo visualización
     if ( ui->pbEdit->isVisible() )
     {
-        edit("false", "", "");
+        edit("false", d->uiDbRecordForSelectedRow(), d->qsDbRecordForSelectedRow());
     }
     else if ( ui->pbView->isVisible() )
     {
@@ -880,7 +906,7 @@ void DBFormDlg::editCalledFromTableView()
 
 void DBFormDlg::edit(const QString &insert)
 {
-    edit(insert, "", "");
+    edit(insert, d->uiDbRecordForSelectedRow(), d->qsDbRecordForSelectedRow());
 }
 
 void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString &qsCode)
