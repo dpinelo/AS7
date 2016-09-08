@@ -109,6 +109,13 @@ const char * AlephERP::stValue = "value";
 const char * AlephERP::stRow = "row";
 const char * AlephERP::stInsertRecord = "insertRecord";
 const char * AlephERP::stFilterAcceptsRowFunctionName = "filterAcceptsRow";
+const char * AlephERP::stEnabledForRoles = "enabledForRoles";
+const char * AlephERP::stVisibleForRoles = "visibleForRoles";
+const char * AlephERP::stDataEditableForRoles = "dataEditableForRoles";
+const char * AlephERP::stEnabledForUsers = "enabledForUsers";
+const char * AlephERP::stVisibleForUsers = "visibleForUsers";
+const char * AlephERP::stDataEditableForUsers = "dataEditableForUsers";
+
 
 #ifdef ALEPHERP_DEVTOOLS
 const char * AlephERP::stWebInspector = "aerpWebInspector";

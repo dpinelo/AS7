@@ -141,6 +141,12 @@ public:
     static const char * stValue;
     static const char * stInsertRecord;
     static const char * stFilterAcceptsRowFunctionName;
+    static const char * stEnabledForRoles;
+    static const char * stVisibleForRoles;
+    static const char * stDataEditableForRoles;
+    static const char * stEnabledForUsers;
+    static const char * stVisibleForUsers;
+    static const char * stDataEditableForUsers;
 
     static const char * stLogDB;
     static const char * stLogScript;

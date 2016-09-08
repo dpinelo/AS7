@@ -180,6 +180,7 @@ public:
     BeansOnNavigation navigationWidgetSelectCurrentBean();
     void discardContext();
     void checkModifiedToSave();
+    void setWidgetStateFromDesignerProperties();
 };
 
 /**
@@ -426,6 +427,16 @@ void DBRecordDlgPrivate::checkModifiedToSave()
             }
         }
     }
+}
+
+/**
+ * @brief DBRecordDlgPrivate::setWidgetStateFromDesignerProperties
+ * Según las propiedades "enabledForRoles", "visibleForRoles", "dataEditableForRoles", o las análogas por usuario
+ * establece las propiedades análogas de los widgets que las contienen (de los widgets y de los continentes de estos
+ */
+void DBRecordDlgPrivate::setWidgetStateFromDesignerProperties()
+{
+
 }
 
 DBRecordDlg::DBRecordDlg(QWidget *parent, Qt::WindowFlags fl) :
@@ -689,6 +700,8 @@ bool DBRecordDlg::init()
     {
         editable = d->m_bean->fieldValue(AlephERP::stFieldEditable).toBool();
     }
+
+    d->setWidgetStateFromDesignerProperties();
 
     if ( d->m_openType == AlephERP::ReadOnly || d->m_bean->readOnly() || !editable )
     {
