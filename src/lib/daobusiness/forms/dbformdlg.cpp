@@ -112,6 +112,8 @@ public:
 
     QString uiDbRecordForSelectedRow();
     QString qsDbRecordForSelectedRow();
+    QString uiDbNewRecordForSelectedRow();
+    QString qsDbNewRecordForSelectedRow();
     bool isPrintButtonVisible();
     bool isEmailButtonVisible();
     bool hasWizard();
@@ -131,10 +133,10 @@ QString DBFormDlgPrivate::uiDbRecordForSelectedRow()
 {
     QString uiDbRecord;
     FilterBaseBeanModel *model = m_itemView->filterModel();
-    BaseBeanSharedPointer bean = model->bean(rowIndexSelected());
-    if ( !bean.isNull() )
+    BaseBeanMetadata *metadata = model->metadata();
+    if ( metadata != NULL )
     {
-        uiDbRecord = bean->metadata()->uiDbRecord();
+        uiDbRecord = metadata->uiDbRecord();
     }
     return uiDbRecord;
 }
@@ -143,10 +145,42 @@ QString DBFormDlgPrivate::qsDbRecordForSelectedRow()
 {
     QString qsDbRecord;
     FilterBaseBeanModel *model = m_itemView->filterModel();
-    BaseBeanSharedPointer bean = model->bean(rowIndexSelected());
-    if ( !bean.isNull() )
+    BaseBeanMetadata *metadata = model->metadata();
+    if ( metadata != NULL )
     {
-        qsDbRecord = bean->metadata()->qsDbRecord();
+        qsDbRecord = metadata->qsDbRecord();
+    }
+    return qsDbRecord;
+}
+
+QString DBFormDlgPrivate::uiDbNewRecordForSelectedRow()
+{
+    QString uiDbRecord;
+    FilterBaseBeanModel *model = m_itemView->filterModel();
+    BaseBeanMetadata *metadata = model->metadata();
+    if ( metadata != NULL )
+    {
+        uiDbRecord = metadata->uiNewDbRecord();
+        if ( uiDbRecord.isEmpty() )
+        {
+            uiDbRecord = metadata->uiDbRecord();
+        }
+    }
+    return uiDbRecord;
+}
+
+QString DBFormDlgPrivate::qsDbNewRecordForSelectedRow()
+{
+    QString qsDbRecord;
+    FilterBaseBeanModel *model = m_itemView->filterModel();
+    BaseBeanMetadata *metadata = model->metadata();
+    if ( metadata != NULL )
+    {
+        qsDbRecord = metadata->qsNewDbRecord();
+        if ( qsDbRecord.isEmpty() )
+        {
+            qsDbRecord = metadata->qsDbRecord();
+        }
     }
     return qsDbRecord;
 }
@@ -906,7 +940,14 @@ void DBFormDlg::editCalledFromTableView()
 
 void DBFormDlg::edit(const QString &insert)
 {
-    edit(insert, d->uiDbRecordForSelectedRow(), d->qsDbRecordForSelectedRow());
+    if ( insert == QStringLiteral("true") )
+    {
+        edit(insert, d->uiDbNewRecordForSelectedRow(), d->qsDbNewRecordForSelectedRow());
+    }
+    else
+    {
+        edit(insert, d->uiDbRecordForSelectedRow(), d->qsDbRecordForSelectedRow());
+    }
 }
 
 void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString &qsCode)
