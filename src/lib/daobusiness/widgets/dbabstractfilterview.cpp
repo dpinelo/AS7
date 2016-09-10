@@ -37,7 +37,9 @@
 #include "scripts/perpscript.h"
 
 DBAbstractFilterView::DBAbstractFilterView(QWidget *parent) :
-    QWidget(parent), ui(new Ui::DBAbstractFilterView), d(new DBAbstractFilterViewPrivate(this))
+    QWidget(parent),
+    ui(new Ui::DBAbstractFilterView),
+    d(new DBAbstractFilterViewPrivate(this))
 {
     ui->setupUi(this);
     ui->cbFastFilterValue->setVisible(false);

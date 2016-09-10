@@ -60,6 +60,7 @@ public:
     bool m_readOnly;
     bool m_allowedInsertChild;
     bool m_reloadFromDBAfterSave;
+    bool m_loadOnBackground;
 
     DBRelationMetadataPrivate ()
     {
@@ -75,6 +76,7 @@ public:
         m_readOnly = false;
         m_allowedInsertChild = true;
         m_reloadFromDBAfterSave = false;
+        m_loadOnBackground = false;
     }
 };
 
@@ -295,6 +297,16 @@ bool DBRelationMetadata::reloadFromDBAfterSave() const
 void DBRelationMetadata::setReloadFromDBAfterSave(bool value)
 {
     d->m_reloadFromDBAfterSave = value;
+}
+
+bool DBRelationMetadata::loadOnBackground() const
+{
+    return d->m_loadOnBackground;
+}
+
+void DBRelationMetadata::setLoadOnBackground(bool value)
+{
+    d->m_loadOnBackground = value;
 }
 
 QString DBRelationMetadata::sqlForeignKeyName(AlephERP::CreationTableSqlOptions options, const QString &dialect)
