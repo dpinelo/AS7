@@ -31,10 +31,14 @@ BugReportForm::BugReportForm(const QString &stackTraceFile, QWidget *parent, Qt:
 
     connect(pbOk, SIGNAL(clicked(void)), this, SLOT(close(void)));
 
+    QString text = trUtf8("Stacktrace file path: %1").arg(stackTraceFile);
+
     QFile fi(stackTraceFile);
     if ( fi.open(QIODevice::ReadOnly) )
     {
         QByteArray content = fi.readAll();
-        txtStackTrace->setText(content);
+        text.append("\r\n\r\n");
+        text.append(content);
     }
+    txtStackTrace->setText(text);
 }

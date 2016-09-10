@@ -301,7 +301,7 @@ void SystemItemsDlg::backDiff()
 
 void SystemItemsDlg::applyIndividualDiff(QTableWidgetItem *item)
 {
-    if ( item->column() != 0 )
+    if ( item == NULL || item->column() != 0 )
     {
         return;
     }

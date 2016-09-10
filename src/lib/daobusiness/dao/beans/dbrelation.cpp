@@ -447,7 +447,7 @@ void DBRelationPrivate::updateChildren(BaseBean *father, QList<BaseBean *> &stac
                 }
                 if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
                 {
-                    if ( rel->isFatherLoaded() )
+                    if ( rel->isFatherLoaded() && rel->father() )
                     {
                         updateChildren(rel->father(), stackList);
                     }
@@ -886,7 +886,7 @@ int DBRelation::childrenCount(bool includeToBeDeleted)
 
 int DBRelation::childrenCountByState(BaseBean::DbBeanStates state)
 {
-    if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE && !d->m_fatherLoaded )
+    if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE && !d->m_fatherLoaded && father() )
     {
         if ( father()->dbState() == state )
         {
@@ -1724,7 +1724,9 @@ BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeD
     // estarán cargados
     QString finalOrder;
     finalOrder = (order.isEmpty() ? d->m->order() : order);
-    if ( !childrenLoaded() && !ownBean.isNull() && ownBean->dbState() != BaseBean::INSERT &&
+    if ( !childrenLoaded() &&
+         !ownBean.isNull() &&
+         ownBean->dbState() != BaseBean::INSERT &&
             ( (d->m->type() == DBRelationMetadata::ONE_TO_MANY || d->m->type() == DBRelationMetadata::ONE_TO_ONE ) ) )
     {
         BaseBeanSharedPointerList results;
@@ -1756,7 +1758,7 @@ BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeD
             }
         }
     }
-    else if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE )
+    else if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE && father() )
     {
         BaseBeanPointerList tmp;
         // Esto está deprecated en Qt 5.0
@@ -2525,7 +2527,40 @@ bool DBRelation::unloadChildren(bool ignoreNotSavedBeans)
     d->m_childrenLoaded = false;
     d->m_childrenModified = false;
     d->m_childrenCount = -1;
+    emit childrenUnloaded();
     return true;
+}
+
+bool DBRelation::unloadFather(bool ignoreNotSavedBeans)
+{
+    bool result = false;
+    if ( !ignoreNotSavedBeans )
+    {
+        if ( d->m_father->modified() )
+        {
+            return false;
+        }
+    }
+    if ( d->m_canDeleteFather )
+    {
+        setFather(NULL);
+        result = true;
+    }
+    return result;
+}
+
+bool DBRelation::unload(bool ignoreNotSavedBeans)
+{
+    bool result = false;
+    if ( d->m->type() == DBRelationMetadata::ONE_TO_MANY || d->m->type() == DBRelationMetadata::ONE_TO_ONE )
+    {
+        result = unloadChildren(ignoreNotSavedBeans);
+    }
+    else if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE )
+    {
+        result = unloadFather(ignoreNotSavedBeans);
+    }
+    return result;
 }
 
 bool DBRelation::loadChildrenOnBackground(const QString &order)

@@ -140,6 +140,13 @@ public:
     static const char * stSqlWorkerUUID;
     static const char * stValue;
     static const char * stInsertRecord;
+    static const char * stFilterAcceptsRowFunctionName;
+    static const char * stEnabledForRoles;
+    static const char * stVisibleForRoles;
+    static const char * stDataEditableForRoles;
+    static const char * stEnabledForUsers;
+    static const char * stVisibleForUsers;
+    static const char * stDataEditableForUsers;
 
     static const char * stLogDB;
     static const char * stLogScript;
@@ -425,16 +432,21 @@ public:
 
     struct HistoryItem
     {
-        QString userName;
         QString action;
         QString tableName;
         QString pkey;
-        QDateTime timeStamp;
-        QString idTransaction;
         QString xml;
     };
 
-    typedef QList<HistoryItem> HistoryItemList;
+    struct HistoryItemTransaction
+    {
+        QDateTime timeStamp;
+        QString idTransaction;
+        QString userName;
+        QList<HistoryItem> items;
+    };
+
+    typedef QList<HistoryItemTransaction> HistoryItemTransactionList;
 
     static void initAlephERPWidgets();
 

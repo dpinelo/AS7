@@ -77,6 +77,12 @@ class ALEPHERP_DLL_EXPORT DBRelationMetadata : public QObject
     Q_PROPERTY (bool readOnly READ readOnly WRITE setReadOnly)
     /** Indica si está permitido insertar hijos */
     Q_PROPERTY (bool allowedInsertChild READ allowedInsertChild WRITE setAllowedInsertChild)
+    /** Los hijos o padres, se recargan al guardarse el bean padre. Esta propiedad debe usarse en casos donde los registros
+    se generan por procesos ajenos a este cliente de escritorio. Por ejemplo, las líneas de IVA podrían generarse en base de datos
+    para tener eficiencia en documentos donde el número de registro sea muy elevado. Un trigger se encargaría de esto cuando se
+    complete la transacción que se encargue de almacenar toda la información necesaria. Con esta propiedad a true, se fuerza a
+    que los hijos se recarguen descartando por tanto los registros que tuviese en ese momento asignados. */
+    Q_PROPERTY (bool reloadFromDBAfterSave READ reloadFromDBAfterSave WRITE setReloadFromDBAfterSave)
 
 private:
     Q_DISABLE_COPY(DBRelationMetadata)
@@ -122,6 +128,8 @@ public:
     void setReadOnly(bool v);
     bool allowedInsertChild() const;
     void setAllowedInsertChild(bool b);
+    bool reloadFromDBAfterSave() const;
+    void setReloadFromDBAfterSave(bool value);
 
     QString sqlForeignKeyName(AlephERP::CreationTableSqlOptions options, const QString &dialect);
     QString sqlForeignKey(AlephERP::CreationTableSqlOptions options, const QString &dialect);

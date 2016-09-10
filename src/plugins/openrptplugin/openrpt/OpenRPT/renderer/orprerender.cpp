@@ -687,6 +687,7 @@ qreal ORPreRenderPrivate::renderSectionSize(const ORSectionData & sectionData, b
       }
     }
     // dpinelo: ---------------------------
+    // Hay que tratar especialmente aquellos fields que son wordwrap en campos de detalles.
     if (element->isField())
     {
       ORFieldData *fldData = element->toField();
@@ -747,6 +748,11 @@ qreal ORPreRenderPrivate::renderSection(const ORSectionData & sectionData)
     {
         ORFieldData *f = elemThis->toField();
 
+        // dpinelo:-------------------------
+        orData itemData;
+        populateData(f->data, itemData);
+        // dpinelo:-------------------------
+
         int nbOfLines = f->lines;
         int nbOfCol = f->columns;
         qreal xSpacing = f->xSpacing;
@@ -755,7 +761,11 @@ qreal ORPreRenderPrivate::renderSection(const ORSectionData & sectionData)
         bool leftToRight = f->leftToRight;
 
         QPointF pos = f->rect.topLeft();
-        QSizeF size = f->rect.size();
+        // dpinelo:-------------------------
+        //QSizeF size = f->rect.size();
+        QSizeF size = f->rectSizeToDraw(itemData.getValue());
+        // dpinelo:-------------------------
+
         pos /= 100.0;
         pos += QPointF(_leftMargin, _yOffset);
         size /= 100.0;

@@ -740,7 +740,13 @@ bool SystemDAO::checkIfForeignKeyExists(DBRelationMetadata *rel, const QString &
     {
         return false;
     }
-    if ( rel->rootMetadata()->dbObjectType() != AlephERP::Table )
+    BaseBeanMetadata *rootMetadata = BeansFactory::metadataBean(rel->tableName());
+    if ( rootMetadata == NULL )
+    {
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("No existe la tabla o metadatos [%1]").arg(rel->tableName()));
+        return false;
+    }
+    if ( rootMetadata->dbObjectType() != AlephERP::Table )
     {
         return true;
     }

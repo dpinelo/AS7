@@ -79,25 +79,25 @@ QwwRichTextEdit::QwwRichTextEdit(QWidget *parent) : QTextEdit(parent){
     foreach(int s, QFontDatabase::standardSizes())
     fsp->addItem(QString::number(s));
 
-    m_actions[BoldAction] = new QAction(wwWidgets::icon("format-text-bold", QIcon(QPixmap(":/trolltech/formeditor/images/win/textbold.png"))), "Bold", this);
+    m_actions[BoldAction] = new QAction(wwWidgets::icon("format-text-bold", QIcon(QPixmap(":/images/win/textbold.png"))), "Bold", this);
     m_actions[BoldAction]->setCheckable(true);
     tb->addAction(m_actions[BoldAction]);
     connect(m_actions[BoldAction], SIGNAL(triggered(bool)), this, SLOT(setBold(bool)));
-    m_actions[ItalicAction] = new QAction(wwWidgets::icon("format-text-italic", QPixmap(":/trolltech/formeditor/images/win/textitalic.png")), "Italic", this);
+    m_actions[ItalicAction] = new QAction(wwWidgets::icon("format-text-italic", QPixmap(":/images/win/textitalic.png")), "Italic", this);
     m_actions[ItalicAction]->setCheckable(true);
     tb->addAction(m_actions[ItalicAction]);
 
     connect(m_actions[ItalicAction], SIGNAL(triggered(bool)), this, SLOT(setItalic(bool)));
-    m_actions[UnderlineAction] = new QAction(wwWidgets::icon("format-text-underline", QPixmap(":/trolltech/formeditor/images/win/textunder.png")), "Underline", this);
+    m_actions[UnderlineAction] = new QAction(wwWidgets::icon("format-text-underline", QPixmap(":/images/win/textunder.png")), "Underline", this);
     m_actions[UnderlineAction]->setCheckable(true);
     tb->addAction(m_actions[UnderlineAction]);
 
     cB = tb->addSeparator();
     connect(m_actions[UnderlineAction], SIGNAL(triggered(bool)), this, SLOT(setUnderline(bool)));
-    al = new QAction(wwWidgets::icon("format-justify-left", QPixmap(":/trolltech/formeditor/images/win/textleft.png")), "Align left", this);
-    ar = new QAction(wwWidgets::icon("format-justify-right", QPixmap(":/trolltech/formeditor/images/win/textright.png")), "Align right", this);
-    ac = new QAction(wwWidgets::icon("format-justify-center", QPixmap(":/trolltech/formeditor/images/win/textcenter.png")), "Center", this);
-    aj = new QAction(wwWidgets::icon("format-justify-fill", QPixmap(":/trolltech/formeditor/images/win/textjustify.png")), "Justify", this);
+    al = new QAction(wwWidgets::icon("format-justify-left", QPixmap(":/images/win/textleft.png")), "Align left", this);
+    ar = new QAction(wwWidgets::icon("format-justify-right", QPixmap(":/images/win/textright.png")), "Align right", this);
+    ac = new QAction(wwWidgets::icon("format-justify-center", QPixmap(":/images/win/textcenter.png")), "Center", this);
+    aj = new QAction(wwWidgets::icon("format-justify-fill", QPixmap(":/images/win/textjustify.png")), "Justify", this);
     QActionGroup *alignmentGroup = new QActionGroup(this);
     al->setCheckable(true);
     ar->setCheckable(true);

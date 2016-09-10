@@ -273,6 +273,7 @@ class ORFieldData : public ORObject
     bool alephERPFormat;
     QString alephERPFormatString;
     qreal calculateHeightWithWordWrap(const QString &textToShow);
+    QSizeF rectSizeToDraw(const QString &textToShow);
     // dpinelo ----------------------------------------------
 
     int lines;

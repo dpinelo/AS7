@@ -58,6 +58,7 @@ public:
     QChar m_access;
     QPointer<AERPScriptQsObject> m_engine;
     bool m_forceToLoadBeans;
+    bool m_dbFormHasFilterAcceptsRowFunction;
 
     FilterBaseBeanModelPrivate(FilterBaseBeanModel *qq) : q_ptr(qq)
     {
@@ -67,6 +68,7 @@ public:
         m_access = 'r';
         m_acceptedRows[m_states] = QHash<qlonglong, bool>();
         m_forceToLoadBeans = false;
+        m_dbFormHasFilterAcceptsRowFunction = false;
     }
 
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent);
@@ -703,8 +705,7 @@ bool FilterBaseBeanModel::lessThan(const QModelIndex &left, const QModelIndex &r
  */
 bool FilterBaseBeanModelPrivate::qsFilterAcceptsRow(BaseBeanPointer beanRow, const QModelIndex &sourceParent) const
 {
-    QString functionName = "filterAcceptsRow";
-    if ( m_engine->existQsFunction(functionName) )
+    if ( m_engine->existQsFunction(AlephERP::stFilterAcceptsRowFunctionName) )
     {
         QScriptValue result;
         QScriptValueList argList;
@@ -720,7 +721,7 @@ bool FilterBaseBeanModelPrivate::qsFilterAcceptsRow(BaseBeanPointer beanRow, con
                 argList.append(valParent);
             }
         }
-        m_engine->callQsObjectFunction(result, functionName, argList);
+        m_engine->callQsObjectFunction(result, AlephERP::stFilterAcceptsRowFunctionName, argList);
         if ( result.isValid() && result.isBool() )
         {
             return result.toBool();
@@ -731,8 +732,7 @@ bool FilterBaseBeanModelPrivate::qsFilterAcceptsRow(BaseBeanPointer beanRow, con
 
 bool FilterBaseBeanModelPrivate::qsCanApplyFilter() const
 {
-    QString functionName = "filterAcceptsRow";
-    return m_engine && m_engine->existQsFunction(functionName);
+    return m_dbFormHasFilterAcceptsRowFunction;
 }
 
 void FilterBaseBeanModel::clearAcceptedRows()
@@ -1226,6 +1226,10 @@ QString FilterBaseBeanModel::lastErrorMessage() const
 void FilterBaseBeanModel::setQsObjectEngine(AERPScriptQsObject *engine)
 {
     d->m_engine = engine;
+    if ( d->m_engine )
+    {
+        d->m_dbFormHasFilterAcceptsRowFunction = d->m_engine && d->m_engine->existQsFunction(AlephERP::stFilterAcceptsRowFunctionName);
+    }
 }
 
 int FilterBaseBeanModel::dbFieldColumnIndex(const QString &dbFieldName) const

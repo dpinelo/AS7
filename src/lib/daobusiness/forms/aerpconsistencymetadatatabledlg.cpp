@@ -46,13 +46,18 @@ AERPConsistencyMetadataTableDlg::AERPConsistencyMetadataTableDlg(const QVariantL
         QVariantHash hash = item.toHash();
         int row = ui->tableWidget->rowCount();
         ui->tableWidget->insertRow(row);
+
         QTableWidgetItem *itemWidget = new QTableWidgetItem(hash["tablename"].toString());
         ui->tableWidget->setItem(row, 0, itemWidget);
+
         itemWidget = new QTableWidgetItem (hash["column"].toString());
         ui->tableWidget->setItem(row, 1, itemWidget);
+
         itemWidget = new QTableWidgetItem (hash["error"].toString());
         itemWidget->setData(Qt::UserRole, hash["code"].toString());
+        itemWidget->setData(Qt::UserRole+1, hash["relation"].toString());
         ui->tableWidget->setItem(row, 2, itemWidget);
+
         qDebug() << "[" << hash["tablename"].toString() << "] [" << hash["column"].toString() << "] [" << hash["error"].toString() << "]";
     }
 
@@ -101,10 +106,9 @@ void AERPConsistencyMetadataTableDlg::fix()
                 bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                 if (!result)
                 {
-                    QString err = trUtf8("Ocurrió un error: %1").arg(BaseDAO::lastErrorMessage());
-                    CommonsFunctions::restoreOverrideCursor();
-                    QMessageBox::information(this, qApp->applicationName(), err, QMessageBox::Ok);
-                    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+                    QString err = trUtf8("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    ui->txtResults->setPlainText(err);
+                    qApp->processEvents();
                 }
                 else
                 {
@@ -117,10 +121,9 @@ void AERPConsistencyMetadataTableDlg::fix()
                 bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                 if (!result)
                 {
-                    QString err = trUtf8("Ocurrió un error: %1").arg(BaseDAO::lastErrorMessage());
-                    CommonsFunctions::restoreOverrideCursor();
-                    QMessageBox::information(this, qApp->applicationName(), err, QMessageBox::Ok);
-                    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+                    QString err = trUtf8("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    ui->txtResults->setPlainText(err);
+                    qApp->processEvents();
                 }
                 else
                 {
@@ -133,10 +136,9 @@ void AERPConsistencyMetadataTableDlg::fix()
                 bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                 if (!result)
                 {
-                    QString err = trUtf8("Ocurrió un error: %1").arg(BaseDAO::lastErrorMessage());
-                    CommonsFunctions::restoreOverrideCursor();
-                    QMessageBox::information(this, qApp->applicationName(), err, QMessageBox::Ok);
-                    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+                    QString err = trUtf8("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    ui->txtResults->setPlainText(err);
+                    qApp->processEvents();
                 }
                 else
                 {
@@ -149,10 +151,9 @@ void AERPConsistencyMetadataTableDlg::fix()
                 bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                 if (!result)
                 {
-                    QString err = trUtf8("Ocurrió un error: %1").arg(BaseDAO::lastErrorMessage());
-                    CommonsFunctions::restoreOverrideCursor();
-                    QMessageBox::information(this, qApp->applicationName(), err, QMessageBox::Ok);
-                    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+                    QString err = trUtf8("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    ui->txtResults->setPlainText(err);
+                    qApp->processEvents();
                 }
                 else
                 {
@@ -161,17 +162,17 @@ void AERPConsistencyMetadataTableDlg::fix()
             }
             else if ( error.testFlag(AlephERP::ForeignKeyNotExists) )
             {
-                DBRelationMetadata *rel = m->relation(ui->tableWidget->item(row, 1)->text());
+                QString relationName = ui->tableWidget->item(row, 2)->data(Qt::UserRole+1).toString();
+                DBRelationMetadata *rel = m->relation(relationName);
                 if ( rel != NULL )
                 {
                     QString sql = rel->sqlForeignKey(AlephERP::WithForeignKeys, Database::driverConnection());
                     bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                     if (!result)
                     {
-                        QString err = trUtf8("Ocurrió un error: %1").arg(BaseDAO::lastErrorMessage());
-                        CommonsFunctions::restoreOverrideCursor();
-                        QMessageBox::information(this, qApp->applicationName(), err, QMessageBox::Ok);
-                        CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+                        QString err = trUtf8("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                        ui->txtResults->setPlainText(err);
+                        qApp->processEvents();
                     }
                     else
                     {
@@ -189,7 +190,8 @@ void AERPConsistencyMetadataTableDlg::fix()
         }
     }
     CommonsFunctions::restoreOverrideCursor();
-    QMessageBox::information(this, qApp->applicationName(), "Acciones completadas.", QMessageBox::Ok);
+    QString err = trUtf8("%1\r\nAcciones completadas.").arg(ui->txtResults->toPlainText());
+    ui->txtResults->setPlainText(err);
 }
 
 bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
@@ -202,9 +204,10 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
         if ( !BaseDAO::executeWithoutPrepare(sqlCreate, BASE_CONNECTION) )
         {
             BaseDAO::rollback(BASE_CONNECTION);
+            QString err = trUtf8("%1\r\nNo se pudo crear la tabla %1 en base de datos. Error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+            ui->txtResults->setPlainText(err);
+            qApp->processEvents();
             CommonsFunctions::restoreOverrideCursor();
-            QString err = trUtf8("No se pudo crear la tabla %1 en base de datos. Error: %2").arg(m->tableName()).arg(BaseDAO::lastErrorMessage());
-            QMessageBox::information(this,qApp->applicationName(), err, QMessageBox::Ok);
             return false;
         }
         QString sqlIndex = m->sqlCreateIndex(m->module()->tableCreationOptions(), Database::driverConnection());
@@ -216,9 +219,10 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
                 if ( !BaseDAO::executeWithoutPrepare(sqlOneIndex, BASE_CONNECTION) )
                 {
                     BaseDAO::rollback(BASE_CONNECTION);
+                    QString err = trUtf8("%1\r\nNo se pudieron crear los índices %1 en base de datos. Error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    ui->txtResults->setPlainText(err);
+                    qApp->processEvents();
                     CommonsFunctions::restoreOverrideCursor();
-                    QString err = trUtf8("No se pudieron crear los índices %1 en base de datos. Error: %2").arg(m->tableName()).arg(BaseDAO::lastErrorMessage());
-                    QMessageBox::information(this,qApp->applicationName(), err, QMessageBox::Ok);
                     return false;
                 }
             }
@@ -231,9 +235,10 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
                 if ( !BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION) )
                 {
                     BaseDAO::rollback(BASE_CONNECTION);
+                    QString err = trUtf8("%1\r\nNo se pudieron crear las relaciones de integridad referencial %1 en base de datos. Error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    ui->txtResults->setPlainText(err);
+                    qApp->processEvents();
                     CommonsFunctions::restoreOverrideCursor();
-                    QString err = trUtf8("No se pudieron crear las relaciones de integridad referencial %1 en base de datos. Error: %2").arg(m->tableName()).arg(BaseDAO::lastErrorMessage());
-                    QMessageBox::information(this,qApp->applicationName(), err, QMessageBox::Ok);
                     return false;
                 }
             }
@@ -247,8 +252,9 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
                 {
                     BaseDAO::rollback(BASE_CONNECTION);
                     CommonsFunctions::restoreOverrideCursor();
-                    QString err = trUtf8("No se ejecutar sql adicional para %1 en base de datos. Error: %2").arg(m->tableName()).arg(BaseDAO::lastErrorMessage());
-                    QMessageBox::information(this,qApp->applicationName(), err, QMessageBox::Ok);
+                    QString err = trUtf8("%1\r\nNo se ejecutar sql adicional para %1 en base de datos. Error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    ui->txtResults->setPlainText(err);
+                    qApp->processEvents();
                     return false;
                 }
             }
@@ -261,13 +267,17 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
         {
             BaseDAO::rollback(BASE_CONNECTION);
             CommonsFunctions::restoreOverrideCursor();
-            QMessageBox::information(this,qApp->applicationName(), trUtf8("No se pudo crear la vista %1 en base de datos. Error: %2").arg(m->tableName()).arg(BaseDAO::lastErrorMessage()), QMessageBox::Ok);
+            QString err = trUtf8("%1\r\nNo se pudo crear la vista %1 en base de datos. Error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+            ui->txtResults->setPlainText(err);
+            qApp->processEvents();
             return false;
         }
     }
     if ( !BaseDAO::commit(BASE_CONNECTION) )
     {
-        QMessageBox::information(this,qApp->applicationName(), trUtf8("Ocurrión un error ejecutando el commit. Error: %1").arg(BaseDAO::lastErrorMessage()), QMessageBox::Ok);
+        QString err = trUtf8("%1\r\nOcurrió un error ejecutando el commit. Error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+        ui->txtResults->setPlainText(err);
+        qApp->processEvents();
         BaseDAO::rollback(BASE_CONNECTION);
         CommonsFunctions::restoreOverrideCursor();
         return false;

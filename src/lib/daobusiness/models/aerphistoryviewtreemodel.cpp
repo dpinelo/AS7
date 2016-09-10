@@ -111,7 +111,6 @@ class AERPHistoryViewTreeModelPrivate
 {
 public:
     BaseBeanPointer m_bean;
-    QHash<QString, AlephERP::HistoryItemList> m_items;
     HistoryTreeItemRow *m_rootItem;
 
     AERPHistoryViewTreeModelPrivate()
@@ -129,25 +128,23 @@ AERPHistoryViewTreeModel::AERPHistoryViewTreeModel(BaseBeanPointer bean, QObject
 
     d->m_bean = bean;
     d->m_rootItem = new HistoryTreeItemRow(NULL, HistoryTreeItemRow::Root);
-    d->m_items = HistoryDAO::historyEntries(d->m_bean);
+    AlephERP::HistoryItemTransactionList items = HistoryDAO::historyEntries(d->m_bean);
 
-    QHashIterator<QString, AlephERP::HistoryItemList> it(d->m_items);
-    while ( it.hasNext() )
+    foreach(const AlephERP::HistoryItemTransaction &transaction, items)
     {
-        it.next();
-        if ( it.value().size() > 0 )
+        if ( transaction.items.size() > 0 )
         {
-            AlephERP::HistoryItem firstHistoryItem = it.value().at(0);
-
             HistoryTreeItemRow *transactionItem = new HistoryTreeItemRow(d->m_rootItem, HistoryTreeItemRow::Root);
             transactionItem->setData(0, Qt::DecorationRole, QPixmap(":/generales/images/edit_edit.png").scaled(16, 16, Qt::KeepAspectRatio));
 
-            QString text = QObject::trUtf8("Transacción realizada por %1 con fecha %2").arg(firstHistoryItem.userName).arg(alephERPSettings->locale()->toString(firstHistoryItem.timeStamp));
+            QString text = QObject::trUtf8("Transacción realizada por %1 con fecha %2").
+                    arg(transaction.userName).
+                    arg(alephERPSettings->locale()->toString(transaction.timeStamp));
             transactionItem->setData(0, Qt::DisplayRole, text);
 
-            for (int rowCount = 0 ; rowCount < it.value().size() ; rowCount++ )
+            for (int rowCount = 0 ; rowCount < transaction.items.size() ; rowCount++ )
             {
-                AlephERP::HistoryItem historyItem = it.value().at(rowCount);
+                AlephERP::HistoryItem historyItem = transaction.items.at(rowCount);
                 BaseBeanMetadata *metadata = BeansFactory::instance()->metadataBean(historyItem.tableName);
 
                 HistoryTreeItemRow *tableItem = new HistoryTreeItemRow(transactionItem, HistoryTreeItemRow::TableName);

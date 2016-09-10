@@ -1227,19 +1227,27 @@ bool BeansFactory::checkConsistencyMetadata(QVariantList &log)
             // Comprobemos si las relaciones están bien construidas
             foreach ( DBRelationMetadata *rel, m->relations() )
             {
-                if ( m->module()->tableCreationOptions().testFlag(AlephERP::WithForeignKeys) &&
+                if ( rel != NULL &&
+                     m->module()->tableCreationOptions().testFlag(AlephERP::WithForeignKeys) &&
                      (rel->type() == DBRelationMetadata::MANY_TO_ONE ||
-                     rel->type() == DBRelationMetadata::ONE_TO_ONE) )
+                     rel->type() == DBRelationMetadata::ONE_TO_ONE) &&
+                     m->dbObjectType() == AlephERP::Table )
                 {
                     if ( !SystemDAO::checkIfForeignKeyExists(rel) )
                     {
                         QHash<QString, QVariant> tableErrors;
                         AlephERP::ConsistencyTableErrors flagErrors;
                         tableErrors["tablename"] = m->tableName();
-                        tableErrors["column"] = rel->name();
-                        tableErrors["error"] = trUtf8("La foreign key %1 en la tabla %2 no existe.").
-                                               arg(rel->tableName()).
-                                               arg(m->tableName());
+                        tableErrors["relation"] = rel->name();
+                        tableErrors["column"] = QString("%1 - %2 (%3)").
+                                arg(rel->rootFieldName()).
+                                arg(rel->tableName()).
+                                arg(rel->childFieldName());
+                        tableErrors["error"] = trUtf8("La foreign key en la tabla %1 (%2) que apunta a %3 (%4) no existe.").
+                                arg(m->tableName()).
+                                arg(rel->rootFieldName()).
+                                arg(rel->tableName()).
+                                arg(rel->childFieldName());
                         flagErrors = AlephERP::ForeignKeyNotExists;
                         tableErrors["code"] = QString("%1").arg(flagErrors);
                         log.append(tableErrors);

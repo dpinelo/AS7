@@ -403,8 +403,8 @@ public:
 public slots:
     void uncheckModifiedFields(bool uncheckChildren = true);
     void uncheckModifiedRelatedElements();
-    bool save(const QString &idTransaction = "", bool recalculateFieldsBefore = true);
-    bool saveRelatedElements(const QString &idTransaction = "");
+    bool save(const QString &idTransaction = "", bool recalculateFieldsBefore = true, bool markAsUnmodifiedIfSuccess = true);
+    bool saveRelatedElements(const QString &idTransaction = "", bool markAsUnmodifiedIfSuccess = true);
     void backupValues();
     void restoreValues(bool blockSignals = false);
     void setSerialUniqueId();

@@ -21,10 +21,10 @@ HEADERS = qwwrichtextedit.h \
           wwglobal_p.h \
           colormodel.h
 
-SOURCES = qwwrichtextedit.cpp \
-          qwwcolorbutton.cpp \
+SOURCES = qwwcolorbutton.cpp \
           wwglobal_p.cpp \
-          colormodel.cpp
+          colormodel.cpp \
+          qwwrichtextedit.cpp
 
 RESOURCES += wwresources.qrc
 
@@ -34,5 +34,6 @@ includesTarget.files = $$HEADERS
 #INSTALLS += includesTarget
 
 DEFINES += WW_BUILD_WWWIDGETS
-CONFIG += precompile_header
-PRECOMPILED_HEADER = stable.h
+# Hace cascar a MinGW cuando se compila en modo debug...
+# CONFIG += precompile_header
+# PRECOMPILED_HEADER = stable.h

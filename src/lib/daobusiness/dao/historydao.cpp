@@ -285,11 +285,11 @@ bool HistoryDAO::insertEntry(BaseBeanPointerList beans, const QString &idTransac
  * @param connection
  * @return
  */
-QHash<QString, AlephERP::HistoryItemList> HistoryDAO::historyEntries(BaseBeanPointer bean, const QString &connection)
+AlephERP::HistoryItemTransactionList HistoryDAO::historyEntries(BaseBeanPointer bean, const QString &connection)
 {
-    QHash<QString, AlephERP::HistoryItemList> results;
+    AlephERP::HistoryItemTransactionList results;
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
-    QString sql = QString("SELECT DISTINCT idtransaction, ts "
+    QString sql = QString("SELECT DISTINCT idtransaction, ts, username "
                           "FROM %1_history WHERE tablename='%2' and pkey='%3' "
                           "ORDER BY ts DESC").arg(alephERPSettings->systemTablePrefix()).
                                                  arg(bean->metadata()->tableName()).
@@ -308,18 +308,21 @@ QHash<QString, AlephERP::HistoryItemList> HistoryDAO::historyEntries(BaseBeanPoi
     }
     else
     {
-        QStringList transactions;
         while (qry->next())
         {
-            transactions.append(qry->record().value("idtransaction").toString());
+            AlephERP::HistoryItemTransaction historyItemTransaction;
+            historyItemTransaction.idTransaction = qry->record().value("idtransaction").toString();
+            historyItemTransaction.timeStamp = qry->record().value("ts").toDateTime();
+            historyItemTransaction.userName = qry->record().value("username").toString();
+            results.append(historyItemTransaction);
         }
-        foreach (const QString &idTransaction, transactions)
+        for (int iTransaction = 0 ; iTransaction < results.size() ; ++iTransaction)
         {
-            QString detailSql = QString("SELECT username, action, pkey, changed_data, hash, ts, othertableoid, idtransaction, tablename "
+            QString detailSql = QString("SELECT action, pkey, changed_data, hash, ts, othertableoid, idtransaction, tablename "
                                         "FROM %1_history WHERE idtransaction='%2' "
                                         "ORDER BY ts DESC").
                                 arg(alephERPSettings->systemTablePrefix()).
-                                arg(idTransaction);
+                                arg(results.at(iTransaction).idTransaction);
             QScopedPointer<QSqlQuery> qryDetail (new QSqlQuery(Database::getQDatabase(connection)));
             QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("HistoryDAO: historyItems: [%1]").arg(detailSql));
             if ( qryDetail->exec(detailSql) )
@@ -327,18 +330,11 @@ QHash<QString, AlephERP::HistoryItemList> HistoryDAO::historyEntries(BaseBeanPoi
                 while (qryDetail->next())
                 {
                     AlephERP::HistoryItem item;
-                    item.userName = qryDetail->record().value("username").toString();
                     item.action = qryDetail->record().value("action").toString();
-                    item.idTransaction = qryDetail->record().value("idtransaction").toString();
                     item.pkey = qryDetail->record().value("pkey").toString();
                     item.tableName = qryDetail->record().value("tablename").toString();
-                    item.timeStamp = qryDetail->record().value("ts").toDateTime();
                     item.xml = qryDetail->record().value("changed_data").toString();
-                    if ( !results.contains(item.idTransaction) )
-                    {
-                        results[item.idTransaction] = AlephERP::HistoryItemList();
-                    }
-                    results[item.idTransaction].append(item);
+                    results[iTransaction].items.append(item);
                 }
             }
         }

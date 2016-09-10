@@ -411,6 +411,13 @@ void DBDetailView::editRecord(const QString &action)
         }
         else
         {
+            if ( !ui->tableView->selectionModel()->currentIndex().isValid() )
+            {
+                QMessageBox::warning(this,
+                                     qApp->applicationName(),
+                                     tr("Debe seleccionar un registro a editar."));
+                return;
+            }
             bean = filterModel()->beanToBeEdited(ui->tableView->selectionModel()->currentIndex());
         }
         if ( bean.isNull() )

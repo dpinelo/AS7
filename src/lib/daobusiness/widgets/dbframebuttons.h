@@ -101,6 +101,21 @@ class ALEPHERP_DLL_EXPORT DBFrameButtons : public QFrame, public DBBaseWidget
     Q_PROPERTY(int buttonFixedHeight READ buttonFixedHeight WRITE setButtonFixedHeight)
     Q_PROPERTY(int buttonFixedWidth READ buttonFixedWidth WRITE setButtonFixedWidth)
     Q_PROPERTY(bool showButtonText READ showButtonText WRITE setShowButtonText)
+    /** El widget estará habilitado, sólo si esta propiedad está vacía o para el usuario con roles
+     * que estén aquí presentes */
+    Q_PROPERTY (QStringList enabledForRoles READ enabledForRoles WRITE setEnabledForRoles)
+    /** El widget estará visible, sólo si esta propiedad está vacía o para el usuario con roles
+     * que estén aquí presentes */
+    Q_PROPERTY (QStringList visibleForRoles READ visibleForRoles WRITE setVisibleForRoles)
+    /** El widget estará marcado como editable, sólo si esta propiedad está vacía o para el usuario con roles
+     * que estén aquí presentes */
+    Q_PROPERTY (QStringList dataEditableForRoles READ dataEditableForRoles WRITE setDataEditableForRoles)
+    /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
+    Q_PROPERTY (QStringList enabledForUsers READ enabledForUsers WRITE setEnabledForUsers)
+    /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
+    Q_PROPERTY (QStringList _visibleForUsers READ visibleForUsers WRITE setVisibleForUsers)
+    /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
+    Q_PROPERTY (QStringList dataEditableForUsers READ dataEditableForUsers WRITE setDataEditableForUsers)
 
 private:
     DBFrameButtonsPrivate *d;

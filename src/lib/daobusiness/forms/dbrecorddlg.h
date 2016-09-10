@@ -92,6 +92,8 @@ class ALEPHERP_DLL_EXPORT DBRecordDlg : public AERPBaseDialog
     /** Indica si este registro presenta los botones de navegación */
     Q_PROPERTY(bool canNavigate READ canNavigate WRITE setCanNavigate)
 
+    friend class DBRecordDlgPrivate;
+
 public:
 
     enum DBRecordButtonsFlag

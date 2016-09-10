@@ -622,7 +622,12 @@ QVariant AERPScriptCommon::sqlSelectFirstColumn(const QString &sql, const QStrin
   */
 bool AERPScriptCommon::sqlExecute(const QString &sql, const QString &connectionName)
 {
-    return BaseDAO::execute(sql, connectionName);
+    bool r = BaseDAO::execute(sql, connectionName);
+    if ( !r )
+    {
+        d_ptr->m_lastError = BaseDAO::lastErrorMessage();
+    }
+    return r;
 }
 
 /**
@@ -985,22 +990,32 @@ QString AERPScriptCommon::formatNumber(const QVariant &number, int numDecimals)
     return result;
 }
 
-QString AERPScriptCommon::formatDate(const QScriptValue &date)
+QString AERPScriptCommon::formatDate(const QScriptValue &date, const QString &format)
 {
     if ( date.isDate() )
     {
         QDateTime d = date.toDateTime();
-        QString displayValue = alephERPSettings->locale()->toString(d.date(), CommonsFunctions::dateFormat());
+        QString dateFormat = format;
+        if ( format.isEmpty() || format.isNull() )
+        {
+            dateFormat = CommonsFunctions::dateFormat();
+        }
+        QString displayValue = alephERPSettings->locale()->toString(d.date(), dateFormat);
         return displayValue;
     }
     return QString("");
 }
 
-QString AERPScriptCommon::formatDateTime(const QScriptValue &date)
+QString AERPScriptCommon::formatDateTime(const QScriptValue &date, const QString &format)
 {
     if ( date.isDate() )
     {
         QDateTime d = date.toDateTime();
+        QString dateFormat = format;
+        if ( format.isEmpty() || format.isNull() )
+        {
+            dateFormat = CommonsFunctions::dateFormat();
+        }
         QString displayValue = alephERPSettings->locale()->toString(d, CommonsFunctions::dateTimeFormat());
         return displayValue;
     }

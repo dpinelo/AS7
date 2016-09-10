@@ -112,6 +112,21 @@ class ALEPHERP_DLL_EXPORT DBChooseRecordButton : public QPushButton, public DBBa
     Q_PROPERTY(DBSearchDlg::DBSearchButtons dbSearchButtons READ dbSearchButtons WRITE setDbSearchButtons)
     /** Indica si los formularios de inserción de registros que se pueden abrir desde este botón, tienen contexto propio */
     Q_PROPERTY(bool useNewContext READ useNewContext WRITE setUseNewContext)
+    /** El widget estará habilitado, sólo si esta propiedad está vacía o para el usuario con roles
+     * que estén aquí presentes */
+    Q_PROPERTY (QStringList enabledForRoles READ enabledForRoles WRITE setEnabledForRoles)
+    /** El widget estará visible, sólo si esta propiedad está vacía o para el usuario con roles
+     * que estén aquí presentes */
+    Q_PROPERTY (QStringList visibleForRoles READ visibleForRoles WRITE setVisibleForRoles)
+    /** El widget estará marcado como editable, sólo si esta propiedad está vacía o para el usuario con roles
+     * que estén aquí presentes */
+    Q_PROPERTY (QStringList dataEditableForRoles READ dataEditableForRoles WRITE setDataEditableForRoles)
+    /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
+    Q_PROPERTY (QStringList enabledForUsers READ enabledForUsers WRITE setEnabledForUsers)
+    /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
+    Q_PROPERTY (QStringList _visibleForUsers READ visibleForUsers WRITE setVisibleForUsers)
+    /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
+    Q_PROPERTY (QStringList dataEditableForUsers READ dataEditableForUsers WRITE setDataEditableForUsers)
 
     friend class DBChooseRecordButtonPrivate;
 

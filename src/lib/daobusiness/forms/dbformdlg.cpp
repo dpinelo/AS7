@@ -67,6 +67,11 @@
 #include "business/aerpspreadsheet.h"
 #include "forms/openedrecords.h"
 
+typedef struct OpenedDBRecordDlgsStruct {
+    QPointer<DBRecordDlg> dlg;
+    BaseBeanSharedPointer bean;
+} OpenedDBRecordDlgs;
+
 class DBFormDlgPrivate
 {
 public:
@@ -93,7 +98,8 @@ public:
     QString m_helpUrl;
     QPersistentModelIndex m_currentIndex;
     QModelIndex m_recentInsertSourceIndex;
-    QList<DBRecordDlg *> m_recordDlgs;
+    // Registros abiertos y en edición actualmente.
+    QList<OpenedDBRecordDlgs> m_recordDlgs;
 
     DBFormDlgPrivate(DBFormDlg *qq) : q_ptr(qq)
     {
@@ -104,6 +110,10 @@ public:
         m_openSuccess = false;
     }
 
+    QString uiDbRecordForSelectedRow();
+    QString qsDbRecordForSelectedRow();
+    QString uiDbNewRecordForSelectedRow();
+    QString qsDbNewRecordForSelectedRow();
     bool isPrintButtonVisible();
     bool isEmailButtonVisible();
     bool hasWizard();
@@ -119,6 +129,62 @@ public:
  * Determina si el botón de imprimir documentos es visible. Será visible cuando existe algún ReportMetadata
  * con type="record" y además linkedTo = "tabla_de_este_dbrecord"
  */
+QString DBFormDlgPrivate::uiDbRecordForSelectedRow()
+{
+    QString uiDbRecord;
+    FilterBaseBeanModel *model = m_itemView->filterModel();
+    BaseBeanMetadata *metadata = model->metadata();
+    if ( metadata != NULL )
+    {
+        uiDbRecord = metadata->uiDbRecord();
+    }
+    return uiDbRecord;
+}
+
+QString DBFormDlgPrivate::qsDbRecordForSelectedRow()
+{
+    QString qsDbRecord;
+    FilterBaseBeanModel *model = m_itemView->filterModel();
+    BaseBeanMetadata *metadata = model->metadata();
+    if ( metadata != NULL )
+    {
+        qsDbRecord = metadata->qsDbRecord();
+    }
+    return qsDbRecord;
+}
+
+QString DBFormDlgPrivate::uiDbNewRecordForSelectedRow()
+{
+    QString uiDbRecord;
+    FilterBaseBeanModel *model = m_itemView->filterModel();
+    BaseBeanMetadata *metadata = model->metadata();
+    if ( metadata != NULL )
+    {
+        uiDbRecord = metadata->uiNewDbRecord();
+        if ( uiDbRecord.isEmpty() )
+        {
+            uiDbRecord = metadata->uiDbRecord();
+        }
+    }
+    return uiDbRecord;
+}
+
+QString DBFormDlgPrivate::qsDbNewRecordForSelectedRow()
+{
+    QString qsDbRecord;
+    FilterBaseBeanModel *model = m_itemView->filterModel();
+    BaseBeanMetadata *metadata = model->metadata();
+    if ( metadata != NULL )
+    {
+        qsDbRecord = metadata->qsNewDbRecord();
+        if ( qsDbRecord.isEmpty() )
+        {
+            qsDbRecord = metadata->qsDbRecord();
+        }
+    }
+    return qsDbRecord;
+}
+
 bool DBFormDlgPrivate::isPrintButtonVisible()
 {
     if ( m_metadata->viewForTable().isEmpty() )
@@ -856,7 +922,7 @@ void DBFormDlg::exposeAERPControlToQsEngine()
 
 void DBFormDlg::edit()
 {
-    edit("false", "", "");
+    edit("false", d->uiDbRecordForSelectedRow(), d->qsDbRecordForSelectedRow());
 }
 
 void DBFormDlg::editCalledFromTableView()
@@ -864,7 +930,7 @@ void DBFormDlg::editCalledFromTableView()
     // Si se invoca desde el table view, debemos distinguir si hacemos edit o abrimos en modo visualización
     if ( ui->pbEdit->isVisible() )
     {
-        edit("false", "", "");
+        edit("false", d->uiDbRecordForSelectedRow(), d->qsDbRecordForSelectedRow());
     }
     else if ( ui->pbView->isVisible() )
     {
@@ -874,7 +940,14 @@ void DBFormDlg::editCalledFromTableView()
 
 void DBFormDlg::edit(const QString &insert)
 {
-    edit(insert, "", "");
+    if ( insert == QStringLiteral("true") )
+    {
+        edit(insert, d->uiDbNewRecordForSelectedRow(), d->qsDbNewRecordForSelectedRow());
+    }
+    else
+    {
+        edit(insert, d->uiDbRecordForSelectedRow(), d->qsDbRecordForSelectedRow());
+    }
 }
 
 void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString &qsCode)
@@ -904,9 +977,9 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     {
         // No vamos a permitir abrir muchas veces un registro en modo inserción... (Puede provocar refrescos
         // en el modelo).
-        foreach (DBRecordDlg *dlg, d->m_recordDlgs)
+        foreach (OpenedDBRecordDlgs dlgStruct, d->m_recordDlgs)
         {
-            if ( dlg->openType() == AlephERP::Insert )
+            if ( dlgStruct.dlg->openType() == AlephERP::Insert )
             {
                 return;
             }
@@ -997,7 +1070,8 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     dlg->setCanNavigate(true);
     if ( dlg->openSuccess() && dlg->init() )
     {
-        d->m_recordDlgs.append(dlg);
+        OpenedDBRecordDlgs structDlg = { dlg, bean };
+        d->m_recordDlgs.append(structDlg);
         d->m_itemView->disableRestoreSaveState();
         dlg->setAttribute(Qt::WA_DeleteOnClose, true);
         dlg->setCanChangeModality(true);
@@ -1163,7 +1237,13 @@ void DBFormDlg::wizard()
 void DBFormDlg::recordDlgClosed(BaseBeanPointer bean, bool userSaveData)
 {
     DBRecordDlg *dlg = qobject_cast<DBRecordDlg *>(sender());
-    d->m_recordDlgs.removeAll(dlg);
+    for (int i = 0 ; i < d->m_recordDlgs.size() ; i++)
+    {
+        if ( d->m_recordDlgs.at(i).dlg.data() == dlg )
+        {
+            d->m_recordDlgs.removeAt(i);
+        }
+    }
     if ( dlg != NULL )
     {
         if ( dlg->property(AlephERP::stInsertRecord).toBool() )
@@ -2106,7 +2186,8 @@ void DBFormDlg::view()
     CommonsFunctions::restoreOverrideCursor();
     if ( dlg->openSuccess() && dlg->init() )
     {
-        d->m_recordDlgs.append(dlg);
+        OpenedDBRecordDlgs structDlg = { dlg, bean };
+        d->m_recordDlgs.append(structDlg);
         dlg->setAttribute(Qt::WA_DeleteOnClose, true);
         dlg->setCanChangeModality(true);
         connect(dlg.data(), SIGNAL(accepted(BaseBeanPointer,bool)), this, SLOT(recordDlgClosed(BaseBeanPointer,bool)));
@@ -2115,7 +2196,13 @@ void DBFormDlg::view()
     }
     else
     {
-        d->m_recordDlgs.removeAll(dlg);
+        for (int i = 0 ; i < d->m_recordDlgs.size() ; i++)
+        {
+            if ( d->m_recordDlgs.at(i).dlg.data() == dlg )
+            {
+                d->m_recordDlgs.removeAt(i);
+            }
+        }
         delete dlg;
     }
 }

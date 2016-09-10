@@ -272,7 +272,7 @@ bool DBFieldPrivate::checkNull()
             QList<DBRelation *> relations = q_ptr->relations();
             foreach (DBRelation *rel, relations)
             {
-                if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
+                if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE && rel->father() )
                 {
                     if ( !rel->father()->modified() && rel->father()->dbState() == BaseBean::INSERT )
                     {
