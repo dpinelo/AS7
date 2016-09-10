@@ -1257,48 +1257,13 @@ BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeD
     // ¿Se han obtenido los hijos de esta relación? Si no es así, se obtienen. Ojo,
     // si se está creando el bean padre, y aquí vienen los relacionados, los hijos siempre
     // estarán cargados
-    QString finalOrder;
-    finalOrder = (order.isEmpty() ? d->m->order() : order);
+    QString finalOrder = (order.isEmpty() ? d->m->order() : order);
     if ( !childrenLoaded() &&
          !ownBean.isNull() &&
          ownBean->dbState() != BaseBean::INSERT &&
             ( (d->m->type() == DBRelationMetadata::ONE_TO_MANY || d->m->type() == DBRelationMetadata::ONE_TO_ONE ) ) )
     {
-        if ( !d->m->loadOnBackground() )
-        {
-            BaseBeanSharedPointerList results;
-            // Esta WHERE que se construye aquí contiene lo necesario desde el FROM:
-            if ( BaseDAO::select(results, d->m->tableName(), sqlRelationWhere(), finalOrder) )
-            {
-                d->m_childrenCount = 0;
-                // Lo hacemos así para que se realicen las conexiones necesarias de cara a conocer las modificaciones
-                foreach ( BaseBeanSharedPointer bean, results )
-                {
-                    bool blockSignalsState = bean->blockSignals(true);
-                    bean->setDbState(BaseBean::UPDATE);
-                    bean->setOwner(this);
-                    // Si el padre está en un contexto, el hijo se agregará también al contexto
-                    if ( !ownBean->actualContext().isEmpty() )
-                    {
-                        AERPTransactionContext::instance()->addToContext(ownBean->actualContext(), bean.data());
-                    }
-                    d->m_children.append(bean);
-                    d->m_childrenCount++;
-                    bean->blockSignals(blockSignalsState);
-                    connections(bean.data());
-                    bean->setReadOnly(d->m->readOnly());
-                }
-                d->m_childrenLoaded = true;
-                if ( d->m_childrenCount == 1 && d->m_children.size() == 1 && d->m->type() == DBRelationMetadata::ONE_TO_ONE )
-                {
-                    d->emitBrotherLoaded(d->m_children.first().data());
-                }
-            }
-        }
-        else
-        {
-            loadChildrenOnBackground(finalOrder);
-        }
+        d->loadOneToManyChildren(finalOrder, ownBean->actualContext());
     }
     else if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE && father() )
     {
@@ -1694,14 +1659,37 @@ bool DBRelation::brotherSetted()
 
 /** Devuelve sólo aquellas referencias de hijos compartido (esto excluye a todos los otros otherChilds).
  Esta función se utiliza para aquellos objetos que necesitan trabajar con los hijos de esta relación*/
-BaseBeanSharedPointerList DBRelation::sharedChildren(const QString &order)
+QVector<BaseBeanSharedPointer> DBRelation::sharedChildren(const QString &order)
 {
+    BaseBeanPointer ownBean = ownerBean();
+    if ( ownBean.isNull() || isExecuting(AlephERP::Children) )
+    {
+        QLogger::QLog_Fatal(AlephERP::stLogOther, "DBRelation::children: ownerBean is null");
+        return QVector<BaseBeanSharedPointer>();
+    }
+
     // Llamamos a children, simplemente para asegurarnos que se obtienen los registros en memoria
-    children(order, true, false);
-    BaseBeanSharedPointerList items = d->m_children.toList();
+    setOnExecution(AlephERP::Children);
+
+    // ¿Se han obtenido los hijos de esta relación? Si no es así, se obtienen. Ojo,
+    // si se está creando el bean padre, y aquí vienen los relacionados, los hijos siempre
+    // estarán cargados
+    QString finalOrder = (order.isEmpty() ? d->m->order() : order);
+    if ( !childrenLoaded() &&
+         !ownBean.isNull() &&
+         ownBean->dbState() != BaseBean::INSERT &&
+            ( (d->m->type() == DBRelationMetadata::ONE_TO_MANY || d->m->type() == DBRelationMetadata::ONE_TO_ONE ) ) )
+    {
+        d->loadOneToManyChildren(finalOrder, ownBean->actualContext());
+    }
+    restoreOverrideOnExecution();
+
+    QVector<BaseBeanSharedPointer> items = d->m_children;
     if ( !order.isEmpty() )
     {
-        d->sortChildren<BaseBeanSharedPointerList>(items, order);
+        BaseBeanSharedPointerList tmp = items.toList();
+        d->sortChildren<BaseBeanSharedPointerList>(tmp, order);
+        items = tmp.toVector();
     }
     return items;
 }

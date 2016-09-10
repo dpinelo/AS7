@@ -127,8 +127,7 @@ int RelationBaseBeanModelPrivate::rowCount()
 {
     if ( m_relation )
     {
-        BaseBeanSharedPointerList list = m_relation->sharedChildren();
-        return list.count();
+        return m_relation->sharedChildren().count();
     }
     return 0;
 }
@@ -350,7 +349,7 @@ BaseBeanSharedPointer RelationBaseBeanModel::bean (const QModelIndex &index, boo
     Q_UNUSED(reloadIfNeeded)
     if ( d->m_relation )
     {
-        BaseBeanSharedPointerList list = d->m_relation->sharedChildren();
+        QVector<BaseBeanSharedPointer> list = d->m_relation->sharedChildren(d->m_order);
         if ( AERP_CHECK_INDEX_OK(index.row(), list) )
         {
             return list.at(index.row());
@@ -389,7 +388,7 @@ QModelIndex RelationBaseBeanModel::index (int row, int column, const QModelIndex
     Q_UNUSED (parent);
     if ( row > -1 && row < d->rowCount() && d->m_relation )
     {
-        BaseBeanSharedPointerList list = d->m_relation->sharedChildren();
+        QVector<BaseBeanSharedPointer> list = d->m_relation->sharedChildren(d->m_order);
         BaseBeanPointer bean;
         if ( AERP_CHECK_INDEX_OK(row, list) )
         {
@@ -749,7 +748,7 @@ void RelationBaseBeanModel::setOrderRow(int logicalIndex, int visualIndex)
     QString orderField = d->orderField();
     if ( !orderField.isEmpty() && d->m_relation )
     {
-        BaseBeanSharedPointerList list = d->m_relation->sharedChildren(d->m_order);
+        QVector<BaseBeanSharedPointer> list = d->m_relation->sharedChildren(d->m_order);
         if ( AERP_CHECK_INDEX_OK(logicalIndex, list) )
         {
             list.at(logicalIndex)->setFieldValue(orderField, visualIndex);

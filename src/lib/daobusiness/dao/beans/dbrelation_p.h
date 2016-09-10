@@ -142,6 +142,7 @@ public:
     void emitBrotherLoaded(BaseBean *father);
     void emitFatherUnloaded();
     void updateChildren(BaseBean *father, QList<BaseBean *> &stackList);
+    void loadOneToManyChildren(const QString &order = QString(), const QString &transactionContext = QString());
 };
 
 #endif // DBRELATIONPRIVATE_H

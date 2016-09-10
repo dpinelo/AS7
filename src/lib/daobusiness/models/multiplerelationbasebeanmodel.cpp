@@ -750,7 +750,7 @@ void MultipleRelationBaseBeanModel::removeBaseBean(const BaseBeanSharedPointer &
   */
 bool MultipleRelationBaseBeanModel::insertRows(int row, int count, const QModelIndex & parent)
 {
-    Q_UNUSED (parent);
+    Q_UNUSED (row);
     Q_UNUSED (count)
     Q_UNUSED (parent)
     if ( d->m_relations.size() != 1 )

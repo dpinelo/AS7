@@ -109,7 +109,7 @@ public:
     BaseBeanPointer father(bool retrieveOnDemand = true);
     void setFather(BaseBean *bean);
     bool fatherSetted();
-    BaseBeanSharedPointerList sharedChildren(const QString &order = "");
+    QVector<BaseBeanSharedPointer> sharedChildren(const QString &order = "");
 
     BaseBeanPointer brother();
     void setBrother(BaseBeanPointer bean);

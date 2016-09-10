@@ -409,6 +409,49 @@ void DBRelationPrivate::updateChildren(BaseBean *father, QList<BaseBean *> &stac
     stackList.removeAll(father);
 }
 
+void DBRelationPrivate::loadOneToManyChildren(const QString &order, const QString &transactionContext)
+{
+    // ¿Se han obtenido los hijos de esta relación? Si no es así, se obtienen. Ojo,
+    // si se está creando el bean padre, y aquí vienen los relacionados, los hijos siempre
+    // estarán cargados
+    QString finalOrder = (order.isEmpty() ? m->order() : order);
+    if ( !m->loadOnBackground() )
+    {
+        BaseBeanSharedPointerList results;
+        // Esta WHERE que se construye aquí contiene lo necesario desde el FROM:
+        if ( BaseDAO::select(results, m->tableName(), q_ptr->sqlRelationWhere(), finalOrder) )
+        {
+            m_childrenCount = 0;
+            // Lo hacemos así para que se realicen las conexiones necesarias de cara a conocer las modificaciones
+            foreach ( BaseBeanSharedPointer bean, results )
+            {
+                bool blockSignalsState = bean->blockSignals(true);
+                bean->setDbState(BaseBean::UPDATE);
+                bean->setOwner(q_ptr);
+                // Si el padre está en un contexto, el hijo se agregará también al contexto
+                if ( !transactionContext.isEmpty() )
+                {
+                    AERPTransactionContext::instance()->addToContext(transactionContext, bean.data());
+                }
+                m_children.append(bean);
+                m_childrenCount++;
+                bean->blockSignals(blockSignalsState);
+                q_ptr->connections(bean.data());
+                bean->setReadOnly(m->readOnly());
+            }
+            m_childrenLoaded = true;
+            if ( m_childrenCount == 1 && m_children.size() == 1 && m->type() == DBRelationMetadata::ONE_TO_ONE )
+            {
+                emitBrotherLoaded(m_children.first().data());
+            }
+        }
+    }
+    else
+    {
+        q_ptr->loadChildrenOnBackground(finalOrder);
+    }
+}
+
 void DBRelationPrivate::addOtherChildren(BaseBeanPointerList list)
 {
     QMutexLocker lock(&m_mutex);
