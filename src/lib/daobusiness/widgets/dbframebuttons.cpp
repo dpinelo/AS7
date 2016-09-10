@@ -327,7 +327,7 @@ void DBFrameButtons::init()
                 DBRelationObserver *obs = qobject_cast<DBRelationObserver *> (rel->observer());
                 if ( rel != NULL )
                 {
-                    d->m_list = rel->sharedChildren(d->m_order).toList();
+                    d->m_list = rel->sharedChildren(d->m_order);
                 }
                 if ( obs != NULL )
                 {

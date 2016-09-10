@@ -456,7 +456,8 @@ SOURCES += globales.cpp \
     aerpapplication.cpp \
     dao/cachedatabase.cpp \
     models/aerpitemdelegate.cpp \
-    widgets/dbgrouprelationmmhelper.cpp
+    widgets/dbgrouprelationmmhelper.cpp \
+    models/multiplerelationbasebeanmodel.cpp
 
 HEADERS += globales.h \
     dao/basedao.h \
@@ -617,7 +618,8 @@ HEADERS += globales.h \
     dao/cachedatabase.h \
     models/beantreeitem.h \
     models/aerpitemdelegate.h \
-    widgets/dbgrouprelationmmhelper.h
+    widgets/dbgrouprelationmmhelper.h \
+    models/multiplerelationbasebeanmodel.h
 
 FORMS += \
     widgets/dbdetailview.ui \

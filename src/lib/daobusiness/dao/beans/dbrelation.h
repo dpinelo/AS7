@@ -86,6 +86,7 @@ public:
 
     DBRelationMetadata * metadata() const;
 
+    BaseBeanPointer childByObjectName(const QString &objectName);
     Q_INVOKABLE BaseBeanSharedPointer newChild(int pos = -1);
     Q_INVOKABLE BaseBeanPointer childByOid(qlonglong oid, bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointer childByField(const QString &dbField, const QVariant &value, bool includeToBeDeleted = false);
@@ -108,7 +109,7 @@ public:
     BaseBeanPointer father(bool retrieveOnDemand = true);
     void setFather(BaseBean *bean);
     bool fatherSetted();
-    QVector<BaseBeanSharedPointer> sharedChildren(const QString &order = "", bool includeToBeDeleted = true);
+    BaseBeanSharedPointerList sharedChildren(const QString &order = "");
 
     BaseBeanPointer brother();
     void setBrother(BaseBeanPointer bean);

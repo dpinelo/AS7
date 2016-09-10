@@ -82,6 +82,18 @@ DBRelationMetadata * DBRelation::metadata() const
     return d->m;
 }
 
+BaseBeanPointer DBRelation::childByObjectName(const QString &objectName)
+{
+    foreach (BaseBeanPointer child, children())
+    {
+        if ( child->objectName() == objectName )
+        {
+            return child;
+        }
+    }
+    return BaseBeanPointer();
+}
+
 void DBRelation::setMetadata(DBRelationMetadata *m)
 {
     d->m = m;
@@ -1680,29 +1692,16 @@ bool DBRelation::brotherSetted()
     return r;
 }
 
-/** Devuelve sólo aquellas referencias de hijos compartido (esto excluye a todos los otros otherChilds) */
-QVector<BaseBeanSharedPointer> DBRelation::sharedChildren(const QString &order, bool includeToBeDeleted)
+/** Devuelve sólo aquellas referencias de hijos compartido (esto excluye a todos los otros otherChilds).
+ Esta función se utiliza para aquellos objetos que necesitan trabajar con los hijos de esta relación*/
+BaseBeanSharedPointerList DBRelation::sharedChildren(const QString &order)
 {
     // Llamamos a children, simplemente para asegurarnos que se obtienen los registros en memoria
-    children(order, includeToBeDeleted, false);
-    QVector<BaseBeanSharedPointer> items = d->m_children;
-    if ( !includeToBeDeleted )
-    {
-        for(int i = 0 ; i < items.size() ; i++)
-        {
-            BaseBeanSharedPointer bean = items.at(i);
-            if ( bean && (bean->dbState() == BaseBean::TO_BE_DELETED || bean->dbState() == BaseBean::DELETED) )
-            {
-                items.removeAt(i);
-                i--;
-            }
-        }
-    }
+    children(order, true, false);
+    BaseBeanSharedPointerList items = d->m_children.toList();
     if ( !order.isEmpty() )
     {
-        BaseBeanSharedPointerList lst = items.toList();
-        d->sortChildren<BaseBeanSharedPointerList>(lst, order);
-        return lst.toVector();
+        d->sortChildren<BaseBeanSharedPointerList>(items, order);
     }
     return items;
 }

@@ -47,15 +47,8 @@ public:
     BaseBeanMetadata * m_metadata;
     /** En el caso en el que el modelo deba obtener las relaciones a partir de de un bean, aquí almacenamos el bean */
     BaseBeanPointer m_rootBean;
-    /** Path del que debemos obtener los childs de rootBean */
-    QStringList m_path;
-    /** Si se pasa un objeto relation, este se almacena en m_relation. En ese caso, el conjunto
-      de registros que se obtienen son los que dependen del padre de m_relation */
-    QList<QPointer<DBRelation> > m_relations;
-    /** Estos serán los beans que maneja el modelo */
-    QVector<BaseBeanSharedPointer> m_beans;
-    /** Si el modelo trabaja con padres, entonces, se almacena en otra estructura... TODO: CUTRADA */
-    QList<BaseBeanPointer > m_fathers;
+    /** Relación de la que se obtienen los datos */
+    QPointer<DBRelation> m_relation;
     /** ¿Se pueden editar los datos de este modelo? */
     bool m_readOnly;
     /** Orden con el que se muestran los datos */
@@ -74,264 +67,68 @@ public:
         m_refreshing = false;
     }
 
-    void loadBeansFromRelations(BaseBean *rootBean, const QStringList &pathList);
+    void setInternalData();
     void unloadBeans();
-    void unloadBeans(BaseBean *rootBean, const QStringList &pathList);
-    BaseBeanPointer rowBean(int rowCount);
     int rowCount();
     QString orderField();
     QString orderFieldClausule();
     DBFieldMetadata *fieldForColumn(int column);
 };
 
-void RelationBaseBeanModelPrivate::loadBeansFromRelations(BaseBean *rootBean, const QStringList &pathList)
+void RelationBaseBeanModelPrivate::setInternalData()
 {
-    QList<QPointer<DBRelation> > relationsToConnect;
-
-    if ( rootBean == NULL )
+    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+    m_metadata = BeansFactory::metadataBean(m_relation->metadata()->tableName());
+    if ( m_metadata == NULL )
     {
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("RelationBaseBeanModel: No existe la tabla: [%1]").arg(m_relation->metadata()->tableName()));
         return;
     }
-    DBObject *obj = rootBean->navigateThroughProperties(pathList.join("."));
-    DBRelation *rel = qobject_cast<DBRelation *> (obj);
-
-    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-    if ( pathList.size() == 1 || rel != NULL )
+    int count = m_relation->childrenCount(false);
+    q_ptr->beginInsertRows(QModelIndex(), 0, count);
+    if ( m_relation->metadata()->loadOnBackground() )
     {
-        // Este es el caso normal, donde mostramos los hijos de un relación directa del bean padre (rootBean),
-        // o bien, mostramos los hijos de una única relación clara.
-        if ( rel == NULL )
+        if ( !m_relation->childrenLoaded() )
         {
-            rel = rootBean->relation(pathList.at(0));
-        }
-        if ( rel != NULL )
-        {
-            m_metadata = BeansFactory::metadataBean(rel->metadata()->tableName());
-            if ( m_metadata == NULL )
-            {
-                QLogger::QLog_Error(AlephERP::stLogOther, QString("RelationBaseBeanModel: No existe la tabla: [%1]").arg(rel->metadata()->tableName()));
-                CommonsFunctions::restoreOverrideCursor();
-                return;
-            }
-            if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
-            {
-                int index = AERPListContainsBean<BaseBeanPointerList, BaseBeanPointer>(m_fathers, rel->father());
-                if ( index == -1 )
-                {
-                    m_fathers.append(rel->father());
-                }
-            }
-            else
-            {
-                int count = rel->childrenCount(false);
-                m_beans.resize(count);
-                if ( rel->metadata()->loadOnBackground() )
-                {
-                    if ( !rel->childrenLoaded() )
-                    {
-                        // Tratamos el caso de estar cargando en segundo plano...
-                        QObject::connect(rel, SIGNAL(beanLoaded(DBRelation*,int,BaseBeanSharedPointer)), q_ptr, SLOT(beanLoadedOnBackground(DBRelation*,int,BaseBeanSharedPointer)));
-                        QObject::connect(rel, SIGNAL(initLoadingDataBackground()), q_ptr, SIGNAL(initLoadingData()));
-                        QObject::connect(rel, SIGNAL(endLoadingDataBackground()), q_ptr, SLOT(endLoadingData()));
-                        rel->loadChildrenOnBackground(m_order);
-                    }
-                }
-                q_ptr->beginInsertRows(QModelIndex(), 0, m_beans.size());
-                m_beans = rel->sharedChildren(m_order);
-                q_ptr->endInsertRows();
-            }
-        }
-        m_relations.append(rel);
-        relationsToConnect.append(rel);
-    }
-    else
-    {
-        // Aquí se muestran los resultados de varias relaciones... Es decir, por ejemplo: terceros.facturasprov.lineasserviciosfacturasprov
-        // de ésta última, tendríamos MUCHOS items distintos... varias lineas por cada factura.
-        // TODO: Esto deberia hacerse con navigateThrough del rootBean!!!!
-        for (int i = 0 ; i < pathList.size() ; i++ )
-        {
-            if ( pathList.at(i) == QStringLiteral("father") || pathList.at(i) == QStringLiteral("children") || pathList.at(i) == QStringLiteral("brother") )
-            {
-                i++;
-                break;
-            }
-            m_metadata = BeansFactory::metadataBean(pathList.at(i));
-            DBRelation *ancestorRel = rootBean->relation(pathList.at(i));
-            if ( ancestorRel != NULL )
-            {
-                m_metadata = BeansFactory::metadataBean(ancestorRel->metadata()->tableName());
-                if ( m_metadata == NULL )
-                {
-                    QLogger::QLog_Error(AlephERP::stLogOther, QString("RelationBaseBeanModel: No existe la tabla: [%1]").arg(ancestorRel->metadata()->tableName()));
-                    CommonsFunctions::restoreOverrideCursor();
-                    return;
-                }
-
-                QList<BaseBean *> children;
-                if ( ancestorRel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
-                {
-                    children.append(ancestorRel->father());
-                }
-                else
-                {
-                    foreach(BaseBeanPointer beanChild, ancestorRel->children(orderFieldClausule()))
-                    {
-                        if ( !beanChild.isNull() )
-                        {
-                            children.append(beanChild.data());
-                        }
-                    }
-                }
-                foreach(BaseBean *child, children)
-                {
-                    QStringList nextPathList = pathList;
-                    nextPathList.removeFirst();
-                    loadBeansFromRelations(child, nextPathList);
-                }
-                m_relations.append(ancestorRel);
-                relationsToConnect.append(ancestorRel);
-            }
+            // Tratamos el caso de estar cargando en segundo plano...
+            m_relation->loadChildrenOnBackground(m_order);
         }
     }
-    foreach (DBRelation *rel, relationsToConnect)
-    {
-        if ( rel != NULL )
-        {
-            if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
-            {
-                QObject::connect(rel, SIGNAL(fatherLoaded(BaseBean *)), q_ptr, SLOT(intermediateRelationModified()));
-                QObject::connect(rel, SIGNAL(fatherUnloaded()), q_ptr, SLOT(intermediateRelationModified()));
-            }
-            else if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
-            {
-                QObject::connect(rel, SIGNAL(brotherLoaded(BaseBean*)), q_ptr, SLOT(intermediateRelationModified()));
-                QObject::connect(rel, SIGNAL(childrenUnloaded()), q_ptr, SLOT(intermediateRelationModified()));
-            }
-            else
-            {
-                QObject::connect(rel, SIGNAL(fieldChildModified(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
-                QObject::connect(rel, SIGNAL(fieldChildDefaultValueCalculated(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
-                QObject::connect(rel, SIGNAL(childDbStateModified(BaseBean*,int)), q_ptr, SLOT(dbStateBeanModified(BaseBean*,int)));
-                QObject::connect(rel, SIGNAL(childInserted(BaseBean*,int)), q_ptr, SLOT(childInserted(BaseBean *, int)));
-                QObject::connect(rel, SIGNAL(childDeleted(BaseBean*,int)), q_ptr, SLOT(childDeleted(BaseBean*,int)));
-                QObject::connect(rel, SIGNAL(destroyed(QObject*)), q_ptr, SLOT(intermediateRelationModified()));
-                QObject::connect(rel, SIGNAL(childrenUnloaded()), q_ptr, SLOT(intermediateRelationModified()));
-            }
-        }
-    }
-    CommonsFunctions::restoreOverrideCursor();
+    q_ptr->endInsertRows();
+    QObject::connect(m_relation, SIGNAL(fieldChildModified(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
+    QObject::connect(m_relation, SIGNAL(fieldChildDefaultValueCalculated(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
+    QObject::connect(m_relation, SIGNAL(childDbStateModified(BaseBean*,int)), q_ptr, SLOT(dbStateBeanModified(BaseBean*,int)));
+    QObject::connect(m_relation, SIGNAL(childInserted(BaseBean*,int)), q_ptr, SLOT(childInserted(BaseBean *, int)));
+    QObject::connect(m_relation, SIGNAL(childDeleted(BaseBean*,int)), q_ptr, SLOT(childDeleted(BaseBean*,int)));
+    QObject::connect(m_relation, SIGNAL(beanLoaded(DBRelation*,int,BaseBeanSharedPointer)), q_ptr, SLOT(beanLoadedOnBackground(DBRelation*,int,BaseBeanSharedPointer)));
+    QObject::connect(m_relation, SIGNAL(initLoadingDataBackground()), q_ptr, SIGNAL(initLoadingData()));
+    QObject::connect(m_relation, SIGNAL(endLoadingDataBackground()), q_ptr, SIGNAL(endLoadingData()));
+   CommonsFunctions::restoreOverrideCursor();
 }
 
 void RelationBaseBeanModelPrivate::unloadBeans()
 {
-    foreach (DBRelation *rel, m_relations)
+    if ( m_relation )
     {
-        if ( rel )
-        {
-            // Los cambios que se produzcan en background en los beans, se deben de tener en cuenta
-            QObject::disconnect(rel, SIGNAL(fieldChildModified(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
-            QObject::disconnect(rel, SIGNAL(fieldChildDefaultValueCalculated(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
-            QObject::disconnect(rel, SIGNAL(childDbStateModified(BaseBean*,int)), q_ptr, SLOT(dbStateBeanModified(BaseBean*,int)));
-            QObject::disconnect(rel, SIGNAL(childInserted(BaseBean*, int)), q_ptr, SLOT(childInserted(BaseBean *, int)));
-            QObject::disconnect(rel, SIGNAL(childDeleted(BaseBean*,int)), q_ptr, SLOT(childDeleted(BaseBean*,int)));
-            QObject::disconnect(rel, SIGNAL(beanLoaded(DBRelation*,int,BaseBeanSharedPointer)), q_ptr, SLOT(beanLoadedOnBackground(DBRelation*,int,BaseBeanSharedPointer)));
-            QObject::disconnect(rel, SIGNAL(initLoadingDataBackground()), q_ptr, SIGNAL(initLoadingData()));
-            QObject::disconnect(rel, SIGNAL(endLoadingDataBackground()), q_ptr, SIGNAL(endLoadingData()));
-        }
+        // Los cambios que se produzcan en background en los beans, se deben de tener en cuenta
+        QObject::disconnect(m_relation, SIGNAL(fieldChildModified(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
+        QObject::disconnect(m_relation, SIGNAL(fieldChildDefaultValueCalculated(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
+        QObject::disconnect(m_relation, SIGNAL(childDbStateModified(BaseBean*,int)), q_ptr, SLOT(dbStateBeanModified(BaseBean*,int)));
+        QObject::disconnect(m_relation, SIGNAL(childInserted(BaseBean*, int)), q_ptr, SLOT(childInserted(BaseBean *, int)));
+        QObject::disconnect(m_relation, SIGNAL(childDeleted(BaseBean*,int)), q_ptr, SLOT(childDeleted(BaseBean*,int)));
+        QObject::disconnect(m_relation, SIGNAL(beanLoaded(DBRelation*,int,BaseBeanSharedPointer)), q_ptr, SLOT(beanLoadedOnBackground(DBRelation*,int,BaseBeanSharedPointer)));
+        QObject::disconnect(m_relation, SIGNAL(initLoadingDataBackground()), q_ptr, SIGNAL(initLoadingData()));
+        QObject::disconnect(m_relation, SIGNAL(endLoadingDataBackground()), q_ptr, SIGNAL(endLoadingData()));
     }
-    unloadBeans(m_rootBean, m_path);
-    if ( !m_beans.isEmpty() )
-    {
-        m_beans.clear();
-    }
-    if ( !m_fathers.isEmpty() )
-    {
-        m_fathers.clear();
-    }
-    if ( !m_relations.isEmpty() )
-    {
-        m_relations.clear();
-    }
-}
-
-void RelationBaseBeanModelPrivate::unloadBeans(BaseBean *rootBean, const QStringList &pathList)
-{
-    if ( rootBean == NULL )
-    {
-        return;
-    }
-    if ( pathList.size() > 1 )
-    {
-        for (int i = 0 ; i < pathList.size() ; i++ )
-        {
-            DBRelation *ancestorRel = rootBean->relation(pathList.at(i));
-            if ( ancestorRel != NULL )
-            {
-                if ( ancestorRel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
-                {
-                    QObject::disconnect(ancestorRel, SIGNAL(fatherLoaded(BaseBean *)), q_ptr, SLOT(refresh()));
-                    QObject::disconnect(ancestorRel, SIGNAL(fatherUnloaded()), q_ptr, SLOT(refresh()));
-                }
-                else
-                {
-                    QObject::disconnect(ancestorRel, SIGNAL(fieldChildModified(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
-                    QObject::disconnect(ancestorRel, SIGNAL(fieldChildDefaultValueCalculated(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
-                    QObject::disconnect(ancestorRel, SIGNAL(childInserted(BaseBean*,int)), q_ptr, SLOT(childInserted(BaseBean*,int)));
-                    QObject::disconnect(ancestorRel, SIGNAL(childDbStateModified(BaseBean*,int)), q_ptr, SLOT(childDbStateModified(BaseBean*,int)));
-                    QObject::disconnect(ancestorRel, SIGNAL(childDeleted(BaseBean*,int)), q_ptr, SLOT(childDeleted(BaseBean*,int)));
-                    QObject::disconnect(ancestorRel, SIGNAL(beanLoaded(DBRelation*,int,BaseBeanSharedPointer)), q_ptr, SLOT(beanLoadedOnBackground(DBRelation*,int,BaseBeanSharedPointer)));
-                }
-                QObject::disconnect(ancestorRel, SIGNAL(initLoadingDataBackground()), q_ptr, SIGNAL(initLoadingData()));
-                QObject::disconnect(ancestorRel, SIGNAL(endLoadingDataBackground()), q_ptr, SIGNAL(endLoadingData()));
-                QList<BaseBean *> children;
-                if ( ancestorRel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
-                {
-                    children.append(ancestorRel->father());
-                }
-                else
-                {
-                    foreach(BaseBeanPointer beanChild, ancestorRel->children(orderFieldClausule()))
-                    {
-                        if ( !beanChild.isNull() )
-                        {
-                            children.append(beanChild.data());
-                        }
-                    }
-                }
-                foreach(BaseBean *child, children)
-                {
-                    QStringList nextPathList = pathList;
-                    nextPathList.removeFirst();
-                    unloadBeans(child, nextPathList);
-                }
-            }
-        }
-    }
-}
-
-BaseBeanPointer RelationBaseBeanModelPrivate::rowBean(int rowCount)
-{
-    if ( m_beans.size() > 0 && rowCount > -1 && rowCount < m_beans.size() )
-    {
-        return m_beans.at(rowCount).data();
-    }
-    else if ( m_fathers.size() > 0 && rowCount > -1 && rowCount < m_fathers.size() )
-    {
-        return m_fathers.at(rowCount);
-    }
-    return BaseBeanPointer();
+    m_relation = NULL;
 }
 
 int RelationBaseBeanModelPrivate::rowCount()
 {
-    if ( m_beans.size() > 0 )
+    if ( m_relation )
     {
-        return m_beans.size();
-    }
-    else if ( m_fathers.size() )
-    {
-        return m_fathers.size();
+        BaseBeanSharedPointerList list = m_relation->sharedChildren();
+        return list.count();
     }
     return 0;
 }
@@ -391,7 +188,7 @@ RelationBaseBeanModel::RelationBaseBeanModel(DBRelation *rel, bool readOnly, con
         return;
     }
     setVisibleFields(d->m_metadata->dbFieldNames());
-    d->m_relations.append(QPointer<DBRelation> (rel));
+    d->m_relation = rel;
     d->m_readOnly = readOnly;
     d->m_order = order;
     if ( d->m_order.isEmpty() )
@@ -399,58 +196,29 @@ RelationBaseBeanModel::RelationBaseBeanModel(DBRelation *rel, bool readOnly, con
         d->m_order = d->orderFieldClausule();
     }
     d->m_rootBean = qobject_cast<BaseBean *>(rel->owner());
-    d->m_path.append(rel->metadata()->tableName());
-    // Garantizamos primero que la relación tiene todos sus hijos cargados
-    if ( d->m_relations.size() > 0 && !d->m_relations.at(0).isNull() )
+    d->setInternalData();
+    // Esta llamada debe ir aquí.
+    if ( metadata() )
     {
-        if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
+        setVisibleFields(metadata()->dbFieldNames());
+    }
+    if ( d->m_relation )
+    {
+        if ( d->m_relation->metadata()->type() != DBRelationMetadata::MANY_TO_ONE )
         {
-            d->m_fathers.append(rel->father());
-        }
-        else
-        {
-            foreach (BaseBeanSharedPointer child, rel->sharedChildren(d->m_order))
-            {
-                // No comprobamos nulo por si hay carga en segundo plano...
-                d->m_beans.append(child);
-            }
+            QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("ATENCIÓN: RelationBaseBeanModel está pensado para relaciones M1 y %1 no lo es.").
+                                arg(d->m_relation->metadata()->tableName()));
         }
         // Los cambios que se produzcan en background en los beans, se deben de tener en cuenta
-        connect(d->m_relations.at(0).data(), SIGNAL(destroyed(QObject*)), this, SLOT(refresh()));
-        connect(d->m_relations.at(0).data(), SIGNAL(fieldChildModified(BaseBean *,QString,QVariant)), this, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
-        connect(d->m_relations.at(0).data(), SIGNAL(fieldChildDefaultValueCalculated(BaseBean *,QString,QVariant)), this, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
-        connect(d->m_relations.at(0).data(), SIGNAL(childDbStateModified(BaseBean*,int)), this, SLOT(dbStateBeanModified(BaseBean*,int)));
-        connect(d->m_relations.at(0).data(), SIGNAL(childInserted(BaseBean*, int)), this, SLOT(childInserted(BaseBean*, int)));
-        connect(d->m_relations.at(0).data(), SIGNAL(childDeleted(BaseBean*,int)), this, SLOT(childDeleted(BaseBean*,int)));
-        connect(d->m_relations.at(0).data(), SIGNAL(beanLoaded(DBRelation*,int,BaseBeanSharedPointer)), this, SLOT(beanLoadedOnBackground(DBRelation*,int,BaseBeanSharedPointer)));
-        connect(d->m_relations.at(0).data(), SIGNAL(initLoadingDataBackground()), this, SIGNAL(initLoadingData()));
-        connect(d->m_relations.at(0).data(), SIGNAL(endLoadingDataBackground()), this, SIGNAL(endLoadingData()));
-    }
-}
-
-RelationBaseBeanModel::RelationBaseBeanModel(BaseBean *rootBean, const QString &oldStylePath, bool readOnly, const QString &order, QObject *parent) :
-    BaseBeanModel(parent), d(new RelationBaseBeanModelPrivate(this))
-{
-    // Este modelo por defecto es estático y no se recarga.
-    freezeModel();
-    stopReloading();
-
-    if ( rootBean != NULL )
-    {
-        d->m_rootBean = rootBean;
-        d->m_readOnly = readOnly;
-        d->m_order = order;
-        if ( d->m_order.isEmpty() )
-        {
-            d->m_order = d->orderFieldClausule();
-        }
-        d->m_path = oldStylePath.split(".");
-        d->loadBeansFromRelations(rootBean, d->m_path);
-        // Esta llamada debe ir aquí.
-        if ( metadata() )
-        {
-            setVisibleFields(metadata()->dbFieldNames());
-        }
+        connect(d->m_relation.data(), SIGNAL(destroyed(QObject*)), this, SLOT(refresh()));
+        connect(d->m_relation.data(), SIGNAL(fieldChildModified(BaseBean *,QString,QVariant)), this, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
+        connect(d->m_relation.data(), SIGNAL(fieldChildDefaultValueCalculated(BaseBean *,QString,QVariant)), this, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
+        connect(d->m_relation.data(), SIGNAL(childDbStateModified(BaseBean*,int)), this, SLOT(dbStateBeanModified(BaseBean*,int)));
+        connect(d->m_relation.data(), SIGNAL(childInserted(BaseBean*, int)), this, SLOT(childInserted(BaseBean*, int)));
+        connect(d->m_relation.data(), SIGNAL(childDeleted(BaseBean*,int)), this, SLOT(childDeleted(BaseBean*,int)));
+        connect(d->m_relation.data(), SIGNAL(beanLoaded(DBRelation*,int,BaseBeanSharedPointer)), this, SLOT(beanLoadedOnBackground(DBRelation*,int,BaseBeanSharedPointer)));
+        connect(d->m_relation.data(), SIGNAL(initLoadingDataBackground()), this, SIGNAL(initLoadingData()));
+        connect(d->m_relation.data(), SIGNAL(endLoadingDataBackground()), this, SLOT(endLoadingDataBackground()));
     }
 }
 
@@ -459,7 +227,7 @@ RelationBaseBeanModel::~RelationBaseBeanModel()
     delete d;
 }
 
-QString RelationBaseBeanModel::tableName()
+QString RelationBaseBeanModel::tableName() const
 {
     if ( d->m_metadata )
     {
@@ -468,26 +236,9 @@ QString RelationBaseBeanModel::tableName()
     return QString();
 }
 
-DBRelation * RelationBaseBeanModel::relation()
+DBRelation * RelationBaseBeanModel::relation() const
 {
-    if ( d->m_relations.size() == 0 )
-    {
-        return NULL;
-    }
-    return d->m_relations.at(0).data();
-}
-
-QList<DBRelation *> RelationBaseBeanModel::relations()
-{
-    QList<DBRelation *> rels;
-    foreach (QPointer<DBRelation> rel, d->m_relations)
-    {
-        if ( !rel.isNull() )
-        {
-            rels.append(rel.data());
-        }
-    }
-    return rels;
+    return d->m_relation.data();
 }
 
 void RelationBaseBeanModel::setCanMoveRows(bool value)
@@ -514,87 +265,27 @@ void RelationBaseBeanModel::fieldBeanModified(BaseBean *bean, const QString &fie
 
 void RelationBaseBeanModel::dbStateBeanModified(BaseBean *bean, int state)
 {
-    if ( bean != NULL )
+    if ( bean != NULL  && d->m_relation)
     {
         // Se hace esto para que el modelo en filtro superior, sepa que esta fila ha cambiado, y debe actualizar
-        for ( int i = 0 ; i < d->m_beans.size() ; i++ )
+        BaseBeanPointer child = d->m_relation->childByObjectName(bean->objectName());
+        if ( child &&
+             (state == BaseBean::DELETED || state == BaseBean::TO_BE_DELETED) )
         {
-            if ( d->m_beans.at(i) &&
-                 bean->objectName() == d->m_beans.at(i)->objectName() &&
-                 (state == BaseBean::DELETED || state == BaseBean::TO_BE_DELETED) )
-            {
-                emit layoutAboutToBeChanged();
-                emit layoutChanged();
-            }
+            emit layoutAboutToBeChanged();
+            emit layoutChanged();
         }
     }
 }
 
 void RelationBaseBeanModel::childInserted(BaseBean *bean, int position)
 {
-    if ( d->m_insertingRow || bean == NULL )
+    if ( d->m_insertingRow || bean == NULL || d->m_relation.isNull() )
     {
         return;
     }
-    // El bean que se ha podido insertar, es quizás un padre de los beans finales que se visualizan. En ese caso, habría que visualizar
-    // todos sus hijos. ¿Es así?
-    int pos = d->m_path.indexOf(bean->metadata()->tableName());
-    if ( pos > -1 && pos < (d->m_path.size() - 1) )
-    {
-         // Es un ancestro
-        QStringList nextPathList = d->m_path.mid(pos);
-        nextPathList.removeFirst();
-        d->loadBeansFromRelations(bean, nextPathList);
-    }
-    else
-    {
-        BaseBeanSharedPointer beanToInsert;
-        // Obtengamos el sharedPointer. Nos vamos a la relación y lo buscamos ahí.
-        DBRelation *relationParent = qobject_cast<DBRelation *>(bean->owner());
-        if ( relationParent == NULL )
-        {
-            return;
-        }
-        foreach (BaseBeanSharedPointer child, relationParent->sharedChildren())
-        {
-            if ( child->objectName() == bean->objectName() )
-            {
-                beanToInsert = child;
-            }
-        }
-        if ( beanToInsert.isNull() )
-        {
-            return;
-        }
-        // OJO: Tenemos que insertar en el sitio adecuado que será dentro de los beans de la misma relación
-        for (int i = 0 ; i < d->m_beans.size() ; i++)
-        {
-            BaseBeanSharedPointer modelBean = d->m_beans.at(i);
-            if ( modelBean &&
-                 !modelBean->owner().isNull() &&
-                 bean->owner().isNull() &&
-                 modelBean->owner()->objectName() == bean->owner()->objectName() )
-            {
-                if ( (i + position) <= d->m_beans.size() )
-                {
-                    beginInsertRows(QModelIndex(), i + position, i + position);
-                    d->m_beans.insert(i + position, beanToInsert);
-                    endInsertRows();
-                }
-                else
-                {
-                    beginInsertRows(QModelIndex(), d->m_beans.size(), d->m_beans.size());
-                    d->m_beans.insert(d->m_beans.size(), beanToInsert);
-                    endInsertRows();
-                }
-                return;
-            }
-        }
-        // No se ha encontrado nada: insertamos al final
-        beginInsertRows(QModelIndex(), d->m_beans.size(), d->m_beans.size());
-        d->m_beans.insert(d->m_beans.size(), beanToInsert);
-        endInsertRows();
-    }
+    beginInsertRows(QModelIndex(), position, position);
+    endInsertRows();
 }
 
 void RelationBaseBeanModel::childDeleted(BaseBean *bean, int position)
@@ -604,33 +295,20 @@ void RelationBaseBeanModel::childDeleted(BaseBean *bean, int position)
     {
         return;
     }
-    for (int i = 0 ; i < d->m_beans.size() ; i++)
-    {
-        BaseBeanSharedPointer modelBean = d->m_beans.at(i);
-        if ( modelBean )
-        {
-            if ( bean->objectName() == modelBean->objectName() )
-            {
-                beginRemoveRows(QModelIndex(), i, i);
-                d->m_beans.removeAt(i);
-                endRemoveRows();
-                return;
-            }
-        }
-    }
-}
-
-void RelationBaseBeanModel::intermediateRelationModified()
-{
-    refresh(true);
+    beginRemoveRows(QModelIndex(), position, position);
+    endRemoveRows();
 }
 
 void RelationBaseBeanModel::beanLoadedOnBackground(DBRelation *rel, int row, BaseBeanSharedPointer bean)
 {
     Q_UNUSED(rel)
-    if ( AERP_CHECK_INDEX_OK(row, d->m_beans) )
+    Q_UNUSED(bean)
+    if ( d->m_relation.isNull() )
     {
-        d->m_beans[row] = bean;
+        return;
+    }
+    if ( row < rowCount() )
+    {
         if ( canEmitDataChanged() )
         {
             emit dataChanged(index(row, 0), index(row, columnCount(QModelIndex())));
@@ -638,15 +316,10 @@ void RelationBaseBeanModel::beanLoadedOnBackground(DBRelation *rel, int row, Bas
     }
     else
     {
-        beginInsertRows(QModelIndex(), d->m_beans.size(), d->m_beans.size());
-        d->m_beans.append(bean);
+        int count = d->m_relation->sharedChildren().size();
+        beginInsertRows(QModelIndex(), count, count);
         endInsertRows();
     }
-}
-
-void RelationBaseBeanModel::endLoadingDataBackground()
-{
-
 }
 
 /*!
@@ -675,9 +348,13 @@ BaseBeanSharedPointerList RelationBaseBeanModel::beans(const QModelIndexList &li
 BaseBeanSharedPointer RelationBaseBeanModel::bean (const QModelIndex &index, bool reloadIfNeeded) const
 {
     Q_UNUSED(reloadIfNeeded)
-    if ( index.isValid() && AERP_CHECK_INDEX_OK(index.row(), d->m_beans) )
+    if ( d->m_relation )
     {
-        return d->m_beans.at(index.row());
+        BaseBeanSharedPointerList list = d->m_relation->sharedChildren();
+        if ( AERP_CHECK_INDEX_OK(index.row(), list) )
+        {
+            return list.at(index.row());
+        }
     }
     return BaseBeanSharedPointer();
 }
@@ -710,9 +387,14 @@ int RelationBaseBeanModel::rowCount (const QModelIndex & parent) const
 QModelIndex RelationBaseBeanModel::index (int row, int column, const QModelIndex & parent) const
 {
     Q_UNUSED (parent);
-    if ( row > -1 && row < d->rowCount() )
+    if ( row > -1 && row < d->rowCount() && d->m_relation )
     {
-        BaseBeanPointer bean = d->rowBean(row);
+        BaseBeanSharedPointerList list = d->m_relation->sharedChildren();
+        BaseBeanPointer bean;
+        if ( AERP_CHECK_INDEX_OK(row, list) )
+        {
+            bean = list.at(row).data();
+        }
         if ( bean.isNull() )
         {
             return QAbstractItemModel::createIndex(row, column, (void *)NULL);
@@ -814,7 +496,7 @@ QVariant RelationBaseBeanModel::data(const QModelIndex &item, int role) const
     }
     if ( role == AlephERP::RowFetchedRole )
     {
-        if ( d->m_beans.at(item.row()).isNull() )
+        if ( !d->m_relation || d->m_relation->child(item.row()).isNull() )
         {
             return false;
         }
@@ -885,21 +567,9 @@ bool RelationBaseBeanModel::removeRows(int row, int count, const QModelIndex & p
         if ( idx.isValid() )
         {
             DBField *fld = static_cast<DBField *>(idx.internalPointer());
-            if ( fld != NULL )
+            if ( fld != NULL && d->m_relation )
             {
                 BaseBean *bean = fld->bean();
-                BaseBeanSharedPointer beanToRemove;
-                foreach (BaseBeanSharedPointer modelBean, d->m_beans)
-                {
-                    if ( modelBean && modelBean->objectName() == bean->objectName() )
-                    {
-                        beanToRemove = modelBean;
-                    }
-                }
-                if ( !beanToRemove.isNull() )
-                {
-                    d->m_beans.removeOne(beanToRemove);
-                }
                 // Sin estas llamadas de bloqueo, se produce un bucle infinito, por la conexión
                 // que existe connect(d->m_relation, SIGNAL(childDbStateModified(BaseBean*,int)), this, SLOT(dbStateBeanModified(BaseBean*,int)));
                 bool blockState = blockSignals(true);
@@ -909,10 +579,7 @@ bool RelationBaseBeanModel::removeRows(int row, int count, const QModelIndex & p
                 }
                 else
                 {
-                    if ( d->m_relations.size() == 1 && d->m_relations.at(0) )
-                    {
-                        d->m_relations.at(0).data()->removeChildByObjectName(bean->objectName());
-                    }
+                    d->m_relation->removeChildByObjectName(bean->objectName());
                 }
                 blockSignals(blockState);
             }
@@ -940,20 +607,16 @@ void RelationBaseBeanModel::removeBaseBean(const BaseBeanSharedPointer &bean)
 bool RelationBaseBeanModel::insertRows(int row, int count, const QModelIndex & parent)
 {
     Q_UNUSED (parent);
-    if ( d->m_relations.size() != 1 )
+    if ( d->m_relation.isNull() )
     {
         return false;
     }
     beginInsertRows(QModelIndex(), row, row + count -1);
     for ( int i = 0 ; i < count ; i ++ )
     {
-        if ( d->m_relations.at(0) )
-        {
-            d->m_insertingRow = true;
-            BaseBeanSharedPointer bean = d->m_relations.at(0).data()->newChild(row + i);
-            d->m_beans.insert(row + i, bean);
-            d->m_insertingRow = false;
-        }
+        d->m_insertingRow = true;
+        d->m_relation->newChild(row + i);
+        d->m_insertingRow = false;
     }
     endInsertRows();
     return true;
@@ -982,7 +645,7 @@ void RelationBaseBeanModel::refresh(bool force)
 
     QModelIndexList persistents = persistentIndexList();
     d->unloadBeans();
-    d->loadBeansFromRelations(d->m_rootBean, d->m_path);
+    d->setInternalData();
 
     QModelIndexList newList;
     QList<int> rows;
@@ -1018,7 +681,11 @@ QModelIndexList RelationBaseBeanModel::indexes(const QString &dbColumnName, cons
 {
     QModelIndexList list;
     int row = 0;
-    foreach ( BaseBeanSharedPointer bean, d->m_beans )
+    if ( d->m_relation.isNull() )
+    {
+        return list;
+    }
+    foreach (BaseBeanSharedPointer bean, d->m_relation->sharedChildren(d->m_order))
     {
         if ( bean && bean->fieldValue(dbColumnName) == value )
         {
@@ -1036,7 +703,12 @@ QModelIndexList RelationBaseBeanModel::indexes(const QString &dbColumnName, cons
 QModelIndex RelationBaseBeanModel::indexByPk(const QVariant &value)
 {
     int row = 0;
-    foreach ( BaseBeanSharedPointer bean, d->m_beans )
+    QModelIndex result;
+    if ( d->m_relation.isNull() )
+    {
+        return result;
+    }
+    foreach (BaseBeanSharedPointer bean, d->m_relation->sharedChildren(d->m_order))
     {
         if ( bean && bean->pkValue().toMap() == value.toMap() )
         {
@@ -1045,7 +717,7 @@ QModelIndex RelationBaseBeanModel::indexByPk(const QVariant &value)
         }
         row++;
     }
-    return QModelIndex();
+    return result;
 }
 
 bool RelationBaseBeanModel::isLinkColumn(int column) const
@@ -1074,16 +746,13 @@ bool RelationBaseBeanModel::isLinkColumn(int column) const
 
 void RelationBaseBeanModel::setOrderRow(int logicalIndex, int visualIndex)
 {
-    if ( !AERP_CHECK_INDEX_OK(logicalIndex, d->m_beans) )
-    {
-        return;
-    }
     QString orderField = d->orderField();
-    if ( !orderField.isEmpty() )
+    if ( !orderField.isEmpty() && d->m_relation )
     {
-        if ( d->m_beans.at(logicalIndex) )
+        BaseBeanSharedPointerList list = d->m_relation->sharedChildren(d->m_order);
+        if ( AERP_CHECK_INDEX_OK(logicalIndex, list) )
         {
-            d->m_beans.at(logicalIndex)->setFieldValue(orderField, visualIndex);
+            list.at(logicalIndex)->setFieldValue(orderField, visualIndex);
         }
     }
 }

@@ -17,34 +17,23 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef RELATIONBASEBEANMODEL_H
-#define RELATIONBASEBEANMODEL_H
+#ifndef MULTIPLERELATIONBASEBEANMODEL_H
+#define MULTIPLERELATIONBASEBEANMODEL_H
 
 #include <QtCore>
 #include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include "models/basebeanmodel.h"
 
 class BaseBean;
 class DBField;
 class DBRelation;
-class RelationBaseBeanModelPrivate;
+class MultipleRelationBaseBeanModelPrivate;
 class BaseBeanMetadata;
 class DBFieldMetadata;
 class DBRelationMetadata;
 
-/**
-  Esta clase está pensada para servir de modelos a aquellas vistas que presentan un
-  conjunto de registros de una tabla de base de datos, modelados a partir de la
-  informacion de un BaseBean. Esa tabla estará modelada por una relación
-  cuyos hijos edita este modelo. Este modelo permite escribir los en los base bean asociados.
-  @author David Pinelo
-  */
-class RelationBaseBeanModel : public BaseBeanModel
+class MultipleRelationBaseBeanModel : public BaseBeanModel
 {
     Q_OBJECT
 
@@ -54,20 +43,20 @@ class RelationBaseBeanModel : public BaseBeanModel
     Q_PROPERTY (QString tableName READ tableName)
 
 private:
-    Q_DISABLE_COPY(RelationBaseBeanModel)
-    RelationBaseBeanModelPrivate *d;
-    Q_DECLARE_PRIVATE(RelationBaseBeanModel)
+    Q_DISABLE_COPY(MultipleRelationBaseBeanModel)
+    MultipleRelationBaseBeanModelPrivate *d;
+    Q_DECLARE_PRIVATE(MultipleRelationBaseBeanModel)
 
 public:
-    RelationBaseBeanModel(DBRelation *rel, bool readOnly, const QString &order, QObject *parent = 0);
-    ~RelationBaseBeanModel();
+    MultipleRelationBaseBeanModel(BaseBean *rootBean, const QString &oldStylePath, bool readOnly, const QString &order, QObject *parent = 0);
+    ~MultipleRelationBaseBeanModel();
 
     bool baseBeanModel()
     {
         return true;
     }
-    QString tableName() const;
-    DBRelation *relation() const;
+    QString tableName();
+    QList<DBRelation *> relations();
     void setCanMoveRows(bool value);
 
     // Funciones virtuales de QStandardItemModel que deben ser implementadas
@@ -84,7 +73,6 @@ public:
     // Esta es para permitir edicion
     bool setData(const QModelIndex & index, const QVariant & value, int role = Qt::EditRole) ;
 
-    bool removeRows(int row, int count, const QModelIndex & parent = QModelIndex());
     void removeBaseBean(const BaseBeanSharedPointer &bean);
 
     bool insertRows(int row, int count, const QModelIndex & parent = QModelIndex());
@@ -101,8 +89,6 @@ public:
 
     bool isLinkColumn(int column) const;
 
-    virtual void setOrderRow(int logicalIndex, int visualIndex);
-
     virtual bool isFrozenModel() const;
     virtual void freezeModel();
     virtual void defrostModel();
@@ -112,10 +98,10 @@ private slots:
     void dbStateBeanModified(BaseBean *, int);
     void childInserted(BaseBean *bean, int position);
     void childDeleted(BaseBean *bean, int position);
-    void beanLoadedOnBackground(DBRelation *rel, int row, BaseBeanSharedPointer bean);
+    void intermediateRelationModified();
 
 public slots:
     void refresh(bool force = false);
 };
 
-#endif // RELATIONBASEBEANMODEL_H
+#endif // MULTIPLERELATIONBASEBEANMODEL_H
