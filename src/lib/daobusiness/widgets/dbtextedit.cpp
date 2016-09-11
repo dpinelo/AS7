@@ -68,6 +68,7 @@ void DBTextEdit::paintEvent(QPaintEvent *event)
 
 void DBTextEdit::showEvent(QShowEvent *event)
 {
+    Q_UNUSED(event)
     observer(false);
     showtMandatoryWildcardForLabel();
     if ( m_observer )

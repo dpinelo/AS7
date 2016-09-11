@@ -1046,15 +1046,14 @@ QList<BaseBeanPointer> AERPTransactionContext::beansOrderedToPersist(const QStri
  */
 bool AERPTransactionContext::isDirty(const QString &contextName)
 {
-    bool dirty = false;
     foreach (BaseBeanPointer bean, beansOnContext(contextName))
     {
-        if ( !bean.isNull() )
+        if ( !bean.isNull() && bean->modified() )
         {
-            dirty = dirty | bean->modified();
+            return true;;
         }
     }
-    return dirty;
+    return false;
 }
 
 bool AERPTransactionContext::isOnTransaction(BaseBeanPointer bean)
