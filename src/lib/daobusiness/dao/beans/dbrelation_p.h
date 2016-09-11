@@ -24,10 +24,11 @@
 class DBRelation;
 class DBRelationMetadata;
 
+#include <alepherpglobal.h>
 #include "dao/beans/basebean.h"
 #include "dao/beans/dbfield.h"
 
-class DBRelationPrivate
+class ALEPHERP_DLL_EXPORT DBRelationPrivate
 {
 //    Q_DECLARE_PUBLIC(DBRelation)
 public:
