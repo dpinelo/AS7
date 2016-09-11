@@ -86,7 +86,7 @@ BaseBeanPointer DBRelation::childByObjectName(const QString &objectName)
 {
     foreach (BaseBeanPointer child, children())
     {
-        if ( child->objectName() == objectName )
+        if ( child && child->objectName() == objectName )
         {
             return child;
         }

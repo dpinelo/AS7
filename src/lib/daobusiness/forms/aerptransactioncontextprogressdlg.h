@@ -56,8 +56,7 @@ public slots:
     void cancel();
     void showInfo(BaseBean *bean);
     void mustClose(const QString &contextName);
-    void transactionInited(const QString &contextName, int count);
-
+    void transactionProcessInited(const QString &contextName, int count);
 };
 
 #endif // AERPTRANSACTIONCONTEXTPROGRESSDLG_H

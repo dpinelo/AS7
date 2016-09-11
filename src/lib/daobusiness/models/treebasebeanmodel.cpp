@@ -1111,6 +1111,7 @@ bool TreeBaseBeanModel::setData(const QModelIndex &idx, const QVariant &value, i
 
 BaseBeanSharedPointer TreeBaseBeanModel::bean(const QModelIndex &idx, bool reloadIfNeeded) const
 {
+    Q_UNUSED(reloadIfNeeded)
     if (!idx.isValid())
     {
         return BaseBeanSharedPointer();

@@ -83,6 +83,12 @@ signals:
     void transactionInited(QString contextName, int items);
     void transactionCommited(QString contextName);
     void transactionAborted(QString contextName);
+    void preparationInited(QString contextName, int items);
+    void preparationFinished(QString contextName);
+    void orderingInited(QString contextName, int items);
+    void orderingFinished(QString contextName);
+    void validationInited(QString contextName, int items);
+    void validationFinished(QString contextName);
 
 public slots:
     void cancel(const QString &contextName);

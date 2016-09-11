@@ -189,6 +189,7 @@ typedef struct BaseBeanStatePreviousCommitStruct
 class AERPTransactionContextPrivate
 {
 public:
+    AERPTransactionContext *q_ptr;
     QHash<QString, BeansReferenceList*> m_contextObjects;
     QString m_lastError;
     QString m_database;
@@ -199,16 +200,20 @@ public:
     // de error se restaura. Lo mismo, para los modified.
     QList<BaseBeanStatePreviousCommit> m_beansStatePreviousCommit;
 
-    AERPTransactionContextPrivate()
+    AERPTransactionContextPrivate(AERPTransactionContext *qq) : q_ptr(qq)
     {
     }
 
+    bool doPreparationForTransaction(const QString &contextName);
+    BaseBeanPointerList doOrderForTransaction(const QString &contextName);
+    bool doValidationForTransaction(const BaseBeanPointerList &list);
     QList<BaseBeanPointer> orderAndFilterBeans(const QString &contextName);
     void buildBeansStatePreviousCommit(const QList<BaseBeanPointer> &list);
 };
 
 AERPTransactionContext::AERPTransactionContext(QObject *parent) :
-    QObject(parent), d(new AERPTransactionContextPrivate())
+    QObject(parent),
+    d(new AERPTransactionContextPrivate(this))
 {
 }
 
@@ -474,117 +479,50 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
         return true;
     }
 
-    QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPTransactionContext::commit: Inicio de transacción. Existen [%1] beans en el contexto [%2]").
-                        arg(d->m_contextObjects[contextName]->list().size()).arg(contextName));
-    // Esto debemos hacerlo ANTES de iniciar los save. La razón es la siguiente: Imaginemos que desde una función beforeSave se crean nuevos beans
-    // que deberán ser incluídos en esta transacción. Por ejemplo, se están creando las líneas de IVA antes de guardar el registro. Estas líneas
-    // deberán estar en el contexto y en la transacción. Por eso, necesitamos dos bucles. TODO: Y es probable que más...
-    BaseBeanPointerList firstList;
-    BaseBeanPointerList proccesedBeans;
-    while ( firstList.size() != d->m_contextObjects[contextName]->list().size() )
+    emit preparationInited(contextName, d->m_contextObjects[contextName]->list().size());
+    bool result = d->doPreparationForTransaction(contextName);
+    emit preparationFinished(contextName);
+    if ( !result )
     {
-        firstList = d->m_contextObjects[contextName]->list();
-        foreach (BaseBeanPointer bean, firstList)
+        if ( d->m_lastError.isEmpty() )
         {
-            if ( !bean.isNull() && bean->modified() && AERPListContainsBean<BaseBeanPointerList>(proccesedBeans, bean) == -1 )
+            if ( discardContextOnSuccess )
             {
-                if ( bean->dbState() == BaseBean::INSERT )
-                {
-                    if ( !bean->metadata()->beforeInsertScriptExecute(bean) || !bean->metadata()->beforeSaveScriptExecute(bean) )
-                    {
-                        d->m_lastError = trUtf8("No se han cumplido las condiciones necesarias para la inserción de este registro '%1'").arg(bean->metadata()->alias());
-                        d->m_doingCommit[contextName] = false;
-                        return false;
-                    }
-                    emit beforeSaveBean(bean.data());
-                    bean->emitBeforeInsert();
-                    bean->emitBeforeSave();
-                }
-                else if ( bean->dbState() == BaseBean::UPDATE )
-                {
-                    if ( !bean->metadata()->beforeUpdateScriptExecute(bean) || !bean->metadata()->beforeSaveScriptExecute(bean) )
-                    {
-                        d->m_lastError = trUtf8("No se han cumplido las condiciones necesarias para la edición de este registro '%1'").arg(bean->metadata()->alias());
-                        d->m_doingCommit[contextName] = false;
-                        return false;
-                    }
-                    emit beforeSaveBean(bean.data());
-                    bean->emitBeforeUpdate();
-                    bean->emitBeforeSave();
-                }
-                else if ( bean->dbState() == BaseBean::TO_BE_DELETED )
-                {
-                    if ( !bean->metadata()->beforeDeleteScriptExecute(bean) )
-                    {
-                        d->m_doingCommit[contextName] = false;
-                        return false;
-                    }
-                    emit beforeDeleteBean(bean.data());
-                    // Esta llamada es de especial importancia, ya que permitirá añadir al contexto los elementos relacionados que deban borrarse, por ejemplo.
-                    // TODO: Puede estar duplicada con la llamada bean->removeConfiguredRelatedElements, que se hace desde BaseDAO::remove
-                    bean->prepareToDeleteRelatedElements();
-                    bean->emitBeforeDelete();
-                }
-                emit beforeAction(bean.data());
+                discardContext(contextName);
             }
-            proccesedBeans.append(bean);
+            emit transactionCommited(contextName);
         }
+        else
+        {
+            emit transactionAborted(contextName);
+            d->m_doingCommit[contextName] = false;
+        }
+        return d->m_lastError.isEmpty();
     }
 
-    // El orden en el que se hace el commit es muy importante, y debe tener en cuenta las relaciones 1->M y demás.
-    QList<BaseBeanPointer> list = d->orderAndFilterBeans(contextName);
-    if ( list.size() == 0 )
+    emit orderingInited(contextName, d->m_contextObjects[contextName]->list().size());
+    BaseBeanPointerList list = d->doOrderForTransaction(contextName);
+    emit orderingFinished(contextName);
+    if ( list.isEmpty() )
     {
-        discardContext(contextName);
         emit transactionCommited(contextName);
         d->m_doingCommit[contextName] = false;
         return true;
     }
-    int beansToSave = list.size();
 
-    // Algo de debug
-    QLogger::QLog_Info(AlephERP::stLogDB, tr("----- INFORMACIÓN DE TRANSACCIÓN ----"));
-    foreach (BaseBeanPointer bean, list)
-    {
-        QLogger::QLog_Info(AlephERP::stLogDB,
-                           tr("Bean: %1. [%2] Estado: %3. OID: %4").arg(bean->metadata()->alias()).
-                                                                    arg(bean->objectName()).
-                                                                    arg(bean->dbStateDisplayName()).
-                                                                    arg(bean->dbOid()));
-        foreach (DBField *fld, bean->fields())
-        {
-            QLogger::QLog_Debug(AlephERP::stLogDB,
-                                tr("   %1: [%2]").arg(fld->dbFieldName()).arg(fld->value().toString()));
-        }
-    }
-    QLogger::QLog_Info(AlephERP::stLogDB, tr("----- FIN ----"));
-
-    // Vamos a validar con las reglas internas
-    QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPTransactionContext::commit: Se va a proceder a guardar los beans de las transacción. El número de beans a guardar es de: [%1]").arg(list.size()));
-    foreach (BaseBeanPointer bean, list)
-    {
-        // Asegurémosnos de que los campos están adecuadamente calculados
-        bean->recalculateCalculatedFields();
-        // Validemos
-        if ( !bean.isNull() && bean->dbState() != BaseBean::TO_BE_DELETED && !bean->validate() )
-        {
-            d->m_lastError.append(bean->metadata()->alias()).append(": ").append(bean->validateMessages()).append("\n");
-            QLogger::QLog_Error(AlephERP::stLogDB, QString("AERPTransactionContext::commit: [%1]. Estado: [%2]").
-                                arg(bean->metadata()->tableName()).
-                                arg(bean->dbState() == BaseBean::INSERT ? "INSERT" : (bean->dbState() == BaseBean::UPDATE ? "UPDATE" : "DELETE")));
-            QLogger::QLog_Error(AlephERP::stLogDB, QString("AERPTransactionContext::commit: ERROR: [%1]").arg(d->m_lastError));
-        }
-    }
-    if ( !d->m_lastError.isEmpty() )
+    emit validationInited(contextName, list.size());
+    result = d->doValidationForTransaction(list);
+    emit validationFinished(contextName);
+    if ( !result )
     {
         emit transactionAborted(contextName);
         d->m_doingCommit[contextName] = false;
         return false;
     }
 
-    emit transactionInited(contextName, beansToSave);
-
     d->buildBeansStatePreviousCommit(list);
+
+    emit transactionInited(contextName, list.size());
 
     // Iniciamos la transacción
     if ( !BaseDAO::transaction(d->m_database) )
@@ -696,6 +634,10 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
         d->m_doingCommit[contextName] = false;
         return false;
     }
+
+    // Recargamos todos los registros desde base de datos. Implantaciones complejas pueden tener triggers que generen nuevos
+    // registros, cambien datos o tengan columnas calculadas... Esto implica un decremento en el rendimiento en accesos lentos
+    // pero da seguridad en la integridad de datos.
     BaseDAO::reloadBeansFromDB(beansSaved);
     foreach (BaseBeanPointer bean, beansSaved)
     {
@@ -712,6 +654,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
             bean->uncheckModifiedRelatedElements();
         }
     }
+
     if ( discardContextOnSuccess )
     {
         discardContext(contextName);
@@ -719,6 +662,136 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     emit transactionCommited(contextName);
     d->m_doingCommit[contextName] = false;
     return true;
+}
+
+/**
+ * @brief AERPTransactionContextPrivate::doPreparationForTransaction
+ * @param contextName
+ * @return
+ * Realiza los trabajos previos al commit, que son
+ * 1.- Conformar la lista definitiva de registros a meter en la transacción a partir del contextName
+ * 2.- Ordernar los registros para que los SQL tengan sentido en base de datos
+ * 3.- Comprobar la validación de los registros que van en la transacción
+ */
+bool AERPTransactionContextPrivate::doPreparationForTransaction(const QString &contextName)
+{
+    QLogger::QLog_Debug(AlephERP::stLogDB,
+                        QString("AERPTransactionContext::commit: Inicio de transacción. Existen [%1] beans en el contexto [%2]").
+                            arg(m_contextObjects[contextName]->list().size()).arg(contextName));
+
+    // Esto debemos hacerlo ANTES de iniciar los save. La razón es la siguiente: Imaginemos que desde una función beforeSave se crean nuevos beans
+    // que deberán ser incluídos en esta transacción. Por ejemplo, se están creando las líneas de IVA antes de guardar el registro. Estas líneas
+    // deberán estar en el contexto y en la transacción. Por eso, necesitamos dos bucles. TODO: Y es probable que más...
+    BaseBeanPointerList firstList;
+    BaseBeanPointerList proccesedBeans;
+
+    while ( firstList.size() != m_contextObjects[contextName]->list().size() )
+    {
+        firstList = m_contextObjects[contextName]->list();
+        foreach (BaseBeanPointer bean, firstList)
+        {
+            emit q_ptr->workingWithBean(bean);
+            if ( !bean.isNull() && bean->modified() && AERPListContainsBean<BaseBeanPointerList>(proccesedBeans, bean) == -1 )
+            {
+                if ( bean->dbState() == BaseBean::INSERT )
+                {
+                    if ( !bean->metadata()->beforeInsertScriptExecute(bean) || !bean->metadata()->beforeSaveScriptExecute(bean) )
+                    {
+                        m_lastError = QObject::trUtf8("No se han cumplido las condiciones necesarias para la inserción de este registro '%1'").arg(bean->metadata()->alias());
+                        return false;
+                    }
+                    emit q_ptr->beforeSaveBean(bean.data());
+                    bean->emitBeforeInsert();
+                    bean->emitBeforeSave();
+                }
+                else if ( bean->dbState() == BaseBean::UPDATE )
+                {
+                    if ( !bean->metadata()->beforeUpdateScriptExecute(bean) || !bean->metadata()->beforeSaveScriptExecute(bean) )
+                    {
+                        m_lastError = QObject::trUtf8("No se han cumplido las condiciones necesarias para la edición de este registro '%1'").arg(bean->metadata()->alias());
+                        return false;
+                    }
+                    emit q_ptr->beforeSaveBean(bean.data());
+                    bean->emitBeforeUpdate();
+                    bean->emitBeforeSave();
+                }
+                else if ( bean->dbState() == BaseBean::TO_BE_DELETED )
+                {
+                    if ( !bean->metadata()->beforeDeleteScriptExecute(bean) )
+                    {
+                        m_lastError = QObject::trUtf8("No se han cumplido las condiciones necesarias para eliminar este registro '%1'").arg(bean->metadata()->alias());
+                        return false;
+                    }
+                    emit q_ptr->beforeDeleteBean(bean.data());
+                    // Esta llamada es de especial importancia, ya que permitirá añadir al contexto los elementos relacionados que deban borrarse, por ejemplo.
+                    // TODO: Puede estar duplicada con la llamada bean->removeConfiguredRelatedElements, que se hace desde BaseDAO::remove
+                    bean->prepareToDeleteRelatedElements();
+                    bean->emitBeforeDelete();
+                }
+                emit q_ptr->beforeAction(bean.data());
+            }
+            proccesedBeans.append(bean);
+        }
+    }
+    return true;
+}
+
+BaseBeanPointerList AERPTransactionContextPrivate::doOrderForTransaction(const QString &contextName)
+{
+    // El orden en el que se hace el commit es muy importante, y debe tener en cuenta las relaciones 1->M y demás.
+    BaseBeanPointerList list = orderAndFilterBeans(contextName);
+    if ( list.size() == 0 )
+    {
+        return list;
+    }
+
+    // Algo de debug
+    QLogger::QLog_Info(AlephERP::stLogDB, QObject::tr("----- INFORMACIÓN DE TRANSACCIÓN ----"));
+    foreach (BaseBeanPointer bean, list)
+    {
+        QLogger::QLog_Info(AlephERP::stLogDB,
+                           QObject::tr("Bean: %1. [%2] Estado: %3. OID: %4").arg(bean->metadata()->alias()).
+                                                                    arg(bean->objectName()).
+                                                                    arg(bean->dbStateDisplayName()).
+                                                                    arg(bean->dbOid()));
+        foreach (DBField *fld, bean->fields())
+        {
+            QLogger::QLog_Debug(AlephERP::stLogDB,
+                                QObject::tr("   %1: [%2]").
+                                    arg(fld->dbFieldName()).
+                                    arg(fld->value().toString()));
+        }
+    }
+    QLogger::QLog_Info(AlephERP::stLogDB, QObject::tr("----- FIN ----"));
+    return list;
+}
+
+/**
+ * @brief AERPTransactionContextPrivate::doValidationForTransaction
+ * @param list
+ * @return
+ * Recalcula los campos calculados de los registros pasados como argumentos, así como ejecuta
+ * el método validate de ellos. Todo ello para preparar la transacción.
+ */
+bool AERPTransactionContextPrivate::doValidationForTransaction(const BaseBeanPointerList &list)
+{
+    // Vamos a validar con las reglas internas
+    QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPTransactionContext::commit: Se va a proceder a guardar los beans de las transacción. El número de beans a guardar es de: [%1]").arg(list.size()));
+    foreach (BaseBeanPointer bean, list)
+    {
+        // Asegurémosnos de que los campos están adecuadamente calculados
+        bean->recalculateCalculatedFields();
+        // Validemos
+        if ( !bean.isNull() && bean->dbState() != BaseBean::TO_BE_DELETED && !bean->validate() )
+        {
+            m_lastError.append(bean->metadata()->alias()).append(": ").append(bean->validateMessages()).append("\n");
+            QLogger::QLog_Error(AlephERP::stLogDB, QString("AERPTransactionContext::commit: [%1]. Estado: [%2]").
+                                arg(bean->metadata()->tableName()).
+                                arg(bean->dbState() == BaseBean::INSERT ? "INSERT" : (bean->dbState() == BaseBean::UPDATE ? "UPDATE" : "DELETE")));
+            QLogger::QLog_Error(AlephERP::stLogDB, QString("AERPTransactionContext::commit: ERROR: [%1]").arg(m_lastError));
+        }
+    }
+    return m_lastError.isEmpty();
 }
 
 /**
@@ -1090,7 +1163,7 @@ void AERPTransactionContext::cancel(const QString &contextName)
 }
 
 /**
- * @brief AERPTransactionContextPrivate::orderBeans
+ * @brief AERPTransactionContextPrivate::orderAndFilterBeans
  * Los beans deben insertarse en un orden particular, dependiendo de las relaciones 1->M que tengan.
  * En el proceso de la aplicación se ha podido alterar ese orden, por lo que desde aquí, se realiza la
  * ordenación de los mismos.
@@ -1109,6 +1182,7 @@ QList<BaseBeanPointer> AERPTransactionContextPrivate::orderAndFilterBeans(const 
              bean->modified() &&
              !tableToOrders.contains(bean.data()->metadata()->tableName()) )
         {
+            emit q_ptr->workingWithBean(bean);
             tableToOrders.append(bean.data()->metadata()->tableName());
         }
     }
@@ -1119,6 +1193,7 @@ QList<BaseBeanPointer> AERPTransactionContextPrivate::orderAndFilterBeans(const 
         {
             if ( !bean.isNull() )
             {
+                emit q_ptr->workingWithBean(bean);
                 if ( !orderedBeans.contains(bean) )
                 {
                     if ( !bean.isNull() && tableName == bean.data()->metadata()->tableName() && bean->dbState() != BaseBean::DELETED && bean->modified() )

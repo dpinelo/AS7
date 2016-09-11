@@ -289,6 +289,7 @@ void DBFileUpload::paintEvent(QPaintEvent *event)
 
 void DBFileUpload::showEvent(QShowEvent *event)
 {
+    Q_UNUSED(event)
     observer(false);
     showtMandatoryWildcardForLabel();
     if ( !property(AlephERP::stInited).toBool() )
