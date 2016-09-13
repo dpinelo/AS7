@@ -2587,6 +2587,10 @@ void BaseBeanMetadataPrivate::readDBRelation(const QDomElement &e, DBFieldMetada
         {
             relation->setReloadFromDBAfterSave((checkWildCards(e) == QLatin1String("true") ? true : false));
         }
+        else if ( e.tagName() == QLatin1String("loadOnBackground") )
+        {
+            relation->setLoadOnBackground((checkWildCards(e) == QLatin1String("true") ? true : false));
+        }
     }
     if ( relation->name().isEmpty() )
     {

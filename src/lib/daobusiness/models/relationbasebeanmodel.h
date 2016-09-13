@@ -60,16 +60,14 @@ private:
 
 public:
     RelationBaseBeanModel(DBRelation *rel, bool readOnly, const QString &order, QObject *parent = 0);
-    RelationBaseBeanModel(BaseBean *rootBean, const QString &oldStylePath, bool readOnly, const QString &order, QObject *parent = 0);
     ~RelationBaseBeanModel();
 
     bool baseBeanModel()
     {
         return true;
     }
-    QString tableName();
-    DBRelation *relation();
-    QList<DBRelation *> relations();
+    QString tableName() const;
+    DBRelation *relation() const;
     void setCanMoveRows(bool value);
 
     // Funciones virtuales de QStandardItemModel que deben ser implementadas
@@ -114,7 +112,7 @@ private slots:
     void dbStateBeanModified(BaseBean *, int);
     void childInserted(BaseBean *bean, int position);
     void childDeleted(BaseBean *bean, int position);
-    void intermediateRelationModified();
+    void beanLoadedOnBackground(DBRelation *rel, int row, BaseBeanSharedPointer bean);
 
 public slots:
     void refresh(bool force = false);

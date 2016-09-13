@@ -83,6 +83,9 @@ class ALEPHERP_DLL_EXPORT DBRelationMetadata : public QObject
     complete la transacción que se encargue de almacenar toda la información necesaria. Con esta propiedad a true, se fuerza a
     que los hijos se recarguen descartando por tanto los registros que tuviese en ese momento asignados. */
     Q_PROPERTY (bool reloadFromDBAfterSave READ reloadFromDBAfterSave WRITE setReloadFromDBAfterSave)
+    /** Hay relaciones que pueden tener un alto número de hijos. Esas relaciones pueden marcarse para ser cargadas
+     * en un segundo plano, mediante esta propiedad */
+    Q_PROPERTY (bool loadOnBackground READ loadOnBackground WRITE setLoadOnBackground)
 
 private:
     Q_DISABLE_COPY(DBRelationMetadata)
@@ -130,6 +133,8 @@ public:
     void setAllowedInsertChild(bool b);
     bool reloadFromDBAfterSave() const;
     void setReloadFromDBAfterSave(bool value);
+    bool loadOnBackground() const;
+    void setLoadOnBackground(bool value);
 
     QString sqlForeignKeyName(AlephERP::CreationTableSqlOptions options, const QString &dialect);
     QString sqlForeignKey(AlephERP::CreationTableSqlOptions options, const QString &dialect);

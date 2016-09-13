@@ -82,10 +82,6 @@ win32-msvc*:win64-msvc*:unix:macx {
     QT += webenginewidgets
 }
 
-SOURCES += business/aerpqmlextension.cpp \
-    forms/openedrecords.cpp
-HEADERS += business/aerpqmlextension.h \
-    forms/openedrecords.h
 !ios {
     QT += uitools
 }
@@ -343,6 +339,7 @@ SOURCES += globales.cpp \
     dao/backgrounddao_p.cpp \
     dao/beans/aerpuserrowaccess.cpp \
     dao/beans/aerpsystemobject.cpp \
+    dao/beans/dbrelation_p.cpp \
     models/treeitem.cpp \
     models/treeviewmodel.cpp \
     models/perpquerymodel.cpp \
@@ -430,6 +427,7 @@ SOURCES += globales.cpp \
     forms/aerpuseraccessrow.cpp \
     forms/aerpedituseraccessrow.cpp \
     forms/aerptransactioncontextprogressdlg.cpp \
+    forms/openedrecords.cpp \
     forms/dbwizarddlg.cpp \
     scripts/perpscriptsqlquery.cpp \
     scripts/perpscriptwidget.cpp \
@@ -449,6 +447,7 @@ SOURCES += globales.cpp \
     business/aerploggeduser.cpp \
     business/aerpgeocodedatamanager.cpp \
     business/aerpspreadsheet.cpp \
+    business/aerpqmlextension.cpp \
     reports/reportrun.cpp \
     aerpcommon.cpp \
     uiloader.cpp \
@@ -457,7 +456,8 @@ SOURCES += globales.cpp \
     aerpapplication.cpp \
     dao/cachedatabase.cpp \
     models/aerpitemdelegate.cpp \
-    widgets/dbgrouprelationmmhelper.cpp
+    widgets/dbgrouprelationmmhelper.cpp \
+    models/multiplerelationbasebeanmodel.cpp
 
 HEADERS += globales.h \
     dao/basedao.h \
@@ -479,6 +479,7 @@ HEADERS += globales.h \
     dao/userdao.h \
     dao/historydao.h \
     dao/systemdao.h \
+    dao/beans/dbrelation_p.h \
     dao/aerptransactioncontext.h \
     dao/beans/reportmetadata.h \
     dao/relateddao.h \
@@ -578,6 +579,7 @@ HEADERS += globales.h \
     forms/aerpuseraccessrow.h \
     forms/aerpedituseraccessrow.h \
     forms/aerptransactioncontextprogressdlg.h \
+    forms/openedrecords.h \
     forms/dbwizarddlg.h \
     scripts/perpscript.h \
     scripts/perpscriptsqlquery.h \
@@ -600,6 +602,7 @@ HEADERS += globales.h \
     business/aerpspreadsheet.h \
     business/aerpgeocodedatamanager.h \
     business/aerpspreadsheetiface.h \
+    business/aerpqmlextension.h \
     reports/aerpreportsinterface.h \
     reports/reportrun.h \
     aerpcommon.h \
@@ -615,7 +618,8 @@ HEADERS += globales.h \
     dao/cachedatabase.h \
     models/beantreeitem.h \
     models/aerpitemdelegate.h \
-    widgets/dbgrouprelationmmhelper.h
+    widgets/dbgrouprelationmmhelper.h \
+    models/multiplerelationbasebeanmodel.h
 
 FORMS += \
     widgets/dbdetailview.ui \

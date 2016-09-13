@@ -519,10 +519,7 @@ void DBRelatedElementsViewPrivate::init()
         {
             QObject::connect(rel, SIGNAL(childInserted(BaseBean*,int)), q_ptr, SLOT(relationChildBeanInserted(BaseBean*,int)));
             QObject::connect(rel, SIGNAL(childDeleted(BaseBean*,int)), q_ptr, SLOT(relationChildBeanDeleted(BaseBean*,int)));
-            foreach (BaseBeanPointer child, rel->children())
-            {
-                list.append(child);
-            }
+            list.append(rel->children());
         }
         else
         {

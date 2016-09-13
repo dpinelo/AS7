@@ -356,7 +356,7 @@ void DBTableView::setModel(QAbstractItemModel *mdl)
             BaseBeanModel *metadataModel = qobject_cast<BaseBeanModel *>(filterModel()->sourceModel());
             if ( metadataModel != NULL )
             {
-                if ( QString(metadataModel->metaObject()->className()) != "RelationBaseBeanModel" )
+                // if ( QString(metadataModel->metaObject()->className()) != "RelationBaseBeanModel" )
                 {
                     // Animación en espera de carga de los items... Pero ojo: Sólo si no hay un itemDelegate
                     for (int i = 0 ; i < metadataModel->columnCount() ; i++)

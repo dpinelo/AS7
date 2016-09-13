@@ -44,7 +44,11 @@ AERPTransactionContextProgressDlg::AERPTransactionContextProgressDlg(QWidget *pa
     connect(ui->pbCancel, SIGNAL(clicked()), this, SLOT(cancel()));
     connect(AERPTransactionContext::instance(), SIGNAL(transactionCommited(QString)), this, SLOT(mustClose(QString)));
     connect(AERPTransactionContext::instance(), SIGNAL(transactionAborted(QString)), this, SLOT(mustClose(QString)));
-    connect(AERPTransactionContext::instance(), SIGNAL(transactionInited(QString,int)), this, SLOT(transactionInited(QString,int)));
+    connect(AERPTransactionContext::instance(), SIGNAL(transactionProcessInited(QString,int)), this, SLOT(transactionProcessInited(QString,int)));
+    connect(AERPTransactionContext::instance(), SIGNAL(preparationInited(QString,int)), this, SLOT(transactionProcessInited(QString,int)));
+    connect(AERPTransactionContext::instance(), SIGNAL(orderingInited(QString,int)), this, SLOT(transactionProcessInited(QString,int)));
+    connect(AERPTransactionContext::instance(), SIGNAL(validationInited(QString,int)), this, SLOT(transactionProcessInited(QString,int)));
+
     ui->progressBar->setValue(0);
     setWindowTitle(trUtf8("%1 - Transacción").arg(qApp->applicationName()));
 }
@@ -110,7 +114,7 @@ void AERPTransactionContextProgressDlg::mustClose(const QString &contextName)
     close();
 }
 
-void AERPTransactionContextProgressDlg::transactionInited(const QString &contextName, int count)
+void AERPTransactionContextProgressDlg::transactionProcessInited(const QString &contextName, int count)
 {
     if ( contextName == d->m_contextName )
     {

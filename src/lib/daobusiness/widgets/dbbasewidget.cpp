@@ -370,6 +370,66 @@ void DBBaseWidget::setBarCodeEndString(const QString &value)
     m_barCodeEndString = value;
 }
 
+QStringList DBBaseWidget::enabledForRoles() const
+{
+    return m_enabledForRoles;
+}
+
+void DBBaseWidget::setEnabledForRoles(const QStringList &value)
+{
+    m_enabledForRoles = value;
+}
+
+QStringList DBBaseWidget::visibleForRoles() const
+{
+    return m_visibleForRoles;
+}
+
+void DBBaseWidget::setVisibleForRoles(const QStringList &value)
+{
+    m_visibleForRoles = value;
+}
+
+QStringList DBBaseWidget::dataEditableForRoles()
+{
+    return m_dataEditableForRoles;
+}
+
+void DBBaseWidget::setDataEditableForRoles(const QStringList &value)
+{
+    m_dataEditableForRoles = value;
+}
+
+QStringList DBBaseWidget::enabledForUsers() const
+{
+    return m_enabledForUsers;
+}
+
+void DBBaseWidget::setEnabledForUsers(const QStringList &value)
+{
+    m_enabledForUsers = value;
+}
+
+QStringList DBBaseWidget::visibleForUsers() const
+{
+    return m_visibleForUsers;
+}
+
+void DBBaseWidget::setVisibleForUsers(const QStringList &value)
+{
+    m_visibleForUsers = value;
+}
+
+QStringList DBBaseWidget::dataEditableForUsers() const
+{
+    return m_dataEditableForUsers;
+}
+
+void DBBaseWidget::setDataEditableForUsers(const QStringList &value)
+{
+    m_dataEditableForUsers = value;
+}
+
 void DBBaseWidget::observerUnregistered()
 {
     m_observer = NULL;
@@ -473,6 +533,8 @@ void DBBaseWidget::showEvent(QShowEvent * event)
     Q_UNUSED (event)
     observer();
     showtMandatoryWildcardForLabel();
+    applyPropertiesByRole();
+    applyPropertiesByUser();
 }
 
 void DBBaseWidget::hideEvent(QHideEvent * event)
@@ -661,6 +723,85 @@ void DBBaseWidget::connectToSqlWorker()
             }
         }
     });
+}
+
+void DBBaseWidget::applyPropertiesByRole()
+{
+    applyPropertiesByRole(dynamic_cast<QWidget *>(this),
+                          m_enabledForRoles,
+                          "enabled");
+    applyPropertiesByRole(dynamic_cast<QWidget *>(this),
+                          m_dataEditableForRoles,
+                          "dataEditable");
+    applyPropertiesByRole(dynamic_cast<QWidget *>(this),
+                          m_visibleForRoles,
+                          "visible");
+}
+
+void DBBaseWidget::applyPropertiesByUser()
+{
+    applyPropertiesByUser(dynamic_cast<QWidget *>(this),
+                          m_enabledForUsers,
+                          "enabled");
+    applyPropertiesByUser(dynamic_cast<QWidget *>(this),
+                          m_dataEditableForUsers,
+                          "dataEditable");
+    applyPropertiesByUser(dynamic_cast<QWidget *>(this),
+                          m_visibleForUsers,
+                          "visible");
+}
+
+/**
+ * @brief DBBaseWidget::applyPropertiesByRole
+ * @param roles
+ * @param property
+ * @param widget
+ * Si el usuario actual tiene un rol de los pasados en @a roles, pondrá a
+ */
+void DBBaseWidget::applyPropertiesByRole(QPointer<QWidget> widget, const QStringList &roles, const char *property)
+{
+    if ( !roles.isEmpty() && widget )
+    {
+        bool hasRole = false;
+        foreach (const QString &rol, roles)
+        {
+            if ( AERPLoggedUser::instance()->hasRole(rol) )
+            {
+                hasRole = true;
+                break;
+            }
+        }
+        if ( !hasRole )
+        {
+            if ( widget->property(property).isValid() )
+            {
+                widget->setProperty(property, hasRole);
+            }
+        }
+    }
+}
+
+void DBBaseWidget::applyPropertiesByUser(QPointer<QWidget> widget, const QStringList &users, const char *property)
+{
+    if ( !users.isEmpty() && widget )
+    {
+        bool hasUser = false;
+        foreach (const QString &user, users)
+        {
+            if ( AERPLoggedUser::instance()->userName() == user )
+            {
+                hasUser = true;
+                break;
+            }
+        }
+        if ( !hasUser )
+        {
+            if ( widget->property(property).isValid() )
+            {
+                widget->setProperty(property, hasUser);
+            }
+        }
+    }
 }
 
 /**

@@ -86,12 +86,13 @@ public:
 
     DBRelationMetadata * metadata() const;
 
+    BaseBeanPointer childByObjectName(const QString &objectName);
     Q_INVOKABLE BaseBeanSharedPointer newChild(int pos = -1);
     Q_INVOKABLE BaseBeanPointer childByOid(qlonglong oid, bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointer childByField(const QString &dbField, const QVariant &value, bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointer childByFilter(const QString &filter, bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointerList childrenByFilter(const QString &filter, const QString &order = "", bool includeToBeDeleted = false);
-    Q_INVOKABLE BaseBeanPointerList children(const QString &order = "", bool includeToBeDeleted = true);
+    Q_INVOKABLE BaseBeanPointerList children(const QString &order = "", bool includeToBeDeleted = true, bool includeOtherChildren = true);
     Q_INVOKABLE int childrenCountByState(BaseBean::DbBeanStates state);
     Q_INVOKABLE BaseBeanPointerList modifiedChildren();
     Q_INVOKABLE void addChildren(BaseBeanSharedPointerList list);
@@ -108,7 +109,7 @@ public:
     BaseBeanPointer father(bool retrieveOnDemand = true);
     void setFather(BaseBean *bean);
     bool fatherSetted();
-    BaseBeanSharedPointerList sharedChildren(const QString &order = "", bool includeToBeDeleted = true);
+    QVector<BaseBeanSharedPointer> sharedChildren(const QString &order = "");
 
     BaseBeanPointer brother();
     void setBrother(BaseBeanPointer bean);
@@ -203,7 +204,9 @@ signals:
     /** Carga en background */
     void beanLoaded(BaseBeanSharedPointer bean);
     void beanLoaded(DBRelation *rel, int row, BaseBeanSharedPointer bean);
-    void backgroundLoadFinished(DBRelation *rel, bool result);
+    void initLoadingDataBackground();
+    void endLoadingDataBackground(bool result);
+    void endLoadingDataBackground();
     void beansLoaded(DBRelation *rel, BaseBeanSharedPointerList list);
     /** Los registros que cuelgan de esta relación, se han descargado de memoria */
     void childrenUnloaded();
@@ -219,8 +222,7 @@ private slots:
     void emitChildEndEdit(BaseBean *bean);
     void setChildrenLoadedInternaly();
     void otherChildrenDestroyed(QObject *obj);
-    void availableBean(QString id, int row, BaseBeanSharedPointer bean);
-    void availableBeans(QString id, BaseBeanSharedPointerList list);
+    void availableBean(QString id, int backgroundRow, BaseBeanSharedPointer bean);
     void backgroundQueryExecuted(QString id, bool result);
 
 protected slots:
@@ -229,7 +231,7 @@ protected slots:
 public slots:
     void uncheckChildrensModified();
     bool blockAllSignals(bool value);
-    bool loadChildrenOnBackground(const QString &order = "ASC");
+    bool loadChildrenOnBackground(const QString &order);
     QString sqlRelationWhere();
     bool isLoadingBackground();
     int childrenCount(bool includeToBeDeleted = true);

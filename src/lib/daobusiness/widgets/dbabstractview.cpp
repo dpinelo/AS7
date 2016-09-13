@@ -37,6 +37,7 @@
 #include "models/aerpinlineedititemdelegate.h"
 #include "models/aerpoptionlistmodel.h"
 #include "models/aerpmetadatamodel.h"
+#include "models/multiplerelationbasebeanmodel.h"
 #include "dao/beans/basebeanmetadata.h"
 #include "dao/beans/beansfactory.h"
 #include "dao/beans/dbrelation.h"
@@ -562,11 +563,33 @@ bool DBAbstractViewInterface::setupInternalModel()
                     {
                         if ( observerType(beanFromContainer()) == AlephERP::DbMultipleRelation )
                         {
-                            m_sourceModel = new RelationBaseBeanModel(beanFromContainer(), m_relationName, true, m_order, m_thisWidget);
+                            if ( m_relationName.contains(".") )
+                            {
+                                m_sourceModel = new MultipleRelationBaseBeanModel(beanFromContainer(), m_relationName, true, m_order, m_thisWidget);
+                            }
+                            else
+                            {
+                                DBRelation *relation = beanFromContainer()->relation(m_relationName);
+                                if ( relation )
+                                {
+                                    m_sourceModel = new RelationBaseBeanModel(relation, true, m_order, m_thisWidget);
+                                }
+                            }
                         }
                         else
                         {
-                            m_sourceModel = new RelationBaseBeanModel(beanFromContainer(), m_relationName, m_readOnlyModel, m_order, m_thisWidget);
+                            if ( m_relationName.contains(".") )
+                            {
+                                m_sourceModel = new MultipleRelationBaseBeanModel(beanFromContainer(), m_relationName, m_readOnlyModel, m_order, m_thisWidget);
+                            }
+                            else
+                            {
+                                DBRelation *relation = beanFromContainer()->relation(m_relationName);
+                                if ( relation )
+                                {
+                                    m_sourceModel = new RelationBaseBeanModel(relation, m_readOnlyModel, m_order, m_thisWidget);
+                                }
+                            }
                         }
                     }
                 }

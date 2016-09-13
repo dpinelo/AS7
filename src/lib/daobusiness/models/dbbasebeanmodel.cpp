@@ -1804,6 +1804,7 @@ QModelIndexList DBBaseBeanModel::match(const QModelIndex &start, int role,
 
 void DBBaseBeanModel::possibleRowDeleted(const QString &notificationName, QSqlDriver::NotificationSource source, QVariant payLoad)
 {
+    Q_UNUSED(source)
     if ( notificationName != AlephERP::stDeleteRowNotification )
     {
         return;

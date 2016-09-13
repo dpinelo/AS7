@@ -436,7 +436,74 @@ void DBRecordDlgPrivate::checkModifiedToSave()
  */
 void DBRecordDlgPrivate::setWidgetStateFromDesignerProperties()
 {
+    QList<const char *> propertiesByRole, propertiesByUser;
+    propertiesByRole.append(AlephERP::stEnabledForRoles);
+    propertiesByRole.append(AlephERP::stDataEditableForRoles);
+    propertiesByRole.append(AlephERP::stVisibleForRoles);
+    propertiesByUser.append(AlephERP::stEnabledForUsers);
+    propertiesByUser.append(AlephERP::stDataEditableForUsers);
+    propertiesByUser.append(AlephERP::stVisibleForUsers);
 
+    QMultiHash<const char *, const char *> propertiesToApply;
+    propertiesToApply.insert(AlephERP::stEnabledForRoles, "enabled");
+    propertiesToApply.insert(AlephERP::stDataEditableForRoles, "dataEditable");
+    propertiesToApply.insert(AlephERP::stDataEditableForRoles, "readOnly");
+    propertiesToApply.insert(AlephERP::stVisibleForRoles, "visible");
+    propertiesToApply.insert(AlephERP::stEnabledForUsers, "enabled");
+    propertiesToApply.insert(AlephERP::stDataEditableForUsers, "dataEditable");
+    propertiesToApply.insert(AlephERP::stDataEditableForUsers, "readOnly");
+    propertiesToApply.insert(AlephERP::stVisibleForUsers, "visible");
+
+    QList<QWidget *> widgets = q_ptr->findChildren<QWidget *>();
+
+    foreach (const char *prop, propertiesByRole)
+    {
+        foreach (QWidget *widget, widgets)
+        {
+            if ( widget->property(prop).isValid() )
+            {
+                QList<const char *> props = propertiesToApply.values(prop);
+                foreach (const char *finalPro, props)
+                {
+                    DBBaseWidget::applyPropertiesByRole(widget, widget->property(prop).toStringList(), finalPro);
+                }
+                // Extendemos la propiedad a los hijos que cuelgen de este
+                QStringList values = widget->property(prop).toStringList();
+                if ( !values.isEmpty() )
+                {
+                    QObjectList children = widget->children();
+                    foreach (QObject * child, children)
+                    {
+                        child->setProperty(prop, values);
+                    }
+                }
+            }
+        }
+    }
+    foreach (const char *prop, propertiesByUser)
+    {
+        foreach (QWidget *widget, widgets)
+        {
+            if ( widget->property(prop).isValid() )
+            {
+                QList<const char *> props = propertiesToApply.values(prop);
+                foreach (const char *finalPro, props)
+                {
+                    DBBaseWidget::applyPropertiesByUser(widget, widget->property(prop).toStringList(), finalPro);
+                }
+                // Extendemos la propiedad a los hijos que cuelgen de este
+                QStringList values = widget->property(prop).toStringList();
+                if ( !values.isEmpty() )
+                {
+                    QObjectList children = widget->children();
+                    foreach (QObject * child, children)
+                    {
+                        child->setProperty(prop, values);
+                    }
+                }
+            }
+        }
+    }
 }
 
 DBRecordDlg::DBRecordDlg(QWidget *parent, Qt::WindowFlags fl) :

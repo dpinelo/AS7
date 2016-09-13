@@ -109,6 +109,21 @@ protected:
     QString m_barCodeEndString;
     /** Bean de trabajo cuando este objeto se utiliza desde un QAbstractItemView */
     BaseBeanPointer m_workBean;
+    /** El widget estará habilitado, sólo si esta propiedad está vacía o para el usuario con roles
+     * que estén aquí presentes */
+    QStringList m_enabledForRoles;
+    /** El widget estará visible, sólo si esta propiedad está vacía o para el usuario con roles
+     * que estén aquí presentes */
+    QStringList m_visibleForRoles;
+    /** El widget estará marcado como editable, sólo si esta propiedad está vacía o para el usuario con roles
+     * que estén aquí presentes */
+    QStringList m_dataEditableForRoles;
+    /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
+    QStringList m_enabledForUsers;
+    /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
+    QStringList m_visibleForUsers;
+    /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
+    QStringList m_dataEditableForUsers;
 
     virtual void showEvent (QShowEvent * event);
     virtual void hideEvent (QHideEvent * event);
@@ -119,6 +134,9 @@ protected:
     virtual QString processSqlWhere(const QString &where);
 
     virtual void connectToSqlWorker();
+
+    virtual void applyPropertiesByRole();
+    virtual void applyPropertiesByUser();
 
 public:
     DBBaseWidget();
@@ -162,6 +180,18 @@ public:
     virtual void setScriptAfterBarCodeRead(const QString &value);
     virtual QString barCodeEndString() const;
     virtual void setBarCodeEndString(const QString &value);
+    virtual QStringList enabledForRoles() const;
+    virtual void setEnabledForRoles(const QStringList &value);
+    virtual QStringList visibleForRoles() const;
+    virtual void setVisibleForRoles(const QStringList &value);
+    virtual QStringList dataEditableForRoles();
+    virtual void setDataEditableForRoles(const QStringList &value);
+    virtual QStringList enabledForUsers() const;
+    virtual void setEnabledForUsers(const QStringList &value);
+    virtual QStringList visibleForUsers() const;
+    virtual void setVisibleForUsers(const QStringList &value);
+    virtual QStringList dataEditableForUsers() const;
+    virtual void setDataEditableForUsers(const QStringList &value);
 
     /** Establece el valor a mostrar en el control */
     virtual void setValue(const QVariant &value) = 0;
@@ -195,6 +225,10 @@ public:
     virtual void showtMandatoryWildcardForLabel();
 
     virtual void setFontAndColor();
+
+    static void applyPropertiesByRole(QPointer<QWidget> widget, const QStringList &roles, const char *property);
+    static void applyPropertiesByUser(QPointer<QWidget> widget, const QStringList &users, const char *property);
+
 };
 
 #endif // DBBASEWIDGET_H
