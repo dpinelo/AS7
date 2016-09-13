@@ -32,13 +32,13 @@
 QString UserDAO::m_lastMessage;
 
 #define SQL_SELECT_USER "SELECT username, password FROM %1_users WHERE username=:username"
-#define SQL_SELECT_USER_ROLES "SELECT t2.id, t2.nombre, t2.superadmin FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND username=:username"
+#define SQL_SELECT_USER_ROLES "SELECT t2.id, t2.nombre, t2.superadmin, t2.dbamode FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND username=:username"
 #define SQL_SELECT_PERMISSIONS_BY_USER "SELECT tablename, permissions FROM %1_permissions WHERE username=:username"
 #define SQL_SELECT_PERMISSIONS_BY_ROL "SELECT tablename, permissions FROM %1_permissions WHERE id_rol=:id_rol"
 #define SQL_CHANGE_PASSWORD "UPDATE %1_users SET password=:password WHERE username=:username"
 
 #define SQL_SELECT_USER_CI "SELECT username, password FROM %1_users WHERE upper(username)=upper(:username)"
-#define SQL_SELECT_USER_ROLES_CI "SELECT t2.id, t2.nombre, t2.superadmin FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND upper(username)=upper(:username)"
+#define SQL_SELECT_USER_ROLES_CI "SELECT t2.id, t2.nombre, t2.superadmin, t2.dbamode FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND upper(username)=upper(:username)"
 #define SQL_SELECT_PERMISSIONS_BY_USER_CI "SELECT tablename, permissions FROM %1_permissions WHERE upper(username)=upper(:username)"
 #define SQL_CHANGE_PASSWORD_CI "UPDATE %1_users SET password=:password WHERE upper(username)=upper(:username)"
 
@@ -283,6 +283,7 @@ QList<AlephERP::RoleInfo> UserDAO::userRoles(const QString &userName)
             role.idRole = qry->value(0).toInt();
             role.roleName = qry->value(1).toString();
             role.superAdmin = qry->value(2).toBool();
+            role.dbaMode = qry->value(3).toBool();
             result.append(role);
         }
     }

@@ -107,10 +107,11 @@ public:
     {
     }
 
+    void processMenusVisibility();
     void processActions();
     void processActionTable(QAction *action);
     void processActionReport(QAction *action);
-    void processActionVisibility(QAction *action);
+    void processObjectVisibility(QObject *action);
     void processSpecialActions();
     void openChildForm(const QString &tableName, const QIcon &icon);
     void openReportForm(const QString &objectName, const QIcon &icon);
@@ -127,6 +128,26 @@ public:
  * @brief AERPMainWindowPrivate::processActions
  * Aplica algunos ajustes estéticos a las acciones (asignando iconos) o comprueba por permisos si son visibles para el usuario.
  */
+void AERPMainWindowPrivate::processMenusVisibility()
+{
+    QList<QMenu *> menus = q_ptr->findChildren<QMenu *>();
+    foreach (QMenu *menu, menus)
+    {
+        if ( menu->menuAction() != NULL )
+        {
+            if ( menu->property(AlephERP::stVisibleForRoles).isValid() )
+            {
+                menu->menuAction()->setProperty(AlephERP::stVisibleForRoles, menu->property(AlephERP::stVisibleForRoles));
+            }
+            if ( menu->property(AlephERP::stVisibleForUsers).isValid() )
+            {
+                menu->menuAction()->setProperty(AlephERP::stVisibleForRoles, menu->property(AlephERP::stVisibleForUsers));
+            }
+            processObjectVisibility(menu->menuAction());
+        }
+    }
+}
+
 void AERPMainWindowPrivate::processActions()
 {
     QList<QAction *> actions = q_ptr->findChildren<QAction *>();
@@ -145,7 +166,7 @@ void AERPMainWindowPrivate::processActions()
         {
             // TODO
         }
-        processActionVisibility(action);
+        processObjectVisibility(action);
     }
 }
 
@@ -204,11 +225,18 @@ void AERPMainWindowPrivate::processActionReport(QAction *action)
     q_ptr->connect(action, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
 }
 
-void AERPMainWindowPrivate::processActionVisibility(QAction *action)
+void AERPMainWindowPrivate::processObjectVisibility(QObject *object)
 {
-    if ( action->property(AlephERP::stVisibleForRoles).isValid() )
+    const char *visible = "visible";
+
+    if ( !object->property(visible).isValid() )
     {
-        QStringList roles = action->property(AlephERP::stVisibleForRoles).toStringList();
+        return;
+    }
+
+    if ( object->property(AlephERP::stVisibleForRoles).isValid() )
+    {
+        QStringList roles = object->property(AlephERP::stVisibleForRoles).toStringList();
         if ( !roles.isEmpty() )
         {
             bool hasRole = false;
@@ -222,7 +250,27 @@ void AERPMainWindowPrivate::processActionVisibility(QAction *action)
             }
             if ( !hasRole )
             {
-                action->setVisible(false);
+                object->setProperty(visible, false);
+            }
+        }
+    }
+    if ( object->property(AlephERP::stVisibleForUsers).isValid() )
+    {
+        QStringList users = object->property(AlephERP::stVisibleForUsers).toStringList();
+        if ( !users.isEmpty() )
+        {
+            bool hasUser = false;
+            foreach (const QString &user, users)
+            {
+                if ( AERPLoggedUser::instance()->userName() == user )
+                {
+                    hasUser = true;
+                    break;
+                }
+            }
+            if ( !hasUser )
+            {
+                object->setProperty(visible, false);
             }
         }
     }
@@ -1086,39 +1134,33 @@ void AERPMainWindow::init()
         createSystemTrayWidget();
     }
 
-    d->m_signalMapper = new QSignalMapper(this);
     // Creamos entradas y acciones definidas en los metadatos a través de las entradas adecuadas.
     if ( property(AlephERP::stStaticToolBars).isValid() )
     {
-        if ( !property(AlephERP::stStaticToolBars).toBool() )
+        if ( property(AlephERP::stStaticToolBars).toBool() )
         {
             d->createModuleToolbarFromMetadata();
         }
     }
-    else
-    {
-        d->createModuleToolbarFromMetadata();
-    }
     if ( property(AlephERP::stStaticMenu).isValid() )
     {
-        if ( !property(AlephERP::stStaticMenu).toBool() )
+        if ( property(AlephERP::stStaticMenu).toBool() )
         {
             d->addActionsToMenuFromMetadata();
         }
     }
-    else
-    {
-        d->addActionsToMenuFromMetadata();
-    }
+
     // Procesamos el conjunto de acciones existentes, mostrandolas según perfil, o añadiéndoles iconos.
     d->processActions();
+    // Procesamos la visibilidad de los menús que tenga el sistema
+    d->processMenusVisibility();
 
     if ( (alephERPSettings->dbaUser() || alephERPSettings->debuggerEnabled()) && QMainWindow::menuBar() != NULL )
     {
         d->createSystemActions();
     }
 
-    // Borramos los menús sin nada
+    // Borramos los menús sin nada (los que no tienen hijos)
     QList<QMenu *> menus = findChildren<QMenu *>();
     foreach ( QMenu *menu, menus )
     {
@@ -1147,6 +1189,7 @@ void AERPMainWindow::init()
     }
 #endif
 
+    d->m_signalMapper = new QSignalMapper(this);
     connect(d->m_signalMapper, SIGNAL(mapped(const QString &)), this, SLOT(openForm(const QString &)));
 
     createGeneralHelpDock();

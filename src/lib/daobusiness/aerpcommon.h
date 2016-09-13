@@ -420,6 +420,7 @@ public:
         int idRole;
         QString roleName;
         bool superAdmin;
+        bool dbaMode;
         QList<User> users;
     };
 
@@ -428,6 +429,7 @@ public:
         int idRole;
         QString roleName;
         bool superAdmin;
+        bool dbaMode;
     };
 
     struct HistoryItem
