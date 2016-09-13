@@ -95,7 +95,7 @@ class ALEPHERP_DLL_EXPORT DBFullScheduleView : public QAbstractItemView, public 
     /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
     Q_PROPERTY (QStringList enabledForUsers READ enabledForUsers WRITE setEnabledForUsers)
     /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
-    Q_PROPERTY (QStringList _visibleForUsers READ visibleForUsers WRITE setVisibleForUsers)
+    Q_PROPERTY (QStringList visibleForUsers READ visibleForUsers WRITE setVisibleForUsers)
     /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
     Q_PROPERTY (QStringList dataEditableForUsers READ dataEditableForUsers WRITE setDataEditableForUsers)
 

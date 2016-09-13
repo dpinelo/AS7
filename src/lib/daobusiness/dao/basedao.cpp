@@ -3024,15 +3024,13 @@ bool BaseDAO::reloadBeansFromDB(const BaseBeanPointerList &list, const QString &
             {
                 if ( !beanOrig.isNull() && beanOrig->pkEqual(beanCopy->pkValue()) )
                 {
-                    QList<DBField *> fldsOrig = beanOrig->fields();
-                    QList<DBField *> fldsRead = beanCopy->fields();
-                    for ( int i = 0 ; i < fldsOrig.size() ; i++ )
+                    foreach (DBField *fldOrig, beanOrig->fields())
                     {
-                        if ( !fldsOrig.at(i)->metadata()->memo() )
+                        if ( !fldOrig->metadata()->memo() )
                         {
-                            if ( fldsOrig.at(i)->value() != fldsRead.at(i)->value() )
+                            if ( fldOrig->value() != beanCopy->fieldValue(fldOrig->metadata()->dbFieldName()) )
                             {
-                                fldsOrig.at(i)->setValue(fldsRead.at(i)->value());
+                                fldOrig->setValue(beanCopy->fieldValue(fldOrig->metadata()->dbFieldName()));
                             }
                         }
                     }
