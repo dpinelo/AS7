@@ -67,6 +67,8 @@ class ALEPHERP_DLL_EXPORT DBRelation : public DBObject
     Q_PROPERTY(BaseBeanPointer brother READ brother WRITE setBrother)
     /** Indica si el padre ha sido establecido */
     Q_PROPERTY(bool fatherSetted READ fatherSetted)
+    /** ¿Está cargando los items en background? Esta propiedad sólo tiene sentido cuando "loadEnBackground" es true. */
+    Q_PROPERTY(bool loadingOnBackground READ loadingOnBackground)
 
 private:
     Q_DISABLE_COPY(DBRelation)
@@ -124,6 +126,7 @@ public:
     {
         return childrenLoaded();
     }
+    bool loadingOnBackground();
 
     QString fetchChildSqlWhere (const QString &aliasChild = QString (""));
     QString fetchFatherSqlWhere(const QString &aliasChild = QString (""));
@@ -233,7 +236,6 @@ public slots:
     bool blockAllSignals(bool value);
     bool loadChildrenOnBackground(const QString &order);
     QString sqlRelationWhere();
-    bool isLoadingBackground();
     int childrenCount(bool includeToBeDeleted = true);
     void setChildrenCount(int value);
     BaseBeanPointer child(int row);

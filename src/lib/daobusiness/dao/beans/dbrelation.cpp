@@ -2090,7 +2090,7 @@ void DBRelation::backgroundQueryExecuted(QString id, bool result)
     }
 }
 
-bool DBRelation::isLoadingBackground()
+bool DBRelation::loadingOnBackground()
 {
     return !d->m_backgroundPetition.isEmpty();
 }
