@@ -104,7 +104,7 @@ public:
     QList<DBObject *> iterateNavigation(DBRelation *fld, const QStringList &relativePath, const QStringList &filters);
     QList<DBObject *> iterateNavigation(BaseBean *bean, const QStringList &relativePath, const QStringList &filters);
 
-    void emitBeanModified(bool value);
+    void emitBeanModified();
     void emitFieldModified(const QString &dbFieldName, const QVariant &value);
     void emitDefaultValueFieldCalculated(const QString &dbFieldName, const QVariant &value);
     void emitDbStateModified(int val);
@@ -163,7 +163,7 @@ void BaseBeanPrivate::setDefaultValues(BaseBeanPointerList fatherBeans)
     }
 }
 
-void BaseBeanPrivate::emitBeanModified(bool value)
+void BaseBeanPrivate::emitBeanModified()
 {
     EmittedSignals st;
     st.signal = "beanModified";
@@ -177,8 +177,8 @@ void BaseBeanPrivate::emitBeanModified(bool value)
         }
     }
     m_emittedSignals.push(st);
-    emit q_ptr->beanModified(value);
-    emit q_ptr->beanModified(q_ptr, value);
+    emit q_ptr->beanModified(m_modified);
+    emit q_ptr->beanModified(q_ptr, m_modified);
     m_emittedSignals.pop();
 }
 
@@ -1440,7 +1440,10 @@ void BaseBean::setDbState(BaseBean::DbBeanStates value)
         }
     }
     d->emitDbStateModified(value);
-    d->emitBeanModified(true);
+    if ( value == BaseBean::TO_BE_DELETED )
+    {
+        d->emitBeanModified();
+    }
 }
 
 BaseBean::DbBeanStates BaseBean::dbState() const
@@ -1493,13 +1496,36 @@ bool BaseBean::modified () const
 }
 
 /*!
-  Recorre todos los fields, y recalcula todos los los fields hijos
+  Este método es privado, y sólo se puede invocar, bien sea porque un field ha modificado
+  sus datos, o bien sea, porque una relación ha invocado a este método porque su hijo ha
+  sido modificado, insertado o borrado.
   */
 void BaseBean::setModified()
 {
     QMutexLocker lock(&d->m_mutex);
-    d->m_modified = true;
-    d->emitBeanModified(d->m_modified);
+    // Es importante saber quién nos invoca
+    DBObject *dbObject = qobject_cast<DBObject *>(sender());
+    if ( dbObject == NULL )
+    {
+        return;
+    }
+    QString senderClassName(dbObject->metaObject()->className());
+    if ( senderClassName == QLatin1String("DBField") )
+    {
+        foreach (DBField *fld, d->m_fields)
+        {
+            if ( fld->modified() )
+            {
+                d->m_modified = true;
+                break;
+            }
+        }
+    }
+    else if ( senderClassName == QLatin1String("DBRelation") )
+    {
+        d->m_modified = true;
+    }
+    d->emitBeanModified();
 }
 
 void BaseBean::setModified(BaseBean *child, bool value)
@@ -1507,7 +1533,7 @@ void BaseBean::setModified(BaseBean *child, bool value)
     Q_UNUSED(child)
     QMutexLocker lock(&d->m_mutex);
     d->m_modified = d->m_modified | value;
-    d->emitBeanModified(d->m_modified);
+    d->emitBeanModified();
 }
 
 /*!
@@ -1617,7 +1643,7 @@ void BaseBean::uncheckModifiedFields(bool uncheckChildren)
     if ( d->m_modified )
     {
         d->m_modified = false;
-        d->emitBeanModified(d->m_modified);
+        d->emitBeanModified();
     }
 }
 
