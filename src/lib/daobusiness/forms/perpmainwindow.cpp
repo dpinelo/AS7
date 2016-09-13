@@ -108,6 +108,9 @@ public:
     }
 
     void processActions();
+    void processActionTable(QAction *action);
+    void processActionReport(QAction *action);
+    void processActionVisibility(QAction *action);
     void processSpecialActions();
     void openChildForm(const QString &tableName, const QIcon &icon);
     void openReportForm(const QString &objectName, const QIcon &icon);
@@ -127,65 +130,100 @@ public:
 void AERPMainWindowPrivate::processActions()
 {
     QList<QAction *> actions = q_ptr->findChildren<QAction *>();
-    foreach ( QAction *action, actions )
+    foreach (QAction *action, actions)
     {
         // Las acciones deben tener el mismo nombre que las tablas principales
         if ( action->objectName().startsWith("table") )
         {
-            QString tableName = action->objectName();
-            tableName.replace("table_", "");
-            if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', tableName) )
-            {
-                action->setVisible(false);
-            }
-            BaseBeanMetadata *m = BeansFactory::metadataBean(tableName);
-            // Se comprueba ahora si esa tabla existe en los metadatos. Si no es así, no se muestra
-            if ( m == NULL )
-            {
-                action->setVisible(false);
-                QLogger::QLog_Error(AlephERP::stLogOther, QString("AERPMainWindowPrivate::processActions: No existe ninguna tabla de nombre: [%1]").arg(tableName));
-            }
-            else
-            {
-                // Si la acción no tiene definida un pixmap, se ve si se puede utilizar desde los metadatos
-                // Haciendo esto damos preferencia al icono que se haya configurado en la acción, desde
-                // el Qt Designer, y si no, se utiliza el de los metadatos
-                if ( action->icon().isNull() )
-                {
-                    action->setIcon(m->pixmap());
-                }
-            }
-            m_signalMapper->setMapping(action, action->objectName());
-            q_ptr->connect(action, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
+            processActionTable(action);
         }
         else if ( action->objectName().startsWith("report") )
         {
-            QString reportName = action->objectName();
-            reportName.replace("report_", "");
-            if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', reportName) )
-            {
-                action->setVisible(false);
-            }
-            ReportMetadata *m = BeansFactory::metadataReport(reportName);
-            // Se comprueba ahora si esa tabla existe en los metadatos. Si no es así, no se muestra
-            if ( m == NULL )
-            {
-                action->setVisible(false);
-                qDebug() << "AERPMainWindowPrivate::processActions: No se ha encontrado ningún informe de nombre: " << reportName;
-            }
-            else if ( m != NULL )
-            {
-                if ( action->icon().isNull() )
-                {
-
-                }
-            }
-            m_signalMapper->setMapping(action, action->objectName());
-            q_ptr->connect(action, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
+            processActionReport(action);
         }
         else if ( action->objectName().contains("script") )
         {
             // TODO
+        }
+        processActionVisibility(action);
+    }
+}
+
+void AERPMainWindowPrivate::processActionTable(QAction *action)
+{
+    QString tableName = action->objectName();
+    tableName.replace("table_", "");
+    if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', tableName) )
+    {
+        action->setVisible(false);
+    }
+    BaseBeanMetadata *m = BeansFactory::metadataBean(tableName);
+    // Se comprueba ahora si esa tabla existe en los metadatos. Si no es así, no se muestra
+    if ( m == NULL )
+    {
+        action->setVisible(false);
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("AERPMainWindowPrivate::processActions: No existe ninguna tabla de nombre: [%1]").arg(tableName));
+    }
+    else
+    {
+        // Si la acción no tiene definida un pixmap, se ve si se puede utilizar desde los metadatos
+        // Haciendo esto damos preferencia al icono que se haya configurado en la acción, desde
+        // el Qt Designer, y si no, se utiliza el de los metadatos
+        if ( action->icon().isNull() )
+        {
+            action->setIcon(m->pixmap());
+        }
+    }
+    m_signalMapper->setMapping(action, action->objectName());
+    q_ptr->connect(action, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
+}
+
+void AERPMainWindowPrivate::processActionReport(QAction *action)
+{
+    QString reportName = action->objectName();
+    reportName.replace("report_", "");
+    if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', reportName) )
+    {
+        action->setVisible(false);
+    }
+    ReportMetadata *m = BeansFactory::metadataReport(reportName);
+    // Se comprueba ahora si esa tabla existe en los metadatos. Si no es así, no se muestra
+    if ( m == NULL )
+    {
+        action->setVisible(false);
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("AERPMainWindowPrivate::processActions: No se ha encontrado ningún informe de nombre: %1").arg(reportName));
+    }
+    else if ( m != NULL )
+    {
+        if ( action->icon().isNull() )
+        {
+
+        }
+    }
+    m_signalMapper->setMapping(action, action->objectName());
+    q_ptr->connect(action, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
+}
+
+void AERPMainWindowPrivate::processActionVisibility(QAction *action)
+{
+    if ( action->property(AlephERP::stVisibleForRoles).isValid() )
+    {
+        QStringList roles = action->property(AlephERP::stVisibleForRoles).toStringList();
+        if ( !roles.isEmpty() )
+        {
+            bool hasRole = false;
+            foreach (const QString &rol, roles)
+            {
+                if ( AERPLoggedUser::instance()->hasRole(rol) )
+                {
+                    hasRole = true;
+                    break;
+                }
+            }
+            if ( !hasRole )
+            {
+                action->setVisible(false);
+            }
         }
     }
 }
