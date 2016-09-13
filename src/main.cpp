@@ -898,7 +898,7 @@ bool isSystemStructureCreated(bool &firstCreateStructure)
     {
         if ( SystemDAO::lastErrorMessage().isEmpty() )
         {
-            if ( alephERPSettings->advancedUser() && alephERPSettings->dbaUser() )
+            if ( AERPLoggedUser::instance()->isSuperAdmin() && AERPLoggedUser::instance()->dbaMode() )
             {
                 // Veamos si no hay creada ninguna tabla
                 if ( notExists.size() == SystemDAO::systemTables().size() )

@@ -1155,7 +1155,7 @@ void AERPMainWindow::init()
     // Procesamos la visibilidad de los menús que tenga el sistema
     d->processMenusVisibility();
 
-    if ( (alephERPSettings->dbaUser() || alephERPSettings->debuggerEnabled()) && QMainWindow::menuBar() != NULL )
+    if ( AERPLoggedUser::instance()->dbaMode() && QMainWindow::menuBar() != NULL )
     {
         d->createSystemActions();
     }

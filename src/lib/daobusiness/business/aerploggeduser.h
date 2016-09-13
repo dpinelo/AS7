@@ -54,11 +54,12 @@ public:
     QString name() const;
     void setName(const QString &value);
     QList<AlephERP::RoleInfo> roles() const;
-    bool hasRole(const QString &roleName);
-    bool hasRole(int idRole);
-    bool hasOnlyRole(const QString &roleName);
-    bool hasOnlyRole(int idRole);
-    bool isSuperAdmin();
+    bool hasRole(const QString &roleName) const;
+    bool hasRole(int idRole) const;
+    bool hasOnlyRole(const QString &roleName) const;
+    bool hasOnlyRole(int idRole) const;
+    bool isSuperAdmin() const;
+    bool dbaMode() const;
     bool checkMetadataAccess(QChar access, const QString &tableName);
 
     bool loadMetadataAccess();
