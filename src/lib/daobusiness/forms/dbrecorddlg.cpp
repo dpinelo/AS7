@@ -533,6 +533,14 @@ DBRecordDlg::DBRecordDlg(BaseBeanPointer bean,
     d(new DBRecordDlgPrivate(this))
 {
     d->m_bean = bean;
+    if ( bean.isNull() )
+    {
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             tr("Ha ocurrido un error al abrir el registro."));
+        setOpenSuccess(false);
+        return;
+    }
     // Este chivato indica si el registro lo guardará este formulario en base de datos o no
     d->m_openType = openType;
     // Indica si este formulario inicia una nueva transacción.
