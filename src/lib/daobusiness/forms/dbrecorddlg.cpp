@@ -1434,7 +1434,7 @@ void DBRecordDlg::setupMainWidget()
         QGroupBox *gb = new QGroupBox(this);
         if ( !d->m_bean.isNull() )
         {
-            setupWidgetFromBaseBeanMetadata(d->m_bean->metadata(), lay, true);
+            setupWidgetFromBaseBeanMetadata(d->m_bean->metadata(), lay, false);
         }
         gb->setLayout(lay);
         ui->widgetLayout->addWidget(gb);
