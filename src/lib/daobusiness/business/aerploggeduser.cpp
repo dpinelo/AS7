@@ -113,7 +113,7 @@ QList<AlephERP::RoleInfo> AERPLoggedUser::roles() const
     return d->m_roles;
 }
 
-bool AERPLoggedUser::hasRole(const QString &roleName)
+bool AERPLoggedUser::hasRole(const QString &roleName) const
 {
     QMutexLocker lock(&mutex);
     if ( roleName.isEmpty() )

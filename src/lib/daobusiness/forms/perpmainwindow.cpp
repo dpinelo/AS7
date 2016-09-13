@@ -1134,6 +1134,9 @@ void AERPMainWindow::init()
         createSystemTrayWidget();
     }
 
+    // Importante: Debe crearse aquí. Funciones internas más abajo la utilizan.
+    d->m_signalMapper = new QSignalMapper(this);
+
     // Creamos entradas y acciones definidas en los metadatos a través de las entradas adecuadas.
     if ( property(AlephERP::stStaticToolBars).isValid() )
     {
@@ -1189,7 +1192,6 @@ void AERPMainWindow::init()
     }
 #endif
 
-    d->m_signalMapper = new QSignalMapper(this);
     connect(d->m_signalMapper, SIGNAL(mapped(const QString &)), this, SLOT(openForm(const QString &)));
 
     createGeneralHelpDock();
