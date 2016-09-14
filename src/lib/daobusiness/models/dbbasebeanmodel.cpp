@@ -137,6 +137,8 @@ public:
     void clearBackgroundQueries();
     DBFieldMetadata *fieldForColumn(int column);
     bool stillBackgroundUpdatePetitions();
+    void updateRowBean(int modelRow, BaseBeanSharedPointer updateBean);
+    void setNewRowBean(int idx, int modelRow, BaseBeanSharedPointer updateBean);
 };
 
 QMutex DBBaseBeanModelPrivate::m_mutex(QMutex::Recursive);
@@ -805,80 +807,110 @@ void DBBaseBeanModel::availableBean(QString id, int row, BaseBeanSharedPointer u
 {
     // Veamos si ya se había pedido previamente obtener esa posición
     int idx = d->petitionForRow(id);
-    if ( idx == -1 )
+    if ( idx != -1 )
     {
-        return;
-    }
 
-    QMutexLocker lock(&DBBaseBeanModelPrivate::m_mutex);
+        QMutexLocker lock(&DBBaseBeanModelPrivate::m_mutex);
 
-    if ( AERP_CHECK_INDEX_OK(idx, d->m_beansPetitions) )
-    {
-        int modelRow = row + d->m_beansPetitions.at(idx).initRow;
-        if ( !d->m_beansPetitions.at(idx).updatePetition )
+        if ( AERP_CHECK_INDEX_OK(idx, d->m_beansPetitions) )
         {
-            if ( modelRow >= d->m_vectorBean.size() )
+            int modelRow = row + d->m_beansPetitions.at(idx).initRow;
+            if ( !d->m_beansPetitions.at(idx).updatePetition )
             {
-                d->m_vectorBean.resize(modelRow);
-                d->m_beansFetched.resize(modelRow);
+                d->updateRowBean(modelRow, updateBean);
             }
-            if ( AERP_CHECK_INDEX_OK(modelRow, d->m_vectorBean) && AERP_CHECK_INDEX_OK(modelRow, d->m_beansFetched) )
+            else
             {
-                d->m_vectorBean[modelRow] = updateBean;
-                d->m_beansFetched[modelRow] = true;
-                QObject::connect(updateBean.data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
-                                 this, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-                QObject::connect(updateBean.data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
-                                 this, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-                if ( canEmitDataChanged() )
+                if ( AERP_CHECK_INDEX_OK(modelRow, d->m_vectorBean) && !isFrozenModel() )
                 {
-                    emit dataChanged(index(modelRow, 0), index(modelRow, columnCount(QModelIndex())));
+                    d->setNewRowBean(idx, modelRow, updateBean);
+                }
+            }
+        }
+    }
+    if ( d->m_rowCount == 0 || !d->stillBackgroundUpdatePetitions() )
+    {
+        d->m_refreshing = false;
+        emit endRefresh();
+        if ( d->m_reloadingWasActivePreviousRefresh )
+        {
+            startReloading();
+        }
+    }
+}
+
+/**
+ * @brief DBBaseBeanModelPrivate::updateRowBean
+ * @param modelRow
+ * @param updateBean
+ * Actualiza las estructuras de datos internas con un registro obtenido desde base de datos.
+ * Se invoca desde una operación de actualización
+ */
+void DBBaseBeanModelPrivate::updateRowBean(int modelRow, BaseBeanSharedPointer updateBean)
+{
+    if ( modelRow >= m_vectorBean.size() )
+    {
+        m_vectorBean.resize(modelRow);
+        m_beansFetched.resize(modelRow);
+    }
+    if ( AERP_CHECK_INDEX_OK(modelRow, m_vectorBean) && AERP_CHECK_INDEX_OK(modelRow, m_beansFetched) )
+    {
+        m_vectorBean[modelRow] = updateBean;
+        m_beansFetched[modelRow] = true;
+        QObject::connect(updateBean.data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
+                         q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
+        QObject::connect(updateBean.data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
+                         q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
+        if ( q_ptr->canEmitDataChanged() )
+        {
+            emit q_ptr->dataChanged(q_ptr->index(modelRow, 0), q_ptr->index(modelRow, q_ptr->columnCount(QModelIndex())));
+        }
+    }
+}
+
+/**
+ * @brief DBBaseBeanModelPrivate::setNewRowBean
+ * @param modelRow
+ * @param updateBean
+ * Se ha recibido un nuevo bean... hay que ver dónde se actualiza
+ */
+void DBBaseBeanModelPrivate::setNewRowBean(int idx, int modelRow, BaseBeanSharedPointer updateBean)
+{
+    if ( m_vectorBean.at(modelRow) == NULL )
+    {
+        if ( !checkBeanInsert(modelRow, updateBean) )
+        {
+            // Este bean ni se ha insertado, ni se ha encontrado en otra posición... ¿se habrá borrado?
+            // Lo guardamos en esta estructura intermedia para comprobarlo después
+            m_checkedUpdateBeans << updateBean;
+        }
+    }
+    else
+    {
+        if ( m_vectorBean.at(modelRow)->dbOid() == updateBean->dbOid() )
+        {
+            if ( m_vectorBean.at(modelRow)->rawHash() != updateBean->rawHash() )
+            {
+                replaceInternalBean(modelRow, updateBean);
+                if ( q_ptr->canEmitDataChanged() )
+                {
+                    QModelIndex idxModel1 = q_ptr->index(idx, 0, QModelIndex());
+                    QModelIndex idxModel2 = q_ptr->index(idx, q_ptr->columnCount(QModelIndex())-1, QModelIndex());
+                    emit q_ptr->dataChanged(idxModel1, idxModel2);
                 }
             }
         }
         else
         {
-            if ( AERP_CHECK_INDEX_OK(modelRow, d->m_vectorBean) && !isFrozenModel() )
+            if ( !checkBeanInsert(modelRow, updateBean) )
             {
-                if ( d->m_vectorBean.at(modelRow) == NULL )
-                {
-                    if ( !d->checkBeanInsert(modelRow, updateBean) )
-                    {
-                        // Este bean ni se ha insertado, ni se ha encontrado en otra posición... ¿se habrá borrado?
-                        // Lo guardamos en esta estructura intermedia para comprobarlo después
-                        d->m_checkedUpdateBeans << updateBean;
-                    }
-                }
-                else
-                {
-                    if ( d->m_vectorBean.at(modelRow)->dbOid() == updateBean->dbOid() )
-                    {
-                        if ( d->m_vectorBean.at(modelRow)->rawHash() != updateBean->rawHash() )
-                        {
-                            d->replaceInternalBean(modelRow, updateBean);
-                            if ( canEmitDataChanged() )
-                            {
-                                QModelIndex idxModel1 = index(idx, 0, QModelIndex());
-                                QModelIndex idxModel2 = index(idx, columnCount(QModelIndex())-1, QModelIndex());
-                                emit dataChanged(idxModel1, idxModel2);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if ( !d->checkBeanInsert(modelRow, updateBean) )
-                        {
-                            // Este bean ni se ha insertado, ni se ha encontrado en otra posición... ¿se habrá borrado?
-                            // Lo guardamos en esta estructura intermedia para comprobarlo después
-                            d->m_checkedUpdateBeans << updateBean;
-                        }
-                    }
-                }
+                // Este bean ni se ha insertado, ni se ha encontrado en otra posición... ¿se habrá borrado?
+                // Lo guardamos en esta estructura intermedia para comprobarlo después
+                m_checkedUpdateBeans << updateBean;
             }
         }
     }
 }
-
 
 void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
 {
@@ -889,39 +921,29 @@ void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
     if ( id == d->m_backgroundIdCount && result )
     {
         QVector<QVariantList> results = BackgroundDAO::instance()->takeResults(d->m_backgroundIdCount);
-        if ( results.size() == 0 )
+        if ( results.size() > 0 )
         {
-            return;
-        }
-        int count = results.first().at(0).toInt();
-        if ( count < d->m_rowCount )
-        {
-            // Se han borrado filas... casi que mejor recargar todo el modelo.
+            int count = results.first().at(0).toInt();
+            if ( count < d->m_rowCount )
+            {
+                // Se han borrado filas... casi que mejor recargar todo el modelo.
+                if ( !isFrozenModel() )
+                {
+                    d->m_refreshing = false;
+                    emit endRefresh();
+                    resetModel();
+                    if ( d->m_reloadingWasActivePreviousRefresh )
+                    {
+                        startReloading();
+                    }
+                    return;
+                }
+            }
             if ( !isFrozenModel() )
             {
-                d->m_refreshing = false;
-                emit endRefresh();
-                resetModel();
-                if ( d->m_reloadingWasActivePreviousRefresh )
-                {
-                    startReloading();
-                }
-                return;
+                d->updateModel();
             }
-        }
-        if ( !isFrozenModel() )
-        {
-            d->updateModel();
-        }
-        d->m_backgroundIdCount.clear();
-        if ( d->m_rowCount == 0 || !d->stillBackgroundUpdatePetitions() )
-        {
-            d->m_refreshing = false;
-            emit endRefresh();
-            if ( d->m_reloadingWasActivePreviousRefresh )
-            {
-                startReloading();
-            }
+            d->m_backgroundIdCount.clear();
         }
     }
     else
@@ -941,14 +963,15 @@ void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
                 d->m_beansPetitions.removeAt(i);
             }
         }
-        if ( !d->stillBackgroundUpdatePetitions() )
+    }
+
+    if ( d->m_rowCount == 0 || !d->stillBackgroundUpdatePetitions() )
+    {
+        d->m_refreshing = false;
+        emit endRefresh();
+        if ( d->m_reloadingWasActivePreviousRefresh )
         {
-            d->m_refreshing = false;
-            emit endRefresh();
-            if ( d->m_reloadingWasActivePreviousRefresh )
-            {
-                startReloading();
-            }
+            startReloading();
         }
     }
 }

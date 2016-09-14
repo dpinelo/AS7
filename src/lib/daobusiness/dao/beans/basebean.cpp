@@ -1779,6 +1779,11 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore, 
             d->m_dbState = BaseBean::UPDATE;
             // Ejecutamos las acciones tras insertar.
             metadata()->afterInsertScriptExecute(this);
+            // Debemos actualizar todas aquellas relaciones, que tengan hijos, a que éstos, estarán cargados
+            foreach (DBRelation *rel, d->m_relations)
+            {
+                rel->setChildrenLoadedInternaly();
+            }
         }
         else if ( dbState() == BaseBean::UPDATE )
         {

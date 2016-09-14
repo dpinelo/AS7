@@ -104,12 +104,6 @@ void DBRelation::setMetadata(DBRelationMetadata *m)
         {
             connect (rootField, SIGNAL(valueModified(QVariant)), this, SLOT(updateChildrens()));
         }
-        if ( ownerBean()->dbState() == BaseBean::INSERT )
-        {
-            // Si el padre, que estaba en modo inserción, se "guarda" en base de datos, los hijos de esta relación
-            // estarán cargados, y tendremos que poner la variable interna, m_childrenLoaded a true.
-            connect(ownerBean().data(), SIGNAL(beanSaved()), this, SLOT(setChildrenLoadedInternaly()));
-        }
     }
     else
     {
@@ -986,6 +980,10 @@ void DBRelation::emitChildEndEdit(BaseBean *bean)
 void DBRelation::setChildrenLoadedInternaly()
 {
     QMutexLocker lock(&d->m_mutex);
+    if ( d->m->tableName() == QString("lineasserviciosalbaranescli") )
+    {
+        qDebug() << "AQUI";
+    }
     d->m_childrenLoaded = true;
     d->m_canDeleteFather = false;
     d->m_childrenCount = d->m_children.size() + d->m_otherChildren.size();
