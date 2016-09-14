@@ -560,7 +560,16 @@ QScriptValue AERPScriptCommon::sqlSelect(const QString &sql, const QString &conn
                 QSqlRecord rec = qry->record();
                 for ( int i = 0 ; i < rec.count() ; i++ )
                 {
-                    QScriptValue v = engine()->newVariant(rec.value(i));
+                    QVariant value = rec.value(i);
+                    QScriptValue v;
+                    if ( value.canConvert<QDate>() || value.canConvert<QDateTime>() )
+                    {
+                        v = engine()->newDate(rec.value(i).toDateTime());
+                    }
+                    else
+                    {
+                        v = engine()->newVariant(rec.value(i));
+                    }
                     record.setProperty(rec.fieldName(i), v);
                 }
                 result.setProperty(rowCount, record);
@@ -733,7 +742,16 @@ QScriptValue AERPScriptCommon::sqlSelectFirst(const QString &sql, const QString 
                 result = engine()->newObject();
                 for (int i = 0 ; i < rec.count() ; i++)
                 {
-                    QScriptValue v = engine()->newVariant(rec.value(i));
+                    QVariant value = rec.value(i);
+                    QScriptValue v;
+                    if ( value.canConvert<QDate>() || value.canConvert<QDateTime>() )
+                    {
+                        v = engine()->newDate(rec.value(i).toDateTime());
+                    }
+                    else
+                    {
+                        v = engine()->newVariant(rec.value(i));
+                    }
                     result.setProperty(rec.fieldName(i), v);
                 }
             }
