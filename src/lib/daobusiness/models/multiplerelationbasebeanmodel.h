@@ -23,6 +23,7 @@
 #include <QtCore>
 #include <QtGlobal>
 #include <QtWidgets>
+#include <alepherpglobal.h>
 #include "models/basebeanmodel.h"
 
 class BaseBean;
@@ -33,7 +34,7 @@ class BaseBeanMetadata;
 class DBFieldMetadata;
 class DBRelationMetadata;
 
-class MultipleRelationBaseBeanModel : public BaseBeanModel
+class ALEPHERP_DLL_EXPORT MultipleRelationBaseBeanModel : public BaseBeanModel
 {
     Q_OBJECT
 
