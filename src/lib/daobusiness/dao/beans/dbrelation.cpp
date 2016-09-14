@@ -108,7 +108,7 @@ void DBRelation::setMetadata(DBRelationMetadata *m)
         {
             // Si el padre, que estaba en modo inserción, se "guarda" en base de datos, los hijos de esta relación
             // estarán cargados, y tendremos que poner la variable interna, m_childrenLoaded a true.
-            connect(ownerBean().data(), SIGNAL(beanCommitted()), this, SLOT(setChildrenLoadedInternaly()));
+            connect(ownerBean().data(), SIGNAL(beanSaved()), this, SLOT(setChildrenLoadedInternaly()));
         }
     }
     else

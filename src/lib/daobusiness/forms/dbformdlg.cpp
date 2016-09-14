@@ -1256,7 +1256,13 @@ void DBFormDlg::recordDlgClosed(BaseBeanPointer bean, bool userSaveData)
         BaseDAO::reloadBeanFromDB(bean);
     }
     emit afterEdit(userSaveData);
-    if (!userSaveData)
+    // Se comprueba si el bean está no está en UPDATE por los siguiente
+    // 1.- Se inserta un nuevo registro. Se abre el DBRecordDlg.
+    // 2.- Se guarda sin pinchar el close. Se sigue trabajando con el DBRecorDDlg.
+    // 3.- Se cierran cancelando los cambios.
+    // 4.- Si no se hace la comparación se eliminaría el registro de la tabla.
+    if (!userSaveData &&
+        bean->dbState() != BaseBean::UPDATE )
     {
         BaseBeanModel *sourceModel = d->m_itemView->sourceModel();
         if ( d->m_recentInsertSourceIndex.isValid() )
