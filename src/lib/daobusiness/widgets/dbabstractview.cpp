@@ -809,7 +809,27 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
         {
             if ( !fld->metadata()->linkRelation().isEmpty() )
             {
-                b = beanToEdit->father(fld->metadata()->linkRelation());
+                DBRelation *rel = beanToEdit->relation(fld->metadata()->linkRelation());
+                if ( rel == NULL )
+                {
+                    QLogger::QLog_Warning(AlephERP::stLogOther, QObject::tr("DBAbstractViewInterface::itemClicked: No existe la relación %1").arg(fld->metadata()->linkRelation()));
+                    return;
+                }
+                if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
+                {
+                    b = rel->father();
+                }
+                else if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
+                {
+                    b = rel->brother();
+                }
+                else
+                {
+                    if ( rel->childrenCount(false) > 0 )
+                    {
+                        b = rel->children(QString(), false).at(0);
+                    }
+                }
                 if ( b.isNull() )
                 {
                     QLogger::QLog_Warning(AlephERP::stLogOther, QObject::tr("DBAbstractViewInterface::itemClicked: No existe la relación %1").arg(fld->metadata()->linkRelation()));

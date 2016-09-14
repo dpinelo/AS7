@@ -2416,7 +2416,8 @@ void BaseDAO::writeDbMessages(QSqlQuery *qry)
     }
     else
     {
-        m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
+        m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").
+                                         arg(qry->lastError().driverText()).
                                          arg(qry->lastError().databaseText()));
     }
     QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("BaseDAO: writeDbMessages: BBDD LastQuery: [%1]").arg(qry->lastQuery()));

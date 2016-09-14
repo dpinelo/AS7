@@ -1421,7 +1421,8 @@ void DBFormDlg::deleteRecord(void)
                 {
                     QMessageBox::warning(this, qApp->applicationName(),
                                          QString::fromUtf8("Ha ocurrido un error. No se ha podido borrar el registro. "
-                                                           "<br/><i>Error</i>: %1.").arg(AERPTransactionContext::instance()->lastErrorMessage()),
+                                                           "<br/><i>Error</i>: %1.").
+                                            arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
                                          QMessageBox::Ok);
                     sourceModel->rollback();
                     if ( !d->m_mainWindow->isVisibleRelatedWidget() && d->m_recordDlgs.isEmpty() )
@@ -1438,9 +1439,11 @@ void DBFormDlg::deleteRecord(void)
         {
             QMessageBox::warning(this, qApp->applicationName(),
                                  QString::fromUtf8("Ha ocurrido un error. No se ha podido borrar el registro. "
-                                                   "<br/><i>Error</i>: %1.").arg(AERPTransactionContext::instance()->lastErrorMessage()),
+                                                   "<br/><i>Error</i>: %1.").
+                                    arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
                                  QMessageBox::Ok);
             sourceModel->rollback();
+            sourceModel->refresh(true);
             emit afterDelete(false);
         }
         else

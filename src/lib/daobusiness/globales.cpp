@@ -212,6 +212,22 @@ QString CommonsFunctions::removeAccents(const QString &s)
     return output;
 }
 
+/**
+ * @brief CommonsFunctions::processToHtml
+ * @param s
+ * @return
+ * Permite que una cadena con ciertos caracteres de retorno de línea, se trasladen a HTML
+ */
+QString CommonsFunctions::processToHtml(const QString &s)
+{
+    QString result = s;
+    result.replace("\r\n", "<br/>");
+    result.replace("\n\r", "<br/>");
+    result.replace('\n', "<br/>");
+    result.replace('\r', "<br/>");
+    return result;
+}
+
 #ifdef ALEPHERP_DEVTOOLS
 QString CommonsFunctions::prettyDiff(const QList<Diff> &diffs)
 {

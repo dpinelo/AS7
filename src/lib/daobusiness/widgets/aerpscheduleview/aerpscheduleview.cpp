@@ -44,6 +44,7 @@
 #include "models/filterbasebeanmodel.h"
 #include "models/basebeanmodel.h"
 #include "configuracion.h"
+#include "globales.h"
 #include <math.h>
 
 /*!
@@ -812,7 +813,10 @@ void AERPScheduleView::mouseReleaseEvent(QMouseEvent * /*e*/)
         }
         if ( !r )
         {
-            QMessageBox::information(this, qApp->applicationName(), trUtf8("No se han podido guardar los cambios.  \nEl error es: %1").arg(AERPTransactionContext::instance()->lastErrorMessage()));
+            QMessageBox::information(this,
+                                     qApp->applicationName(),
+                                     trUtf8("No se han podido guardar los cambios.  \nEl error es: %1").
+                                        arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())));
         }
         qxt_d().m_selectedItem = NULL;
         qxt_d().m_lastMousePosOffset = -1;

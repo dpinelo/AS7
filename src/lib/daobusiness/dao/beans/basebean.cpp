@@ -979,6 +979,7 @@ int BaseBean::fieldIndex(const QString &dbFieldName)
         if ( d->m_fields.at(i)->metadata()->dbFieldName() == dbFieldName )
         {
             index = i;
+            break;
         }
     }
     if ( index == -1 && !dbFieldName.isEmpty() && dbFieldName != "editable" )
@@ -1016,6 +1017,7 @@ DBRelation * BaseBean::relation(const QString &relationName)
         if ( d->m_relations.at(i)->metadata()->name() == relationName )
         {
             rel = d->m_relations.at(i);
+            break;
         }
     }
     if ( rel == NULL && !relationName.isEmpty() )
@@ -1041,6 +1043,13 @@ BaseBeanPointer BaseBean::father(const QString &relationName)
         if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
         {
             bean = rel->father();
+        }
+        else
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther,
+                                QString("BaseBean::father: Pidiendo el padre de una relación que no es M1. [%1]-[%2]").
+                                    arg(bean->metadata()->tableName()).
+                                    arg(relationName));
         }
     }
     return bean;

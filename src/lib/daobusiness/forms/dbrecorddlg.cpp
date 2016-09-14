@@ -1695,7 +1695,8 @@ bool DBRecordDlg::save()
             {
                 QMessageBox::warning(this, qApp->applicationName(),
                                      trUtf8("Se ha producido un error guardando los datos. \nEl error es: %1").
-                                     arg(AERPTransactionContext::instance()->lastErrorMessage()), QMessageBox::Ok);
+                                        arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
+                                     QMessageBox::Ok);
                 d->m_canClose = false;
                 return false;
             }
