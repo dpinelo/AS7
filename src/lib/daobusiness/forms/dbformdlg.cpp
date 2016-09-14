@@ -804,6 +804,7 @@ void DBFormDlg::showEvent(QShowEvent *ev)
     Q_UNUSED(ev)
     if ( !d->m_mainWindow->isVisibleRelatedWidget() )
     {
+        // Es importante que en este punto, no se fuerce el refresco
         d->m_itemView->defrostModel();
     }
     if ( !property(AlephERP::stInited).toBool() )
@@ -1449,7 +1450,6 @@ void DBFormDlg::deleteRecord(void)
                                     arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
                                  QMessageBox::Ok);
             sourceModel->rollback();
-            sourceModel->refresh(true);
             emit afterDelete(false);
         }
         else

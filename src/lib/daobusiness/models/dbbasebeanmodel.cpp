@@ -64,7 +64,7 @@ public:
      * en m_vectorBean. Interesa guardarlos para una mayor eficiencia */
     QVector<BaseBeanSharedPointer> m_tableVectorBean;
     /** Para los beans de la estructura anterior, indica cuáles se han obtenido de bbdd y cuáles no */
-    QVector<bool> m_beansFecthed;
+    QVector<bool> m_beansFetched;
     /** Número de registros que pertenece a este modelo. No tiene porqué coincidir con m_vectorBean.size()
       ya que esta estructura se va cargando poco a poco. */
     int m_rowCount;
@@ -271,6 +271,10 @@ DBBaseBeanModel::DBBaseBeanModel(const QString &tableName, const QString &where,
 
     d->extractOrder();
     d->initModel();
+    if ( d->m_rowCount > 0 )
+    {
+        d->fetchBeansOnBackground(0);
+    }
     d->m_lastReload.first = QDateTime::currentDateTime();
     d->m_lastReload.second = false;
 }
@@ -415,7 +419,7 @@ void DBBaseBeanModelPrivate::resetModel()
     }
     m_where.clear();
     m_rowCount = 0;
-    m_beansFecthed.clear();
+    m_beansFetched.clear();
     m_vectorBean.clear();
     m_tableVectorBean.clear();
     if ( m_rowCount > 0 )
@@ -476,8 +480,8 @@ void DBBaseBeanModelPrivate::initModel()
     // ha terminado de recibir los datos.
     m_vectorBean.resize(m_rowCount);
     m_tableVectorBean.resize(m_rowCount);
-    m_beansFecthed.resize(m_rowCount);
-    m_beansFecthed.fill(false);
+    m_beansFetched.resize(m_rowCount);
+    m_beansFetched.fill(false);
 
     if ( m_rowCount > 0 )
     {
@@ -542,18 +546,13 @@ void DBBaseBeanModelPrivate::initUpdateModel()
 
 void DBBaseBeanModelPrivate::updateModel()
 {
-    QVector<QVariantList> results = BackgroundDAO::instance()->takeResults(m_backgroundIdCount);
-    if ( results.size() == 0 )
-    {
-        return;
-    }
-    int count = results.first().at(0).toInt();
     // Ahora empezamos a iterar por todas las filas, y en los bloques de offset que haya beans, hacemos la petición
-    for ( int block = 0 ; block < count ; block = block + alephERPSettings->fetchRowCount() )
+    // para refrescar los beans existentes
+    for ( int block = 0 ; block < m_rowCount ; block = block + alephERPSettings->fetchRowCount() )
     {
-        for ( int row = block ; row < (block + alephERPSettings->fetchRowCount()) && row < m_beansFecthed.size() ; ++row )
+        for ( int row = block ; row < (block + alephERPSettings->fetchRowCount()) && row < m_beansFetched.size() ; ++row )
         {
-            if ( m_beansFecthed.at(row) )
+            if ( m_beansFetched.at(row) )
             {
                 BeansPetition petition;
                 petition.initRow = block;
@@ -590,7 +589,7 @@ bool DBBaseBeanModelPrivate::checkBeanInsert(int row, BaseBeanSharedPointer upda
         q_ptr->beginInsertRows(QModelIndex(), row, row);
         m_vectorBean.insert(row, updateBean);
         m_tableVectorBean.insert(row, BaseBeanSharedPointer());
-        m_beansFecthed.insert(row, true);
+        m_beansFetched.insert(row, true);
         QObject::connect(m_vectorBean[row].data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
                          q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
         QObject::connect(m_vectorBean[row].data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
@@ -669,7 +668,7 @@ void DBBaseBeanModelPrivate::replaceInternalBean(int row, BaseBeanSharedPointer 
                 m_tableVectorBean[row].clear();
             }
             m_vectorBean[row] = newBean;
-            m_beansFecthed[row] = true;
+            m_beansFetched[row] = true;
             QObject::connect(m_vectorBean[row].data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
                              q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
             QObject::connect(m_vectorBean[row].data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
@@ -697,7 +696,7 @@ void DBBaseBeanModelPrivate::removeBean(int row)
             m_tableVectorBean[row].clear();
             m_tableVectorBean.removeAt(row);
         }
-        m_beansFecthed.removeAt(row);
+        m_beansFetched.removeAt(row);
         m_rowCount--;
         if ( !m_refreshing )
         {
@@ -715,7 +714,7 @@ void DBBaseBeanModelPrivate::fetchBean(int row)
         if ( list.size() > 0 )
         {
             m_vectorBean[row] = list.at(0);
-            m_beansFecthed[row] = true;
+            m_beansFetched[row] = true;
             QObject::connect(list.at(0).data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
                              q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
             QObject::connect(list.at(0).data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
@@ -751,7 +750,7 @@ void DBBaseBeanModelPrivate::fetchBeans(int row)
         for ( int i = 0 ; i < results.size() ; i++ )
         {
             m_vectorBean[i + (m_offset * offsetMultiply)] = results.at(i);
-            m_beansFecthed[i + (m_offset * offsetMultiply)] = true;
+            m_beansFetched[i + (m_offset * offsetMultiply)] = true;
             QObject::connect(results.at(i).data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
                              q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
             QObject::connect(results.at(i).data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
@@ -821,12 +820,12 @@ void DBBaseBeanModel::availableBean(QString id, int row, BaseBeanSharedPointer u
             if ( modelRow >= d->m_vectorBean.size() )
             {
                 d->m_vectorBean.resize(modelRow);
-                d->m_beansFecthed.resize(modelRow);
+                d->m_beansFetched.resize(modelRow);
             }
-            if ( AERP_CHECK_INDEX_OK(modelRow, d->m_vectorBean) && AERP_CHECK_INDEX_OK(modelRow, d->m_beansFecthed) )
+            if ( AERP_CHECK_INDEX_OK(modelRow, d->m_vectorBean) && AERP_CHECK_INDEX_OK(modelRow, d->m_beansFetched) )
             {
                 d->m_vectorBean[modelRow] = updateBean;
-                d->m_beansFecthed[modelRow] = true;
+                d->m_beansFetched[modelRow] = true;
                 QObject::connect(updateBean.data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
                                  this, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
                 QObject::connect(updateBean.data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
@@ -889,12 +888,33 @@ void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
 
     if ( id == d->m_backgroundIdCount && result )
     {
+        QVector<QVariantList> results = BackgroundDAO::instance()->takeResults(d->m_backgroundIdCount);
+        if ( results.size() == 0 )
+        {
+            return;
+        }
+        int count = results.first().at(0).toInt();
+        if ( count < d->m_rowCount )
+        {
+            // Se han borrado filas... casi que mejor recargar todo el modelo.
+            if ( !isFrozenModel() )
+            {
+                d->m_refreshing = false;
+                emit endRefresh();
+                resetModel();
+                if ( d->m_reloadingWasActivePreviousRefresh )
+                {
+                    startReloading();
+                }
+                return;
+            }
+        }
         if ( !isFrozenModel() )
         {
             d->updateModel();
         }
         d->m_backgroundIdCount.clear();
-        if ( d->m_rowCount == 0 )
+        if ( d->m_rowCount == 0 || !d->stillBackgroundUpdatePetitions() )
         {
             d->m_refreshing = false;
             emit endRefresh();
@@ -1079,7 +1099,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
         return valueData;
     }
 
-    if ( !AERP_CHECK_INDEX_OK(row, d->m_beansFecthed) )
+    if ( !AERP_CHECK_INDEX_OK(row, d->m_beansFetched) )
     {
         return valueData;
     }
@@ -1089,7 +1109,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
         {
             return false;
         }
-        return d->m_beansFecthed.at(row);
+        return d->m_beansFetched.at(row);
     }
 
     if ( role == AlephERP::SortRole )
@@ -1134,7 +1154,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
         role = AlephERP::RawValueRole;
     }
     // Ahora veamos si se ha obtenido el bean. Si no es así, se obtienen los beans en esa ventana
-    if ( !d->m_beansFecthed.at(row) )
+    if ( !d->m_beansFetched.at(row) )
     {
         if ( d->m_workLoadingOnBackground )
         {
@@ -1146,7 +1166,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
         }
     }
     BaseBeanSharedPointer bean;
-    if ( d->m_beansFecthed.at(row) )
+    if ( d->m_beansFetched.at(row) )
     {
         if ( AERP_CHECK_INDEX_OK(row, d->m_vectorBean) )
         {
@@ -1255,7 +1275,7 @@ bool DBBaseBeanModel::removeRows (int row, int count, const QModelIndex & parent
     // Y ya que tenemos seguridad del borrado, los borramos del modelo
     for ( int i = 0; i < count ; ++i )
     {
-        if ( AERP_CHECK_INDEX_OK(row, d->m_vectorBean) && AERP_CHECK_INDEX_OK(row, d->m_beansFecthed) )
+        if ( AERP_CHECK_INDEX_OK(row, d->m_vectorBean) && AERP_CHECK_INDEX_OK(row, d->m_beansFetched) )
         {
             BaseBeanSharedPointer bean = d->m_vectorBean.at(row);
             if ( !bean.isNull() )
@@ -1266,7 +1286,7 @@ bool DBBaseBeanModel::removeRows (int row, int count, const QModelIndex & parent
                            this, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
                 d->m_vectorBean.remove(row);
                 d->m_tableVectorBean.remove(row);
-                d->m_beansFecthed.remove(row);
+                d->m_beansFetched.remove(row);
                 d->m_rowCount--;
             }
         }
@@ -1283,7 +1303,7 @@ bool DBBaseBeanModel::removeRows (int row, int count, const QModelIndex & parent
   Devuelve el bean correspondiente al índice index. Antes de devolverlo comprueba
   que el bean esté actualizado, esto es lo recupera de base de datos.
 */
-BaseBeanSharedPointer DBBaseBeanModel::bean (const QModelIndex &index, bool reloadIfNeeded) const
+BaseBeanSharedPointer DBBaseBeanModel::bean(const QModelIndex &index, bool reloadIfNeeded) const
 {
     BaseBeanSharedPointer bean;
     bool beansHasBeenFetched = false;
@@ -1301,16 +1321,16 @@ BaseBeanSharedPointer DBBaseBeanModel::bean (const QModelIndex &index, bool relo
     {
         return bean;
     }
-    if ( !AERP_CHECK_INDEX_OK(index.row(), d->m_beansFecthed) )
+    if ( !AERP_CHECK_INDEX_OK(index.row(), d->m_beansFetched) )
     {
         return bean;
     }
-    if ( !d->m_beansFecthed.at(index.row()) )
+    if ( !d->m_beansFetched.at(index.row()) )
     {
         d->fetchBean(index.row());
         beansHasBeenFetched = true;
     }
-    if ( !d->m_beansFecthed.at(index.row()) )
+    if ( !d->m_beansFetched.at(index.row()) )
     {
         return bean;
     }
@@ -1365,11 +1385,11 @@ BaseBeanSharedPointerList DBBaseBeanModel::beans(const QModelIndexList &list)
     {
         if ( index.isValid() )
         {
-            if ( !AERP_CHECK_INDEX_OK(index.row(), d->m_beansFecthed) )
+            if ( !AERP_CHECK_INDEX_OK(index.row(), d->m_beansFetched) )
             {
                 return result;
             }
-            if ( !d->m_beansFecthed.at(index.row()) )
+            if ( !d->m_beansFetched.at(index.row()) )
             {
                 d->fetchBean(index.row());
             }
@@ -1423,14 +1443,14 @@ BaseBeanSharedPointerList DBBaseBeanModel::beans(const QModelIndexList &list)
 bool DBBaseBeanModel::hasBeenFetched(const QModelIndex &index)
 {
     int row = index.row();
-    if ( AERP_CHECK_INDEX_OK(row, d->m_beansFecthed) )
+    if ( AERP_CHECK_INDEX_OK(row, d->m_beansFetched) )
     {
-        return d->m_beansFecthed.at(row);
+        return d->m_beansFetched.at(row);
     }
     return false;
 }
 
-BaseBeanSharedPointer DBBaseBeanModel::beanToBeEdited (const QModelIndex &index)
+BaseBeanSharedPointer DBBaseBeanModel::beanToBeEdited(const QModelIndex &index)
 {
     BaseBeanSharedPointer b = bean(index);
     BaseBeanSharedPointer beanOriginal;
@@ -1512,13 +1532,13 @@ QModelIndex DBBaseBeanModel::indexByPk(const QVariant &value)
     QVariantMap values = value.toMap();
     for ( int i = 0 ; i < d->m_vectorBean.size() ; i++ )
     {
-        if ( AERP_CHECK_INDEX_OK(i, d->m_beansFecthed) )
+        if ( AERP_CHECK_INDEX_OK(i, d->m_beansFetched) )
         {
-            if ( !d->m_beansFecthed.at(i) )
+            if ( !d->m_beansFetched.at(i) )
             {
                 d->fetchBean(i);
             }
-            if ( d->m_beansFecthed.at(i) && AERP_CHECK_INDEX_OK(i, d->m_vectorBean) )
+            if ( d->m_beansFetched.at(i) && AERP_CHECK_INDEX_OK(i, d->m_vectorBean) )
             {
                 BaseBeanSharedPointer bean = d->m_vectorBean.at(i);
                 if ( bean->pkValue() == values )
@@ -1671,7 +1691,7 @@ bool DBBaseBeanModel::insertRows (int row, int count, const QModelIndex & parent
     beginInsertRows(parent, row, row + count - 1);
     d->m_vectorBean.append(bean);
     d->m_tableVectorBean.append(BaseBeanSharedPointer());
-    d->m_beansFecthed.append(true);
+    d->m_beansFetched.append(true);
     connect(bean.data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
             this, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
     connect(bean.data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
