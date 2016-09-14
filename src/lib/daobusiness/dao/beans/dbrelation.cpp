@@ -888,7 +888,7 @@ void DBRelation::addChildren(BaseBeanSharedPointerList list)
                 {
                     AERPTransactionContext::instance()->addToContext(ownerBean()->actualContext(), bean.data());
                 }
-                d->emitChildInserted(bean.data(), d->m_childrenCount);
+                d->emitChildInserted(bean.data(), d->m_childrenCount + countChildren);
                 connections(bean.data());
                 // Toca ahora actualizar los value
                 if ( !ownerBean().isNull() )
@@ -1668,13 +1668,11 @@ QVector<BaseBeanSharedPointer> DBRelation::sharedChildren(const QString &order)
         return QVector<BaseBeanSharedPointer>();
     }
 
-    // Llamamos a children, simplemente para asegurarnos que se obtienen los registros en memoria
-    setOnExecution(AlephERP::Children);
-
     // ¿Se han obtenido los hijos de esta relación? Si no es así, se obtienen. Ojo,
     // si se está creando el bean padre, y aquí vienen los relacionados, los hijos siempre
     // estarán cargados
     QString finalOrder = (order.isEmpty() ? d->m->order() : order);
+    setOnExecution(AlephERP::Children);
     if ( !childrenLoaded() &&
          !ownBean.isNull() &&
          ownBean->dbState() != BaseBean::INSERT &&

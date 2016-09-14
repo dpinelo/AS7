@@ -67,7 +67,7 @@ public:
         m_refreshing = false;
     }
 
-    void setInternalData();
+    void setInternalDataAndConnections();
     void unloadBeans();
     int rowCount();
     QString orderField();
@@ -75,7 +75,7 @@ public:
     DBFieldMetadata *fieldForColumn(int column);
 };
 
-void RelationBaseBeanModelPrivate::setInternalData()
+void RelationBaseBeanModelPrivate::setInternalDataAndConnections()
 {
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     m_metadata = BeansFactory::metadataBean(m_relation->metadata()->tableName());
@@ -95,15 +95,18 @@ void RelationBaseBeanModelPrivate::setInternalData()
         }
     }
     q_ptr->endInsertRows();
+    QObject::connect(m_relation, SIGNAL(destroyed(QObject*)), q_ptr, SLOT(refresh()));
     QObject::connect(m_relation, SIGNAL(fieldChildModified(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
     QObject::connect(m_relation, SIGNAL(fieldChildDefaultValueCalculated(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
     QObject::connect(m_relation, SIGNAL(childDbStateModified(BaseBean*,int)), q_ptr, SLOT(dbStateBeanModified(BaseBean*,int)));
     QObject::connect(m_relation, SIGNAL(childInserted(BaseBean*,int)), q_ptr, SLOT(childInserted(BaseBean *, int)));
     QObject::connect(m_relation, SIGNAL(childDeleted(BaseBean*,int)), q_ptr, SLOT(childDeleted(BaseBean*,int)));
+    // Los cambios que se produzcan en background en los beans, se deben de tener en cuenta
     QObject::connect(m_relation, SIGNAL(beanLoaded(DBRelation*,int,BaseBeanSharedPointer)), q_ptr, SLOT(beanLoadedOnBackground(DBRelation*,int,BaseBeanSharedPointer)));
     QObject::connect(m_relation, SIGNAL(initLoadingDataBackground()), q_ptr, SIGNAL(initLoadingData()));
     QObject::connect(m_relation, SIGNAL(endLoadingDataBackground()), q_ptr, SIGNAL(endLoadingData()));
-   CommonsFunctions::restoreOverrideCursor();
+
+    CommonsFunctions::restoreOverrideCursor();
 }
 
 void RelationBaseBeanModelPrivate::unloadBeans()
@@ -127,7 +130,7 @@ int RelationBaseBeanModelPrivate::rowCount()
 {
     if ( m_relation )
     {
-        return m_relation->sharedChildren().count();
+        return m_relation->sharedChildren().size();
     }
     return 0;
 }
@@ -195,7 +198,7 @@ RelationBaseBeanModel::RelationBaseBeanModel(DBRelation *rel, bool readOnly, con
         d->m_order = d->orderFieldClausule();
     }
     d->m_rootBean = qobject_cast<BaseBean *>(rel->owner());
-    d->setInternalData();
+    d->setInternalDataAndConnections();
     // Esta llamada debe ir aquí.
     if ( metadata() )
     {
@@ -208,16 +211,6 @@ RelationBaseBeanModel::RelationBaseBeanModel(DBRelation *rel, bool readOnly, con
             QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("ATENCIÓN: RelationBaseBeanModel está pensado para relaciones M1 y %1 no lo es.").
                                 arg(d->m_relation->metadata()->tableName()));
         }
-        // Los cambios que se produzcan en background en los beans, se deben de tener en cuenta
-        connect(d->m_relation.data(), SIGNAL(destroyed(QObject*)), this, SLOT(refresh()));
-        connect(d->m_relation.data(), SIGNAL(fieldChildModified(BaseBean *,QString,QVariant)), this, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
-        connect(d->m_relation.data(), SIGNAL(fieldChildDefaultValueCalculated(BaseBean *,QString,QVariant)), this, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
-        connect(d->m_relation.data(), SIGNAL(childDbStateModified(BaseBean*,int)), this, SLOT(dbStateBeanModified(BaseBean*,int)));
-        connect(d->m_relation.data(), SIGNAL(childInserted(BaseBean*, int)), this, SLOT(childInserted(BaseBean*, int)));
-        connect(d->m_relation.data(), SIGNAL(childDeleted(BaseBean*,int)), this, SLOT(childDeleted(BaseBean*,int)));
-        connect(d->m_relation.data(), SIGNAL(beanLoaded(DBRelation*,int,BaseBeanSharedPointer)), this, SLOT(beanLoadedOnBackground(DBRelation*,int,BaseBeanSharedPointer)));
-        connect(d->m_relation.data(), SIGNAL(initLoadingDataBackground()), this, SIGNAL(initLoadingData()));
-        connect(d->m_relation.data(), SIGNAL(endLoadingDataBackground()), this, SLOT(endLoadingDataBackground()));
     }
 }
 
@@ -644,7 +637,7 @@ void RelationBaseBeanModel::refresh(bool force)
 
     QModelIndexList persistents = persistentIndexList();
     d->unloadBeans();
-    d->setInternalData();
+    d->setInternalDataAndConnections();
 
     QModelIndexList newList;
     QList<int> rows;
