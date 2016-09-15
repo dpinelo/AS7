@@ -42,6 +42,8 @@ class DBObject : public QObject, public QScriptable
 {
     Q_OBJECT
 
+    Q_PROPERTY(qlonglong uniqueId READ uniqueId)
+
 private:
     Q_DISABLE_COPY(DBObject)
 
@@ -57,6 +59,7 @@ protected:
      * de los hermanos mayores a través de un bucle "for" ... y sin querer, se llama a sí mismo. Esto lo evitará */
     QStack<AlephERP::DBCriticalMethodsExecuting> m_executingStack;
     QMutex m_mutex;
+    qlonglong m_uniqueId;
 
     AlephERP::DBCriticalMethodsExecuting restoreOverrideOnExecution();
     void setOnExecution(AlephERP::DBCriticalMethodsExecuting value);
@@ -74,6 +77,8 @@ public:
     virtual QPointer<DBObject> owner();
 
     bool isWorking();
+
+    qlonglong uniqueId() const;
 
 signals:
 

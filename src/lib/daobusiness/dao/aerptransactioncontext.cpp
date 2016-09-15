@@ -31,6 +31,7 @@
 #include "dao/basedao.h"
 #include "dao/database.h"
 #include "dao/beans/beansfactory.h"
+#include "business/graph.h"
 
 QThreadStorage<AERPTransactionContext *> threadContextData;
 
@@ -204,10 +205,10 @@ public:
     {
     }
 
-    bool doPreparationForTransaction(const QString &contextName);
+    bool doPrepareTransaction(const QString &contextName);
     BaseBeanPointerList doOrderForTransaction(const QString &contextName);
     bool doValidationForTransaction(const BaseBeanPointerList &list);
-    QList<BaseBeanPointer> orderAndFilterBeans(const QString &contextName);
+    BaseBeanPointerList orderBeansForTransaction(const QString &contextName);
     void buildBeansStatePreviousCommit(const QList<BaseBeanPointer> &list);
 };
 
@@ -480,7 +481,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     }
 
     emit preparationInited(contextName, d->m_contextObjects[contextName]->list().size());
-    bool result = d->doPreparationForTransaction(contextName);
+    bool result = d->doPrepareTransaction(contextName);
     emit preparationFinished(contextName);
     if ( !result )
     {
@@ -673,7 +674,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
  * 2.- Ordernar los registros para que los SQL tengan sentido en base de datos
  * 3.- Comprobar la validación de los registros que van en la transacción
  */
-bool AERPTransactionContextPrivate::doPreparationForTransaction(const QString &contextName)
+bool AERPTransactionContextPrivate::doPrepareTransaction(const QString &contextName)
 {
     QLogger::QLog_Debug(AlephERP::stLogDB,
                         QString("AERPTransactionContext::commit: Inicio de transacción. Existen [%1] beans en el contexto [%2]").
@@ -736,10 +737,16 @@ bool AERPTransactionContextPrivate::doPreparationForTransaction(const QString &c
     return true;
 }
 
+/**
+ * @brief AERPTransactionContextPrivate::doOrderForTransaction
+ * @param contextName
+ * @return
+ * Devuelve una lista ordenada de los registros en la transacción. Utilizará topological sort para ello.
+ */
 BaseBeanPointerList AERPTransactionContextPrivate::doOrderForTransaction(const QString &contextName)
 {
     // El orden en el que se hace el commit es muy importante, y debe tener en cuenta las relaciones 1->M y demás.
-    BaseBeanPointerList list = orderAndFilterBeans(contextName);
+    BaseBeanPointerList list = orderBeansForTransaction(contextName);
     if ( list.size() == 0 )
     {
         return list;
@@ -1020,7 +1027,7 @@ QList<BaseBeanPointer> AERPTransactionContext::beansOrderedToPersist(const QStri
     }
 
     // El orden en el que se hace el commit es muy importante, y debe tener en cuenta las relaciones 1->M y demás.
-    QList<BaseBeanPointer> list = d->orderAndFilterBeans(contextName);
+    QList<BaseBeanPointer> list = d->orderBeansForTransaction(contextName);
     if ( list.size() == 0 )
     {
         return beans;
@@ -1168,40 +1175,119 @@ void AERPTransactionContext::cancel(const QString &contextName)
  * ordenación de los mismos.
  * @return
  */
-QList<BaseBeanPointer> AERPTransactionContextPrivate::orderAndFilterBeans(const QString &contextName)
+BaseBeanPointerList AERPTransactionContextPrivate::orderBeansForTransaction(const QString &contextName)
 {
     // TODO: Hay que ver el caso en el que los beans dependan de otro de su misma tabla!!!
-    QList<BaseBeanPointer> orderedBeans;
-    QStringList tableToOrders, listTableNames;
-    foreach ( BaseBeanPointer bean, m_contextObjects[contextName]->list() )
+    BaseBeanPointerList orderedBeans;
+    BaseBeanPointerList beansOnContext = m_contextObjects[contextName]->list();
+    Graph graph(beansOnContext.size());
+    const char *graphIndexProperty = "graphIndex";
+
+    // Primero asignemos índices a los beans para agregarlos al grafo
+    for (int i = 0 ; i < beansOnContext.size() ; ++i)
     {
-        // Sólo vamos a ordenar tablas con beans a guardar...
-        if ( !bean.isNull() &&
-             bean->dbState() != BaseBean::DELETED &&
-             bean->modified() &&
-             !tableToOrders.contains(bean.data()->metadata()->tableName()) )
+        beansOnContext[i]->setProperty(graphIndexProperty, i);
+    }
+
+    // Vamos a construir el grafo. Para ello recorremos todos los beans, y examinamos las relaciones o
+    // Si la tienen, y el registro está en el contexto, se añade al grafo
+    foreach (BaseBeanPointer bean, beansOnContext)
+    {
+        QList<DBRelation *> relations = bean->relations(AlephERP::ManyToOne);
+        foreach (DBRelation *rel, relations)
         {
-            emit q_ptr->workingWithBean(bean);
-            tableToOrders.append(bean.data()->metadata()->tableName());
+            if ( rel->isFatherLoaded() )
+            {
+                BaseBeanPointer father = rel->father(false);
+                if ( father && father->actualContext() == contextName )
+                {
+                    QLogger::QLog_Debug(AlephERP::stLogDB,
+                                        QString("AERPTransactionContextPrivate::orderBeansForTransaction: Camino del grafo [%1] [%2] [%3] [%4]").
+                                        arg(father->metadata()->tableName()).
+                                        arg(father->property(graphIndexProperty).toInt()).
+                                        arg(bean->metadata()->tableName()).
+                                        arg(bean->property(graphIndexProperty).toInt())
+                                        );
+                    graph.addEdge(father->property(graphIndexProperty).toInt(), bean->property(graphIndexProperty).toInt());
+                }
+            }
+        }
+        relations = bean->relations(AlephERP::OneToOne);
+        foreach (DBRelation *rel, relations)
+        {
+            BaseBeanPointer brother = rel->brother();
+            if ( brother && brother->actualContext() == contextName )
+            {
+                QLogger::QLog_Debug(AlephERP::stLogDB,
+                                    QString("AERPTransactionContextPrivate::orderBeansForTransaction: Camino del grafo [%1] [%2] [%3] [%4]").
+                                    arg(brother->metadata()->tableName()).
+                                    arg(brother->property(graphIndexProperty).toInt()).
+                                    arg(bean->metadata()->tableName()).
+                                    arg(bean->property(graphIndexProperty).toInt())
+                                    );
+                QLogger::QLog_Debug(AlephERP::stLogDB,
+                                    QString("AERPTransactionContextPrivate::orderBeansForTransaction: Camino del grafo [%1] [%2] [%3] [%4]").
+                                    arg(bean->metadata()->tableName()).
+                                    arg(bean->property(graphIndexProperty).toInt()).
+                                    arg(brother->metadata()->tableName()).
+                                    arg(brother->property(graphIndexProperty).toInt())
+                                    );
+                graph.addEdge(brother->property(graphIndexProperty).toInt(), bean->property(graphIndexProperty).toInt());
+                graph.addEdge(bean->property(graphIndexProperty).toInt(), brother->property(graphIndexProperty).toInt());
+            }
+        }
+        relations = bean->relations(AlephERP::OneToMany);
+        foreach (DBRelation *rel, relations)
+        {
+            BaseBeanPointerList children;
+            // Si no se han obtenido los hijos cuando llegamos a la transacción... ¡¡es que no hay que obtenerlos!!
+            if ( bean->dbState() == BaseBean::INSERT ||
+                 rel->childrenLoaded() )
+            {
+                children = rel->children();
+            }
+            foreach (BaseBeanPointer child, children)
+            {
+                if ( child->actualContext() == contextName )
+                {
+                    QLogger::QLog_Debug(AlephERP::stLogDB,
+                                        QString("AERPTransactionContextPrivate::orderBeansForTransaction: Camino del grafo [%1] [%2] [%3] [%4]").
+                                        arg(bean->metadata()->tableName()).
+                                        arg(bean->property(graphIndexProperty).toInt()).
+                                        arg(child->metadata()->tableName()).
+                                        arg(child->property(graphIndexProperty).toInt())
+                                        );
+                    graph.addEdge(bean->property(graphIndexProperty).toInt(), child->property(graphIndexProperty).toInt());
+                }
+            }
         }
     }
-    listTableNames = BeansFactory::orderMetadataTableNamesForInsertOrUpdate(tableToOrders);
-    foreach ( QString tableName, listTableNames )
+    // Se realiza la ordenación topológica
+    QList<int> indexOrdered = graph.topologicalSort();
+
+    foreach(int graphId, indexOrdered)
     {
-        foreach ( BaseBeanPointer bean, m_contextObjects[contextName]->list() )
+        // Busquemos el bean en el contexto, y agregémoslo
+        foreach (BaseBeanPointer bean, beansOnContext)
         {
-            if ( !bean.isNull() )
+            if ( bean && bean->property(graphIndexProperty).toInt() == graphId )
             {
                 emit q_ptr->workingWithBean(bean);
                 if ( !orderedBeans.contains(bean) )
                 {
-                    if ( !bean.isNull() && tableName == bean.data()->metadata()->tableName() && bean->dbState() != BaseBean::DELETED && bean->modified() )
+                    if ( bean->dbState() != BaseBean::DELETED && bean->modified() )
                     {
+                        QLogger::QLog_Debug(AlephERP::stLogDB,
+                                            QString("AERPTransactionContextPrivate::orderBeansForTransaction: Ordenado: [%1] [%2] [%3]").
+                                            arg(bean->metadata()->tableName()).
+                                            arg(bean->dbOid()).
+                                            arg(bean->property(graphIndexProperty).toInt()));
                         orderedBeans.append(bean);
                     }
                 }
             }
         }
+
     }
     return orderedBeans;
 }

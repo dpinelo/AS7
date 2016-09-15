@@ -1073,7 +1073,11 @@ bool DBRecordDlg::lock()
         if ( !BaseDAO::lastErrorMessage().isEmpty() )
         {
             CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
-            QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ocurrió un error generando el bloqueo del registro. \nEl error es: %1.").arg(BaseDAO::lastErrorMessage()), QMessageBox::Ok);
+            QMessageBox::warning(this,
+                                 qApp->applicationName(),
+                                 trUtf8("Ocurrió un error generando el bloqueo del registro. <br/>El error es: %1.").
+                                    arg(CommonsFunctions::processToHtml(BaseDAO::lastErrorMessage())),
+                                 QMessageBox::Ok);
             CommonsFunctions::restoreOverrideCursor();
             return false;
         }
@@ -1121,7 +1125,11 @@ bool DBRecordDlg::lock()
                         if ( d->m_lockId == -1 )
                         {
                             CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
-                            QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ocurrió un error generando el bloqueo del registro. \nEl error es: %1.").arg(BaseDAO::lastErrorMessage()), QMessageBox::Ok);
+                            QMessageBox::warning(this,
+                                                 qApp->applicationName(),
+                                                 trUtf8("Ocurrió un error generando el bloqueo del registro. <br/>El error es: %1.").
+                                                    arg(CommonsFunctions::processToHtml(BaseDAO::lastErrorMessage())),
+                                                 QMessageBox::Ok);
                             CommonsFunctions::restoreOverrideCursor();
                             return false;
                         }
@@ -1131,7 +1139,11 @@ bool DBRecordDlg::lock()
             else
             {
                 CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
-                QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ocurrió un error generando el bloqueo del registro. \nEl error es: %1.").arg(BaseDAO::lastErrorMessage()), QMessageBox::Ok);
+                QMessageBox::warning(this,
+                                     qApp->applicationName(),
+                                     trUtf8("Ocurrió un error generando el bloqueo del registro. <br/>El error es: %1.").
+                                        arg(CommonsFunctions::processToHtml(BaseDAO::lastErrorMessage())),
+                                     QMessageBox::Ok);
                 CommonsFunctions::restoreOverrideCursor();
                 return false;
             }
@@ -1294,8 +1306,10 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
             {
                 if ( d->m_canClose )
                 {
-                    int ret = QMessageBox::warning(this, qApp->applicationName(),
-                                                   trUtf8("Se ha producido un error guardando los datos. ¿Desea aún así cerrar el formulario?"), QMessageBox::Yes | QMessageBox::No);
+                    int ret = QMessageBox::warning(this,
+                                                   qApp->applicationName(),
+                                                   trUtf8("Se ha producido un error guardando los datos. ¿Desea aún así cerrar el formulario?"),
+                                                   QMessageBox::Yes | QMessageBox::No);
                     if ( ret == QMessageBox::No )
                     {
                         event->ignore();
@@ -1325,14 +1339,21 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
                     QList<AERPDocMngmntDocument *> docsModified = d->m_documentWidget->modifiedDocuments();
                     if ( docsModified.size() > 0 )
                     {
-                        int ret = QMessageBox::information(this, qApp->applicationName(), trUtf8("Ha insertado documentos asociados a este registro, que no va a ser guardado. ¿Desea borrar esos documentos del gestor documental?"), QMessageBox::Yes | QMessageBox::No);
+                        int ret = QMessageBox::information(this,
+                                                           qApp->applicationName(),
+                                                           trUtf8("Ha insertado documentos asociados a este registro, que no va a ser guardado. ¿Desea borrar esos documentos del gestor documental?"),
+                                                           QMessageBox::Yes | QMessageBox::No);
                         if ( ret == QMessageBox::Yes )
                         {
                             foreach (AERPDocMngmntDocument *doc, docsModified)
                             {
                                 if (!AERPDocumentDAOWrapper::instance()->deleteDocument(doc))
                                 {
-                                    QMessageBox::warning(this, qApp->applicationName(), trUtf8("Se ha producido un error en el acceso al gestor documental. No se ha podido borrar el documento %1. El error es: %2").arg(doc->name()).arg(AERPDocumentDAOWrapper::instance()->lastMessage()));
+                                    QMessageBox::warning(this,
+                                                         qApp->applicationName(),
+                                                         trUtf8("Se ha producido un error en el acceso al gestor documental. No se ha podido borrar el documento %1. El error es: %2").
+                                                            arg(doc->name()).
+                                                            arg(AERPDocumentDAOWrapper::instance()->lastMessage()));
                                 }
                             }
                         }
@@ -1429,7 +1450,9 @@ void DBRecordDlg::setupMainWidget()
         }
         else
         {
-            QMessageBox::warning(this,qApp->applicationName(), trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").arg(fileName),
+            QMessageBox::warning(this,
+                                 qApp->applicationName(),
+                                 trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").arg(fileName),
                                  QMessageBox::Ok);
             reject();
         }
@@ -1538,13 +1561,17 @@ void DBRecordDlg::execQs()
         if ( !executeOk )
         {
             CommonsFunctions::setOverrideCursor(QCursor(Qt::ArrowCursor));
-            QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ha ocurrido un error al cargar el script asociado a este "
+            QMessageBox::warning(this,
+                                 qApp->applicationName(),
+                                 trUtf8("Ha ocurrido un error al cargar el script asociado a este "
                                  "formulario. Es posible que algunas funciones no estén disponibles."),
                                  QMessageBox::Ok);
 #ifdef ALEPHERP_DEVTOOLS
             if ( alephERPSettings->advancedUser() && alephERPSettings->debuggerEnabled() )
             {
-                int ret = QMessageBox::information(this,qApp->applicationName(), trUtf8("El script ejecutado contiene errores. ¿Desea editarlo?"),
+                int ret = QMessageBox::information(this,
+                                                   qApp->applicationName(),
+                                                   trUtf8("El script ejecutado contiene errores. ¿Desea editarlo?"),
                                                    QMessageBox::Yes | QMessageBox::No);
                 if ( ret == QMessageBox::Yes )
                 {
@@ -1625,15 +1652,21 @@ bool DBRecordDlg::save()
                                               AERPLoggedUser::instance()->userName(), d->m_bean->pkValue());
         if ( !BaseDAO::lastErrorMessage().isEmpty() )
         {
-            QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ha ocurrido un error en el acceso a la base de datos. \nERROR: %1")
-                                 .arg(BaseDAO::lastErrorMessage()), QMessageBox::Ok);
+            QMessageBox::warning(this,
+                                 qApp->applicationName(),
+                                 trUtf8("Ha ocurrido un error en el acceso a la base de datos. ERROR: %1")
+                                    .arg(CommonsFunctions::processToHtml(BaseDAO::lastErrorMessage())),
+                                 QMessageBox::Ok);
             return false;
         }
         if ( !lockValid )
         {
-            int ret = QMessageBox::warning(this,qApp->applicationName(), trUtf8("Otro usuario está también trabajando en este registro. "
+            int ret = QMessageBox::warning(this,
+                                           qApp->applicationName(),
+                                           trUtf8("Otro usuario está también trabajando en este registro. "
                                            "Si guarda los datos, ese otro usuario no tendrá conocimiento de los datos "
-                                           "que usted guarda, y podría sobreescribirlos. ¿Desea continuar?"), QMessageBox::Yes | QMessageBox::No);
+                                           "que usted guarda, y podría sobreescribirlos. ¿Desea continuar?"),
+                                           QMessageBox::Yes | QMessageBox::No);
             if ( ret == QMessageBox::No )
             {
                 d->m_canClose = false;
@@ -1693,8 +1726,9 @@ bool DBRecordDlg::save()
             AERPTransactionContext::instance()->waitCommitToEnd(contextName());
             if ( !result )
             {
-                QMessageBox::warning(this, qApp->applicationName(),
-                                     trUtf8("Se ha producido un error guardando los datos. \nEl error es: %1").
+                QMessageBox::warning(this,
+                                     qApp->applicationName(),
+                                     trUtf8("Se ha producido un error guardando los datos. <br/>El error es: %1").
                                         arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
                                      QMessageBox::Ok);
                 d->m_canClose = false;
