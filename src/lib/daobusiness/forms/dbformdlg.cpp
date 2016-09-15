@@ -110,6 +110,7 @@ public:
         m_openSuccess = false;
     }
 
+    void connectButtonsToResfreshEvent();
     QString uiDbRecordForSelectedRow();
     QString qsDbRecordForSelectedRow();
     QString uiDbNewRecordForSelectedRow();
@@ -129,6 +130,18 @@ public:
  * Determina si el botón de imprimir documentos es visible. Será visible cuando existe algún ReportMetadata
  * con type="record" y además linkedTo = "tabla_de_este_dbrecord"
  */
+void DBFormDlgPrivate::connectButtonsToResfreshEvent()
+{
+    FilterBaseBeanModel *model = m_itemView->filterModel();
+    if ( model != NULL )
+    {
+        QObject::connect(model, SIGNAL(initRefresh()), q_ptr, SLOT(initReloadViewData()));
+        QObject::connect(model, SIGNAL(endRefresh()), q_ptr, SLOT(endReloadViewData()));
+        QObject::connect(model, SIGNAL(initLoadingData()), q_ptr, SLOT(initReloadViewData()));
+        QObject::connect(model, SIGNAL(endLoadingData()), q_ptr, SLOT(endReloadViewData()));
+    }
+}
+
 QString DBFormDlgPrivate::uiDbRecordForSelectedRow()
 {
     QString uiDbRecord;
@@ -665,6 +678,7 @@ void DBFormDlg::init(const QString &value)
         {
             d->m_itemView->filterModel()->setQsObjectEngine(engine());
         }
+        d->connectButtonsToResfreshEvent();
         setOpenSuccess(true);
     }
     else
@@ -1263,6 +1277,7 @@ void DBFormDlg::recordDlgClosed(BaseBeanPointer bean, bool userSaveData)
     // 3.- Se cierran cancelando los cambios.
     // 4.- Si no se hace la comparación se eliminaría el registro de la tabla.
     if (!userSaveData &&
+        bean &&
         bean->dbState() != BaseBean::UPDATE )
     {
         BaseBeanModel *sourceModel = d->m_itemView->sourceModel();
@@ -2362,4 +2377,32 @@ void DBFormDlg::fastFilterKeyPress(int key)
         selectionModel->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
         selectionModel->setCurrentIndex(init, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     }
+}
+
+void DBFormDlg::initReloadViewData()
+{
+    ui->pbCopy->setEnabled(false);
+    ui->pbDelete->setEnabled(false);
+    ui->pbEdit->setEnabled(false);
+    ui->pbExportSpreadSheet->setEnabled(false);
+    ui->pbNew->setEnabled(false);
+    ui->pbPrint->setEnabled(false);
+    ui->pbSearch->setEnabled(false);
+    ui->pbSendEmail->setEnabled(false);
+    ui->pbView->setEnabled(false);
+    ui->pbWizard->setEnabled(false);
+}
+
+void DBFormDlg::endReloadViewData()
+{
+    ui->pbCopy->setEnabled(true);
+    ui->pbDelete->setEnabled(true);
+    ui->pbEdit->setEnabled(true);
+    ui->pbExportSpreadSheet->setEnabled(true);
+    ui->pbNew->setEnabled(true);
+    ui->pbPrint->setEnabled(true);
+    ui->pbSearch->setEnabled(true);
+    ui->pbSendEmail->setEnabled(true);
+    ui->pbView->setEnabled(true);
+    ui->pbWizard->setEnabled(true);
 }
