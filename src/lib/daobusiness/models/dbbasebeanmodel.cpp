@@ -924,33 +924,36 @@ void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
 
     QMutexLocker lock(&d->m_mutex);
 
-    if ( id == d->m_backgroundIdCount && result )
+    if ( id == d->m_backgroundIdCount )
     {
-        QVector<QVariantList> results = BackgroundDAO::instance()->takeResults(d->m_backgroundIdCount);
-        if ( results.size() > 0 )
+        if (result)
         {
-            int count = results.first().at(0).toInt();
-            if ( count < d->m_rowCount )
+            QVector<QVariantList> results = BackgroundDAO::instance()->takeResults(d->m_backgroundIdCount);
+            if ( results.size() > 0 )
             {
-                // Se han borrado filas... casi que mejor recargar todo el modelo.
+                int count = results.first().at(0).toInt();
+                if ( count < d->m_rowCount )
+                {
+                    // Se han borrado filas... casi que mejor recargar todo el modelo.
+                    if ( !isFrozenModel() )
+                    {
+                        d->m_refreshing = false;
+                        emit endRefresh();
+                        resetModel();
+                        if ( d->m_reloadingWasActivePreviousRefresh )
+                        {
+                            startReloading();
+                        }
+                        return;
+                    }
+                }
                 if ( !isFrozenModel() )
                 {
-                    d->m_refreshing = false;
-                    emit endRefresh();
-                    resetModel();
-                    if ( d->m_reloadingWasActivePreviousRefresh )
-                    {
-                        startReloading();
-                    }
-                    return;
+                    d->updateModel();
                 }
             }
-            if ( !isFrozenModel() )
-            {
-                d->updateModel();
-            }
-            d->m_backgroundIdCount.clear();
         }
+        d->m_backgroundIdCount.clear();
     }
     else
     {

@@ -971,7 +971,7 @@ QString AERPTransactionContext::database() const
     return d->m_database;
 }
 
-QList<BaseBeanPointer> AERPTransactionContext::beansOnContext(const QString &contextName)
+BaseBeanPointerList AERPTransactionContext::beansOnContext(const QString &contextName)
 {
     if ( !d->m_contextObjects.contains(contextName) )
     {
@@ -981,67 +981,14 @@ QList<BaseBeanPointer> AERPTransactionContext::beansOnContext(const QString &con
     return d->m_contextObjects[contextName]->list();
 }
 
-QList<BaseBeanPointer> AERPTransactionContext::beansOrderedToPersist(const QString &contextName)
+BaseBeanPointerList AERPTransactionContext::beansOrderedToPersist(const QString &contextName)
 {
-    BaseBeanPointerList beans;
-
-    if ( !d->m_contextObjects.contains(contextName) )
+    BaseBeanPointerList list;
+    if ( d->doPrepareTransaction(contextName) )
     {
-        return beans;
+        list = d->doOrderForTransaction(contextName);
     }
-
-    // Esto debemos hacerlo ANTES de iniciar los save. La razón es la siguiente: Imaginemos que desde una función beforeSave se crean nuevos beans
-    // que deberán ser incluídos en esta transacción. Por ejemplo, se están creando las líneas de IVA antes de guardar el registro. Estas líneas
-    // deberán estar en el contexto y en la transacción. Por eso, necesitamos dos bucles. TODO: Y es probable que más...
-    BaseBeanPointerList firstList;
-    BaseBeanPointerList proccesedBeans;
-    while ( firstList.size() != d->m_contextObjects[contextName]->list().size() )
-    {
-        firstList = d->m_contextObjects[contextName]->list();
-        foreach (BaseBeanPointer bean, firstList)
-        {
-            if ( !bean.isNull() && bean->modified() && AERPListContainsBean<BaseBeanPointerList>(proccesedBeans, bean) == -1 )
-            {
-                if ( bean->dbState() == BaseBean::INSERT )
-                {
-                    emit beforeSaveBean(bean.data());
-                    bean->emitBeforeInsert();
-                    bean->emitBeforeSave();
-                }
-                else if ( bean->dbState() == BaseBean::UPDATE )
-                {
-                    emit beforeSaveBean(bean.data());
-                    bean->emitBeforeUpdate();
-                    bean->emitBeforeSave();
-                }
-                else if ( bean->dbState() == BaseBean::TO_BE_DELETED )
-                {
-                    emit beforeDeleteBean(bean.data());
-                    bean->prepareToDeleteRelatedElements();
-                    bean->emitBeforeDelete();
-                }
-                emit beforeAction(bean.data());
-            }
-            proccesedBeans.append(bean);
-        }
-    }
-
-    // El orden en el que se hace el commit es muy importante, y debe tener en cuenta las relaciones 1->M y demás.
-    QList<BaseBeanPointer> list = d->orderBeansForTransaction(contextName);
-    if ( list.size() == 0 )
-    {
-        return beans;
-    }
-
-    // Guardamos los objetos del contexto
-    foreach (BaseBeanPointer bean, list)
-    {
-        if ( !bean.isNull() && bean->modified() && bean->dbState() != BaseBean::DELETED )
-        {
-            beans.append(bean);
-        }
-    }
-    return beans;
+    return list;
 }
 
 /**
@@ -1220,19 +1167,11 @@ BaseBeanPointerList AERPTransactionContextPrivate::orderBeansForTransaction(cons
             {
                 QLogger::QLog_Debug(AlephERP::stLogDB,
                                     QString("AERPTransactionContextPrivate::orderBeansForTransaction: Camino del grafo [%1] [%2] [%3] [%4]").
-                                    arg(brother->metadata()->tableName()).
-                                    arg(brother->property(graphIndexProperty).toInt()).
-                                    arg(bean->metadata()->tableName()).
-                                    arg(bean->property(graphIndexProperty).toInt())
-                                    );
-                QLogger::QLog_Debug(AlephERP::stLogDB,
-                                    QString("AERPTransactionContextPrivate::orderBeansForTransaction: Camino del grafo [%1] [%2] [%3] [%4]").
                                     arg(bean->metadata()->tableName()).
                                     arg(bean->property(graphIndexProperty).toInt()).
                                     arg(brother->metadata()->tableName()).
                                     arg(brother->property(graphIndexProperty).toInt())
                                     );
-                graph.addEdge(brother->property(graphIndexProperty).toInt(), bean->property(graphIndexProperty).toInt());
                 graph.addEdge(bean->property(graphIndexProperty).toInt(), brother->property(graphIndexProperty).toInt());
             }
         }

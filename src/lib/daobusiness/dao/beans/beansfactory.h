@@ -126,13 +126,13 @@ public:
                                        bool setDefaultValue = true,
                                        BaseBeanPointerList fatherBeans = BaseBeanPointerList(),
                                        QPointer<DBObject> owner = NULL);
-    BaseBean * newBaseBean(const QString &tableName,
+    BaseBean *newBaseBean(const QString &tableName,
                            bool setDefaultValue = true,
                            bool setDefaultParent = true,
                            BaseBeanPointerList fatherBeans = BaseBeanPointerList(),
                            QPointer<DBObject> owner = NULL);
 
-    BaseBean * originalBean(BaseBeanPointer view, QObject *parent = NULL);
+    BaseBean *originalBean(BaseBeanPointer view, QObject *parent = NULL);
     BaseBeanSharedPointer originalQBean(BaseBeanPointer view, QObject *parent = NULL);
 
     static BaseBeanMetadata *metadataBean(const QString &name);

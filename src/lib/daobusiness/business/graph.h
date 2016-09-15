@@ -7,6 +7,7 @@
 #define GRAPH_H
 
 #include <QtCore>
+#include <alepherpglobal.h>
 
 // A C++ program to print topological sorting of a DAG
 #include<iostream>
@@ -15,7 +16,7 @@
 using namespace std;
 
 // Class to represent a graph
-class Graph
+class ALEPHERP_DLL_EXPORT Graph
 {
     int V;    // No. of vertices'
 
