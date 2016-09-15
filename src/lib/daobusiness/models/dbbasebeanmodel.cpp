@@ -139,6 +139,7 @@ public:
     bool stillBackgroundUpdatePetitions();
     void updateRowBean(int modelRow, BaseBeanSharedPointer updateBean);
     void setNewRowBean(int idx, int modelRow, BaseBeanSharedPointer updateBean);
+    void checkRefreshEnd();
 };
 
 QMutex DBBaseBeanModelPrivate::m_mutex(QMutex::Recursive);
@@ -828,15 +829,7 @@ void DBBaseBeanModel::availableBean(QString id, int row, BaseBeanSharedPointer u
             }
         }
     }
-    if ( d->m_rowCount == 0 || !d->stillBackgroundUpdatePetitions() )
-    {
-        d->m_refreshing = false;
-        emit endRefresh();
-        if ( d->m_reloadingWasActivePreviousRefresh )
-        {
-            startReloading();
-        }
-    }
+    d->checkRefreshEnd();
 }
 
 /**
@@ -912,6 +905,19 @@ void DBBaseBeanModelPrivate::setNewRowBean(int idx, int modelRow, BaseBeanShared
     }
 }
 
+void DBBaseBeanModelPrivate::checkRefreshEnd()
+{
+    if ( m_rowCount == 0 || !stillBackgroundUpdatePetitions() )
+    {
+        m_refreshing = false;
+        emit q_ptr->endRefresh();
+        if ( m_reloadingWasActivePreviousRefresh )
+        {
+            q_ptr->startReloading();
+        }
+    }
+}
+
 void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
 {
     Q_UNUSED(result)
@@ -964,16 +970,7 @@ void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
             }
         }
     }
-
-    if ( d->m_rowCount == 0 || !d->stillBackgroundUpdatePetitions() )
-    {
-        d->m_refreshing = false;
-        emit endRefresh();
-        if ( d->m_reloadingWasActivePreviousRefresh )
-        {
-            startReloading();
-        }
-    }
+    d->checkRefreshEnd();
 }
 
 /**
@@ -1594,7 +1591,10 @@ void DBBaseBeanModel::refresh(bool force)
     {
         return;
     }
-    if ( d->m_refreshing || AERPTransactionContext::instance()->doingCommit() || d->m_metadata->staticModel() )
+    d->checkRefreshEnd();
+    if ( d->m_refreshing ||
+         AERPTransactionContext::instance()->doingCommit() ||
+         d->m_metadata->staticModel() )
     {
         return;
     }
