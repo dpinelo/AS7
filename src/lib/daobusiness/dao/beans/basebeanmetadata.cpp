@@ -357,6 +357,7 @@ public:
     void createInternalConnectionForRelatedElement(RelatedElement *sender, const QString &signalName, BaseBeanQsFunction *qsFunction);
     int countEnvVarForOneField(const QString &fieldName);
     void readFormsConfigNames(const QDomElement &root);
+    QString getValueForRole(const QHash<QString, QString> &values);
 };
 
 bool BaseBeanMetadataPrivate::m_registerFieldsInvolvedOnCalc;
@@ -1214,19 +1215,7 @@ void BaseBeanMetadata::setTreeDefinitions (const QVariantList &value)
 
 QString BaseBeanMetadata::uiDbRecord() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
-    {
-        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
-        if ( d->m_uiDbRecord.contains(roleName) )
-        {
-            return d->m_uiDbRecord.value(roleName);
-        }
-        else if ( d->m_uiDbRecord.contains("*") )
-        {
-            return d->m_uiDbRecord.value("*");
-        }
-    }
-    return QString();
+    return d->getValueForRole(d->m_uiDbRecord);
 }
 
 QHash<QString, QString> BaseBeanMetadata::uiDbRecordForRoles() const
@@ -1241,19 +1230,7 @@ void BaseBeanMetadata::setUiDbRecord(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::uiNewDbRecord() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
-    {
-        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
-        if ( d->m_uiNewDbRecord.contains(roleName) )
-        {
-            return d->m_uiNewDbRecord.value(roleName);
-        }
-        else if ( d->m_uiNewDbRecord.contains("*") )
-        {
-            return d->m_uiNewDbRecord.value("*");
-        }
-    }
-    return QString();
+    return d->getValueForRole(d->m_uiNewDbRecord);
 }
 
 QHash<QString, QString> BaseBeanMetadata::uiNewDbRecordForRoles() const
@@ -1268,19 +1245,7 @@ void BaseBeanMetadata::setUiNewDbRecord(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::uiWizard() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
-    {
-        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
-        if ( d->m_uiWizard.contains(roleName) )
-        {
-            return d->m_uiWizard.value(roleName);
-        }
-        else if ( d->m_uiWizard.contains("*") )
-        {
-            return d->m_uiWizard.value("*");
-        }
-    }
-    return QString();
+    return d->getValueForRole(d->m_uiWizard);
 }
 
 QHash<QString, QString> BaseBeanMetadata::uiWizardForRoles() const
@@ -1295,19 +1260,7 @@ void BaseBeanMetadata::setUiWizard(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::qmlDbRecord() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
-    {
-        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
-        if ( d->m_qmlDbRecord.contains(roleName) )
-        {
-            return d->m_qmlDbRecord.value(roleName);
-        }
-        else if ( d->m_qmlDbRecord.contains("*") )
-        {
-            return d->m_qmlDbRecord.value("*");
-        }
-    }
-    return QString();
+    return d->getValueForRole(d->m_qmlDbRecord);
 }
 
 QHash<QString, QString> BaseBeanMetadata::qmlDbRecordForRoles() const
@@ -1322,19 +1275,7 @@ void BaseBeanMetadata::setQmlDbRecord(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::qmlNewDbRecord() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
-    {
-        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
-        if ( d->m_qmlNewDbRecord.contains(roleName) )
-        {
-            return d->m_qmlNewDbRecord.value(roleName);
-        }
-        else if ( d->m_qmlNewDbRecord.contains("*") )
-        {
-            return d->m_qmlNewDbRecord.value("*");
-        }
-    }
-    return QString();
+    return d->getValueForRole(d->m_qmlNewDbRecord);
 }
 
 QHash<QString, QString> BaseBeanMetadata::qmlNewDbRecordForRoles() const
@@ -1349,19 +1290,7 @@ void BaseBeanMetadata::setQmlNewDbRecord(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::qsDbRecord() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
-    {
-        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
-        if ( d->m_qsDbRecord.contains(roleName) )
-        {
-            return d->m_qsDbRecord.value(roleName);
-        }
-        else if ( d->m_qsDbRecord.contains("*") )
-        {
-            return d->m_qsDbRecord.value("*");
-        }
-    }
-    return QString();
+    return d->getValueForRole(d->m_qsDbRecord);
 }
 
 QHash<QString, QString> BaseBeanMetadata::qsDbRecordForRoles() const
@@ -1376,19 +1305,7 @@ void BaseBeanMetadata::setQsDbRecord(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::qsNewDbRecord() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
-    {
-        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
-        if ( d->m_qsNewDbRecord.contains(roleName) )
-        {
-            return d->m_qsNewDbRecord.value(roleName);
-        }
-        else if ( d->m_qsNewDbRecord.contains("*") )
-        {
-            return d->m_qsNewDbRecord.value("*");
-        }
-    }
-    return QString();
+    return d->getValueForRole(d->m_qsNewDbRecord);
 }
 
 QHash<QString, QString> BaseBeanMetadata::qsNewDbRecordForRoles() const
@@ -1433,19 +1350,7 @@ void BaseBeanMetadata::setQsPrototypeDbForm(const QString &value)
 
 QString BaseBeanMetadata::uiDbSearch() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
-    {
-        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
-        if ( d->m_uiDbSearch.contains(roleName) )
-        {
-            return d->m_uiDbSearch.value(roleName);
-        }
-        else if ( d->m_uiDbSearch.contains("*") )
-        {
-            return d->m_uiDbSearch.value("*");
-        }
-    }
-    return QString();
+    return d->getValueForRole(d->m_uiDbSearch);
 }
 
 QString BaseBeanMetadata::qsPrototypeDbWizard() const
@@ -1470,19 +1375,7 @@ void BaseBeanMetadata::setUiDbSearch(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::qsDbSearch() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
-    {
-        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
-        if ( d->m_qsDbSearch.contains(roleName) )
-        {
-            return d->m_qsDbSearch.value(roleName);
-        }
-        else if ( d->m_qsDbSearch.contains("*") )
-        {
-            return d->m_qsDbSearch.value("*");
-        }
-    }
-    return QString();
+    return d->getValueForRole(d->m_qsDbSearch);
 }
 
 QHash<QString, QString> BaseBeanMetadata::qsDbSearchForRoles() const
@@ -1497,19 +1390,7 @@ void BaseBeanMetadata::setQsDbSearch(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::qsDbForm() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
-    {
-        QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
-        if ( d->m_qsDbForm.contains(roleName) )
-        {
-            return d->m_qsDbForm.value(roleName);
-        }
-        else if ( d->m_qsDbForm.contains("*") )
-        {
-            return d->m_qsDbForm.value("*");
-        }
-    }
-    return QString();
+    return d->getValueForRole(d->m_qsDbForm);
 }
 
 QHash<QString, QString> BaseBeanMetadata::qsDbFormForRoles() const
@@ -3668,6 +3549,22 @@ void BaseBeanMetadataPrivate::readFormsConfigNames(const QDomElement &root)
             m_qsDbForm["*"] = nodes.at(i).toElement().text();
         }
     }
+}
+
+QString BaseBeanMetadataPrivate::getValueForRole(const QHash<QString, QString> &values)
+{
+    foreach (const AlephERP::RoleInfo &role, AERPLoggedUser::instance()->roles())
+    {
+        if (values.contains(role.roleName))
+        {
+            return values.value(role.roleName);
+        }
+        else if (values.contains("*"))
+        {
+            return values.value("*");
+        }
+    }
+    return QString();
 }
 
 /**
