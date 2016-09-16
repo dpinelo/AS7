@@ -1214,7 +1214,7 @@ void BaseBeanMetadata::setTreeDefinitions (const QVariantList &value)
 
 QString BaseBeanMetadata::uiDbRecord() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
     {
         QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
         if ( d->m_uiDbRecord.contains(roleName) )
@@ -1241,7 +1241,7 @@ void BaseBeanMetadata::setUiDbRecord(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::uiNewDbRecord() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
     {
         QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
         if ( d->m_uiNewDbRecord.contains(roleName) )
@@ -1268,7 +1268,7 @@ void BaseBeanMetadata::setUiNewDbRecord(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::uiWizard() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
     {
         QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
         if ( d->m_uiWizard.contains(roleName) )
@@ -1295,7 +1295,7 @@ void BaseBeanMetadata::setUiWizard(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::qmlDbRecord() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
     {
         QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
         if ( d->m_qmlDbRecord.contains(roleName) )
@@ -1322,7 +1322,7 @@ void BaseBeanMetadata::setQmlDbRecord(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::qmlNewDbRecord() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
     {
         QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
         if ( d->m_qmlNewDbRecord.contains(roleName) )
@@ -1349,7 +1349,7 @@ void BaseBeanMetadata::setQmlNewDbRecord(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::qsDbRecord() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
     {
         QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
         if ( d->m_qsDbRecord.contains(roleName) )
@@ -1376,7 +1376,7 @@ void BaseBeanMetadata::setQsDbRecord(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::qsNewDbRecord() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
     {
         QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
         if ( d->m_qsNewDbRecord.contains(roleName) )
@@ -1433,7 +1433,7 @@ void BaseBeanMetadata::setQsPrototypeDbForm(const QString &value)
 
 QString BaseBeanMetadata::uiDbSearch() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
     {
         QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
         if ( d->m_uiDbSearch.contains(roleName) )
@@ -1470,7 +1470,7 @@ void BaseBeanMetadata::setUiDbSearch(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::qsDbSearch() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
     {
         QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
         if ( d->m_qsDbSearch.contains(roleName) )
@@ -1497,7 +1497,7 @@ void BaseBeanMetadata::setQsDbSearch(const QHash<QString, QString> &value)
 
 QString BaseBeanMetadata::qsDbForm() const
 {
-    if ( AERPLoggedUser::instance()->roles().size() == 1 )
+    if ( AERPLoggedUser::instance()->roles().size() >= 1 )
     {
         QString roleName = AERPLoggedUser::instance()->roles().first().roleName;
         if ( d->m_qsDbForm.contains(roleName) )
