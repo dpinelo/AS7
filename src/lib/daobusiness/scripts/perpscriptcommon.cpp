@@ -560,9 +560,9 @@ QScriptValue AERPScriptCommon::sqlSelect(const QString &sql, const QString &conn
                 QSqlRecord rec = qry->record();
                 for ( int i = 0 ; i < rec.count() ; i++ )
                 {
-                    QVariant value = rec.value(i);
+                    QSqlField sqlField = rec.field(i);
                     QScriptValue v;
-                    if ( value.canConvert<QDate>() || value.canConvert<QDateTime>() )
+                    if ( sqlField.type() == QVariant::Date || sqlField.type() == QVariant::DateTime )
                     {
                         v = engine()->newDate(rec.value(i).toDateTime());
                     }
@@ -742,9 +742,9 @@ QScriptValue AERPScriptCommon::sqlSelectFirst(const QString &sql, const QString 
                 result = engine()->newObject();
                 for (int i = 0 ; i < rec.count() ; i++)
                 {
-                    QVariant value = rec.value(i);
+                    QSqlField sqlField = rec.field(i);
                     QScriptValue v;
-                    if ( value.canConvert<QDate>() || value.canConvert<QDateTime>() )
+                    if ( sqlField.type() == QVariant::Date || sqlField.type() == QVariant::DateTime )
                     {
                         v = engine()->newDate(rec.value(i).toDateTime());
                     }

@@ -1352,9 +1352,6 @@ BaseBeanSharedPointer DBBaseBeanModel::bean(const QModelIndex &index, bool reloa
     {
         d->fetchBean(index.row());
         beansHasBeenFetched = true;
-    }
-    if ( !d->m_beansFetched.at(index.row()) )
-    {
         return bean;
     }
     if ( !AERP_CHECK_INDEX_OK(index.row(), d->m_vectorBean) )
