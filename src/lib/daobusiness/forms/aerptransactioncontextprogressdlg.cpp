@@ -44,7 +44,6 @@ AERPTransactionContextProgressDlg::AERPTransactionContextProgressDlg(QWidget *pa
     connect(ui->pbCancel, SIGNAL(clicked()), this, SLOT(cancel()));
     connect(AERPTransactionContext::instance(), SIGNAL(transactionCommited(QString)), this, SLOT(mustClose(QString)));
     connect(AERPTransactionContext::instance(), SIGNAL(transactionAborted(QString)), this, SLOT(mustClose(QString)));
-    connect(AERPTransactionContext::instance(), SIGNAL(transactionProcessInited(QString,int)), this, SLOT(transactionProcessInited(QString,int)));
     connect(AERPTransactionContext::instance(), SIGNAL(preparationInited(QString,int)), this, SLOT(transactionProcessInited(QString,int)));
     connect(AERPTransactionContext::instance(), SIGNAL(orderingInited(QString,int)), this, SLOT(transactionProcessInited(QString,int)));
     connect(AERPTransactionContext::instance(), SIGNAL(validationInited(QString,int)), this, SLOT(transactionProcessInited(QString,int)));

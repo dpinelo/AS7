@@ -1437,7 +1437,7 @@ void DBField::emitValueModifiedByUser()
     }
 }
 
-bool DBField::modified()
+bool DBField::modified() const
 {
     return d->m_modified;
 }
@@ -1449,7 +1449,7 @@ void DBField::setModified(bool value)
     d->m_modified = value;
 }
 
-bool DBField::memoLoaded()
+bool DBField::memoLoaded() const
 {
     return d->m_memoLoaded;
 }
@@ -1461,7 +1461,7 @@ void DBField::setMemoLoaded(bool value)
     d->m_memoLoaded = value;
 }
 
-QString DBField::dbFieldName()
+QString DBField::dbFieldName() const
 {
     return d->m->dbFieldName();
 }
@@ -1518,7 +1518,7 @@ int DBField::year()
     return dateTime.date().year();
 }
 
-BaseBeanPointer DBField::bean()
+BaseBeanPointer DBField::bean() const
 {
     return d->m_bean;
 }

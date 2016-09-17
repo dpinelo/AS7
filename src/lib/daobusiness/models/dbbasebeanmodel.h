@@ -59,9 +59,12 @@ private:
     void emitEndLoadData()  { setLoadingData(false); emit endLoadingData(); }
 
 public:
-    explicit DBBaseBeanModel(const QString &tableName, const QString &where = "",
-                             const QString &order = "", bool isStaticModel = false,
-                             bool useEnvVars = true, bool workLoadingOnBackground = true,
+    explicit DBBaseBeanModel(const QString &tableName,
+                             const QString &where = "",
+                             const QString &order = "",
+                             bool isStaticModel = false,
+                             bool useEnvVars = true,
+                             bool workLoadingOnBackground = true,
                              QObject *parent = 0);
     ~DBBaseBeanModel();
 

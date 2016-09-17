@@ -33,7 +33,8 @@ DBObject::DBObject(QObject *parent) :
       gastaríamos mucho tiempo. Es por ello que inicialmente no se asignan observadores.
       En cualquier caso, se crearán observadores para todos los beans, donde los formularios
       podrán inscribirse para visualizar los datos */
-    setObjectName(QString("%1").arg(alephERPSettings->uniqueId()));
+    m_uniqueId = alephERPSettings->uniqueId();
+    setObjectName(QString("%1").arg(m_uniqueId));
     m_executingStack.push(AlephERP::Nothing);
 }
 
@@ -45,7 +46,7 @@ DBObject::~DBObject()
   Crea un nuevo observador para este objeto, y se registra como hijo de un observador
   superior si este objeto tuviera padre
   */
-AbstractObserver *DBObject::observer ()
+AbstractObserver *DBObject::observer()
 {
     if ( m_observer.isNull() && ObserverFactory::instance() )
     {
@@ -82,7 +83,7 @@ void DBObject::setOwner(DBObject *owner)
     m_owner = QPointer<DBObject> (owner);
 }
 
-QPointer<DBObject> DBObject::owner ()
+QPointer<DBObject> DBObject::owner()
 {
     return m_owner;
 }
@@ -129,6 +130,11 @@ bool DBObject::isExecuting(AlephERP::DBCriticalMethodsExecuting script)
 bool DBObject::isWorking()
 {
     return ! ( m_executingStack.size() == 1 && m_executingStack.top() == AlephERP::Nothing );
+}
+
+qlonglong DBObject::uniqueId() const
+{
+    return m_uniqueId;
 }
 
 void DBObject::sync()

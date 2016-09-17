@@ -209,6 +209,8 @@ protected slots:
     void showContextMenu(const QPoint &point);
     void fastFilterReturnPressed();
     void fastFilterKeyPress(int key);
+    void initReloadViewData();
+    void endReloadViewData();
 
 private slots:
     void specialEdit(const QString code);

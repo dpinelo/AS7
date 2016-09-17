@@ -107,7 +107,11 @@ public:
     {
     }
 
+    void processMenusVisibility();
     void processActions();
+    void processActionTable(QAction *action);
+    void processActionReport(QAction *action);
+    void processObjectVisibility(QObject *action);
     void processSpecialActions();
     void openChildForm(const QString &tableName, const QIcon &icon);
     void openReportForm(const QString &objectName, const QIcon &icon);
@@ -124,68 +128,150 @@ public:
  * @brief AERPMainWindowPrivate::processActions
  * Aplica algunos ajustes estéticos a las acciones (asignando iconos) o comprueba por permisos si son visibles para el usuario.
  */
+void AERPMainWindowPrivate::processMenusVisibility()
+{
+    QList<QMenu *> menus = q_ptr->findChildren<QMenu *>();
+    foreach (QMenu *menu, menus)
+    {
+        if ( menu->menuAction() != NULL )
+        {
+            if ( menu->property(AlephERP::stVisibleForRoles).isValid() )
+            {
+                menu->menuAction()->setProperty(AlephERP::stVisibleForRoles, menu->property(AlephERP::stVisibleForRoles));
+            }
+            if ( menu->property(AlephERP::stVisibleForUsers).isValid() )
+            {
+                menu->menuAction()->setProperty(AlephERP::stVisibleForRoles, menu->property(AlephERP::stVisibleForUsers));
+            }
+            processObjectVisibility(menu->menuAction());
+        }
+    }
+}
+
 void AERPMainWindowPrivate::processActions()
 {
     QList<QAction *> actions = q_ptr->findChildren<QAction *>();
-    foreach ( QAction *action, actions )
+    foreach (QAction *action, actions)
     {
         // Las acciones deben tener el mismo nombre que las tablas principales
         if ( action->objectName().startsWith("table") )
         {
-            QString tableName = action->objectName();
-            tableName.replace("table_", "");
-            if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', tableName) )
-            {
-                action->setVisible(false);
-            }
-            BaseBeanMetadata *m = BeansFactory::metadataBean(tableName);
-            // Se comprueba ahora si esa tabla existe en los metadatos. Si no es así, no se muestra
-            if ( m == NULL )
-            {
-                action->setVisible(false);
-                QLogger::QLog_Error(AlephERP::stLogOther, QString("AERPMainWindowPrivate::processActions: No existe ninguna tabla de nombre: [%1]").arg(tableName));
-            }
-            else
-            {
-                // Si la acción no tiene definida un pixmap, se ve si se puede utilizar desde los metadatos
-                // Haciendo esto damos preferencia al icono que se haya configurado en la acción, desde
-                // el Qt Designer, y si no, se utiliza el de los metadatos
-                if ( action->icon().isNull() )
-                {
-                    action->setIcon(m->pixmap());
-                }
-            }
-            m_signalMapper->setMapping(action, action->objectName());
-            q_ptr->connect(action, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
+            processActionTable(action);
         }
         else if ( action->objectName().startsWith("report") )
         {
-            QString reportName = action->objectName();
-            reportName.replace("report_", "");
-            if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', reportName) )
-            {
-                action->setVisible(false);
-            }
-            ReportMetadata *m = BeansFactory::metadataReport(reportName);
-            // Se comprueba ahora si esa tabla existe en los metadatos. Si no es así, no se muestra
-            if ( m == NULL )
-            {
-                action->setVisible(false);
-                qDebug() << "AERPMainWindowPrivate::processActions: No se ha encontrado ningún informe de nombre: " << reportName;
-            }
-            else if ( m != NULL )
-            {
-                if ( action->icon().isNull() )
-                {
-
-                }
-            }
-            m_signalMapper->setMapping(action, action->objectName());
-            q_ptr->connect(action, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
+            processActionReport(action);
         }
         else if ( action->objectName().contains("script") )
         {
             // TODO
+        }
+        processObjectVisibility(action);
+    }
+}
+
+void AERPMainWindowPrivate::processActionTable(QAction *action)
+{
+    QString tableName = action->objectName();
+    tableName.replace("table_", "");
+    if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', tableName) )
+    {
+        action->setVisible(false);
+    }
+    BaseBeanMetadata *m = BeansFactory::metadataBean(tableName);
+    // Se comprueba ahora si esa tabla existe en los metadatos. Si no es así, no se muestra
+    if ( m == NULL )
+    {
+        action->setVisible(false);
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("AERPMainWindowPrivate::processActions: No existe ninguna tabla de nombre: [%1]").arg(tableName));
+    }
+    else
+    {
+        // Si la acción no tiene definida un pixmap, se ve si se puede utilizar desde los metadatos
+        // Haciendo esto damos preferencia al icono que se haya configurado en la acción, desde
+        // el Qt Designer, y si no, se utiliza el de los metadatos
+        if ( action->icon().isNull() )
+        {
+            action->setIcon(m->pixmap());
+        }
+    }
+    m_signalMapper->setMapping(action, action->objectName());
+    q_ptr->connect(action, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
+}
+
+void AERPMainWindowPrivate::processActionReport(QAction *action)
+{
+    QString reportName = action->objectName();
+    reportName.replace("report_", "");
+    if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', reportName) )
+    {
+        action->setVisible(false);
+    }
+    ReportMetadata *m = BeansFactory::metadataReport(reportName);
+    // Se comprueba ahora si esa tabla existe en los metadatos. Si no es así, no se muestra
+    if ( m == NULL )
+    {
+        action->setVisible(false);
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("AERPMainWindowPrivate::processActions: No se ha encontrado ningún informe de nombre: %1").arg(reportName));
+    }
+    else if ( m != NULL )
+    {
+        if ( action->icon().isNull() )
+        {
+
+        }
+    }
+    m_signalMapper->setMapping(action, action->objectName());
+    q_ptr->connect(action, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
+}
+
+void AERPMainWindowPrivate::processObjectVisibility(QObject *object)
+{
+    const char *visible = "visible";
+
+    if ( !object->property(visible).isValid() )
+    {
+        return;
+    }
+
+    if ( object->property(AlephERP::stVisibleForRoles).isValid() )
+    {
+        QStringList roles = object->property(AlephERP::stVisibleForRoles).toStringList();
+        if ( !roles.isEmpty() )
+        {
+            bool hasRole = false;
+            foreach (const QString &rol, roles)
+            {
+                if ( AERPLoggedUser::instance()->hasRole(rol) )
+                {
+                    hasRole = true;
+                    break;
+                }
+            }
+            if ( !hasRole )
+            {
+                object->setProperty(visible, false);
+            }
+        }
+    }
+    if ( object->property(AlephERP::stVisibleForUsers).isValid() )
+    {
+        QStringList users = object->property(AlephERP::stVisibleForUsers).toStringList();
+        if ( !users.isEmpty() )
+        {
+            bool hasUser = false;
+            foreach (const QString &user, users)
+            {
+                if ( AERPLoggedUser::instance()->userName() == user )
+                {
+                    hasUser = true;
+                    break;
+                }
+            }
+            if ( !hasUser )
+            {
+                object->setProperty(visible, false);
+            }
         }
     }
 }
@@ -1048,39 +1134,36 @@ void AERPMainWindow::init()
         createSystemTrayWidget();
     }
 
+    // Importante: Debe crearse aquí. Funciones internas más abajo la utilizan.
     d->m_signalMapper = new QSignalMapper(this);
+
     // Creamos entradas y acciones definidas en los metadatos a través de las entradas adecuadas.
     if ( property(AlephERP::stStaticToolBars).isValid() )
     {
-        if ( !property(AlephERP::stStaticToolBars).toBool() )
+        if ( property(AlephERP::stStaticToolBars).toBool() )
         {
             d->createModuleToolbarFromMetadata();
         }
     }
-    else
-    {
-        d->createModuleToolbarFromMetadata();
-    }
     if ( property(AlephERP::stStaticMenu).isValid() )
     {
-        if ( !property(AlephERP::stStaticMenu).toBool() )
+        if ( property(AlephERP::stStaticMenu).toBool() )
         {
             d->addActionsToMenuFromMetadata();
         }
     }
-    else
-    {
-        d->addActionsToMenuFromMetadata();
-    }
+
     // Procesamos el conjunto de acciones existentes, mostrandolas según perfil, o añadiéndoles iconos.
     d->processActions();
+    // Procesamos la visibilidad de los menús que tenga el sistema
+    d->processMenusVisibility();
 
-    if ( (alephERPSettings->dbaUser() || alephERPSettings->debuggerEnabled()) && QMainWindow::menuBar() != NULL )
+    if ( AERPLoggedUser::instance()->dbaMode() && QMainWindow::menuBar() != NULL )
     {
         d->createSystemActions();
     }
 
-    // Borramos los menús sin nada
+    // Borramos los menús sin nada (los que no tienen hijos)
     QList<QMenu *> menus = findChildren<QMenu *>();
     foreach ( QMenu *menu, menus )
     {

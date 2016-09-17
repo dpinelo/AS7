@@ -36,11 +36,16 @@
 
 #ifdef ALEPHERP_TEST
 #include "models/test/modeltest.h"
-#include "models/treebasebeanmodel.h"
-#include "models/dbbasebeanmodel.h"
-#include "models/filterbasebeanmodel.h"
 #ifdef _MSC_VER
-#define _CRTDBG_MAP_ALLOC #include <stdlib.h> #include <crtdbg.h>
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+#ifdef _DEBUG
+   #ifndef DBG_NEW
+      #define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+      #define new DBG_NEW
+   #endif
+#endif
 #endif
 #endif
 
@@ -73,11 +78,13 @@ int main(int argc, char *argv[])
 #ifdef ALEPHERP_TEST
 #ifdef _MSC_VER
     _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+    _CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_DEBUG );
 #endif
 #endif
 
     AERPApplication app(argc, argv);
 
+#ifdef ALEPHERP_TEST
     // Comprobamos las reglas de redondeo a par.
     double d1 = CommonsFunctions::round(2.341, 2);
     Q_ASSERT(d1 == 2.34);
@@ -97,6 +104,7 @@ int main(int argc, char *argv[])
     Q_ASSERT(d1 == 2.34);
     d1 = CommonsFunctions::round(2.3351, 2);
     Q_ASSERT(d1 == 2.34);
+#endif
 
     // Estas variables deben estar establecidas para poder acceder a la configuración
     Q_INIT_RESOURCE(resources);
@@ -378,7 +386,7 @@ int main(int argc, char *argv[])
     delete filterModel;
     delete model;
 
-    DBBaseBeanModel *dbModel = new DBBaseBeanModel("servicios");
+    DBBaseBeanModel *dbModel = new DBBaseBeanModel(tableName.last(), "", "", false, true, true, NULL);
     ModelTest *t2 = new ModelTest(dbModel);
     delete t2;
     delete dbModel;
@@ -898,7 +906,7 @@ bool isSystemStructureCreated(bool &firstCreateStructure)
     {
         if ( SystemDAO::lastErrorMessage().isEmpty() )
         {
-            if ( alephERPSettings->advancedUser() && alephERPSettings->dbaUser() )
+            if ( AERPLoggedUser::instance()->isSuperAdmin() && AERPLoggedUser::instance()->dbaMode() )
             {
                 // Veamos si no hay creada ninguna tabla
                 if ( notExists.size() == SystemDAO::systemTables().size() )

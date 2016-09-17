@@ -861,7 +861,7 @@ void DBReportRunDlgPrivate::showAvailableButtons()
         AERPReportsInterface *iface = m_run->iface();
         if ( iface != NULL )
         {
-            if ( alephERPSettings->advancedUser() && alephERPSettings->dbaUser() )
+            if ( AERPLoggedUser::instance()->dbaMode() )
             {
                 q_ptr->ui->pbEdit->setVisible(iface->canEditReports());
             }

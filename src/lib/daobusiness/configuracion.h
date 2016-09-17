@@ -226,8 +226,6 @@ public:
     QLogger::LogLevel logLevel() const;
     void setLogLevel(QLogger::LogLevel &level);
 
-    bool dbaUser();
-    void setDbaUser(bool value);
     bool advancedUser();
     void setAdvancedUser(bool value);
 

@@ -495,7 +495,8 @@ void DBWizardDlg::accept()
         {
             QMessageBox::warning(this, qApp->applicationName(),
                                  trUtf8("Se ha producido un error guardando los datos. \nEl error es: %1").
-                                 arg(AERPTransactionContext::instance()->lastErrorMessage()), QMessageBox::Ok);
+                                    arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
+                                 QMessageBox::Ok);
         }
         /** Este método se invoca en el formulario, cuando todos los datos editados en este formulario, se
          * han guardado definitivamente en base de datos */

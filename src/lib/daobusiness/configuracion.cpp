@@ -1209,27 +1209,6 @@ void AlephERPSettings::setLogLevel(QLogger::LogLevel &level)
     m_logLevel = level;
 }
 
-bool AlephERPSettings::dbaUser()
-{
-#ifndef ALEPHERP_FORCE_TO_USE_CLOUD
-    return m_modeDBA;
-#endif
-#ifdef ALEPHERP_STANDALONE
-    return true;
-#endif
-#ifndef ALEPHERP_FORCE_TO_USE_CLOUD
-#ifndef ALEPHERP_STANDALONE
-    return false;
-#endif
-#endif
-}
-
-void AlephERPSettings::setDbaUser(bool value)
-{
-    QMutexLocker lock(&mutex);
-    m_modeDBA = value;
-}
-
 bool AlephERPSettings::advancedUser()
 {
 #ifdef ALEPHERP_FORCE_TO_USE_CLOUD

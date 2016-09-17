@@ -166,6 +166,7 @@ QString SystemDAO::systemTablesPSQL = ""
                                       "  id serial,"
                                       "  nombre character varying(255) NOT NULL,"
                                       "  superadmin boolean NOT NULL, "
+                                      "  superadmin dbamode NOT NULL, "
                                       "  CONSTRAINT alepherp_roles_pkey PRIMARY KEY (id)"
                                       ")"
                                       "WITH ("
@@ -303,7 +304,7 @@ QString SystemDAO::systemTablesPSQL = ""
                                       "  OIDS=TRUE"
                                       ");"
 
-                                      "INSERT INTO alepherp_roles (nombre, superadmin) values ('Administradores', true);"
+                                      "INSERT INTO alepherp_roles (nombre, superadmin, dbamode) values ('Administradores', true, true);"
                                       "INSERT INTO alepherp_users (username, password) values ('admin', '');"
                                       "INSERT INTO alepherp_users_roles (id_rol, username) values (1, 'admin');"
                                       "INSERT INTO alepherp_permissions (id_rol, tablename, permissions) VALUES (1, '*', 'rw');";
@@ -405,6 +406,7 @@ QString SystemDAO::systemTablesSQLite = ""
                                         "  id INTEGER PRIMARY KEY AUTOINCREMENT,"
                                         "  nombre character varying(255) NOT NULL,"
                                         "  superadmin boolean NOT NULL"
+                                        "  dbamode boolean NOT NULL"
                                         ");"
 
                                         "CREATE TABLE alepherp_modules"
@@ -509,7 +511,7 @@ QString SystemDAO::systemTablesSQLite = ""
                                         "  fechacreacion timestamp DEFAULT CURRENT_TIMESTAMP "
                                         ");"
 
-                                        "INSERT INTO alepherp_roles (nombre, superadmin) values ('Administradores', 1);"
+                                        "INSERT INTO alepherp_roles (nombre, superadmin, dbamode) values ('Administradores', 1, 1);"
                                         "INSERT INTO alepherp_users (username, password) values ('admin', '');"
                                         "INSERT INTO alepherp_users_roles (id_rol, username) values (1, 'admin');"
                                         "INSERT INTO alepherp_permissions (id_rol, tablename, permissions) VALUES (1, '*', 'rw');";
@@ -1419,7 +1421,7 @@ bool SystemDAO::checkModules()
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO: checkModules: [%1]").arg(qryModules->lastQuery()));
     if ( result )
     {
-        if ( alephERPSettings->advancedUser() && alephERPSettings->dbaUser() )
+        if ( AERPLoggedUser::instance()->dbaMode() )
         {
             BeansFactory::instance()->newModule(AlephERP::stSystemModule,
                                                 AlephERP::stSystemModule,

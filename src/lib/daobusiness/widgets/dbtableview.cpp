@@ -40,7 +40,6 @@
 #include "models/filterbasebeanmodel.h"
 #include "models/basebeanmodel.h"
 #include "models/aerpimageitemdelegate.h"
-#include "models/aerpinlineedititemdelegate.h"
 #include "models/aerpmoviedelegate.h"
 #include "models/aerpitemdelegate.h"
 #include "globales.h"
@@ -363,7 +362,7 @@ void DBTableView::setModel(QAbstractItemModel *mdl)
                     {
                         if ( itemDelegateForColumn(i) == NULL )
                         {
-                            setItemDelegate(d->m_movieDelegate);
+                            //setItemDelegate(d->m_movieDelegate);
                         }
                     }
                 }

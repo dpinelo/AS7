@@ -113,7 +113,7 @@ QList<AlephERP::RoleInfo> AERPLoggedUser::roles() const
     return d->m_roles;
 }
 
-bool AERPLoggedUser::hasRole(const QString &roleName)
+bool AERPLoggedUser::hasRole(const QString &roleName) const
 {
     QMutexLocker lock(&mutex);
     if ( roleName.isEmpty() )
@@ -134,7 +134,7 @@ bool AERPLoggedUser::hasRole(const QString &roleName)
     return false;
 }
 
-bool AERPLoggedUser::hasRole(int idRole)
+bool AERPLoggedUser::hasRole(int idRole) const
 {
     QMutexLocker lock(&mutex);
     foreach (const AlephERP::RoleInfo &info, d->m_roles)
@@ -147,7 +147,7 @@ bool AERPLoggedUser::hasRole(int idRole)
     return false;
 }
 
-bool AERPLoggedUser::hasOnlyRole(const QString &roleName)
+bool AERPLoggedUser::hasOnlyRole(const QString &roleName) const
 {
     QMutexLocker lock(&mutex);
     if ( roleName.isEmpty() )
@@ -165,7 +165,7 @@ bool AERPLoggedUser::hasOnlyRole(const QString &roleName)
     return d->m_roles.first().roleName == roleName;
 }
 
-bool AERPLoggedUser::hasOnlyRole(int idRole)
+bool AERPLoggedUser::hasOnlyRole(int idRole) const
 {
     QMutexLocker lock(&mutex);
     if ( d->m_roles.size() > 1 )
@@ -175,7 +175,7 @@ bool AERPLoggedUser::hasOnlyRole(int idRole)
     return d->m_roles.first().idRole == idRole;
 }
 
-bool AERPLoggedUser::isSuperAdmin()
+bool AERPLoggedUser::isSuperAdmin() const
 {
     QMutexLocker lock(&mutex);
     foreach(const AlephERP::RoleInfo &info, d->m_roles)
@@ -188,6 +188,18 @@ bool AERPLoggedUser::isSuperAdmin()
     return false;
 }
 
+bool AERPLoggedUser::dbaMode() const
+{
+    QMutexLocker lock(&mutex);
+    foreach(const AlephERP::RoleInfo &info, d->m_roles)
+    {
+        if ( info.dbaMode )
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 bool AERPLoggedUser::checkMetadataAccess(QChar access, const QString &tableName)
 {

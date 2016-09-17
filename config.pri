@@ -56,8 +56,7 @@ TWAINSUPPORT=N
 JASPERSERVERSUPPORT=N
 BARCODESUPPORT=N
 QTDESIGNERBUILTIN=N
-QTSCRIPTBINDING=Y
-TESTPARTS=N
+QTSCRIPTBINDING=N
 # Puede ser, xbase64, xbase2 o dbase-code
 DBASELIBRARY=dbase-code
 LINUX32BITS=N
@@ -154,6 +153,7 @@ CONFIG(debug, debug|release) {
     #OBJECTS_DIR = $$ALEPHERPPATH/build/tmp/$$QT_VERSION/$$BUILDTYPE/$$APPNAME/debug/objetos
     #UI_DIR = $$ALEPHERPPATH/build/tmp/$$QT_VERSION/$$BUILDTYPE/$$APPNAME/debug/ui
     #RCC_DIR = $$ALEPHERPPATH/build/tmp/$$QT_VERSION/$$BUILDTYPE/$$APPNAME/debug/rcc
+    TESTPARTS=Y
     DESTDIR = $$BUILDPATH/debug
     LIBS += -L$$BUILDPATH/debug \
             -L$$BUILDPATH/debug/plugins/designer

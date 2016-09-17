@@ -779,6 +779,10 @@ void DBChooseRecordButton::clear()
 void DBChooseRecordButton::editRecord()
 {
     BaseBeanPointer editedBean = d->selectedBean();
+    if ( editedBean.isNull() )
+    {
+        return;
+    }
     // Llamada al procedimiento Qs para que el código pueda dar algunos valores.
     DBRecordDlg *dlgRecord = qobject_cast<DBRecordDlg *>(CommonsFunctions::aerpParentDialog(this));
     if ( dlgRecord != NULL )

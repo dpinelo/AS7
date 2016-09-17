@@ -104,12 +104,6 @@ void DBRelation::setMetadata(DBRelationMetadata *m)
         {
             connect (rootField, SIGNAL(valueModified(QVariant)), this, SLOT(updateChildrens()));
         }
-        if ( ownerBean()->dbState() == BaseBean::INSERT )
-        {
-            // Si el padre, que estaba en modo inserción, se "guarda" en base de datos, los hijos de esta relación
-            // estarán cargados, y tendremos que poner la variable interna, m_childrenLoaded a true.
-            connect(ownerBean().data(), SIGNAL(beanCommitted()), this, SLOT(setChildrenLoadedInternaly()));
-        }
     }
     else
     {
@@ -888,7 +882,7 @@ void DBRelation::addChildren(BaseBeanSharedPointerList list)
                 {
                     AERPTransactionContext::instance()->addToContext(ownerBean()->actualContext(), bean.data());
                 }
-                d->emitChildInserted(bean.data(), d->m_childrenCount);
+                d->emitChildInserted(bean.data(), d->m_childrenCount + countChildren);
                 connections(bean.data());
                 // Toca ahora actualizar los value
                 if ( !ownerBean().isNull() )
@@ -986,6 +980,10 @@ void DBRelation::emitChildEndEdit(BaseBean *bean)
 void DBRelation::setChildrenLoadedInternaly()
 {
     QMutexLocker lock(&d->m_mutex);
+    if ( d->m->tableName() == QString("lineasserviciosalbaranescli") )
+    {
+        qDebug() << "AQUI";
+    }
     d->m_childrenLoaded = true;
     d->m_canDeleteFather = false;
     d->m_childrenCount = d->m_children.size() + d->m_otherChildren.size();
@@ -1668,13 +1666,11 @@ QVector<BaseBeanSharedPointer> DBRelation::sharedChildren(const QString &order)
         return QVector<BaseBeanSharedPointer>();
     }
 
-    // Llamamos a children, simplemente para asegurarnos que se obtienen los registros en memoria
-    setOnExecution(AlephERP::Children);
-
     // ¿Se han obtenido los hijos de esta relación? Si no es así, se obtienen. Ojo,
     // si se está creando el bean padre, y aquí vienen los relacionados, los hijos siempre
     // estarán cargados
     QString finalOrder = (order.isEmpty() ? d->m->order() : order);
+    setOnExecution(AlephERP::Children);
     if ( !childrenLoaded() &&
          !ownBean.isNull() &&
          ownBean->dbState() != BaseBean::INSERT &&
@@ -2090,7 +2086,7 @@ void DBRelation::backgroundQueryExecuted(QString id, bool result)
     }
 }
 
-bool DBRelation::isLoadingBackground()
+bool DBRelation::loadingOnBackground()
 {
     return !d->m_backgroundPetition.isEmpty();
 }

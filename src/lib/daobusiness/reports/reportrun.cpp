@@ -89,7 +89,7 @@ void ReportRun::setReportName(const QString &reportName)
         {
             if ( !BeansFactory::systemReports.contains(d->m_metadata->reportName()) )
             {
-                if ( alephERPSettings->advancedUser() && alephERPSettings->dbaUser() )
+                if ( AERPLoggedUser::instance()->dbaMode() )
                 {
                     if ( iface()->canEditReports() )
                     {

@@ -116,6 +116,8 @@ public:
 
     static QString removeAccents(const QString &s);
 
+    static QString processToHtml(const QString &s);
+
 #ifdef ALEPHERP_DEVTOOLS
     static QString prettyDiff(const QList<Diff> &diffs);
     static QString prettyDiffResult(const QList<Diff> &diffs);

@@ -110,6 +110,7 @@ public:
         m_openSuccess = false;
     }
 
+    void connectButtonsToResfreshEvent();
     QString uiDbRecordForSelectedRow();
     QString qsDbRecordForSelectedRow();
     QString uiDbNewRecordForSelectedRow();
@@ -129,6 +130,18 @@ public:
  * Determina si el botón de imprimir documentos es visible. Será visible cuando existe algún ReportMetadata
  * con type="record" y además linkedTo = "tabla_de_este_dbrecord"
  */
+void DBFormDlgPrivate::connectButtonsToResfreshEvent()
+{
+    FilterBaseBeanModel *model = m_itemView->filterModel();
+    if ( model != NULL )
+    {
+        QObject::connect(model, SIGNAL(initRefresh()), q_ptr, SLOT(initReloadViewData()));
+        QObject::connect(model, SIGNAL(endRefresh()), q_ptr, SLOT(endReloadViewData()));
+        QObject::connect(model, SIGNAL(initLoadingData()), q_ptr, SLOT(initReloadViewData()));
+        QObject::connect(model, SIGNAL(endLoadingData()), q_ptr, SLOT(endReloadViewData()));
+    }
+}
+
 QString DBFormDlgPrivate::uiDbRecordForSelectedRow()
 {
     QString uiDbRecord;
@@ -665,6 +678,7 @@ void DBFormDlg::init(const QString &value)
         {
             d->m_itemView->filterModel()->setQsObjectEngine(engine());
         }
+        d->connectButtonsToResfreshEvent();
         setOpenSuccess(true);
     }
     else
@@ -804,6 +818,7 @@ void DBFormDlg::showEvent(QShowEvent *ev)
     Q_UNUSED(ev)
     if ( !d->m_mainWindow->isVisibleRelatedWidget() )
     {
+        // Es importante que en este punto, no se fuerce el refresco
         d->m_itemView->defrostModel();
     }
     if ( !property(AlephERP::stInited).toBool() )
@@ -1256,7 +1271,14 @@ void DBFormDlg::recordDlgClosed(BaseBeanPointer bean, bool userSaveData)
         BaseDAO::reloadBeanFromDB(bean);
     }
     emit afterEdit(userSaveData);
-    if (!userSaveData)
+    // Se comprueba si el bean está no está en UPDATE por los siguiente
+    // 1.- Se inserta un nuevo registro. Se abre el DBRecordDlg.
+    // 2.- Se guarda sin pinchar el close. Se sigue trabajando con el DBRecorDDlg.
+    // 3.- Se cierran cancelando los cambios.
+    // 4.- Si no se hace la comparación se eliminaría el registro de la tabla.
+    if (!userSaveData &&
+        bean &&
+        bean->dbState() != BaseBean::UPDATE )
     {
         BaseBeanModel *sourceModel = d->m_itemView->sourceModel();
         if ( d->m_recentInsertSourceIndex.isValid() )
@@ -1421,7 +1443,8 @@ void DBFormDlg::deleteRecord(void)
                 {
                     QMessageBox::warning(this, qApp->applicationName(),
                                          QString::fromUtf8("Ha ocurrido un error. No se ha podido borrar el registro. "
-                                                           "<br/><i>Error</i>: %1.").arg(AERPTransactionContext::instance()->lastErrorMessage()),
+                                                           "<br/><i>Error</i>: %1.").
+                                            arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
                                          QMessageBox::Ok);
                     sourceModel->rollback();
                     if ( !d->m_mainWindow->isVisibleRelatedWidget() && d->m_recordDlgs.isEmpty() )
@@ -1438,7 +1461,8 @@ void DBFormDlg::deleteRecord(void)
         {
             QMessageBox::warning(this, qApp->applicationName(),
                                  QString::fromUtf8("Ha ocurrido un error. No se ha podido borrar el registro. "
-                                                   "<br/><i>Error</i>: %1.").arg(AERPTransactionContext::instance()->lastErrorMessage()),
+                                                   "<br/><i>Error</i>: %1.").
+                                    arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
                                  QMessageBox::Ok);
             sourceModel->rollback();
             emit afterDelete(false);
@@ -2353,4 +2377,32 @@ void DBFormDlg::fastFilterKeyPress(int key)
         selectionModel->select(selection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
         selectionModel->setCurrentIndex(init, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     }
+}
+
+void DBFormDlg::initReloadViewData()
+{
+    ui->pbCopy->setEnabled(false);
+    ui->pbDelete->setEnabled(false);
+    ui->pbEdit->setEnabled(false);
+    ui->pbExportSpreadSheet->setEnabled(false);
+    ui->pbNew->setEnabled(false);
+    ui->pbPrint->setEnabled(false);
+    ui->pbSearch->setEnabled(false);
+    ui->pbSendEmail->setEnabled(false);
+    ui->pbView->setEnabled(false);
+    ui->pbWizard->setEnabled(false);
+}
+
+void DBFormDlg::endReloadViewData()
+{
+    ui->pbCopy->setEnabled(true);
+    ui->pbDelete->setEnabled(true);
+    ui->pbEdit->setEnabled(true);
+    ui->pbExportSpreadSheet->setEnabled(true);
+    ui->pbNew->setEnabled(true);
+    ui->pbPrint->setEnabled(true);
+    ui->pbSearch->setEnabled(true);
+    ui->pbSendEmail->setEnabled(true);
+    ui->pbView->setEnabled(true);
+    ui->pbWizard->setEnabled(true);
 }

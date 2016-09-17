@@ -152,13 +152,13 @@ public:
     QVariant previousValue() const;
     QVariant oldValue() const;
     QPixmap pixmapValue();
-    bool modified();
+    bool modified() const;
     void setModified(bool value);
-    BaseBeanPointer bean();
+    BaseBeanPointer bean() const;
     QVariant defaultValue();
-    bool memoLoaded();
+    bool memoLoaded() const;
     void setMemoLoaded(bool value);
-    QString dbFieldName();
+    QString dbFieldName() const;
     QVariantMap relationsMap();
     QString sqlValue(bool includeQuotesOnString = true, const QString &dialect = "", bool useRawValue = false);
     QString sqlOldValue(bool includeQuotesOnString = true, const QString &dialect = "");
