@@ -58,6 +58,7 @@ public:
     QPointer<AERPMovieDelegate> m_movieDelegate;
     // Evitar recursividad emitiendo algunas señales
     bool m_emittingShowContextMenu;
+    bool m_showAnimationOnDataLoad;
 
     DBTableViewPrivate(DBTableView *qq);
 };
@@ -67,6 +68,7 @@ DBTableViewPrivate::DBTableViewPrivate (DBTableView *qq) : q_ptr(qq)
     m_canMoveRows = false;
     m_movieDelegate = new AERPMovieDelegate(qq, qq);
     m_emittingShowContextMenu = false;
+    m_showAnimationOnDataLoad = true;
 }
 
 DBTableView::DBTableView (QWidget * parent) :
@@ -355,14 +357,14 @@ void DBTableView::setModel(QAbstractItemModel *mdl)
             BaseBeanModel *metadataModel = qobject_cast<BaseBeanModel *>(filterModel()->sourceModel());
             if ( metadataModel != NULL )
             {
-                // if ( QString(metadataModel->metaObject()->className()) != "RelationBaseBeanModel" )
+                // Animación en espera de carga de los items... Pero ojo: Sólo si no hay un itemDelegate
+                if ( d->m_showAnimationOnDataLoad )
                 {
-                    // Animación en espera de carga de los items... Pero ojo: Sólo si no hay un itemDelegate
                     for (int i = 0 ; i < metadataModel->columnCount() ; i++)
                     {
                         if ( itemDelegateForColumn(i) == NULL )
                         {
-                            //setItemDelegate(d->m_movieDelegate);
+                            setItemDelegate(d->m_movieDelegate);
                         }
                     }
                 }
@@ -756,6 +758,16 @@ void DBTableView::setCanMoveRows(bool value)
 #endif
         setDragEnabled(false);
     }
+}
+
+bool DBTableView::showAnimationOnDataLoad() const
+{
+    return d->m_showAnimationOnDataLoad;
+}
+
+void DBTableView::setShowAnimationOnDataLoad(bool value)
+{
+    d->m_showAnimationOnDataLoad = value;
 }
 
 void DBTableView::setFilter(const QString &value)

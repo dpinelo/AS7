@@ -351,6 +351,7 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
     }
     painter->restore();
 }
+
 bool AERPInlineEditItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
     if ( event->type() == QEvent::MouseButtonPress && d->m_type == QStringLiteral("DBChooseRecordButton") )

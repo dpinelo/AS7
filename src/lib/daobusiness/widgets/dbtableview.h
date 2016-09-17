@@ -131,6 +131,8 @@ class ALEPHERP_DLL_EXPORT DBTableView : public QTableView, public DBAbstractView
     Q_PROPERTY (QStringList visibleForUsers READ visibleForUsers WRITE setVisibleForUsers)
     /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
     Q_PROPERTY (QStringList dataEditableForUsers READ dataEditableForUsers WRITE setDataEditableForUsers)
+    /** Indica si muestra animación en la carga de muchos registros (con un movie delegate) */
+    Q_PROPERTY (bool showAnimationOnDataLoad READ showAnimationOnDataLoad WRITE setShowAnimationOnDataLoad)
 
 private:
     DBTableViewPrivate *d;
@@ -163,6 +165,8 @@ public:
     {
         return state() == QAbstractItemView::EditingState;
     }
+    bool showAnimationOnDataLoad() const;
+    void setShowAnimationOnDataLoad(bool value);
 
     /** Devuelve el valor mostrado o introducido en el control */
     QVariant value();
