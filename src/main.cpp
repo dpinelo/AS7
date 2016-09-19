@@ -75,16 +75,14 @@ int main(int argc, char *argv[])
     SetUnhandledExceptionFilter(windowsExceptionFilter);
 #endif
 
+    AERPApplication app(argc, argv);
+
 #ifdef ALEPHERP_TEST
 #ifdef _MSC_VER
     _CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
     _CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_DEBUG );
 #endif
-#endif
 
-    AERPApplication app(argc, argv);
-
-#ifdef ALEPHERP_TEST
     // Comprobamos las reglas de redondeo a par.
     double d1 = CommonsFunctions::round(2.341, 2);
     Q_ASSERT(d1 == 2.34);
