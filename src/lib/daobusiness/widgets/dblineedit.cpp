@@ -1316,23 +1316,25 @@ QString DBLineEditPrivate::setValueFromCompletition(DBField *fld)
     QString newText;
 
     QList<DBRelation *> rels = fld->relations(AlephERP::ManyToOne);
-    if ( rels.size() > 0 )
+    if ( rels.isEmpty() )
     {
-        BaseBeanPointer father = rels.first()->father();
-        // Los padres "vírgenes" no muestran datos...
-        if ( father && (father->dbState() != BaseBean::INSERT || father->modified()) )
-        {
-            newText = father->fieldValue(m_autoCompleteColumn).toString();
-        }
+        return newText;
     }
-    else
+    BaseBeanPointer father = rels.first()->father();
+    // Los padres "vírgenes" no muestran datos...
+    if ( father && (father->dbState() != BaseBean::INSERT || father->modified()) )
     {
-        rels = fld->relations(AlephERP::OneToOne);
-        BaseBean *brother = rels.first()->brother();
-        if ( brother )
-        {
-            newText = brother->fieldValue(m_autoCompleteColumn).toString();
-        }
+        newText = father->fieldValue(m_autoCompleteColumn).toString();
+    }
+    rels = fld->relations(AlephERP::OneToOne);
+    if ( rels.isEmpty() )
+    {
+        return newText;
+    }
+    BaseBean *brother = rels.first()->brother();
+    if ( brother )
+    {
+        newText = brother->fieldValue(m_autoCompleteColumn).toString();
     }
     return newText;
 }

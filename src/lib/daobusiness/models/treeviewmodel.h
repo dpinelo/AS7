@@ -30,7 +30,7 @@ class TreeViewModelPrivate;
 /**
     @author David Pinelo <alepherp@alephsistemas.es>
 */
-class TreeViewModel : public BaseBeanModel
+class ALEPHERP_DLL_EXPORT TreeViewModel : public BaseBeanModel
 {
     Q_OBJECT
 

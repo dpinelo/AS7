@@ -64,117 +64,118 @@ QWidget *AERPInlineEditItemDelegate::createEditor(QWidget *parent, const QStyleO
 {
     QVariant pointer = index.data(AlephERP::DBFieldRole);
     DBField *fld = static_cast<DBField *>(pointer.value<void *>());
-    if ( fld != NULL )
+    if ( fld == NULL )
     {
-        if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
-        {
-            QPushButton *button = new QPushButton(parent);
-            setEditor(button);
-            return button;
-        }
-        else if ( d->m_type == QStringLiteral("DBLineEdit") )
-        {
-            DBLineEdit *le = new DBLineEdit(parent);
-            setEditor(le);
-            le->setFieldName(fld->metadata()->dbFieldName());
-            le->setDataFromParentDialog(false);
+        return QStyledItemDelegate::createEditor(parent, option, index);
+    }
+    if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
+    {
+        QPushButton *button = new QPushButton(parent);
+        setEditor(button);
+        return button;
+    }
+    else if ( d->m_type == QStringLiteral("DBLineEdit") )
+    {
+        DBLineEdit *le = new DBLineEdit(parent);
+        setEditor(le);
+        le->setFieldName(fld->metadata()->dbFieldName());
+        le->setDataFromParentDialog(false);
 
-            QHashIterator<QString, QVariant> it(fld->metadata()->behaviourOnInlineEdit());
-            while (it.hasNext())
-            {
-                it.next();
-                QByteArray key = it.key().toLatin1();
-                if ( le->property(key.constData()).isValid() )
-                {
-                    QVariant v;
-                    if ( it.value().toString() == QStringLiteral("true") || it.value().toString() == QStringLiteral("false") )
-                    {
-                        v = it.value().toString() == QStringLiteral("true");
-                    }
-                    else
-                    {
-                        v = it.value();
-                    }
-                    le->setProperty(key.constData(), v);
-                }
-            }
-
-            if ( fld->metadata()->behaviourOnInlineEdit().contains("autoComplete") )
-            {
-                AlephERP::AutoCompleteTypes flags;
-                QString autoComplete = fld->metadata()->behaviourOnInlineEdit().value("autoComplete").toString();
-                if ( autoComplete.contains("NoCompletition") )
-                {
-                    flags = AlephERP::NoCompletition;
-                }
-                if ( autoComplete.indexOf("ValuesFromThisField", 0, Qt::CaseInsensitive) != -1 )
-                {
-                    flags = AlephERP::ValuesFromThisField;
-                }
-                if ( autoComplete.indexOf("ValuesFromRelation", 0, Qt::CaseInsensitive) != -1 )
-                {
-                    flags = AlephERP::ValuesFromRelation;
-                }
-                if ( autoComplete.indexOf("ValuesFromTableWithNoRelation", 0, Qt::CaseInsensitive) != -1 )
-                {
-                    flags = AlephERP::ValuesFromTableWithNoRelation;
-                }
-                if ( autoComplete.indexOf("RestrictValueToItemFromList", 0, Qt::CaseInsensitive) != -1 )
-                {
-                    flags |= AlephERP::RestrictValueToItemFromList;
-                }
-                if ( autoComplete.indexOf("UpdateOwnerFieldBean", 0, Qt::CaseInsensitive) != -1 )
-                {
-                    flags |= AlephERP::UpdateOwnerFieldBean;
-                }
-                le->setAutoComplete(flags);
-                le->setAutoCompleteColumn(
-                            fld->metadata()->behaviourOnInlineEdit().value("autoCompleteColumn").toString().isEmpty() ?
-                            fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString() :
-                            fld->metadata()->behaviourOnInlineEdit().value("autoCompleteColumn").toString());
-                QString size = fld->metadata()->behaviourOnInlineEdit().value("autoCompletePopupSize").toString();
-                QStringList parts = size.split("x");
-                if ( parts.size() > 1 )
-                {
-                    QSize sz;
-                    sz.setWidth(parts.at(0).toInt());
-                    sz.setHeight(parts.at(1).toInt());
-                    le->setAutoCompletePopupSize(sz);
-                }
-            }
-            le->setWorkBean(fld->bean());
-            le->setValue(fld->value());
-            le->setDataEditable(true);
-            return le;
-        }
-        else if ( d->m_type == QStringLiteral("DBComboBox") )
+        QHashIterator<QString, QVariant> it(fld->metadata()->behaviourOnInlineEdit());
+        while (it.hasNext())
         {
-            DBComboBox *combo = new DBComboBox(parent);
-            setEditor(combo);
-            combo->setFieldName(fld->metadata()->dbFieldName());
-            if ( fld->relations().size() > 0 )
+            it.next();
+            QByteArray key = it.key().toLatin1();
+            if ( le->property(key.constData()).isValid() )
             {
-                DBRelation *rel = NULL;
-                foreach ( DBRelation *r, fld->relations(AlephERP::ManyToOne) )
+                QVariant v;
+                if ( it.value().toString() == QStringLiteral("true") || it.value().toString() == QStringLiteral("false") )
                 {
-                    rel = r;
+                    v = it.value().toString() == QStringLiteral("true");
                 }
-                if ( rel != NULL && fld->metadata()->behaviourOnInlineEdit().contains("viewOnRead") )
+                else
                 {
-                    QStringList temp = fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString().split(".");
-                    combo->setListTableModel(rel->metadata()->tableName());
-                    combo->setListColumnToSave(rel->metadata()->childFieldName());
-                    if ( temp.size() > 0 )
-                    {
-                        combo->setListColumnName(temp.at(temp.size()-1));
-                    }
+                    v = it.value();
+                }
+                le->setProperty(key.constData(), v);
+            }
+        }
+
+        if ( fld->metadata()->behaviourOnInlineEdit().contains("autoComplete") )
+        {
+            AlephERP::AutoCompleteTypes flags;
+            QString autoComplete = fld->metadata()->behaviourOnInlineEdit().value("autoComplete").toString();
+            if ( autoComplete.contains("NoCompletition") )
+            {
+                flags = AlephERP::NoCompletition;
+            }
+            if ( autoComplete.indexOf("ValuesFromThisField", 0, Qt::CaseInsensitive) != -1 )
+            {
+                flags = AlephERP::ValuesFromThisField;
+            }
+            if ( autoComplete.indexOf("ValuesFromRelation", 0, Qt::CaseInsensitive) != -1 )
+            {
+                flags = AlephERP::ValuesFromRelation;
+            }
+            if ( autoComplete.indexOf("ValuesFromTableWithNoRelation", 0, Qt::CaseInsensitive) != -1 )
+            {
+                flags = AlephERP::ValuesFromTableWithNoRelation;
+            }
+            if ( autoComplete.indexOf("RestrictValueToItemFromList", 0, Qt::CaseInsensitive) != -1 )
+            {
+                flags |= AlephERP::RestrictValueToItemFromList;
+            }
+            if ( autoComplete.indexOf("UpdateOwnerFieldBean", 0, Qt::CaseInsensitive) != -1 )
+            {
+                flags |= AlephERP::UpdateOwnerFieldBean;
+            }
+            le->setAutoComplete(flags);
+            le->setAutoCompleteColumn(
+                        fld->metadata()->behaviourOnInlineEdit().value("autoCompleteColumn").toString().isEmpty() ?
+                        fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString() :
+                        fld->metadata()->behaviourOnInlineEdit().value("autoCompleteColumn").toString());
+            QString size = fld->metadata()->behaviourOnInlineEdit().value("autoCompletePopupSize").toString();
+            QStringList parts = size.split("x");
+            if ( parts.size() > 1 )
+            {
+                QSize sz;
+                sz.setWidth(parts.at(0).toInt());
+                sz.setHeight(parts.at(1).toInt());
+                le->setAutoCompletePopupSize(sz);
+            }
+        }
+        le->setWorkBean(fld->bean());
+        le->setValue(fld->value());
+        le->setDataEditable(true);
+        return le;
+    }
+    else if ( d->m_type == QStringLiteral("DBComboBox") )
+    {
+        DBComboBox *combo = new DBComboBox(parent);
+        setEditor(combo);
+        combo->setFieldName(fld->metadata()->dbFieldName());
+        if ( fld->relations().size() > 0 )
+        {
+            DBRelation *rel = NULL;
+            foreach ( DBRelation *r, fld->relations(AlephERP::ManyToOne) )
+            {
+                rel = r;
+            }
+            if ( rel != NULL && fld->metadata()->behaviourOnInlineEdit().contains("viewOnRead") )
+            {
+                QStringList temp = fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString().split(".");
+                combo->setListTableModel(rel->metadata()->tableName());
+                combo->setListColumnToSave(rel->metadata()->childFieldName());
+                if ( temp.size() > 0 )
+                {
+                    combo->setListColumnName(temp.at(temp.size()-1));
                 }
             }
-            combo->setWorkBean(fld->bean());
-            combo->setValue(fld->value());
-            combo->setDataEditable(true);
-            return combo;
         }
+        combo->setWorkBean(fld->bean());
+        combo->setValue(fld->value());
+        combo->setDataEditable(true);
+        return combo;
     }
     return QStyledItemDelegate::createEditor(parent, option, index);
 }
@@ -187,36 +188,37 @@ void AERPInlineEditItemDelegate::setEditorData(QWidget *editor, const QModelInde
     }
     QVariant pointer = index.data(AlephERP::DBFieldRole);
     DBField *fld = static_cast<DBField *>(pointer.value<void *>());
-    if ( fld != NULL )
+    if ( fld == NULL )
     {
-        if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
-        {
+        return;
+    }
+    if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
+    {
 /*
-            QPushButton *button = qobject_cast<QPushButton *> (editor);
-            if ( button != NULL )
-            {
-                button->setValue(fld->value());
-            }
+        QPushButton *button = qobject_cast<QPushButton *> (editor);
+        if ( button != NULL )
+        {
+            button->setValue(fld->value());
+        }
 */
-        }
-        else if ( d->m_type == QStringLiteral("DBComboBox") )
+    }
+    else if ( d->m_type == QStringLiteral("DBComboBox") )
+    {
+        DBComboBox *combo = qobject_cast<DBComboBox *> (editor);
+        if ( combo != NULL )
         {
-            DBComboBox *combo = qobject_cast<DBComboBox *> (editor);
-            if ( combo != NULL )
-            {
-                combo->setWorkBean(fld->bean());
-                combo->setValue(fld->value());
-            }
+            combo->setWorkBean(fld->bean());
+            combo->setValue(fld->value());
         }
-        else if ( d->m_type == QStringLiteral("DBLineEdit") )
+    }
+    else if ( d->m_type == QStringLiteral("DBLineEdit") )
+    {
+        DBLineEdit *le = qobject_cast<DBLineEdit *> (editor);
+        if ( le != NULL )
         {
-            DBLineEdit *le = qobject_cast<DBLineEdit *> (editor);
-            if ( le != NULL )
-            {
-                // Esta operación puede llamar a observerUnregistered, y borrar el contenido del texto... antes de establecerlo. Lo guardamos
-                le->setWorkBean(fld->bean());
-                le->setValue(fld->value());
-            }
+            // Esta operación puede llamar a observerUnregistered, y borrar el contenido del texto... antes de establecerlo. Lo guardamos
+            le->setWorkBean(fld->bean());
+            le->setValue(fld->value());
         }
     }
 }
@@ -274,80 +276,80 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
     }
     QVariant pointer = index.data(AlephERP::DBFieldRole);
     DBField *fld = static_cast<DBField *>(pointer.value<void *>());
-    Qt::Alignment align;
-    if ( fld != NULL )
+    if ( fld == NULL )
     {
-        align = fld->metadata()->alignment();
-        QString text = fld->displayValue();
-        if ( fld->metadata()->behaviourOnInlineEdit().contains("viewOnRead") )
-        {
-            DBField *field = NULL;
-            QList<DBObject *> objectList = fld->bean()->navigateThrough(fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString(), "");
-            if ( objectList.size() > 0 )
-            {
-                field = qobject_cast<DBField *>(objectList.at(0));
-            }
-            else
-            {
-                DBObject *obj = fld->bean()->navigateThroughProperties(fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString(), true);
-                if (obj != NULL)
-                {
-                    field = qobject_cast<DBField *>(obj);
-                }
-            }
-            if ( field != NULL )
-            {
-                text = field->displayValue();
-                align = field->metadata()->alignment();
-            }
-        }
-        painter->save();
-        if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
-        {
-            QStyleOptionButton buttonOption;
-            buttonOption.state = QStyle::State_Enabled | QStyle::State_AutoRaise | QStyle::State_Active;
-            if ( fld->isEmpty() )
-            {
-                buttonOption.rect = option.rect;
-                buttonOption.text = trUtf8("Seleccione %1").arg(fld->metadata()->fieldName());
-                QApplication::style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter);
-            }
-            else
-            {
-                QRect rectIcon(option.rect.x(), option.rect.y(), option.rect.height(), option.rect.height());
-                buttonOption.rect = rectIcon;
-                buttonOption.icon.addFile(QString::fromUtf8(":/generales/images/edit_search.png"), QSize(), QIcon::Normal, QIcon::Off);
-                buttonOption.iconSize = QSize(buttonOption.rect.height()-4, buttonOption.rect.height()-4);
-                QApplication::style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter);
-
-                QStyleOptionViewItemV4 optionText = option;
-                initStyleOption(&optionText, index);
-                /* Call this to get the focus rect and selection background. */
-                optionText.text = text;
-                optionText.displayAlignment = align;
-                optionText.rect = QRect(rectIcon.x() + rectIcon.width(), rectIcon.y(), optionText.rect.width() - option.rect.height(), optionText.rect.height());
-                optionText.widget->style()->drawControl(QStyle::CE_ItemViewItem, &optionText, painter, optionText.widget);
-            }
-        }
-        else if ( d->m_type == QStringLiteral("DBComboBox") )
-        {
-            QStyleOptionViewItemV4 options = option;
-            initStyleOption(&options, index);
-            /* Call this to get the focus rect and selection background. */
-            options.text = text;
-            options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter, options.widget);
-        }
-        else if ( d->m_type == QStringLiteral("DBLineEdit") )
-        {
-            QStyleOptionViewItemV4 options = option;
-            initStyleOption(&options, index);
-            /* Call this to get the focus rect and selection background. */
-            options.text = text;
-            options.displayAlignment = align;
-            options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter, options.widget);
-        }
-        painter->restore();
+        return;
     }
+    Qt::Alignment align = fld->metadata()->alignment();
+    QString text = fld->displayValue();
+    if ( fld->metadata()->behaviourOnInlineEdit().contains("viewOnRead") )
+    {
+        DBField *field = NULL;
+        QList<DBObject *> objectList = fld->bean()->navigateThrough(fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString(), "");
+        if ( objectList.size() > 0 )
+        {
+            field = qobject_cast<DBField *>(objectList.at(0));
+        }
+        else
+        {
+            DBObject *obj = fld->bean()->navigateThroughProperties(fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString(), true);
+            if (obj != NULL)
+            {
+                field = qobject_cast<DBField *>(obj);
+            }
+        }
+        if ( field != NULL )
+        {
+            text = field->displayValue();
+            align = field->metadata()->alignment();
+        }
+    }
+    painter->save();
+    if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
+    {
+        QStyleOptionButton buttonOption;
+        buttonOption.state = QStyle::State_Enabled | QStyle::State_AutoRaise | QStyle::State_Active;
+        if ( fld->isEmpty() )
+        {
+            buttonOption.rect = option.rect;
+            buttonOption.text = trUtf8("Seleccione %1").arg(fld->metadata()->fieldName());
+            QApplication::style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter);
+        }
+        else
+        {
+            QRect rectIcon(option.rect.x(), option.rect.y(), option.rect.height(), option.rect.height());
+            buttonOption.rect = rectIcon;
+            buttonOption.icon.addFile(QString::fromUtf8(":/generales/images/edit_search.png"), QSize(), QIcon::Normal, QIcon::Off);
+            buttonOption.iconSize = QSize(buttonOption.rect.height()-4, buttonOption.rect.height()-4);
+            QApplication::style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter);
+
+            QStyleOptionViewItemV4 optionText = option;
+            initStyleOption(&optionText, index);
+            /* Call this to get the focus rect and selection background. */
+            optionText.text = text;
+            optionText.displayAlignment = align;
+            optionText.rect = QRect(rectIcon.x() + rectIcon.width(), rectIcon.y(), optionText.rect.width() - option.rect.height(), optionText.rect.height());
+            optionText.widget->style()->drawControl(QStyle::CE_ItemViewItem, &optionText, painter, optionText.widget);
+        }
+    }
+    else if ( d->m_type == QStringLiteral("DBComboBox") )
+    {
+        QStyleOptionViewItemV4 options = option;
+        initStyleOption(&options, index);
+        /* Call this to get the focus rect and selection background. */
+        options.text = text;
+        options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter, options.widget);
+    }
+    else if ( d->m_type == QStringLiteral("DBLineEdit") )
+    {
+        QStyleOptionViewItemV4 options = option;
+        initStyleOption(&options, index);
+        /* Call this to get the focus rect and selection background. */
+        options.text = text;
+        options.displayAlignment = align;
+        options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter, options.widget);
+    }
+    painter->restore();
 }
 
 bool AERPInlineEditItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)

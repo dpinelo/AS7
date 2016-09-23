@@ -34,7 +34,6 @@
 #include "models/aerphtmldelegate.h"
 #include "models/aerpimageitemdelegate.h"
 #include "models/aerpmoviedelegate.h"
-#include "models/aerpinlineedititemdelegate.h"
 #include "dao/beans/basebean.h"
 #include "dao/beans/dbfield.h"
 #include "dao/beans/basebeanmetadata.h"

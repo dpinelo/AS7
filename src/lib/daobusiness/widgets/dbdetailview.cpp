@@ -145,6 +145,7 @@ void DBDetailView::setInlineEdit(bool value)
     d->m_inlineEdit = value;
     ui->tableView->setNavigateOnEnter(true);
     ui->tableView->setEditTriggers(QAbstractItemView::AllEditTriggers);
+    ui->tableView->setShowAnimationOnDataLoad(false);
     if ( !d->m_inlineEdit )
     {
         ui->tableView->setSelectionBehavior(QAbstractItemView::SelectRows);

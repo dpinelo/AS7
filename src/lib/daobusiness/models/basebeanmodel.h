@@ -36,7 +36,7 @@ class BaseBeanMetadata;
 class BaseBeanModelPrivate;
 class DBFieldMetadata;
 
-class BaseBeanModel : public QAbstractItemModel
+class ALEPHERP_DLL_EXPORT BaseBeanModel : public QAbstractItemModel
 {
     Q_OBJECT
 private:

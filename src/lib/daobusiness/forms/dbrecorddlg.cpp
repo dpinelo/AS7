@@ -1768,6 +1768,7 @@ bool DBRecordDlg::save()
     }
     else
     {
+        QLogger::QLog_Debug(AlephERP::stLogOther, "DBRecordDlg::save: No pasó las validaciones.");
         d->m_canClose = false;
         return false;
     }

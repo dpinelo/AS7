@@ -79,6 +79,7 @@
 class AERPScriptCommonPrivate
 {
 public:
+    AERPScriptCommon *q_ptr;
     AERPHTTPConnection m_conn;
     QString m_lastError;
     QString m_transactionName;
@@ -91,7 +92,7 @@ public:
     bool m_geocoderSuccess;
     QString m_htmlToPrint;
 
-    AERPScriptCommonPrivate()
+    AERPScriptCommonPrivate(AERPScriptCommon *qq) : q_ptr(qq)
     {
         m_geocoderSuccess = false;
         m_transactionName = QString("Script-%1").arg(QUuid::createUuid().toString());
@@ -100,10 +101,12 @@ public:
     QDialog *inputDialog(const QString &label, QWidget *mainWidget);
     BaseBeanSharedPointerList chooseRecordsFromTable(const QString &tableName, const QString &where, const QString &order, const QString &label, bool userEnvVars);
     BaseBeanSharedPointer chooseRecordFromTable(const QString &tableName, const QString &where, const QString &order, const QString &label, bool userEnvVars);
+    QScriptValue convertToJSType(const QSqlField &sqlField, const QVariant &value);
 };
 
 AERPScriptCommon::AERPScriptCommon(QObject *parent) :
-    QObject(parent), d_ptr(new AERPScriptCommonPrivate)
+    QObject(parent),
+    d_ptr(new AERPScriptCommonPrivate(this))
 {
     d_ptr->m_fileSystemWatcher = new QFileSystemWatcher(this);
     d_ptr->m_geocoder = new AERPGeocodeDataManager(this);
@@ -560,16 +563,7 @@ QScriptValue AERPScriptCommon::sqlSelect(const QString &sql, const QString &conn
                 QSqlRecord rec = qry->record();
                 for ( int i = 0 ; i < rec.count() ; i++ )
                 {
-                    QSqlField sqlField = rec.field(i);
-                    QScriptValue v;
-                    if ( sqlField.type() == QVariant::Date || sqlField.type() == QVariant::DateTime )
-                    {
-                        v = engine()->newDate(rec.value(i).toDateTime());
-                    }
-                    else
-                    {
-                        v = engine()->newVariant(rec.value(i));
-                    }
+                    QScriptValue v = d_ptr->convertToJSType(rec.field(i), rec.value(i));
                     record.setProperty(rec.fieldName(i), v);
                 }
                 result.setProperty(rowCount, record);
@@ -583,6 +577,20 @@ QScriptValue AERPScriptCommon::sqlSelect(const QString &sql, const QString &conn
         }
     }
     return result;
+}
+
+QScriptValue AERPScriptCommonPrivate::convertToJSType(const QSqlField &sqlField, const QVariant &value)
+{
+    QScriptValue v;
+    if ( sqlField.type() == QVariant::Date || sqlField.type() == QVariant::DateTime )
+    {
+        v = q_ptr->engine()->newDate(value.toDateTime());
+    }
+    else
+    {
+        v = q_ptr->engine()->newVariant(value);
+    }
+    return v;
 }
 
 /**
@@ -742,16 +750,7 @@ QScriptValue AERPScriptCommon::sqlSelectFirst(const QString &sql, const QString 
                 result = engine()->newObject();
                 for (int i = 0 ; i < rec.count() ; i++)
                 {
-                    QSqlField sqlField = rec.field(i);
-                    QScriptValue v;
-                    if ( sqlField.type() == QVariant::Date || sqlField.type() == QVariant::DateTime )
-                    {
-                        v = engine()->newDate(rec.value(i).toDateTime());
-                    }
-                    else
-                    {
-                        v = engine()->newVariant(rec.value(i));
-                    }
+                    QScriptValue v = d_ptr->convertToJSType(rec.field(i), rec.value(i));
                     result.setProperty(rec.fieldName(i), v);
                 }
             }

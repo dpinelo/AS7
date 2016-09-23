@@ -153,7 +153,9 @@ void ScriptDlg::execQs()
 
     /** Ejecutamos el script asociado. La filosofía fundamental de ese script es proporcionar
       algo de código básico que justifique este formulario de edición de registros */
-    if ( !BeansFactory::systemScripts.contains(qsName) )
+    if ( !BeansFactory::systemScripts.contains(qsName) ||
+         d->m_widget.isNull() ||
+         aerpQsEngine() == NULL )
     {
         return;
     }
