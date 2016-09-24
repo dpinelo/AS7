@@ -27,6 +27,7 @@
 #include "dao/basedao.h"
 #include "dao/beans/basebeanmetadata.h"
 #include "dao/beans/dbrelationmetadata.h"
+#include "dao/beans/dbfieldmetadata.h"
 #include "dao/beans/reportmetadata.h"
 #include "dao/beans/beansfactory.h"
 #include "dao/beans/aerpsystemobject.h"
@@ -742,16 +743,24 @@ bool SystemDAO::checkIfForeignKeyExists(DBRelationMetadata *rel, const QString &
     {
         return false;
     }
-    BaseBeanMetadata *rootMetadata = BeansFactory::metadataBean(rel->tableName());
-    if ( rootMetadata == NULL )
+    // Si la tabla origen es una vista, o la tabla destino es una vista, no hacemos nada.
+    BaseBeanMetadata *childMetadata = BeansFactory::metadataBean(rel->tableName());
+    BaseBeanMetadata *rootMetadata = rel->rootMetadata();
+    if ( childMetadata == NULL || rootMetadata == NULL )
     {
         QLogger::QLog_Error(AlephERP::stLogOther, QString("No existe la tabla o metadatos [%1]").arg(rel->tableName()));
         return false;
+    }
+    if ( childMetadata->dbObjectType() != AlephERP::Table )
+    {
+        return true;
     }
     if ( rootMetadata->dbObjectType() != AlephERP::Table )
     {
         return true;
     }
+
+    QString schema = rootMetadata->schema().isEmpty() ? alephERPSettings->dbSchema() : rootMetadata->schema();
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
     QString sql = QString("SELECT DISTINCT "
                           "tc.constraint_name, tc.table_name, kcu.column_name, "
@@ -760,16 +769,18 @@ bool SystemDAO::checkIfForeignKeyExists(DBRelationMetadata *rel, const QString &
                           "FROM "
                           "information_schema.table_constraints AS tc "
                           "JOIN information_schema.key_column_usage AS kcu "
-                          "ON tc.constraint_name = kcu.constraint_name "
+                          "ON (tc.constraint_name = kcu.constraint_name AND tc.constraint_schema = kcu.constraint_schema) "
                           "JOIN information_schema.constraint_column_usage AS ccu "
-                          "ON ccu.constraint_name = tc.constraint_name "
+                          "ON (ccu.constraint_name = tc.constraint_name AND ccu.constraint_schema = tc.constraint_schema)  "
                           "WHERE constraint_type = 'FOREIGN KEY' "
                           "AND ccu.table_name='%1' "
                           "AND tc.table_name='%2' "
-                          "AND kcu.column_name='%3';").
+                          "AND kcu.column_name='%3' "
+                          "AND tc.constraint_schema='%4'").
             arg(rel->sqlTableName()).
             arg(rel->rootMetadata()->sqlTableName()).
-            arg(rel->rootFieldName());
+            arg(rel->rootFieldName()).
+            arg(schema);
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO::checkIfForeignKeyExists: [%1]").arg(sql));
     if ( qry->exec(sql) )
     {

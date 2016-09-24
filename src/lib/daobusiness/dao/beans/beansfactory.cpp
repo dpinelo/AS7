@@ -73,7 +73,7 @@ static BatchDAO *batchDAO;
 
 #define MSG_NO_EXISTE_UI QT_TR_NOOP("No existe un fichero UI en base de datos con la defición del formulario de búsqueda")
 
-#define SQL_CONSISTENCY_PSQL "SELECT column_name, data_type, is_nullable, character_maximum_length FROM information_schema.columns WHERE table_name = :tablename;"
+#define SQL_CONSISTENCY_PSQL "SELECT DISTINCT column_name, data_type, is_nullable, character_maximum_length FROM information_schema.columns WHERE table_name = :tablename and table_schema = :table_schema;"
 
 BeansFactory::BeansFactory(QObject *parent) : QObject(parent)
 {
@@ -1086,7 +1086,9 @@ bool BeansFactory::checkConsistencyMetadataDatabase(QVariantList &log)
                 QHash<QString, int> maxChars;
                 if ( qry->prepare(SQL_CONSISTENCY_PSQL) )
                 {
+                    QString schema = m->schema().isEmpty() ? alephERPSettings->dbSchema() : m->schema();
                     qry->bindValue(":tablename", m->tableName());
+                    qry->bindValue(":table_schema", schema);
                     r = qry->exec();
                     if ( r )
                     {
