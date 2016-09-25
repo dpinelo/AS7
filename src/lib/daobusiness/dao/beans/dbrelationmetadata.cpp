@@ -345,9 +345,9 @@ QString DBRelationMetadata::sqlForeignKey(AlephERP::CreationTableSqlOptions opti
     BaseBeanMetadata *f = BeansFactory::metadataBean(tableName());
     // Tabla "padre" u origen
     BaseBeanMetadata *root = rootMetadata();
-    if ( f != NULL && f->dbObjectType() == AlephERP::Table )
+    if ( f != NULL && f->dbObjectType() == AlephERP::Table && root->dbObjectType() == AlephERP::Table )
     {
-        if ( options.testFlag(AlephERP::WithForeignKeys) && root->dbObjectType() == AlephERP::Table )
+        if ( options.testFlag(AlephERP::WithForeignKeys) )
         {
             if ( type() == DBRelationMetadata::MANY_TO_ONE )
             {

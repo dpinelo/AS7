@@ -31,6 +31,8 @@ namespace Ui
 class AERPConsistencyMetadataTableDlg;
 }
 
+class AERPConsistencyMetadataTableDlgPrivate;
+
 /**
  * @brief The AERPConsistencyMetadataTableDlg class
  * Formulario que muestra los datos de posibles inconsistencia y ofrece algunas soluciones.
@@ -39,8 +41,11 @@ class ALEPHERP_DLL_EXPORT AERPConsistencyMetadataTableDlg : public QDialog
 {
     Q_OBJECT
 
+    friend class AERPConsistencyMetadataTableDlgPrivate;
+
 private:
     Ui::AERPConsistencyMetadataTableDlg *ui;
+    AERPConsistencyMetadataTableDlgPrivate *d;
 
 protected:
     void closeEvent(QCloseEvent *);

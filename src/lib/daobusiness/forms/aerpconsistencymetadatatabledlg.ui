@@ -89,6 +89,11 @@
         <string>Error text</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>Priority</string>
+       </property>
+      </column>
      </widget>
      <widget class="QTextEdit" name="txtResults">
       <property name="sizePolicy">

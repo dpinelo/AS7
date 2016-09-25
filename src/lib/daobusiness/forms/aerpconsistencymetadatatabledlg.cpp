@@ -39,10 +39,25 @@
 #define TV_IDX_TABLENAME    0
 #define TV_IDX_COLUMN       1
 #define TV_IDX_ERROR        2
+#define TV_IDX_PRIORITY     3
+
+class AERPConsistencyMetadataTableDlgPrivate
+{
+public:
+    AERPConsistencyMetadataTableDlg *q_ptr;
+
+    AERPConsistencyMetadataTableDlgPrivate(AERPConsistencyMetadataTableDlg *qq) : q_ptr(qq)
+    {
+
+    }
+
+    QString priorityForError(const QString &code);
+};
 
 AERPConsistencyMetadataTableDlg::AERPConsistencyMetadataTableDlg(const QVariantList &err, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::AERPConsistencyMetadataTableDlg)
+    ui(new Ui::AERPConsistencyMetadataTableDlg),
+    d(new AERPConsistencyMetadataTableDlgPrivate(this))
 {
     ui->setupUi(this);
 
@@ -63,6 +78,10 @@ AERPConsistencyMetadataTableDlg::AERPConsistencyMetadataTableDlg(const QVariantL
         itemWidget->setData(Qt::UserRole+1, hash["relation"].toString());
         ui->tableWidget->setItem(row, TV_IDX_ERROR, itemWidget);
 
+        itemWidget = new QTableWidgetItem (d->priorityForError(hash["code"].toString()));
+        ui->tableWidget->setItem(row, TV_IDX_COLUMN, itemWidget);
+
+
         qDebug() << "[" << hash["tablename"].toString() << "] [" << hash["column"].toString() << "] [" << hash["error"].toString() << "]";
     }
 
@@ -72,6 +91,7 @@ AERPConsistencyMetadataTableDlg::AERPConsistencyMetadataTableDlg(const QVariantL
 
 AERPConsistencyMetadataTableDlg::~AERPConsistencyMetadataTableDlg()
 {
+    delete d;
     delete ui;
 }
 
@@ -316,13 +336,78 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
     return true;
 }
 
-void AERPConsistencyMetadataTableDlg::closeEvent(QCloseEvent *)
+void AERPConsistencyMetadataTableDlg::closeEvent(QCloseEvent *event)
 {
     alephERPSettings->saveViewState<QTableWidget>(ui->tableWidget);
+    // Guardamos las dimensiones del usuario
+    alephERPSettings->savePosForm(this);
+    alephERPSettings->saveDimensionForm(this);
+    event->accept();
 }
 
-void AERPConsistencyMetadataTableDlg::showEvent(QShowEvent *)
+void AERPConsistencyMetadataTableDlg::showEvent(QShowEvent *event)
 {
     alephERPSettings->applyViewState<QTableWidget>(ui->tableWidget);
+    // Cargamos las dimensiones guardadas de la ventana
+    alephERPSettings->applyPosForm(this);
+    alephERPSettings->applyDimensionForm(this);
+    event->accept();
 }
 
+
+QString AERPConsistencyMetadataTableDlgPrivate::priorityForError(const QString &code)
+{
+    int iFlag = code.toInt();
+    AlephERP::ConsistencyTableErrors error(iFlag);
+    QString stCritical = QObject::trUtf8("CRITICAL");
+    QString stError = QObject::trUtf8("ERROR");
+    QString stWarning = QObject::trUtf8("WARNING");
+    QString stEnhancement = QObject::trUtf8("WARNING");
+
+    switch (error)
+    {
+    case AlephERP::ColumnOnMetadataNotOnTable:
+        return stWarning;
+
+    case AlephERP::ColumnOnMetadataWithLengthOverDatabaseLength:
+        return stError;
+
+    case AlephERP::ColumnOnMetadataIsNullableButNotOnDatabase:
+        return stCritical;
+
+    case AlephERP::ColumnOnMetadataNotNullButCanBeOnDatabase:
+        return stWarning;
+
+    case AlephERP::TableNameLengthTooLong:
+        return stWarning;
+
+    case AlephERP::TableNotExists:
+        return stCritical;
+
+    case AlephERP::TableNotMatchMetadata:
+        return stError;
+
+    case AlephERP::RelatedTableNotExists:
+        return stError;
+
+    case AlephERP::RelatedColumnNotExists:
+        return stError;
+
+    case AlephERP::DbFieldNameDuplicate:
+        return stError;
+
+    case AlephERP::ColumnNotOnMetadataButOnDatabase:
+        return stWarning;
+
+    case AlephERP::ColumnNotOnMetadataButOnDatabaseNotNull:
+        return stCritical;
+
+    case AlephERP::ForeignKeyNotExists:
+        return stEnhancement;
+
+    case AlephERP::IndexNotExists:
+        return stEnhancement;
+    }
+
+    return QObject::trUtf8("Not knwon");
+}
