@@ -76,8 +76,6 @@ class ALEPHERP_DLL_EXPORT DBFieldMetadata : public QObject, public QScriptable
     Q_PROPERTY(QString fieldNameScript READ fieldNameScript WRITE setFieldNameScript)
     /** Indica si es un campo de sólo lectura */
     Q_PROPERTY(bool readOnly READ readOnly)
-    /** Indica si este campo se creará como un campo de índice en la base de datos */
-    Q_PROPERTY(bool dbIndex READ dbIndex WRITE setDbIndex)
     /** ¿Puede este campo ser nulo ? True si puede serlo */
     Q_PROPERTY(bool null READ canBeNull WRITE setNull)
     /** ¿Es este campo una primary key? */
@@ -380,8 +378,6 @@ public:
     QString fieldNameScript() const;
     void setFieldNameScript(const QString &name);
     bool readOnly() const;
-    bool dbIndex() const;
-    void setDbIndex(bool value);
     bool html() const;
     void setHtml(bool html);
     bool coordinates() const;
@@ -571,6 +567,7 @@ public:
     QString sqlWhere(const QString &op, const QVariant &value, const QString &dialect = "");
     QString sqlValue(const QVariant &value, bool includeQuotes = true, const QString &dialect = "");
     QString sqlNullCondition(const QString &dialect = "");
+    QString sqlCreateIndex(const QString &dialect = "");
 
     QVariant parseValue(const QString &v);
 

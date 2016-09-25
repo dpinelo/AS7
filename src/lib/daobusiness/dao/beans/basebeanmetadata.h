@@ -707,7 +707,7 @@ public:
 
     QString sqlCreateTable(AlephERP::CreationTableSqlOptions options, const QString &dialect, const QString &alternativeName = "");
     QStringList sqlForeignKeys(AlephERP::CreationTableSqlOptions options, const QString &dialec);
-    QString sqlCreateIndex(AlephERP::CreationTableSqlOptions options, const QString &dialect);
+    QString sqlCreateIndexes(AlephERP::CreationTableSqlOptions options, const QString &dialect);
     QString sqlAddColumn(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect);
     QString sqlDropColumn(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect);
     QString sqlMakeNotNull(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect);

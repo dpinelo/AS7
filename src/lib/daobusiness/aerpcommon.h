@@ -332,7 +332,8 @@ public:
         DbFieldNameDuplicate = 0x200,
         ColumnNotOnMetadataButOnDatabase = 0x400,
         ColumnNotOnMetadataButOnDatabaseNotNull = 0x800,
-        ForeignKeyNotExists = 0x1000
+        ForeignKeyNotExists = 0x1000,
+        IndexNotExists = 0x2000
     };
     Q_DECLARE_FLAGS (ConsistencyTableErrors, ConsistencyTableErrorsFlag)
 

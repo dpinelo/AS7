@@ -775,7 +775,7 @@ bool ModulesDAOPrivate::createDatabaseStructures(QList<AERPSystemObject *> syste
                         m_lastErrorMessage = QObject::trUtf8("No se pudo crear la tabla %1 en base de datos. Error: %2").arg(m->tableName()).arg(BaseDAO::lastErrorMessage());
                         return false;
                     }
-                    QString sqlIndex = m->sqlCreateIndex(module->tableCreationOptions(), Database::driverConnection());
+                    QString sqlIndex = m->sqlCreateIndexes(module->tableCreationOptions(), Database::driverConnection());
                     QStringList sqlIndexList = sqlIndex.split(';');
                     foreach ( QString sqlOneIndex, sqlIndexList )
                     {

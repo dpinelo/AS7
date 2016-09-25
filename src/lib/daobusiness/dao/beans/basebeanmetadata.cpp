@@ -1945,10 +1945,6 @@ void BaseBeanMetadataPrivate::setConfig()
                 {
                     field->setUniqueCompound((elementText == QLatin1String("true") ? true : false));
                 }
-                else if ( e.tagName() == QLatin1String("dbIndex") )
-                {
-                    field->setDbIndex((elementText == QLatin1String("true") ? true : false));
-                }
                 else if ( e.tagName() == QLatin1String("uniqueOnFilterField") )
                 {
                     field->setUniqueOnFilterField(elementText);
@@ -4310,7 +4306,7 @@ QStringList BaseBeanMetadata::sqlForeignKeys(AlephERP::CreationTableSqlOptions o
  * @param dialect
  * @return
  */
-QString BaseBeanMetadata::sqlCreateIndex(AlephERP::CreationTableSqlOptions options, const QString &dialect)
+QString BaseBeanMetadata::sqlCreateIndexes(AlephERP::CreationTableSqlOptions options, const QString &dialect)
 {
     Q_UNUSED(dialect)
     QString sql;
@@ -4319,29 +4315,13 @@ QString BaseBeanMetadata::sqlCreateIndex(AlephERP::CreationTableSqlOptions optio
         bool createIndex = false;
         if ( options.testFlag(AlephERP::CreateIndexOnRelationColumns) )
         {
-            QList<DBRelationMetadata *> relations = fld->relations(AlephERP::ManyToOne);
+            QList<DBRelationMetadata *> relations = fld->relations(AlephERP::ManyToOne | AlephERP::OneToOne);
             createIndex = relations.size() > 0;
         }
-        createIndex = createIndex | fld->dbIndex();
         // Creamos índices si el campo está marcado como tal, y si contiene una columna que referencia a una tabla padre.
         if ( createIndex )
         {
-            QString unique = fld->unique() ? " UNIQUE " : " ";
-            QString idxName = QString("idx_%1_%2").arg(tableName()).arg(fld->dbFieldName());
-            if ( dialect == QLatin1String("QIBASE") && idxName.size() > MAX_LENGTH_OBJECT_NAME_FIREBIRD )
-            {
-                idxName = QString("idx_%1").arg(alephERPSettings->uniqueId());
-            }
-            if ( dialect == QLatin1String("QPSQL") && idxName.size() > MAX_LENGTH_OBJECT_NAME_PSQL )
-            {
-                idxName = QString("idx_%1").arg(alephERPSettings->uniqueId());
-            }
-            sql = QString("%1CREATE%2INDEX %3 ON %4(%5);").
-                  arg(sql).
-                  arg(unique).
-                  arg(idxName).
-                  arg(sqlTableName(dialect)).
-                  arg(fld->dbFieldName());
+            sql.append(fld->sqlCreateIndex(dialect));
         }
     }
     if ( options.testFlag(AlephERP::WithHashRowColumn) )

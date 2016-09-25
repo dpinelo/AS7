@@ -30,10 +30,15 @@
 #include "ui_aerpconsistencymetadatatabledlg.h"
 #include "dao/beans/basebeanmetadata.h"
 #include "dao/beans/dbrelationmetadata.h"
+#include "dao/beans/dbfieldmetadata.h"
 #include "dao/beans/beansfactory.h"
 #include "dao/database.h"
 #include "dao/basedao.h"
 #include "dao/beans/aerpsystemobject.h"
+
+#define TV_IDX_TABLENAME    0
+#define TV_IDX_COLUMN       1
+#define TV_IDX_ERROR        2
 
 AERPConsistencyMetadataTableDlg::AERPConsistencyMetadataTableDlg(const QVariantList &err, QWidget *parent) :
     QDialog(parent),
@@ -48,15 +53,15 @@ AERPConsistencyMetadataTableDlg::AERPConsistencyMetadataTableDlg(const QVariantL
         ui->tableWidget->insertRow(row);
 
         QTableWidgetItem *itemWidget = new QTableWidgetItem(hash["tablename"].toString());
-        ui->tableWidget->setItem(row, 0, itemWidget);
+        ui->tableWidget->setItem(row, TV_IDX_TABLENAME, itemWidget);
 
         itemWidget = new QTableWidgetItem (hash["column"].toString());
-        ui->tableWidget->setItem(row, 1, itemWidget);
+        ui->tableWidget->setItem(row, TV_IDX_COLUMN, itemWidget);
 
         itemWidget = new QTableWidgetItem (hash["error"].toString());
         itemWidget->setData(Qt::UserRole, hash["code"].toString());
         itemWidget->setData(Qt::UserRole+1, hash["relation"].toString());
-        ui->tableWidget->setItem(row, 2, itemWidget);
+        ui->tableWidget->setItem(row, TV_IDX_ERROR, itemWidget);
 
         qDebug() << "[" << hash["tablename"].toString() << "] [" << hash["column"].toString() << "] [" << hash["error"].toString() << "]";
     }
@@ -94,7 +99,7 @@ void AERPConsistencyMetadataTableDlg::fix()
     {
         it.next();
         int row = it.value()->row();
-        BaseBeanMetadata *m = BeansFactory::metadataBean(ui->tableWidget->item(row, 0)->text());
+        BaseBeanMetadata *m = BeansFactory::metadataBean(ui->tableWidget->item(row, TV_IDX_TABLENAME)->text());
         if ( m != NULL )
         {
             QString sFlag = ui->tableWidget->item(row, 2)->data(Qt::UserRole).toString();
@@ -102,7 +107,7 @@ void AERPConsistencyMetadataTableDlg::fix()
             AlephERP::ConsistencyTableErrors error(iFlag);
             if ( error.testFlag(AlephERP::ColumnOnMetadataNotOnTable) )
             {
-                QString sql = m->sqlAddColumn(0, ui->tableWidget->item(row, 1)->text(), Database::driverConnection());
+                QString sql = m->sqlAddColumn(0, ui->tableWidget->item(row, TV_IDX_COLUMN)->text(), Database::driverConnection());
                 bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                 if (!result)
                 {
@@ -117,7 +122,7 @@ void AERPConsistencyMetadataTableDlg::fix()
             }
             else if ( error.testFlag(AlephERP::ColumnNotOnMetadataButOnDatabase) || error.testFlag(AlephERP::ColumnNotOnMetadataButOnDatabaseNotNull) )
             {
-                QString sql = m->sqlDropColumn(0, ui->tableWidget->item(row, 1)->text(), Database::driverConnection());
+                QString sql = m->sqlDropColumn(0, ui->tableWidget->item(row, TV_IDX_COLUMN)->text(), Database::driverConnection());
                 bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                 if (!result)
                 {
@@ -132,7 +137,7 @@ void AERPConsistencyMetadataTableDlg::fix()
             }
             else if ( error.testFlag(AlephERP::ColumnOnMetadataWithLengthOverDatabaseLength) )
             {
-                QString sql = m->sqlAlterColumnSetLength(0, ui->tableWidget->item(row, 1)->text(), Database::driverConnection());
+                QString sql = m->sqlAlterColumnSetLength(0, ui->tableWidget->item(row, TV_IDX_COLUMN)->text(), Database::driverConnection());
                 bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                 if (!result)
                 {
@@ -147,7 +152,7 @@ void AERPConsistencyMetadataTableDlg::fix()
             }
             else if ( error.testFlag(AlephERP::ColumnOnMetadataIsNullableButNotOnDatabase) )
             {
-                QString sql = m->sqlMakeNotNull(0, ui->tableWidget->item(row, 1)->text(), Database::driverConnection());
+                QString sql = m->sqlMakeNotNull(0, ui->tableWidget->item(row, TV_IDX_COLUMN)->text(), Database::driverConnection());
                 bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                 if (!result)
                 {
@@ -187,6 +192,31 @@ void AERPConsistencyMetadataTableDlg::fix()
                     ui->tableWidget->removeRow(row);
                 }
             }
+            else if ( error.testFlag(AlephERP::IndexNotExists) )
+            {
+                DBFieldMetadata *fld = m->field(ui->tableWidget->item(row, TV_IDX_COLUMN)->text());
+                if ( fld != NULL )
+                {
+                    QString sql = fld->sqlCreateIndex(Database::driverConnection());
+                    bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
+                    if (!result)
+                    {
+                        QString err = trUtf8("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                        ui->txtResults->setPlainText(err);
+                        qApp->processEvents();
+                    }
+                    else
+                    {
+                        ui->tableWidget->removeRow(row);
+                    }
+                }
+                else
+                {
+                    QLogger::QLog_Error(AlephERP::stLogDB, trUtf8("No existe la columna %1 en la tabla %2 en los metadatos.").
+                                        arg(ui->tableWidget->item(row, TV_IDX_COLUMN)->text()).
+                                        arg(ui->tableWidget->item(row, TV_IDX_TABLENAME)->text()));
+                }
+            }
         }
     }
     CommonsFunctions::restoreOverrideCursor();
@@ -210,7 +240,7 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
             CommonsFunctions::restoreOverrideCursor();
             return false;
         }
-        QString sqlIndex = m->sqlCreateIndex(m->module()->tableCreationOptions(), Database::driverConnection());
+        QString sqlIndex = m->sqlCreateIndexes(m->module()->tableCreationOptions(), Database::driverConnection());
         QStringList sqlIndexList = sqlIndex.split(';');
         foreach ( QString sqlOneIndex, sqlIndexList )
         {

@@ -48,8 +48,6 @@ public:
     QString m_calculatedFieldName;
     /** Indica si es un campo de sólo lectura */
     bool m_readOnly;
-    /** Indica si este campo se creará como un campo de índice en la base de datos */
-    bool m_dbIndex;
     /** ¿Puede este campo ser nulo ? */
     bool m_null;
     /** ¿Es este campo una primary key? */
@@ -248,7 +246,6 @@ public:
     {
         m_index = 0;
         m_readOnly = false;
-        m_dbIndex = false;
         m_null = false;
         m_primaryKey = false;
         m_type = QVariant::Invalid;
@@ -655,16 +652,6 @@ bool DBFieldMetadata::readOnly() const
         return true;
     }
     return false;
-}
-
-bool DBFieldMetadata::dbIndex() const
-{
-    return d->m_dbIndex;
-}
-
-void DBFieldMetadata::setDbIndex(bool value)
-{
-    d->m_dbIndex = value;
 }
 
 bool DBFieldMetadata::html() const
@@ -1899,6 +1886,26 @@ QString DBFieldMetadata::sqlNullCondition(const QString &dialect)
     {
         sql = QString("(%1 IS NULL OR %1 = \'%1\')").arg(d->m_dbFieldName);
     }
+    return sql;
+}
+
+QString DBFieldMetadata::sqlCreateIndex(const QString &dialect)
+{
+    QString unique = this->unique() ? "UNIQUE" : "";
+    QString idxName = QString("idx_%1_%2").arg(beanMetadata()->tableName()).arg(dbFieldName());
+    if ( dialect == QLatin1String("QIBASE") && idxName.size() > MAX_LENGTH_OBJECT_NAME_FIREBIRD )
+    {
+        idxName = QString("idx_%1").arg(alephERPSettings->uniqueId());
+    }
+    if ( dialect == QLatin1String("QPSQL") && idxName.size() > MAX_LENGTH_OBJECT_NAME_PSQL )
+    {
+        idxName = QString("idx_%1").arg(alephERPSettings->uniqueId());
+    }
+    QString sql = QString("CREATE %1 INDEX %2 ON %3(%4);").
+          arg(unique).
+          arg(idxName).
+          arg(beanMetadata()->sqlTableName(dialect)).
+          arg(dbFieldName());
     return sql;
 }
 

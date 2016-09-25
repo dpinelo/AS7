@@ -74,6 +74,7 @@ static BatchDAO *batchDAO;
 #define MSG_NO_EXISTE_UI QT_TR_NOOP("No existe un fichero UI en base de datos con la defición del formulario de búsqueda")
 
 #define SQL_CONSISTENCY_PSQL "SELECT DISTINCT column_name, data_type, is_nullable, character_maximum_length FROM information_schema.columns WHERE table_name = :tablename and table_schema = :table_schema;"
+#define SQL_CONSISTENCY_PSQL_SEARCH_INDEX "SELECT n.nspname as schema, t.relname as table_name, i.relname as index_name, a.attname as column_name FROM pg_namespace n, pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE n.oid = i.relnamespace and t.oid = ix.indrelid and i.oid = ix.indexrelid and a.attrelid = t.oid and a.attnum = ANY(ix.indkey) and t.relkind = 'r' and n.nspname = :schema and t.relname = :tablename and a.attname = :columname ORDER BY t.relname, i.relname;"
 
 BeansFactory::BeansFactory(QObject *parent) : QObject(parent)
 {
@@ -1041,6 +1042,195 @@ QList<ReportMetadata *> BeansFactory::metadataReportsByLinkedTo(const QString &l
 }
 
 
+typedef struct DatabaseInformation
+{
+    QHash<QString, QString> columnTypes;
+    QHash<QString, bool> nullable;
+    QHash<QString, int> maxChars;
+} stDatabaseInformation;
+
+void checkFieldConsistency(DBFieldMetadata *fld, QVariantList &log, const stDatabaseInformation &databaseInformation)
+{
+    QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase()));
+    QHash<QString, QVariant> errors;
+    AlephERP::ConsistencyTableErrors flagErrors;
+    BaseBeanMetadata *m = fld->beanMetadata();
+    errors["tablename"] = m->tableName();
+    errors["column"] = fld->dbFieldName();
+
+    if ( !qry->prepare(SQL_CONSISTENCY_PSQL_SEARCH_INDEX) )
+    {
+        QLogger::QLog_Error(AlephERP::stLogDB, QObject::trUtf8("checkFieldConsistency: %1").arg(qry->lastError().text()));
+    }
+
+    // ¿Alguno duplicado?
+    foreach ( DBFieldMetadata *tmpFld, m->fields() )
+    {
+        if ( tmpFld->dbFieldName() == fld->dbFieldName() && tmpFld != fld )
+        {
+            errors["error"] = QObject::trUtf8("Columna duplicada en los metadatos.");
+            flagErrors = AlephERP::DbFieldNameDuplicate;
+        }
+    }
+    if ( fld->isOnDb() )
+    {
+        if ( !databaseInformation.columnTypes.contains(fld->dbFieldName()) )
+        {
+            errors["error"] = QObject::trUtf8("Columna presente en metadatos, pero no definida en la tabla.");
+            flagErrors = AlephERP::ColumnOnMetadataNotOnTable;
+        }
+        else
+        {
+            QString err;
+            // Se comprueba la longitud del campo
+            if ( fld->checkDatabaseType(databaseInformation.columnTypes.value(fld->dbFieldName()), Database::driverConnection(), err) )
+            {
+                if ( fld->type() == QVariant::String && fld->length() > databaseInformation.maxChars[fld->dbFieldName()] )
+                {
+                    if ( !err.isEmpty() )
+                    {
+                        err = err + " - ";
+                    }
+                    err = QObject::trUtf8("Columna definida en metadatos con longitud (%1) excede a la disponible en base de datos (%2).").
+                            arg(fld->length()).
+                            arg(databaseInformation.maxChars[fld->dbFieldName()]);
+                    flagErrors = flagErrors | AlephERP::ColumnOnMetadataWithLengthOverDatabaseLength;
+                }
+            }
+            // Se comprueba la integridad de campos nulos y no nulos
+            if ( fld->canBeNull() && !databaseInformation.nullable.value(fld->dbFieldName()) )
+            {
+                if ( !err.isEmpty() )
+                {
+                    err = err + " - ";
+                }
+                err = QObject::trUtf8("Columna definida en metadatos como nullable, pero en base de datos no puede ser nula.");
+                flagErrors = flagErrors | AlephERP::ColumnOnMetadataIsNullableButNotOnDatabase;
+            }
+            if ( !fld->canBeNull() && databaseInformation.nullable.value(fld->dbFieldName()) )
+            {
+                if ( !err.isEmpty() )
+                {
+                    err = err + " - ";
+                }
+                err = QObject::trUtf8("Columna definida en metadatos como no nullable, pero en base de datos puede ser nula.");
+                flagErrors = flagErrors | AlephERP::ColumnOnMetadataNotNullButCanBeOnDatabase;
+            }
+            // Si el campo tiene relaciones de tipo 11 o M1, debería haber un índice de base de datos para rendimiento...
+            if ( fld->relations(AlephERP::OneToOne | AlephERP::ManyToOne).size() > 0 )
+            {
+                qry->bindValue(":schema", alephERPSettings->dbSchema());
+                qry->bindValue(":tablename", m->tableName());
+                qry->bindValue(":columname", fld->dbFieldName());
+                if ( qry->exec() )
+                {
+                    if ( !qry->first() )
+                    {
+                        if ( !err.isEmpty() )
+                        {
+                            err = err + " - ";
+                        }
+                        err = QObject::trUtf8("Columna índice de una relación 11 o M1 que no tiene un índice de base de datos definido.");
+                        flagErrors = flagErrors | AlephERP::IndexNotExists;
+                    }
+                }
+            }
+            if ( !err.isEmpty() )
+            {
+                errors["error"] = err;
+            }
+        }
+    }
+    if ( errors.contains("error") )
+    {
+        errors["code"] = QString("%1").arg(flagErrors);
+        log.append(errors);
+    }
+}
+
+void checkTableConsistency(BaseBeanMetadata *m, QVariantList &log)
+{
+    QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase()));
+    stDatabaseInformation databaseInformation;
+
+    if ( m->tableName().size() > MAX_LENGTH_OBJECT_NAME_FIREBIRD )
+    {
+        QHash<QString, QVariant> tableErrors;
+        AlephERP::ConsistencyTableErrors flagErrors;
+        tableErrors["tablename"] = m->tableName();
+        tableErrors["column"] = "";
+        tableErrors["error"] = QObject::trUtf8("El nombre de la tabla excede de 30 caracteres, lo que en bases de datos como Firebird darán errores.");
+        flagErrors = AlephERP::TableNameLengthTooLong;
+        tableErrors["code"] = QString("%1").arg(flagErrors);
+        log.append(tableErrors);
+    }
+    if ( !qry->prepare(SQL_CONSISTENCY_PSQL) )
+    {
+        QLogger::QLog_Error(AlephERP::stLogDB, QString("checkTableConsistency: %1").arg(qry->lastError().text()));
+        return;
+    }
+    QString schema = m->schema().isEmpty() ? alephERPSettings->dbSchema() : m->schema();
+    qry->bindValue(":tablename", m->tableName());
+    qry->bindValue(":table_schema", schema);
+    if ( !qry->exec() )
+    {
+        QLogger::QLog_Error(AlephERP::stLogDB, QString("checkTableConsistency: %1").arg(qry->lastError().text()));
+        return;
+    }
+
+    if ( qry->first() )
+    {
+        do
+        {
+            databaseInformation.columnTypes[qry->value("column_name").toString()] = qry->value("data_type").toString(); // Tipo de columna
+            databaseInformation.nullable[qry->value("column_name").toString()] = qry->value("is_nullable").toString() == QStringLiteral("YES") ? true : false; // Indica si es nullable
+            databaseInformation.maxChars[qry->value("column_name").toString()] = qry->value("character_maximum_length").toInt(); // Máximo número de caracteres
+        }
+        while ( qry->next() );
+        foreach ( DBFieldMetadata *fld, m->fields() )
+        {
+            checkFieldConsistency(fld, log, databaseInformation);
+        }
+        qry->first();
+        do
+        {
+            DBFieldMetadata *fld = m->field(qry->value("column_name").toString());
+            if ( fld == NULL )
+            {
+                bool nullable = qry->value("is_nullable").toString().toUpper() == QStringLiteral("YES") ? true : false;
+                QHash<QString, QVariant> errors;
+                AlephERP::ConsistencyTableErrors flagErrors;
+                errors["tablename"] = m->tableName();
+                errors["column"] = qry->value("column_name").toString();
+                if ( nullable )
+                {
+                    flagErrors = AlephERP::ColumnNotOnMetadataButOnDatabase;
+                    errors["error"] = QObject::trUtf8("Columna presente en base de datos y no presente en metadatos");
+                }
+                else
+                {
+                    flagErrors = AlephERP::ColumnNotOnMetadataButOnDatabaseNotNull;
+                    errors["error"] = QObject::trUtf8("Columna presente en base de datos NO NULLABLE y no presente en metadatos");
+                }
+                errors["code"] = QString("%1").arg(flagErrors);
+                log.append(errors);
+            }
+        }
+        while (qry->next());
+    }
+    else
+    {
+        QHash<QString, QVariant> tableErrors;
+        AlephERP::ConsistencyTableErrors flagErrors;
+        tableErrors["tablename"] = m->tableName();
+        tableErrors["column"] = "";
+        tableErrors["error"] = QObject::trUtf8("La tabla %1 contiene columnas o una definición diferente a la de los metadatos.").arg(m->tableName());
+        flagErrors = AlephERP::TableNotMatchMetadata;
+        tableErrors["code"] = QString("%1").arg(flagErrors);
+        log.append(tableErrors);
+    }
+}
+
 /**
  * @brief SystemDAO::checkConsistencyMetadataTable Comprueba que los metadatos coinciden con las columnas de la tabla.
  * @param failTable
@@ -1050,8 +1240,6 @@ QList<ReportMetadata *> BeansFactory::metadataReportsByLinkedTo(const QString &l
 bool BeansFactory::checkConsistencyMetadataDatabase(QVariantList &log)
 {
     // TODO: Por el momento sólo funciona para PostgreSQL
-    QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase()));
-    bool r = false;
     foreach (QPointer<BaseBeanMetadata> m, BeansFactory::metadataBeans)
     {
         if ( m )
@@ -1070,144 +1258,7 @@ bool BeansFactory::checkConsistencyMetadataDatabase(QVariantList &log)
             }
             if ( m->dbObjectType() == AlephERP::Table )
             {
-                if ( m->tableName().size() > MAX_LENGTH_OBJECT_NAME_FIREBIRD )
-                {
-                    QHash<QString, QVariant> tableErrors;
-                    AlephERP::ConsistencyTableErrors flagErrors;
-                    tableErrors["tablename"] = m->tableName();
-                    tableErrors["column"] = "";
-                    tableErrors["error"] = trUtf8("El nombre de la tabla excede de 30 caracteres, lo que en bases de datos como Firebird darán errores.");
-                    flagErrors = AlephERP::TableNameLengthTooLong;
-                    tableErrors["code"] = QString("%1").arg(flagErrors);
-                    log.append(tableErrors);
-                }
-                QHash<QString, QString> columnTypes;
-                QHash<QString, bool> nullable;
-                QHash<QString, int> maxChars;
-                if ( qry->prepare(SQL_CONSISTENCY_PSQL) )
-                {
-                    QString schema = m->schema().isEmpty() ? alephERPSettings->dbSchema() : m->schema();
-                    qry->bindValue(":tablename", m->tableName());
-                    qry->bindValue(":table_schema", schema);
-                    r = qry->exec();
-                    if ( r )
-                    {
-                        if ( qry->first() )
-                        {
-                            do
-                            {
-                                columnTypes[qry->value(0).toString()] = qry->value(1).toString();
-                                nullable[qry->value(0).toString()] = qry->value(2).toString() == QStringLiteral("YES") ? true : false;
-                                maxChars[qry->value(0).toString()] = qry->value(3).toInt();
-                            }
-                            while ( qry->next() );
-                            foreach ( DBFieldMetadata *fld, m->fields() )
-                            {
-                                QHash<QString, QVariant> errors;
-                                AlephERP::ConsistencyTableErrors flagErrors;
-                                errors["tablename"] = m->tableName();
-                                errors["column"] = fld->dbFieldName();
-                                // ¿Alguno duplicado?
-                                foreach ( DBFieldMetadata *tmpFld, m->fields() )
-                                {
-                                    if ( tmpFld->dbFieldName() == fld->dbFieldName() && tmpFld != fld )
-                                    {
-                                        errors["error"] = trUtf8("Columna duplicada en los metadatos.");
-                                        flagErrors = AlephERP::DbFieldNameDuplicate;
-                                    }
-                                }
-                                if ( fld->isOnDb() )
-                                {
-                                    if ( !columnTypes.contains(fld->dbFieldName()) )
-                                    {
-                                        errors["error"] = trUtf8("Columna presente en metadatos, pero no definida en la tabla.");
-                                        flagErrors = AlephERP::ColumnOnMetadataNotOnTable;
-                                    }
-                                    else
-                                    {
-                                        QString err;
-                                        if ( fld->checkDatabaseType(columnTypes.value(fld->dbFieldName()), Database::driverConnection(), err) )
-                                        {
-                                            if ( fld->type() == QVariant::String && fld->length() > maxChars[fld->dbFieldName()] )
-                                            {
-                                                if ( !err.isEmpty() )
-                                                {
-                                                    err = err + " - ";
-                                                }
-                                                err = trUtf8("Columna definida en metadatos con longitud (%1) excede a la disponible en base de datos (%2).").arg(fld->length()).arg(maxChars[fld->dbFieldName()]);
-                                                flagErrors = flagErrors | AlephERP::ColumnOnMetadataWithLengthOverDatabaseLength;
-                                            }
-                                        }
-                                        if ( fld->canBeNull() && !nullable.value(fld->dbFieldName()) )
-                                        {
-                                            if ( !err.isEmpty() )
-                                            {
-                                                err = err + " - ";
-                                            }
-                                            err = trUtf8("Columna definida en metadatos como nullable, pero en base de datos no puede ser nula.");
-                                            flagErrors = flagErrors | AlephERP::ColumnOnMetadataIsNullableButNotOnDatabase;
-                                        }
-                                        if ( !fld->canBeNull() && nullable.value(fld->dbFieldName()) )
-                                        {
-                                            if ( !err.isEmpty() )
-                                            {
-                                                err = err + " - ";
-                                            }
-                                            err = trUtf8("Columna definida en metadatos como no nullable, pero en base de datos puede ser nula.");
-                                            flagErrors = flagErrors | AlephERP::ColumnOnMetadataNotNullButCanBeOnDatabase;
-                                        }
-                                        if ( !err.isEmpty() )
-                                        {
-                                            errors["error"] = err;
-                                        }
-                                    }
-                                }
-                                if ( errors.contains("error") )
-                                {
-                                    errors["code"] = QString("%1").arg(flagErrors);
-                                    log.append(errors);
-                                }
-                            }
-                            qry->first();
-                            do
-                            {
-                                DBFieldMetadata *fld = m->field(qry->value(0).toString());
-                                if ( fld == NULL )
-                                {
-                                    bool nullable = qry->value(2).toString() == QStringLiteral("YES") ? true : false;
-                                    QHash<QString, QVariant> errors;
-                                    AlephERP::ConsistencyTableErrors flagErrors;
-                                    errors["tablename"] = m->tableName();
-                                    errors["column"] = qry->value(0).toString();
-                                    if ( nullable )
-                                    {
-                                        flagErrors = AlephERP::ColumnNotOnMetadataButOnDatabase;
-                                        errors["error"] = trUtf8("Columna presente en base de datos y no presente en metadatos");
-                                    }
-                                    else
-                                    {
-                                        flagErrors = AlephERP::ColumnNotOnMetadataButOnDatabaseNotNull;
-                                        errors["error"] = trUtf8("Columna presente en base de datos NO NULLABLE y no presente en metadatos");
-                                    }
-                                    errors["code"] = QString("%1").arg(flagErrors);
-                                    log.append(errors);
-                                }
-                            }
-                            while (qry->next());
-                        }
-                    }
-                    else
-                    {
-                        QHash<QString, QVariant> tableErrors;
-                        AlephERP::ConsistencyTableErrors flagErrors;
-                        tableErrors["tablename"] = m->tableName();
-                        tableErrors["column"] = "";
-                        tableErrors["error"] = trUtf8("La tabla %1 contiene ccolumnas o una definición diferente a la de los metadatos.").arg(m->tableName());
-                        flagErrors = AlephERP::TableNotMatchMetadata;
-                        tableErrors["code"] = QString("%1").arg(flagErrors);
-                        log.append(tableErrors);
-                    }
-                }
+                checkTableConsistency(m, log);
             }
         }
     }

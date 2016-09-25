@@ -393,7 +393,7 @@ bool BatchDAOPrivate::prepareBatchStructure()
                         QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
                         return false;
                     }
-                    QString sqlIndex = metadata->sqlCreateIndex(AlephERP::CreateIndexOnRelationColumns, BATCH_DATABASE_DRIVER);
+                    QString sqlIndex = metadata->sqlCreateIndexes(AlephERP::CreateIndexOnRelationColumns, BATCH_DATABASE_DRIVER);
                     QStringList index = sqlIndex.split(';');
                     foreach (const QString & sqlIdx, index)
                     {
