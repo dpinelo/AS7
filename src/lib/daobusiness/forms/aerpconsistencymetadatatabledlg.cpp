@@ -367,7 +367,7 @@ QString AERPConsistencyMetadataTableDlgPrivate::priorityForError(const QString &
     switch (error)
     {
     case AlephERP::ColumnOnMetadataNotOnTable:
-        return stWarning;
+        return stError;
 
     case AlephERP::ColumnOnMetadataWithLengthOverDatabaseLength:
         return stError;
