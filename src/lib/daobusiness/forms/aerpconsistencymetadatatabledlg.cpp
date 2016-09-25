@@ -79,7 +79,7 @@ AERPConsistencyMetadataTableDlg::AERPConsistencyMetadataTableDlg(const QVariantL
         ui->tableWidget->setItem(row, TV_IDX_ERROR, itemWidget);
 
         itemWidget = new QTableWidgetItem (d->priorityForError(hash["code"].toString()));
-        ui->tableWidget->setItem(row, TV_IDX_COLUMN, itemWidget);
+        ui->tableWidget->setItem(row, TV_IDX_PRIORITY, itemWidget);
 
 
         qDebug() << "[" << hash["tablename"].toString() << "] [" << hash["column"].toString() << "] [" << hash["error"].toString() << "]";
