@@ -91,7 +91,6 @@ public:
     BaseBeanSharedPointerList m_beansToBeDeleted;
     // Filas estáticas
     QList< QHash<int, QVariant> > m_staticRows;
-    bool m_refreshing;
     bool m_reloadingWasActivePreviousRefresh;
     /** Nos indicará si tras el último refresh, se ha empezado a acceder a los datos */
     /** Petición en background para obtener el número de registros */
@@ -113,7 +112,6 @@ public:
         m_metadata = NULL;
         m_useEnvVars = true;
         m_errorOnDelete = false;
-        m_refreshing = false;
         m_workLoadingOnBackground = true;
         m_reloadingWasActivePreviousRefresh = true;
     }
@@ -137,8 +135,8 @@ public:
     void clearBackgroundQueries();
     DBFieldMetadata *fieldForColumn(int column);
     bool stillBackgroundUpdatePetitions();
-    void updateRowBean(int modelRow, BaseBeanSharedPointer updateBean);
-    void setNewRowBean(int idx, int modelRow, BaseBeanSharedPointer updateBean);
+    void newBeanAvailableSetInRow(int modelRow, BaseBeanSharedPointer updateBean);
+    void updateRowBean(int idx, int modelRow, BaseBeanSharedPointer updateBean);
     void checkRefreshEnd();
 };
 
@@ -684,10 +682,7 @@ void DBBaseBeanModelPrivate::removeBean(int row)
 {
     if ( AERP_CHECK_INDEX_OK(row, m_vectorBean) )
     {
-        if ( !m_refreshing )
-        {
-            q_ptr->beginRemoveRows(QModelIndex(), row, row);
-        }
+        q_ptr->beginRemoveRows(QModelIndex(), row, row);
         QObject::disconnect(m_vectorBean[row].data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
                          q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
         QObject::disconnect(m_vectorBean[row].data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
@@ -701,10 +696,7 @@ void DBBaseBeanModelPrivate::removeBean(int row)
         }
         m_beansFetched.removeAt(row);
         m_rowCount--;
-        if ( !m_refreshing )
-        {
-            q_ptr->endRemoveRows();
-        }
+        q_ptr->endRemoveRows();
     }
 }
 
@@ -818,13 +810,13 @@ void DBBaseBeanModel::availableBean(QString id, int row, BaseBeanSharedPointer u
             int modelRow = row + d->m_beansPetitions.at(idx).initRow;
             if ( !d->m_beansPetitions.at(idx).updatePetition )
             {
-                d->updateRowBean(modelRow, updateBean);
+                d->newBeanAvailableSetInRow(modelRow, updateBean);
             }
             else
             {
                 if ( AERP_CHECK_INDEX_OK(modelRow, d->m_vectorBean) && !isFrozenModel() )
                 {
-                    d->setNewRowBean(idx, modelRow, updateBean);
+                    d->updateRowBean(idx, modelRow, updateBean);
                 }
             }
         }
@@ -839,7 +831,7 @@ void DBBaseBeanModel::availableBean(QString id, int row, BaseBeanSharedPointer u
  * Actualiza las estructuras de datos internas con un registro obtenido desde base de datos.
  * Se invoca desde una operación de actualización
  */
-void DBBaseBeanModelPrivate::updateRowBean(int modelRow, BaseBeanSharedPointer updateBean)
+void DBBaseBeanModelPrivate::newBeanAvailableSetInRow(int modelRow, BaseBeanSharedPointer updateBean)
 {
     if ( modelRow >= m_vectorBean.size() )
     {
@@ -867,7 +859,7 @@ void DBBaseBeanModelPrivate::updateRowBean(int modelRow, BaseBeanSharedPointer u
  * @param updateBean
  * Se ha recibido un nuevo bean... hay que ver dónde se actualiza
  */
-void DBBaseBeanModelPrivate::setNewRowBean(int idx, int modelRow, BaseBeanSharedPointer updateBean)
+void DBBaseBeanModelPrivate::updateRowBean(int idx, int modelRow, BaseBeanSharedPointer updateBean)
 {
     if ( m_vectorBean.at(modelRow) == NULL )
     {
@@ -909,7 +901,6 @@ void DBBaseBeanModelPrivate::checkRefreshEnd()
 {
     if ( m_rowCount == 0 || !stillBackgroundUpdatePetitions() )
     {
-        m_refreshing = false;
         emit q_ptr->endRefresh();
         if ( m_reloadingWasActivePreviousRefresh )
         {
@@ -937,7 +928,6 @@ void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
                     // Se han borrado filas... casi que mejor recargar todo el modelo.
                     if ( !isFrozenModel() )
                     {
-                        d->m_refreshing = false;
                         emit endRefresh();
                         resetModel();
                         if ( d->m_reloadingWasActivePreviousRefresh )
@@ -983,7 +973,7 @@ void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
 void DBBaseBeanModel::fieldBaseBeanModified(BaseBean *bean, const QString &dbFieldName, const QVariant &value)
 {
     Q_UNUSED(value)
-    if ( d->m_refreshing || isLoadingData() )
+    if ( isLoadingData() )
     {
         return;
     }
@@ -1085,7 +1075,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
     {
         valueData = "";
     }
-    if ( d->m_refreshing || isLoadingData() )
+    if ( isLoadingData() )
     {
         return valueData;
     }
@@ -1127,7 +1117,8 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
         return valueData;
     }
 
-    if ( role == AlephERP::RowFetchedRole ) {
+    if ( role == AlephERP::RowFetchedRole )
+    {
         if ( isLoadingData() )
         {
             return false;
@@ -1211,7 +1202,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
 
 bool DBBaseBeanModel::setData ( const QModelIndex & index, const QVariant & value, int role )
 {
-    if ( !index.isValid() || d->m_metadata == NULL || d->m_refreshing || isLoadingData() )
+    if ( !index.isValid() || d->m_metadata == NULL || isLoadingData() )
     {
         return false;
     }
@@ -1265,7 +1256,7 @@ bool DBBaseBeanModel::removeRows (int row, int count, const QModelIndex & parent
     bool result = true;
     QString contextName = AlephERP::stDeleteContext;
 
-    if ( d->m_refreshing || isLoadingData() )
+    if ( isLoadingData() )
     {
         return false;
     }
@@ -1332,7 +1323,7 @@ BaseBeanSharedPointer DBBaseBeanModel::bean(const QModelIndex &index, bool reloa
     bool beansHasBeenFetched = false;
 
     // ¿Se está refrescando el modelo? Si es así, ojo, no permitimos hacer nada
-    if ( d->m_refreshing || isLoadingData() )
+    if ( isLoadingData() )
     {
         QLogger::QLog_Warning(AlephERP::stLogDB, QString("DBBaseBeanModel::bean: Bean solicitado en una operación de refresco. No devolvemos nada."));
         qWarning() << Q_FUNC_INFO
@@ -1393,7 +1384,7 @@ BaseBeanSharedPointerList DBBaseBeanModel::beans(const QModelIndexList &list)
     BaseBeanSharedPointerList result, beansToReload;
 
     // ¿Se está refrescando el modelo? Si es así, ojo, no permitimos hacer nada
-    if ( d->m_refreshing || isLoadingData() )
+    if ( isLoadingData() )
     {
         QLogger::QLog_Warning(AlephERP::stLogDB, QString("DBBaseBeanModel::beans: Bean solicitado en una operación de refresco. No devolvemos nada."));
         qWarning() << Q_FUNC_INFO
@@ -1545,7 +1536,7 @@ BaseBeanMetadata *DBBaseBeanModel::metadata() const
 */
 QModelIndex DBBaseBeanModel::indexByPk(const QVariant &value)
 {
-    if ( d->m_refreshing || isLoadingData() )
+    if ( isLoadingData() )
     {
         return QModelIndex();
     }
@@ -1587,13 +1578,12 @@ void DBBaseBeanModel::refresh(bool force)
     {
         return;
     }
-    if ( !force && !alephERPSettings->modelsRefresh() )
+    if ( !alephERPSettings->modelsRefresh() )
     {
         return;
     }
     d->checkRefreshEnd();
-    if ( d->m_refreshing ||
-         AERPTransactionContext::instance()->doingCommit() ||
+    if ( AERPTransactionContext::instance()->doingCommit() ||
          d->m_metadata->staticModel() )
     {
         return;
@@ -1608,7 +1598,6 @@ void DBBaseBeanModel::refresh(bool force)
         return;
     }
     emit initRefresh();
-    d->m_refreshing = true;
     QMutexLocker locker(&d->m_mutex);
 
     if ( timerId() != -1 )
@@ -1625,10 +1614,6 @@ void DBBaseBeanModel::refresh(bool force)
 
 bool DBBaseBeanModel::commit()
 {
-    if ( d->m_refreshing )
-    {
-        return false;
-    }
     // Ahora se produce la transacción de borrado
     d->m_errorOnDelete = false;
     if ( !AERPTransactionContext::instance()->isContextEmpty(AlephERP::stDeleteContext) )
