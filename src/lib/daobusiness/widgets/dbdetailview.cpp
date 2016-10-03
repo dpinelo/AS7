@@ -523,9 +523,10 @@ void DBDetailView::deleteRecord()
 
     if ( ret == QMessageBox::Yes )
     {
-        foreach (const QModelIndex &index, rows)
+        while (rows.size() > 0)
         {
-            filterModel()->removeRow(index.row(), QModelIndex());
+            QModelIndex idx = rows.takeLast();
+            filterModel()->removeRow(idx.row(), QModelIndex());
             if ( filterModel() )
             {
                 filterModel()->invalidate();
