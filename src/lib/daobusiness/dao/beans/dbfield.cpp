@@ -1246,8 +1246,8 @@ void DBField::setValue(const QVariant &argNewValue)
             {
                 d->m_value = newValueData;
                 d->m_displayValue.clear();
-                emitValueModifiedByUser();
                 d->m_modified = true;
+                emitValueModifiedByUser();
             }
             else
             {

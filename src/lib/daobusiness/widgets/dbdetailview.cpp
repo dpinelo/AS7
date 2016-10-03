@@ -683,7 +683,7 @@ void DBDetailView::removeExisting()
         ui->tableView->selectRow(index.row());
         ui->tableView->update();
     }
-    QString mensaje = trUtf8("¿Está seguro de querer desasigar el registro? No será borrado, simplemente se eliminará la relación con el registro actual.");
+    QString mensaje = trUtf8("¿Está seguro de querer desasigar el registro? \nNo será borrado, simplemente se eliminará la relación con el registro actual.");
 
     int ret;
     if ( d->m_promptForDelete )

@@ -298,3 +298,12 @@ int AERPScriptSqlQuery::size ()
     }
     return false;
 }
+
+int AERPScriptSqlQuery::columnCount()
+{
+    if ( d->m_query != NULL )
+    {
+        return d->m_query->record().count();
+    }
+    return 0;
+}

@@ -1092,7 +1092,7 @@ void DBAbstractFilterView::defrostModel()
         {
             d->m_model->defrostModel();
         }
-        d->m_model->refresh(true);
+        d->m_model->refresh();
     }
     /*
      * Este código tiene efectos fatales en la estabilidad del programa con modelos en árbol.

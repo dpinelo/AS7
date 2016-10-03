@@ -135,8 +135,8 @@ void DBFormDlgPrivate::connectButtonsToResfreshEvent()
     FilterBaseBeanModel *model = m_itemView->filterModel();
     if ( model != NULL )
     {
-        QObject::connect(model, SIGNAL(initRefresh()), q_ptr, SLOT(initReloadViewData()));
-        QObject::connect(model, SIGNAL(endRefresh()), q_ptr, SLOT(endReloadViewData()));
+        // QObject::connect(model, SIGNAL(initRefresh()), q_ptr, SLOT(initReloadViewData()));
+        // QObject::connect(model, SIGNAL(endRefresh()), q_ptr, SLOT(endReloadViewData()));
         QObject::connect(model, SIGNAL(initLoadingData()), q_ptr, SLOT(initReloadViewData()));
         QObject::connect(model, SIGNAL(endLoadingData()), q_ptr, SLOT(endReloadViewData()));
     }

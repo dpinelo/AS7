@@ -64,6 +64,8 @@ public:
     Q_INVOKABLE bool first ();
     Q_INVOKABLE bool next ();
     Q_INVOKABLE int size ();
+    Q_INVOKABLE int columnCount ();
+
     static QScriptValue specialAERPScriptSqlQueryConstructor(QScriptContext *context, QScriptEngine *engine);
 
     QString connectionName() const;

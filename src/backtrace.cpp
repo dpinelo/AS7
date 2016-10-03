@@ -347,6 +347,7 @@ void windowsStackTrace(QFile &output, PCONTEXT context)
         }
         else
         {
+            qFileName = QString("%1").arg(file);
             if (func == NULL)
             {
                 qFuncName = QString("0x%1").arg(stackframe.AddrPC.Offset);
