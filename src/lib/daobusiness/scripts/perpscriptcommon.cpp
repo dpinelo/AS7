@@ -2908,6 +2908,16 @@ void AERPScriptCommon::printHtml(const QString &html)
     }
 }
 
+QStringList AERPScriptCommon::availablePrinterNames() const
+{
+    return QPrinterInfo::availablePrinterNames();
+}
+
+QString AERPScriptCommon::defaultPrinterName() const
+{
+    return QPrinterInfo::defaultPrinterName();
+}
+
 void AERPScriptCommon::geocoderAvailable(const QString &uuid, QList<AlephERP::AERPMapPosition>  data)
 {
     if ( d_ptr->m_geocoderUuid == uuid )

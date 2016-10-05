@@ -309,6 +309,9 @@ public:
     Q_INVOKABLE void printPreviewHtml(const QString &html);
     Q_INVOKABLE void printHtml(const QString &html);
 
+    Q_INVOKABLE QStringList availablePrinterNames() const;
+    Q_INVOKABLE QString defaultPrinterName() const;
+
 signals:
     void directoryChanged(QString dir);
     void fileChanged(QString file);
