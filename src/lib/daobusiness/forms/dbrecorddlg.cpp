@@ -2078,6 +2078,11 @@ void DBRecordDlg::keyPressEvent (QKeyEvent *e)
     }
 }
 
+void DBRecordDlg::showEvent(QShowEvent *)
+{
+    callQSMethod("showEvent");
+}
+
 void DBRecordDlg::hideDBButtons()
 {
     ui->chkNavigateSavingChanges->setVisible(false);
