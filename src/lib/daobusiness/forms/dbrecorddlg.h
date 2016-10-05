@@ -122,7 +122,7 @@ protected:
     void closeEvent (QCloseEvent * event);
     bool eventFilter (QObject *target, QEvent *event);
     void keyPressEvent (QKeyEvent * e);
-    void showEvent(QShowEvent *);
+    void showEvent(QShowEvent *event);
 
     virtual void setupMainWidget();
     virtual void execQs();

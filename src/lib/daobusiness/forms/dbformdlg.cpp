@@ -93,6 +93,9 @@ public:
     QString m_helpUrl;
     QPersistentModelIndex m_currentIndex;
     QModelIndex m_recentInsertSourceIndex;
+    /** Esta variable se establecerá por el método freezeModel, que puede ser llamado desde JS
+     * Es muy importante su valor, para evitar Casques de la app */
+    bool m_frozenModelByQs;
 
     DBFormDlgPrivate(DBFormDlg *qq) : q_ptr(qq)
     {
@@ -101,6 +104,7 @@ public:
         m_specialButtonSignalMapper = NULL;
         m_selectedBean = NULL;
         m_openSuccess = false;
+        m_frozenModelByQs = false;
     }
 
     void connectButtonsToResfreshEvent();
@@ -809,7 +813,7 @@ void DBFormDlg::keyPressEvent (QKeyEvent * e)
 void DBFormDlg::showEvent(QShowEvent *ev)
 {
     Q_UNUSED(ev)
-    if ( !d->m_mainWindow->isVisibleRelatedWidget() )
+    if ( !d->m_mainWindow->isVisibleRelatedWidget() && !d->m_frozenModelByQs )
     {
         // Es importante que en este punto, no se fuerce el refresco
         d->m_itemView->defrostModel();
@@ -998,7 +1002,8 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
             if ( !result.toBool() )
             {
                 if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-                     !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName))
+                     !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+                     !d->m_frozenModelByQs )
                 {
                     d->m_itemView->defrostModel();
                 }
@@ -1088,7 +1093,8 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     {
         delete dlg;
         if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-             !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) )
+             !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+             !d->m_frozenModelByQs )
         {
             d->m_itemView->defrostModel();
         }
@@ -1114,7 +1120,8 @@ void DBFormDlg::insertChild()
             if ( !result.toBool() )
             {
                 if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-                     !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) )
+                     !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+                     !d->m_frozenModelByQs )
                 {
                     d->m_itemView->defrostModel();
                 }
@@ -1189,7 +1196,8 @@ void DBFormDlg::insertChild()
         }
     }
     if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName))
+         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+         !d->m_frozenModelByQs )
     {
         d->m_itemView->defrostModel();
     }
@@ -1208,7 +1216,7 @@ void DBFormDlg::wizard()
         {
             if ( !result.toBool() )
             {
-                if ( !d->m_mainWindow->isVisibleRelatedWidget() )
+                if ( !d->m_mainWindow->isVisibleRelatedWidget() && !d->m_frozenModelByQs )
                 {
                     d->m_itemView->defrostModel();
                 }
@@ -1232,7 +1240,8 @@ void DBFormDlg::wizard()
         }
     }
     if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName))
+         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+         !d->m_frozenModelByQs )
     {
         d->m_itemView->defrostModel();
     }
@@ -1277,7 +1286,8 @@ void DBFormDlg::recordDlgClosed(BaseBeanPointer bean, bool userSaveData)
     // Forzamos un refresco del modelo
     setBeanOnRelatedWidget();
     if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName))
+         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+         !d->m_frozenModelByQs )
     {
         d->m_itemView->defrostModel();
     }
@@ -1313,7 +1323,8 @@ void DBFormDlg::deleteRecord(void)
                              QString::fromUtf8("Ha ocurrido un error inesperado. Es posible que haya perdido la conexión a la base de datos."),
                              QMessageBox::Ok);
         if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-             !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName))
+             !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+             !d->m_frozenModelByQs )
         {
             d->m_itemView->defrostModel();
         }
@@ -1329,7 +1340,8 @@ void DBFormDlg::deleteRecord(void)
                              QString::fromUtf8("Ha ocurrido un error inesperado. Es posible que haya perdido la conexión a la base de datos."),
                              QMessageBox::Ok);
         if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-             !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName))
+             !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+             !d->m_frozenModelByQs )
         {
             d->m_itemView->defrostModel();
         }
@@ -1344,7 +1356,8 @@ void DBFormDlg::deleteRecord(void)
                              trUtf8("Debe seleccionar algún registro para borrar."),
                              QMessageBox::Ok);
         if ( !!d->m_mainWindow->isVisibleRelatedWidget() &&
-             !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName))
+             !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+             !d->m_frozenModelByQs )
         {
             d->m_itemView->defrostModel();
         }
@@ -1358,7 +1371,8 @@ void DBFormDlg::deleteRecord(void)
             QMessageBox::information(this, qApp->applicationName(), d->m_lastMessage, QMessageBox::Ok);
         }
         if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-             !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName))
+             !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+             !d->m_frozenModelByQs )
         {
             d->m_itemView->defrostModel();
         }
@@ -1400,7 +1414,8 @@ void DBFormDlg::deleteRecord(void)
                     sourceModel->rollback();
                 }
                 if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-                     !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName))
+                     !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+                     !d->m_frozenModelByQs )
                 {
                     d->m_itemView->defrostModel();
                 }
@@ -1419,7 +1434,8 @@ void DBFormDlg::deleteRecord(void)
                         {
                             sourceModel->rollback();
                             if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-                                 !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName))
+                                 !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+                                 !d->m_frozenModelByQs )
                             {
                                 d->m_itemView->defrostModel();
                             }
@@ -1437,7 +1453,8 @@ void DBFormDlg::deleteRecord(void)
                                          QMessageBox::Ok);
                     sourceModel->rollback();
                     if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-                         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) )
+                         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+                         !d->m_frozenModelByQs )
                     {
                         d->m_itemView->defrostModel();
                     }
@@ -1463,7 +1480,8 @@ void DBFormDlg::deleteRecord(void)
         }
     }
     if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName))
+         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+         !d->m_frozenModelByQs )
     {
         d->m_itemView->defrostModel();
     }
@@ -1490,7 +1508,8 @@ void DBFormDlg::search(void)
         dlg->exec();
     }
     if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName))
+         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+         !d->m_frozenModelByQs )
     {
         d->m_itemView->defrostModel();
     }
@@ -1573,7 +1592,7 @@ void DBFormDlg::copy()
                     it.next();
                     mdl->removeRow(it.key(), it.value());
                 }
-                if ( !d->m_mainWindow->isVisibleRelatedWidget() )
+                if ( !d->m_mainWindow->isVisibleRelatedWidget() && !d->m_frozenModelByQs )
                 {
                     d->m_itemView->defrostModel();
                 }
@@ -1599,7 +1618,8 @@ void DBFormDlg::copy()
                              trUtf8("Debe seleccionar algún registro para copiar."), QMessageBox::Ok);
     }
     if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName))
+         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+         !d->m_frozenModelByQs )
     {
         d->m_itemView->defrostModel();
     }
@@ -1839,7 +1859,7 @@ void DBFormDlg::refreshFilterTableView()
     if ( !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
          !AERPTransactionContext::instance()->doingCommit() )
     {
-        if ( d->m_mainWindow && !d->m_mainWindow->isVisibleRelatedWidget() )
+        if ( d->m_mainWindow && !d->m_mainWindow->isVisibleRelatedWidget() && !d->m_frozenModelByQs )
         {
             d->m_itemView->defrostModel();
         }
@@ -1867,6 +1887,7 @@ void DBFormDlg::refreshFilterTableView()
 
 void DBFormDlg::freezeModel()
 {
+    d->m_frozenModelByQs = true;
     if ( !d->m_itemView.isNull() ) {
         d->m_itemView->freezeModel();
     }
@@ -1877,6 +1898,7 @@ void DBFormDlg::defrostModel()
     if ( !d->m_itemView.isNull() && !d->m_mainWindow->isVisibleRelatedWidget() ) {
         d->m_itemView->defrostModel();
     }
+    d->m_frozenModelByQs = false;
 }
 
 void DBFormDlg::setFilterKeyColumn(const QString &dbFieldName, const QString &op, const QVariant &value, int level)
@@ -2053,7 +2075,8 @@ void DBFormDlg::printRecord()
     run.showDialog();
 
     if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) )
+         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+         !d->m_frozenModelByQs )
     {
         d->m_itemView->defrostModel();
     }
@@ -2111,7 +2134,8 @@ void DBFormDlg::emailRecord()
             setBeanOnRelatedWidget();
         }
         if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-             !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) )
+             !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+             !d->m_frozenModelByQs )
         {
             d->m_itemView->defrostModel();
         }

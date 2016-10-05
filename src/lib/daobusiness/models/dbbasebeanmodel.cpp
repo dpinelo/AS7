@@ -405,7 +405,7 @@ void DBBaseBeanModelPrivate::resetModel()
     for (int i = 0 ; i < m_vectorBean.size() ; ++i)
     {
         BaseBeanSharedPointer bean = m_vectorBean.at(i);
-        if ( !bean.isNull() )
+        if ( bean )
         {
             QObject::disconnect(bean.data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
                                 q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
@@ -610,7 +610,7 @@ void DBBaseBeanModelPrivate::replaceInternalBean(int row, BaseBeanSharedPointer 
     if ( AERP_CHECK_INDEX_OK(row, m_vectorBean) )
     {
         // Reemplazaremos si el bean a remplazar tiene fecha de obtención anterior a la de newBean
-        if (m_vectorBean[row]->loadTime() < newBean->loadTime())
+        if (m_vectorBean[row] && m_vectorBean[row]->loadTime() < newBean->loadTime())
         {
             QObject::disconnect(m_vectorBean[row].data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
                              q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
@@ -1109,7 +1109,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
         if ( AERP_CHECK_INDEX_OK(row, d->m_vectorBean) )
         {
             bean = d->m_vectorBean.at(row);
-            if ( !bean.isNull() )
+            if ( bean )
             {
                 DBField *fld = NULL;
                 if (AERP_CHECK_INDEX_OK(column, visibleFields()))
@@ -1216,7 +1216,7 @@ bool DBBaseBeanModel::removeRows (int row, int count, const QModelIndex & parent
         if ( AERP_CHECK_INDEX_OK(row, d->m_vectorBean) && AERP_CHECK_INDEX_OK(row, d->m_beansFetched) )
         {
             BaseBeanSharedPointer bean = d->m_vectorBean.at(row);
-            if ( !bean.isNull() )
+            if ( bean )
             {
                 disconnect(bean.data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
                            this, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
@@ -1274,7 +1274,7 @@ BaseBeanSharedPointer DBBaseBeanModel::bean(const QModelIndex &index, bool reloa
         return bean;
     }
     bean = d->m_vectorBean.at(index.row());
-    if ( bean->dbState() == BaseBean::UPDATE )
+    if ( bean && bean->dbState() == BaseBean::UPDATE )
     {
         // Evitamos una recarga innecesaria. Hay que poner una marca de tiempo
         if ( !isFrozenModel() )
@@ -1331,7 +1331,7 @@ BaseBeanSharedPointerList DBBaseBeanModel::beans(const QModelIndexList &list)
             if ( AERP_CHECK_INDEX_OK(index.row(), d->m_vectorBean) )
             {
                 BaseBeanSharedPointer bean = d->m_vectorBean.at(index.row());
-                if ( bean->dbState() == BaseBean::UPDATE )
+                if ( bean && bean->dbState() == BaseBean::UPDATE )
                 {
                     // Evitamos una recarga innecesaria. Hay que poner una marca de tiempo
                     if ( !isFrozenModel() )
@@ -1476,7 +1476,7 @@ QModelIndex DBBaseBeanModel::indexByPk(const QVariant &value)
             if ( d->m_beansFetched.at(i) && AERP_CHECK_INDEX_OK(i, d->m_vectorBean) )
             {
                 BaseBeanSharedPointer bean = d->m_vectorBean.at(i);
-                if ( bean->pkValue() == values )
+                if ( bean && bean->pkValue() == values )
                 {
                     return index(i, 0);
                 }
@@ -1557,7 +1557,7 @@ bool DBBaseBeanModel::commit()
     for ( int i = 0 ; i < d->m_vectorBean.size() ; i++ )
     {
         BaseBeanSharedPointer bean = d->m_vectorBean.at(i);
-        if ( !bean.isNull() && bean->modified() )
+        if ( bean && bean->modified() )
         {
             AERPTransactionContext::instance()->addToContext(contextName, bean.data());
         }
@@ -1583,7 +1583,7 @@ void DBBaseBeanModel::rollback()
     for ( int i = 0 ; i < d->m_vectorBean.size() ; i++ )
     {
         BaseBeanSharedPointer bean = d->m_vectorBean.at(i);
-        if ( !bean.isNull() && bean->modified() )
+        if ( bean && bean->modified() )
         {
             bean->restoreValues();
         }
