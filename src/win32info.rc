@@ -8,11 +8,11 @@ BEGIN
   BEGIN
     BLOCK "040A04E4"
     BEGIN
-      VALUE "CompanyName", "Aleph Sistemas de Información"
+      VALUE "CompanyName", "Asycom Global Service / Aleph Sistemas de Información"
       VALUE "FileDescription", "AlephERP"
       VALUE "FileVersion", "2.0"
       VALUE "InternalName", "alepherp.exe"
-      VALUE "LegalCopyright", "(c) Aleph Sistemas de Información, 2013."
+      VALUE "LegalCopyright", "(c) Aleph Sistemas de Información, 2013. (c) Asycom Global Service, 2016"
       VALUE "OriginalFilename", "alepherp.exe"
       VALUE "ProductName", "AlephERP"
       VALUE "ProductVersion", "1.1"

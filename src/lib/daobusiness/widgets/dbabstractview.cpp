@@ -852,6 +852,7 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
             QApplication::restoreOverrideCursor();
             if ( dlg->openSuccess() && dlg->init() )
             {
+                OpenedRecords::instance()->registerRecord(beanToEdit, dlg);
                 dlg->setAttribute(Qt::WA_DeleteOnClose, true);
                 dlg->setCanChangeModality(true);
                 dlg->show();

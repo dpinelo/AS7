@@ -9,7 +9,7 @@ OpenedRecords::OpenedRecords(QObject *parent) :
 
 bool OpenedRecords::containsBean(BaseBeanPointer bean)
 {
-    foreach (OpenedRecordsData d, m_recordBeans)
+    foreach (const OpenedRecordsData &d, m_recordBeans)
     {
         if ( !d.bean.isNull() &&
              !bean.isNull() &&
@@ -25,7 +25,7 @@ bool OpenedRecords::containsBean(BaseBeanPointer bean)
 BaseBeanPointerList OpenedRecords::beans()
 {
     BaseBeanPointerList list;
-    foreach (OpenedRecordsData d, m_recordBeans)
+    foreach (const OpenedRecordsData &d, m_recordBeans)
     {
         if ( !d.bean.isNull() )
         {
@@ -38,7 +38,7 @@ BaseBeanPointerList OpenedRecords::beans()
 QList<QPointer<DBRecordDlg> > OpenedRecords::dialogs()
 {
     QList<QPointer<DBRecordDlg> > list;
-    foreach (OpenedRecordsData d, m_recordBeans)
+    foreach (const OpenedRecordsData &d, m_recordBeans)
     {
         if ( !d.dialog.isNull() )
         {
@@ -50,7 +50,7 @@ QList<QPointer<DBRecordDlg> > OpenedRecords::dialogs()
 
 QPointer<DBRecordDlg> OpenedRecords::dialog(BaseBeanPointer bean)
 {
-    foreach (OpenedRecordsData d, m_recordBeans)
+    foreach (const OpenedRecordsData &d, m_recordBeans)
     {
         if ( !d.bean.isNull() &&
              !bean.isNull() &&
@@ -73,6 +73,32 @@ OpenedRecords *OpenedRecords::instance()
     return singleton;
 }
 
+void OpenedRecords::registerRecord(BaseBeanSharedPointer bean, QPointer<DBRecordDlg> dlg)
+{
+    if ( !containsBean(bean.data()) )
+    {
+        connect(dlg, SIGNAL(destroyed(QObject*)), this, SLOT(recordClosed(QObject *)));
+        OpenedRecordsData d;
+        d.bean = bean.data();
+        d.sharedBean = bean;
+        d.dialog = dlg;
+        m_recordBeans.append(d);
+    }
+    else
+    {
+        for (int i = 0 ; i < m_recordBeans.size() ; ++i)
+        {
+            if ( !m_recordBeans[i].bean.isNull() &&
+                 !bean.isNull() &&
+                 bean->dbOid() == m_recordBeans[i].bean->dbOid() &&
+                 bean->metadata()->tableName() == m_recordBeans[i].bean->metadata()->tableName() )
+            {
+                m_recordBeans[i].sharedBean = bean;;
+            }
+        }
+    }
+}
+
 void OpenedRecords::registerRecord(BaseBeanPointer bean, QPointer<DBRecordDlg> dlg)
 {
     if ( !containsBean(bean) )
@@ -87,12 +113,6 @@ void OpenedRecords::registerRecord(BaseBeanPointer bean, QPointer<DBRecordDlg> d
 
 bool OpenedRecords::isBeanOpened(BaseBeanPointer bean)
 {
-    // Comprobemos primero que si el bean agregado tenía un diálogo que se había cerrado, debemos eliminarlo
-    foreach (OpenedRecordsData d, m_recordBeans)
-    {
-
-    }
-
     foreach (BaseBeanPointer b, beans())
     {
         if ( !b.isNull() &&
@@ -113,6 +133,19 @@ QPointer<DBRecordDlg> OpenedRecords::dialogForBean(BaseBeanPointer bean)
         return dialog(bean);
     }
     return NULL;
+}
+
+bool OpenedRecords::dialogOpenedForRecord(const QString &tableName)
+{
+    foreach (const OpenedRecordsData &d, m_recordBeans)
+    {
+        if ( !d.bean.isNull() &&
+             tableName == d.bean->metadata()->tableName() )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void OpenedRecords::recordClosed(QObject *obj)

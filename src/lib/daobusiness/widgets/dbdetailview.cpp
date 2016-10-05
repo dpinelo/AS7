@@ -39,6 +39,7 @@
 #include "business/aerpspreadsheet.h"
 #include "forms/dbrecorddlg.h"
 #include "forms/dbsearchdlg.h"
+#include "forms/openedrecords.h"
 #include "widgets/dbtableview.h"
 #include "globales.h"
 
@@ -437,6 +438,7 @@ void DBDetailView::editRecord(const QString &action)
         {
             // Guardar los datos de los hijos agregados, será responsabilidad del bean padre
             // que se está editando
+            OpenedRecords::instance()->registerRecord(bean, dlg);
             dlg->setModal(true);
             dlg->exec();
         }
@@ -462,6 +464,7 @@ void DBDetailView::editRecord(const QString &action)
         {
             if ( openType == AlephERP::Insert )
             {
+                filterModel()->refresh(true);
                 BaseBeanModel *sourceModel = qobject_cast<BaseBeanModel *>(filterModel()->sourceModel());
                 if ( sourceModel )
                 {

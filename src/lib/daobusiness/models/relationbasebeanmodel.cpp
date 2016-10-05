@@ -68,7 +68,6 @@ public:
     }
 
     void setInternalDataAndConnections();
-    void unloadBeans();
     int rowCount();
     QString orderField();
     QString orderFieldClausule();
@@ -77,6 +76,10 @@ public:
 
 void RelationBaseBeanModelPrivate::setInternalDataAndConnections()
 {
+    if ( m_relation.isNull() )
+    {
+        return;
+    }
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     m_metadata = BeansFactory::metadataBean(m_relation->metadata()->tableName());
     if ( m_metadata == NULL )
@@ -107,23 +110,6 @@ void RelationBaseBeanModelPrivate::setInternalDataAndConnections()
     QObject::connect(m_relation, SIGNAL(endLoadingDataBackground()), q_ptr, SIGNAL(endLoadingData()));
 
     CommonsFunctions::restoreOverrideCursor();
-}
-
-void RelationBaseBeanModelPrivate::unloadBeans()
-{
-    if ( m_relation )
-    {
-        // Los cambios que se produzcan en background en los beans, se deben de tener en cuenta
-        QObject::disconnect(m_relation, SIGNAL(fieldChildModified(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
-        QObject::disconnect(m_relation, SIGNAL(fieldChildDefaultValueCalculated(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
-        QObject::disconnect(m_relation, SIGNAL(childDbStateModified(BaseBean*,int)), q_ptr, SLOT(dbStateBeanModified(BaseBean*,int)));
-        QObject::disconnect(m_relation, SIGNAL(childInserted(BaseBean*, int)), q_ptr, SLOT(childInserted(BaseBean *, int)));
-        QObject::disconnect(m_relation, SIGNAL(childDeleted(BaseBean*,int)), q_ptr, SLOT(childDeleted(BaseBean*,int)));
-        QObject::disconnect(m_relation, SIGNAL(beanLoaded(DBRelation*,int,BaseBeanSharedPointer)), q_ptr, SLOT(beanLoadedOnBackground(DBRelation*,int,BaseBeanSharedPointer)));
-        QObject::disconnect(m_relation, SIGNAL(initLoadingDataBackground()), q_ptr, SIGNAL(initLoadingData()));
-        QObject::disconnect(m_relation, SIGNAL(endLoadingDataBackground()), q_ptr, SIGNAL(endLoadingData()));
-    }
-    m_relation = NULL;
 }
 
 int RelationBaseBeanModelPrivate::rowCount()
@@ -636,9 +622,6 @@ void RelationBaseBeanModel::refresh(bool force)
     emit QAbstractItemModel::layoutAboutToBeChanged();
 
     QModelIndexList persistents = persistentIndexList();
-    d->unloadBeans();
-    d->setInternalDataAndConnections();
-
     QModelIndexList newList;
     QList<int> rows;
     foreach (const QModelIndex &idx, persistents)

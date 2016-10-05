@@ -46,6 +46,7 @@
 #include "dao/aerptransactioncontext.h"
 #include "forms/aerpdiffremotelocalrecord.h"
 #include "forms/dbrecorddlg.h"
+#include "forms/openedrecords.h"
 #include "business/aerploggeduser.h"
 
 #define BATCH_DATABASE_DRIVER "QIBASE"
@@ -1953,6 +1954,7 @@ bool BatchDAOPrivate::updateRecordOnRemote(BaseBeanMetadata *metadata, const QSt
         dlg->setModal(true);
         if ( !dlg->openSuccess() || !dlg->init() )
         {
+            OpenedRecords::instance()->registerRecord(beanLocal, dlg);
             m_lastError = QObject::trUtf8("BatchDAOPrivate::updateRecordOnRemote: Error abriendo el formulario de edición de %1").arg(beanRemote->metadata()->tableName());
             return false;
         }
@@ -2017,6 +2019,7 @@ bool BatchDAOPrivate::insertRecordOnRemote(BaseBeanMetadata *metadata, const QSt
         dlg->setModal(true);
         if ( !dlg->openSuccess() || !dlg->init() )
         {
+            OpenedRecords::instance()->registerRecord(bean, dlg);
             m_lastError = QObject::trUtf8("BatchDAOPrivate::updateRecordOnRemote: Error abriendo el formulario de edición de %1").arg(bean->metadata()->tableName());
             return false;
         }

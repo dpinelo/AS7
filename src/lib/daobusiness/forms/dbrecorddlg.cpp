@@ -1232,7 +1232,7 @@ void DBRecordDlg::cancel()
         return;
     }
     // Se ha cancelado la edición, restauramos los valores de la copia de seguridad interna
-    d->m_bean->restoreValues(true);
+    d->m_bean->restoreValues(true, AlephERP::OneToMany | AlephERP::OneToOne);
     if ( d->m_openType == AlephERP::Insert )
     {
         // Si cancelamos insertando, indicamos que NO se han introducido cambios, para que no se guarden
@@ -1280,7 +1280,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
     {
         if ( d->m_openType == AlephERP::Insert && !d->m_beanIsValid )
         {
-            d->m_bean->restoreValues(true);
+            d->m_bean->restoreValues(true, AlephERP::OneToMany | AlephERP::OneToOne);
             d->m_bean->uncheckModifiedFields();
             d->m_bean->uncheckModifiedRelatedElements();
         }
@@ -1326,7 +1326,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
         else if ( ret == QMessageBox::No )
         {
             // Se ha cancelado la edición, restauramos los valores de la copia de seguridad interna
-            d->m_bean->restoreValues(true);
+            d->m_bean->restoreValues(true, AlephERP::OneToMany | AlephERP::OneToOne);
             if ( d->m_openType == AlephERP::Insert )
             {
                 // Si cancelamos insertando, indicamos que NO se han introducido cambios, para que no se guarden

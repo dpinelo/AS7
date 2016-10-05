@@ -50,6 +50,7 @@
 #include "widgets/dbcheckbox.h"
 #include "widgets/dbchooserecordbutton.h"
 #include "forms/dbrecorddlg.h"
+#include "forms/openedrecords.h"
 #include "scripts/perpscript.h"
 #include "scripts/perpscriptwidget.h"
 #include "widgets/dbdatetimeedit.h"
@@ -975,6 +976,7 @@ void DBSearchDlg::edit()
         CommonsFunctions::restoreOverrideCursor();
         if ( dlg->openSuccess() && dlg->init() )
         {
+            OpenedRecords::instance()->registerRecord(d->m_selectedBean, dlg);
             dlg->setModal(true);
             dlg->exec();
         }
@@ -1020,6 +1022,7 @@ void DBSearchDlg::view()
         CommonsFunctions::restoreOverrideCursor();
         if ( dlg->openSuccess() && dlg->init() )
         {
+            OpenedRecords::instance()->registerRecord(d->m_selectedBean, dlg);
             dlg->setModal(true);
             dlg->exec();
         }
