@@ -2078,9 +2078,10 @@ void DBRecordDlg::keyPressEvent (QKeyEvent *e)
     }
 }
 
-void DBRecordDlg::showEvent(QShowEvent *)
+void DBRecordDlg::showEvent(QShowEvent *event)
 {
     callQSMethod("showEvent");
+    AERPBaseDialog::showEvent(event);
 }
 
 void DBRecordDlg::hideDBButtons()
