@@ -266,6 +266,11 @@ bool OpenRPTPlugin::print(bool showPreview, int numCopies)
         if(!d->m_printerName.isEmpty())
         {
             printer.setPrinterName(d->m_printerName);
+            if ( !printer.isValid() )
+            {
+                QLogger::QLog_Error(AlephERP::stLogScript,
+                                    trUtf8("OpenRPTPlugin::print: Impresora no válida [%1]").arg(d->m_printerName));
+            }
         }
 
         ORPrintRender render;
