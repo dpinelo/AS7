@@ -809,10 +809,16 @@ bool AERPTransactionContextPrivate::doValidationForTransaction(const BaseBeanPoi
  */
 bool AERPTransactionContext::saveOneToOneIds(BaseBeanPointer bean, const QString &contextName)
 {
+    if ( bean.isNull() )
+    {
+        return true;
+    }
     QList<DBRelation *> rels = bean->relations(AlephERP::OneToOne);
     foreach (DBRelation *rel, rels)
     {
-        if ( !rel->internalBrother().isNull() && rel->internalBrother()->dbState() != BaseBean::TO_BE_DELETED && rel->internalBrother()->dbState() != BaseBean::DELETED )
+        if ( !rel->internalBrother().isNull() &&
+             rel->internalBrother()->dbState() != BaseBean::TO_BE_DELETED &&
+             rel->internalBrother()->dbState() != BaseBean::DELETED )
         {
             DBField *oneSideField = bean->field(rel->metadata()->rootFieldName());
             DBField *otherSideField = rel->internalBrother()->field(rel->metadata()->childFieldName());
@@ -825,28 +831,28 @@ bool AERPTransactionContext::saveOneToOneIds(BaseBeanPointer bean, const QString
                 }
                 else
                 {
-                    if ( oneSideField->metadata()->unique() || oneSideField->metadata()->serial() )
+                    if ( (oneSideField->metadata()->unique() ||
+                         oneSideField->metadata()->serial()) &&
+                         !oneSideField->value().isNull() &&
+                         oneSideField->value() != otherSideField->value() )
                     {
-                        if ( !oneSideField->value().isNull() && oneSideField->value() != otherSideField->value() )
+                        otherSideField->setInternalValue(oneSideField->value(), true);
+                        otherSideField->setModified(true);
+                        if ( !BaseDAO::update(otherSideField, contextName, d->m_database) )
                         {
-                            otherSideField->setInternalValue(oneSideField->value(), true);
-                            otherSideField->setModified(true);
-                            if ( !BaseDAO::update(otherSideField, contextName, d->m_database) )
-                            {
-                                return false;
-                            }
+                            return false;
                         }
                     }
-                    if ( otherSideField->metadata()->unique() || otherSideField->metadata()->serial() )
+                    if ( (otherSideField->metadata()->unique() ||
+                         otherSideField->metadata()->serial()) &&
+                         !otherSideField->value().isNull() &&
+                         oneSideField->value() != otherSideField->value() )
                     {
-                        if ( !otherSideField->value().isNull() && oneSideField->value() != otherSideField->value()  )
+                        oneSideField->setInternalValue(otherSideField->value(), true);
+                        oneSideField->setModified(true);
+                        if ( !BaseDAO::update(oneSideField, contextName, d->m_database) )
                         {
-                            oneSideField->setInternalValue(otherSideField->value(), true);
-                            oneSideField->setModified(true);
-                            if ( !BaseDAO::update(oneSideField, contextName, d->m_database) )
-                            {
-                                return false;
-                            }
+                            return false;
                         }
                     }
                 }

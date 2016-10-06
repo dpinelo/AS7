@@ -108,6 +108,7 @@ void RelationBaseBeanModelPrivate::setInternalDataAndConnections()
     QObject::connect(m_relation, SIGNAL(beanLoaded(DBRelation*,int,BaseBeanSharedPointer)), q_ptr, SLOT(beanLoadedOnBackground(DBRelation*,int,BaseBeanSharedPointer)));
     QObject::connect(m_relation, SIGNAL(initLoadingDataBackground()), q_ptr, SIGNAL(initLoadingData()));
     QObject::connect(m_relation, SIGNAL(endLoadingDataBackground()), q_ptr, SIGNAL(endLoadingData()));
+    QObject::connect(m_relation, SIGNAL(childrenUnloaded()), q_ptr, SLOT(refresh()));
 
     CommonsFunctions::restoreOverrideCursor();
 }
@@ -606,39 +607,15 @@ bool RelationBaseBeanModel::insertRows(int row, int count, const QModelIndex & p
  */
 void RelationBaseBeanModel::refresh(bool force)
 {
+    Q_UNUSED (force)
     if ( d->m_refreshing )
     {
         return;
     }
-    if ( !force )
-    {
-        if ( isFrozenModel() || !alephERPSettings->modelsRefresh() )
-        {
-            return;
-        }
-    }
     d->m_refreshing = true;
     emit initRefresh();
-    emit QAbstractItemModel::layoutAboutToBeChanged();
-
-    QModelIndexList persistents = persistentIndexList();
-    QModelIndexList newList;
-    QList<int> rows;
-    foreach (const QModelIndex &idx, persistents)
-    {
-        if ( !rows.contains(idx.row()) && idx.isValid() )
-        {
-            newList.append(index(idx.row(), idx.column()));
-            rows.append(idx.row());
-        }
-        else
-        {
-            newList.append(QModelIndex());
-        }
-    }
-    QAbstractItemModel::changePersistentIndexList(persistents, newList);
-
-    emit QAbstractItemModel::layoutChanged();
+    beginResetModel();
+    endResetModel();
     emit endRefresh();
     d->m_refreshing = false;
 }
