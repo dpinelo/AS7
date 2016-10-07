@@ -47,6 +47,7 @@
 #include "dao/observerfactory.h"
 #include "dao/dbfieldobserver.h"
 #include "dao/dbmultiplerelationobserver.h"
+#include "dao/basedao.h"
 #include "forms/dbrecorddlg.h"
 #include "widgets/dbtreeview.h"
 #include "widgets/dbtableview.h"
@@ -805,31 +806,22 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
         BaseBeanSharedPointer beanToEdit = filterModel()->beanToBeEdited(idx);
         BaseBeanPointer b = beanToEdit.data();
-        if ( beanToEdit )
+        if ( b )
         {
             if ( !fld->metadata()->linkRelation().isEmpty() )
             {
+                if ( fld->value().isNull() || !fld->value().isValid() )
+                {
+                    CommonsFunctions::restoreOverrideCursor();
+                    return;
+                }
                 DBRelation *rel = beanToEdit->relation(fld->metadata()->linkRelation());
                 if ( rel == NULL )
                 {
                     QLogger::QLog_Warning(AlephERP::stLogOther, QObject::tr("DBAbstractViewInterface::itemClicked: No existe la relación %1").arg(fld->metadata()->linkRelation()));
                     return;
                 }
-                if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
-                {
-                    b = rel->father();
-                }
-                else if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
-                {
-                    b = rel->brother();
-                }
-                else
-                {
-                    if ( rel->childrenCount(false) > 0 )
-                    {
-                        b = rel->children(QString(), false).at(0);
-                    }
-                }
+                b = beanToEditFromRelation(rel);
                 if ( b.isNull() )
                 {
                     QLogger::QLog_Warning(AlephERP::stLogOther, QObject::tr("DBAbstractViewInterface::itemClicked: No existe la relación %1").arg(fld->metadata()->linkRelation()));
@@ -852,12 +844,49 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
             QApplication::restoreOverrideCursor();
             if ( dlg->openSuccess() && dlg->init() )
             {
+                OpenedRecords::instance()->registerRecord(beanToEdit, dlg);
                 dlg->setAttribute(Qt::WA_DeleteOnClose, true);
                 dlg->setCanChangeModality(true);
                 dlg->show();
             }
         }
     }
+}
+
+BaseBeanPointer DBAbstractViewInterface::beanToEditFromRelation(DBRelation *rel)
+{
+    BaseBeanPointer b;
+    if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
+    {
+        b = rel->father();
+    }
+    else if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
+    {
+        b = rel->brother();
+    }
+    else
+    {
+        if ( rel->childrenCount(false) > 0 )
+        {
+            b = rel->children(QString(), false).at(0);
+        }
+    }
+    if ( !b.isNull() )
+    {
+        BaseBeanSharedPointer sharedBean;
+        if ( b->metadata()->dbObjectType() == AlephERP::View )
+        {
+            sharedBean = BeansFactory::instance()->newQBaseBean(b->metadata()->viewForTable());
+        }
+        else
+        {
+            sharedBean = BeansFactory::instance()->newQBaseBean(b->metadata()->tableName());
+        }
+        BaseDAO::selectByOid(b->dbOid(), sharedBean.data());
+        b = sharedBean.data();
+        m_beansToEdit.append(sharedBean);
+    }
+    return b;
 }
 
 void DBAbstractViewInterface::resetCursor()

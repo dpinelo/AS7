@@ -82,6 +82,7 @@ protected:
     bool m_useFiltersValueOnCreateBean;
     bool m_isOnInit;
     bool m_restoreStateEnabled;
+    BaseBeanSharedPointerList m_beansToEdit;
 
     virtual void clearModels();
     virtual bool internalDataPropertyVisible();
@@ -94,6 +95,7 @@ protected:
 
 protected:
     QString className();
+    BaseBeanPointer beanToEditFromRelation(DBRelation *rel);
 
 public:
     DBAbstractViewInterface(QWidget *widget, QHeaderView *header);

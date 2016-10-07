@@ -1962,7 +1962,11 @@ QScriptValue AERPScriptCommon::chooseRecordFromComboBox(const QString &tableName
  * @param userEnvVars
  * @return
  */
-QScriptValue AERPScriptCommon::chooseRecordsFromTable(const QString &tableName, const QString &where, const QString &order, const QString &label, bool userEnvVars)
+QScriptValue AERPScriptCommon::chooseRecordsFromTable(const QString &tableName,
+                                                      const QString &where,
+                                                      const QString &order,
+                                                      const QString &label,
+                                                      bool userEnvVars)
 {
     if ( engine() == NULL )
     {
@@ -1988,7 +1992,11 @@ QScriptValue AERPScriptCommon::chooseRecordsFromTable(const QString &tableName, 
     return list;
 }
 
-QScriptValue AERPScriptCommon::chooseRecordFromTable(const QString &tableName, const QString &where, const QString &order, const QString &label, bool userEnvVars)
+QScriptValue AERPScriptCommon::chooseRecordFromTable(const QString &tableName,
+                                                     const QString &where,
+                                                     const QString &order,
+                                                     const QString &label,
+                                                     bool userEnvVars)
 {
     if ( engine() == NULL )
     {
@@ -2013,8 +2021,12 @@ QScriptValue AERPScriptCommon::chooseRecordFromTable(const QString &tableName, c
  * @param label
  * @return
  */
-QScriptValue AERPScriptCommon::chooseChildFromComboBox(BaseBean *bean, const QString &relationName,
-                                                       const QString &fieldToShow, const QString &label, const QString &filter)
+QScriptValue AERPScriptCommon::chooseChildFromComboBox(BaseBean *bean,
+                                                       const QString &relationName,
+                                                       const QString &fieldToShow,
+                                                       const QString &label,
+                                                       const QString &filter,
+                                                       const QString &messageIfEmpty)
 {
     if ( engine() == NULL )
     {
@@ -2029,6 +2041,16 @@ QScriptValue AERPScriptCommon::chooseChildFromComboBox(BaseBean *bean, const QSt
     else
     {
         beans = bean->relationChildrenByFilter(relationName, filter);
+    }
+    if ( beans.size() == 0 )
+    {
+        if ( !messageIfEmpty.isEmpty() )
+        {
+            QMessageBox::warning(0,
+                                 qApp->applicationName(),
+                                 messageIfEmpty);
+        }
+        return QScriptValue(QScriptValue::NullValue);
     }
     QStringList showedStrings;
     QString alias;
@@ -2884,6 +2906,16 @@ void AERPScriptCommon::printHtml(const QString &html)
         doc.setHtml(html);
         doc.print(printDialog.printer());
     }
+}
+
+QStringList AERPScriptCommon::availablePrinterNames() const
+{
+    return QPrinterInfo::availablePrinterNames();
+}
+
+QString AERPScriptCommon::defaultPrinterName() const
+{
+    return QPrinterInfo::defaultPrinterName();
 }
 
 void AERPScriptCommon::geocoderAvailable(const QString &uuid, QList<AlephERP::AERPMapPosition>  data)

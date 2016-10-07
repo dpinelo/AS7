@@ -117,11 +117,9 @@ public:
     }
 
     void resetModel();
-    void initModel();
+    void initModel(int rowCount = -1);
     void initUpdateModel();
     void updateModel();
-    int indexOf(BaseBeanSharedPointer bean);
-    bool checkBeanInsert(int row, BaseBeanSharedPointer updateBean);
     int petitionForRow(const QString &id);
     int petitionForRow(int row, bool update);
     void checkBeanDeleted();
@@ -295,10 +293,7 @@ void DBBaseBeanModel::setWhere(const QString &where, const QString &order)
     {
         d->m_settedWhere = where;
         d->m_order = order.isEmpty() ? d->m_order : order;
-        d->resetModel();
-        d->initModel();
-        d->m_lastReload.first = QDateTime::currentDateTime();
-        d->m_lastReload.second = false;
+        resetModel();
     }
 }
 
@@ -410,7 +405,7 @@ void DBBaseBeanModelPrivate::resetModel()
     for (int i = 0 ; i < m_vectorBean.size() ; ++i)
     {
         BaseBeanSharedPointer bean = m_vectorBean.at(i);
-        if ( !bean.isNull() )
+        if ( bean )
         {
             QObject::disconnect(bean.data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
                                 q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
@@ -434,7 +429,7 @@ void DBBaseBeanModelPrivate::resetModel()
   mediante consulta a base de datos, pero no implica que se obtengan los beans.
   Deja en m_rowCount el número de filas, necesario para poblar el modelo
   */
-void DBBaseBeanModelPrivate::initModel()
+void DBBaseBeanModelPrivate::initModel(int rowCount)
 {
     QString query, queryCount;
     QVariant result;
@@ -444,34 +439,41 @@ void DBBaseBeanModelPrivate::initModel()
         return;
     }
     m_where = buildWhere();
-    query = q_ptr->BaseBeanModel::buildSqlSelect(m_metadata, m_where, m_order);
-    queryCount = QString("SELECT count(*) as column1 FROM (%1) AS FOO").arg(query);
 
     q_ptr->emitInitLoadData();
-
-    // Si la query está cacheada, se optimiza todo esto
-    if ( !m_metadata->isCached() )
+    if ( rowCount == - 1 )
     {
-        if ( BaseDAO::execute(queryCount, result) && result.isValid() )
+        query = q_ptr->BaseBeanModel::buildSqlSelect(m_metadata, m_where, m_order);
+        queryCount = QString("SELECT count(*) as column1 FROM (%1) AS FOO").arg(query);
+
+        // Si la query está cacheada, se optimiza todo esto
+        if ( !m_metadata->isCached() )
         {
-            m_rowCount = result.toInt();
+            if ( BaseDAO::execute(queryCount, result) && result.isValid() )
+            {
+                m_rowCount = result.toInt();
+            }
+            else
+            {
+                m_rowCount = 0;
+            }
         }
         else
         {
-            m_rowCount = 0;
+            // Deben obtenerse a partir de position, la ventana en la que obtener beans
+            if ( BaseDAO::executeCached(queryCount, result) )
+            {
+                m_rowCount = result.toInt();
+            }
+            else
+            {
+                m_rowCount = 0;
+            }
         }
     }
     else
     {
-        // Deben obtenerse a partir de position, la ventana en la que obtener beans
-        if ( BaseDAO::executeCached(queryCount, result) )
-        {
-            m_rowCount = result.toInt();
-        }
-        else
-        {
-            m_rowCount = 0;
-        }
+        m_rowCount = rowCount;
     }
     if ( m_rowCount > 0 )
     {
@@ -490,18 +492,6 @@ void DBBaseBeanModelPrivate::initModel()
     }
 
     q_ptr->emitEndLoadData();
-}
-
-int DBBaseBeanModelPrivate::indexOf(BaseBeanSharedPointer bean)
-{
-    for (int i = 0 ; i < m_vectorBean.size() ; ++i)
-    {
-        if (!m_vectorBean.at(i).isNull() && m_vectorBean.at(i)->dbOid() == bean->dbOid())
-        {
-            return i;
-        }
-    }
-    return -1;
 }
 
 int DBBaseBeanModelPrivate::petitionForRow(int row, bool update)
@@ -553,6 +543,12 @@ void DBBaseBeanModelPrivate::updateModel()
     {
         for ( int row = block ; row < (block + alephERPSettings->fetchRowCount()) && row < m_beansFetched.size() ; ++row )
         {
+            // ATENCIÓN A ESTE DETALLE. Sólo actualizamos en segundo plano, aquellas zonas del modelo donde haya
+            // registros cargados. En modelos de miles de registros, donde el usuario rara vez navega por el mismo, o va al final
+            // ¿para qué se quiere recargar todo el modelo? No tiene sentido.
+            // PERO OJO! Esto hace que, en el refresco en segundo plano, si el número de registros cambia, implica necesariamente
+            // que hay que resetear el modelo. ¿Porqué? La respuesta es, si no se tienen todos los registros (filas) del modelo
+            // ¿Cómo se sabe si el "availableBean" recibido es un bean insertado nuevo, o uno existente?
             if ( m_beansFetched.at(row) )
             {
                 BeansPetition petition;
@@ -569,49 +565,6 @@ void DBBaseBeanModelPrivate::updateModel()
             }
         }
     }
-}
-
-/**
- * @brief DBBaseBeanModelPrivate::checkBeanInsert
- * @param row
- * @param updateBean
- * Comprueba si el bean pasado en \a updateBean será insertado en el modelo, o bien existe en alguna posición
- * diferente (porque se insertó otro registro) y por tanto hay que actualizar
- * Devuelve true si ha efectuado alguna operación
- */
-bool DBBaseBeanModelPrivate::checkBeanInsert(int row, BaseBeanSharedPointer updateBean)
-{
-    bool r = false;
-    // ¿Existe previamente el bean?
-    int idx = indexOf(updateBean);
-    if ( idx == -1 )
-    {
-        // No existe, es una inserción
-        q_ptr->beginInsertRows(QModelIndex(), row, row);
-        m_vectorBean.insert(row, updateBean);
-        m_tableVectorBean.insert(row, BaseBeanSharedPointer());
-        m_beansFetched.insert(row, true);
-        QObject::connect(m_vectorBean[row].data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
-                         q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-        QObject::connect(m_vectorBean[row].data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
-                         q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-        m_rowCount++;
-        q_ptr->endInsertRows();
-        r = true;
-    }
-    else
-    {
-        // Existe, pero en otra posición ... algún bean se ha borrado
-        if ( AERP_CHECK_INDEX_OK(idx, m_vectorBean) && m_vectorBean.at(idx)->rawHash() != updateBean->rawHash() && q_ptr->canEmitDataChanged() )
-        {
-            replaceInternalBean(idx, updateBean);
-            QModelIndex idxModel1 = q_ptr->index(idx, 0, QModelIndex());
-            QModelIndex idxModel2 = q_ptr->index(idx, q_ptr->columnCount(QModelIndex())-1, QModelIndex());
-            emit q_ptr->dataChanged(idxModel1, idxModel2);
-            r = true;
-        }
-    }
-    return r;
 }
 
 /**
@@ -657,7 +610,7 @@ void DBBaseBeanModelPrivate::replaceInternalBean(int row, BaseBeanSharedPointer 
     if ( AERP_CHECK_INDEX_OK(row, m_vectorBean) )
     {
         // Reemplazaremos si el bean a remplazar tiene fecha de obtención anterior a la de newBean
-        if (m_vectorBean[row]->loadTime() < newBean->loadTime())
+        if (m_vectorBean[row] && m_vectorBean[row]->loadTime() < newBean->loadTime())
         {
             QObject::disconnect(m_vectorBean[row].data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
                              q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
@@ -779,7 +732,7 @@ void DBBaseBeanModelPrivate::fetchBeansOnBackground(int row)
         petition.initRow = offsetMultiply * m_offset;
         petition.endRow = (offsetMultiply * m_offset) + m_offset;
         petition.updatePetition = false;
-        petition.uuid =  BackgroundDAO::instance()->selectBeans(m_metadata->tableName(),
+        petition.uuid = BackgroundDAO::instance()->selectBeans(m_metadata->tableName(),
                                                                 m_where,
                                                                 m_order,
                                                                 petition.initRow,
@@ -802,7 +755,6 @@ void DBBaseBeanModel::availableBean(QString id, int row, BaseBeanSharedPointer u
     int idx = d->petitionForRow(id);
     if ( idx != -1 )
     {
-
         QMutexLocker lock(&DBBaseBeanModelPrivate::m_mutex);
 
         if ( AERP_CHECK_INDEX_OK(idx, d->m_beansPetitions) )
@@ -854,46 +806,19 @@ void DBBaseBeanModelPrivate::newBeanAvailableSetInRow(int modelRow, BaseBeanShar
 }
 
 /**
- * @brief DBBaseBeanModelPrivate::setNewRowBean
+ * @brief DBBaseBeanModelPrivate::updateRowBean
  * @param modelRow
  * @param updateBean
- * Se ha recibido un nuevo bean... hay que ver dónde se actualiza
+ * Se ha recibido un nuevo bean... actualizamos la información
  */
 void DBBaseBeanModelPrivate::updateRowBean(int idx, int modelRow, BaseBeanSharedPointer updateBean)
 {
-    if ( m_vectorBean.at(modelRow) == NULL )
+    replaceInternalBean(modelRow, updateBean);
+    if ( q_ptr->canEmitDataChanged() )
     {
-        if ( !checkBeanInsert(modelRow, updateBean) )
-        {
-            // Este bean ni se ha insertado, ni se ha encontrado en otra posición... ¿se habrá borrado?
-            // Lo guardamos en esta estructura intermedia para comprobarlo después
-            m_checkedUpdateBeans << updateBean;
-        }
-    }
-    else
-    {
-        if ( m_vectorBean.at(modelRow)->dbOid() == updateBean->dbOid() )
-        {
-            if ( m_vectorBean.at(modelRow)->rawHash() != updateBean->rawHash() )
-            {
-                replaceInternalBean(modelRow, updateBean);
-                if ( q_ptr->canEmitDataChanged() )
-                {
-                    QModelIndex idxModel1 = q_ptr->index(idx, 0, QModelIndex());
-                    QModelIndex idxModel2 = q_ptr->index(idx, q_ptr->columnCount(QModelIndex())-1, QModelIndex());
-                    emit q_ptr->dataChanged(idxModel1, idxModel2);
-                }
-            }
-        }
-        else
-        {
-            if ( !checkBeanInsert(modelRow, updateBean) )
-            {
-                // Este bean ni se ha insertado, ni se ha encontrado en otra posición... ¿se habrá borrado?
-                // Lo guardamos en esta estructura intermedia para comprobarlo después
-                m_checkedUpdateBeans << updateBean;
-            }
-        }
+        QModelIndex idxModel1 = q_ptr->index(idx, 0, QModelIndex());
+        QModelIndex idxModel2 = q_ptr->index(idx, q_ptr->columnCount(QModelIndex())-1, QModelIndex());
+        emit q_ptr->dataChanged(idxModel1, idxModel2);
     }
 }
 
@@ -915,35 +840,34 @@ void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
 
     QMutexLocker lock(&d->m_mutex);
 
-    if ( id == d->m_backgroundIdCount )
+    if (id == d->m_backgroundIdCount)
     {
+        d->m_backgroundIdCount.clear();
         if (result)
         {
-            QVector<QVariantList> results = BackgroundDAO::instance()->takeResults(d->m_backgroundIdCount);
-            if ( results.size() > 0 )
+            QVector<QVariantList> results = BackgroundDAO::instance()->takeResults(id);
+            if ( results.size() > 0  && !isFrozenModel() )
             {
-                int count = results.first().at(0).toInt();
-                if ( count < d->m_rowCount )
+                int newRowCount = results.first().at(0).toInt();
+                if ( newRowCount != d->m_rowCount )
                 {
-                    // Se han borrado filas... casi que mejor recargar todo el modelo.
-                    if ( !isFrozenModel() )
+                    // Se han borrado o insertado filas... casi que mejor recargar todo el modelo,
+                    // ya que si este no se ha obtenido en su totalidad, ¿cómo se garantiza los beans que
+                    // vamos a recibir?
+                    emit endRefresh();
+                    d->resetModel();
+                    d->initModel(newRowCount);
+                    d->m_lastReload.first = QDateTime::currentDateTime();
+                    d->m_lastReload.second = false;
+                    if ( d->m_reloadingWasActivePreviousRefresh )
                     {
-                        emit endRefresh();
-                        resetModel();
-                        if ( d->m_reloadingWasActivePreviousRefresh )
-                        {
-                            startReloading();
-                        }
-                        return;
+                        startReloading();
                     }
+                    return;
                 }
-                if ( !isFrozenModel() )
-                {
-                    d->updateModel();
-                }
+                d->updateModel();
             }
         }
-        d->m_backgroundIdCount.clear();
     }
     else
     {
@@ -951,7 +875,7 @@ void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
         {
             if (d->m_beansPetitions.at(i).uuid == id)
             {
-                if ( d->m_beansPetitions.at(i).updatePetition )
+                if (d->m_beansPetitions.at(i).updatePetition)
                 {
                     d->checkBeanDeleted();
                     d->m_checkedUpdateBeans.clear();
@@ -1185,7 +1109,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
         if ( AERP_CHECK_INDEX_OK(row, d->m_vectorBean) )
         {
             bean = d->m_vectorBean.at(row);
-            if ( !bean.isNull() )
+            if ( bean )
             {
                 DBField *fld = NULL;
                 if (AERP_CHECK_INDEX_OK(column, visibleFields()))
@@ -1292,7 +1216,7 @@ bool DBBaseBeanModel::removeRows (int row, int count, const QModelIndex & parent
         if ( AERP_CHECK_INDEX_OK(row, d->m_vectorBean) && AERP_CHECK_INDEX_OK(row, d->m_beansFetched) )
         {
             BaseBeanSharedPointer bean = d->m_vectorBean.at(row);
-            if ( !bean.isNull() )
+            if ( bean )
             {
                 disconnect(bean.data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
                            this, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
@@ -1350,7 +1274,7 @@ BaseBeanSharedPointer DBBaseBeanModel::bean(const QModelIndex &index, bool reloa
         return bean;
     }
     bean = d->m_vectorBean.at(index.row());
-    if ( bean->dbState() == BaseBean::UPDATE )
+    if ( bean && bean->dbState() == BaseBean::UPDATE )
     {
         // Evitamos una recarga innecesaria. Hay que poner una marca de tiempo
         if ( !isFrozenModel() )
@@ -1407,7 +1331,7 @@ BaseBeanSharedPointerList DBBaseBeanModel::beans(const QModelIndexList &list)
             if ( AERP_CHECK_INDEX_OK(index.row(), d->m_vectorBean) )
             {
                 BaseBeanSharedPointer bean = d->m_vectorBean.at(index.row());
-                if ( bean->dbState() == BaseBean::UPDATE )
+                if ( bean && bean->dbState() == BaseBean::UPDATE )
                 {
                     // Evitamos una recarga innecesaria. Hay que poner una marca de tiempo
                     if ( !isFrozenModel() )
@@ -1552,7 +1476,7 @@ QModelIndex DBBaseBeanModel::indexByPk(const QVariant &value)
             if ( d->m_beansFetched.at(i) && AERP_CHECK_INDEX_OK(i, d->m_vectorBean) )
             {
                 BaseBeanSharedPointer bean = d->m_vectorBean.at(i);
-                if ( bean->pkValue() == values )
+                if ( bean && bean->pkValue() == values )
                 {
                     return index(i, 0);
                 }
@@ -1633,7 +1557,7 @@ bool DBBaseBeanModel::commit()
     for ( int i = 0 ; i < d->m_vectorBean.size() ; i++ )
     {
         BaseBeanSharedPointer bean = d->m_vectorBean.at(i);
-        if ( !bean.isNull() && bean->modified() )
+        if ( bean && bean->modified() )
         {
             AERPTransactionContext::instance()->addToContext(contextName, bean.data());
         }
@@ -1659,7 +1583,7 @@ void DBBaseBeanModel::rollback()
     for ( int i = 0 ; i < d->m_vectorBean.size() ; i++ )
     {
         BaseBeanSharedPointer bean = d->m_vectorBean.at(i);
-        if ( !bean.isNull() && bean->modified() )
+        if ( bean && bean->modified() )
         {
             bean->restoreValues();
         }
@@ -1865,4 +1789,6 @@ void DBBaseBeanModel::resetModel()
 {
     d->resetModel();
     d->initModel();
+    d->m_lastReload.first = QDateTime::currentDateTime();
+    d->m_lastReload.second = false;
 }

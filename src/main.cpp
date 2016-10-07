@@ -46,7 +46,6 @@
       #define new DBG_NEW
    #endif
 #endif
-
 _CRT_REPORT_HOOK prevHook;
 
 int customReportHook(int, char* message, int*);
@@ -967,43 +966,54 @@ bool isSystemStructureCreated(bool &firstCreateStructure)
 #ifdef _MSC_VER
 
 int customReportHook(int /* reportType */, char* message, int* /* returnValue */) {
-  // This function is called several times for each memory leak.
-  // Each time a part of the error message is supplied.
-  // This holds number of subsequent detail messages after
-  // a leak was reported
-  const int numFollowupDebugMsgParts = 2;
-  static bool ignoreMessage = false;
-  static int debugMsgPartsCount = 0;
+    // This function is called several times for each memory leak.
+    // Each time a part of the error message is supplied.
+    // This holds number of subsequent detail messages after
+    // a leak was reported
+    const int numFollowupDebugMsgParts = 2;
+    static bool ignoreMessage = false;
+    static int debugMsgPartsCount = 0;
 
-  // check if the memory leak reporting starts
-  if ((strncmp(message,"Detected memory leaks!\n", 10) == 0)
-    || ignoreMessage)
-  {
-    // check if the memory leak reporting ends
-    if (strncmp(message,"Object dump complete.\n", 10) == 0)
+    // check if the memory leak reporting starts
+    if ((strncmp(message,"Detected memory leaks!\n", 10) == 0)
+        || ignoreMessage)
     {
-      _CrtSetReportHook(prevHook);
-      ignoreMessage = false;
-    } else
-      ignoreMessage = true;
+        // check if the memory leak reporting ends
+        if (strncmp(message,"Object dump complete.\n", 10) == 0)
+        {
+            _CrtSetReportHook(prevHook);
+            ignoreMessage = false;
+        }
+        else
+        {
+            ignoreMessage = true;
+        }
 
-    // something from our own code?
-    if(strstr(message, ".cpp") == NULL)
+        // something from our own code?
+        if(strstr(message, ".cpp") == NULL)
+        {
+            if(debugMsgPartsCount++ < numFollowupDebugMsgParts)
+            {
+                // give it back to _CrtDbgReport() to be printed to the console
+                return FALSE;
+            }
+            else
+            {
+                return TRUE;  // ignore it
+            }
+        }
+        else
+        {
+            debugMsgPartsCount = 0;
+            // give it back to _CrtDbgReport() to be printed to the console
+            return FALSE;
+        }
+    }
+    else
     {
-      if(debugMsgPartsCount++ < numFollowupDebugMsgParts)
         // give it back to _CrtDbgReport() to be printed to the console
         return FALSE;
-      else
-        return TRUE;  // ignore it
-    } else
-    {
-      debugMsgPartsCount = 0;
-      // give it back to _CrtDbgReport() to be printed to the console
-      return FALSE;
     }
-  } else
-    // give it back to _CrtDbgReport() to be printed to the console
-    return FALSE;
 }
 
 #endif

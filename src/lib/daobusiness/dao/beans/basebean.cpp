@@ -1862,7 +1862,7 @@ void BaseBean::backupValues()
   Restaura la copia de seguridad de los datos que se hizo con backupValues.
   @see backupValues;
   */
-void BaseBean::restoreValues(bool blockSignals)
+void BaseBean::restoreValues(bool blockSignals, AlephERP::RelationTypes restoreOnRelations)
 {
     QMutexLocker lock(&d->m_mutex);
     if ( d->m_restoringValues )
@@ -1890,7 +1890,13 @@ void BaseBean::restoreValues(bool blockSignals)
     // Además, borramos los posibles hijos agregados...
     foreach (DBRelation *rel, d->m_relations)
     {
-        rel->restoreValues(blockSignals);
+        if ( restoreOnRelations.testFlag(AlephERP::All) ||
+             (restoreOnRelations.testFlag(AlephERP::OneToOne) && rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE) ||
+             (restoreOnRelations.testFlag(AlephERP::ManyToOne) && rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE) ||
+             (restoreOnRelations.testFlag(AlephERP::OneToMany) && rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY) )
+        {
+            rel->restoreValues(blockSignals);
+        }
     }
 
     foreach (DBField *fld, d->m_fields)

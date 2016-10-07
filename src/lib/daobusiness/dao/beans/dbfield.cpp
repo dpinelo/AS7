@@ -740,13 +740,20 @@ QString DBFieldPrivate::sqlValue(const QVariant &val, bool includeQuotesOnString
     else if ( m->type() == QVariant::Date )
     {
         QDate fecha = val.toDate();
-        if ( includeQuotesOnString )
+        if ( !fecha.isNull() || !fecha.isValid() )
         {
-            result = QString("\'%1\'").arg(fecha.toString("yyyy-MM-dd"));
+            return QString("null");
         }
         else
         {
-            result = fecha.toString("yyyy-MM-dd");
+            if ( includeQuotesOnString )
+            {
+                result = QString("\'%1\'").arg(fecha.toString("yyyy-MM-dd"));
+            }
+            else
+            {
+                result = fecha.toString("yyyy-MM-dd");
+            }
         }
     }
     else if ( m->type() == QVariant::DateTime )
@@ -1246,8 +1253,8 @@ void DBField::setValue(const QVariant &argNewValue)
             {
                 d->m_value = newValueData;
                 d->m_displayValue.clear();
-                emitValueModifiedByUser();
                 d->m_modified = true;
+                emitValueModifiedByUser();
             }
             else
             {

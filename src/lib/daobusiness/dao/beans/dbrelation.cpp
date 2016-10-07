@@ -55,7 +55,8 @@ DBRelation::~DBRelation()
   */
 bool DBRelation::childrenLoaded()
 {
-    if ( d->m->type() == DBRelationMetadata::ONE_TO_MANY || d->m->type() == DBRelationMetadata::ONE_TO_ONE )
+    if ( d->m->type() == DBRelationMetadata::ONE_TO_MANY ||
+         d->m->type() == DBRelationMetadata::ONE_TO_ONE )
     {
         if ( !ownerBean().isNull() && ownerBean()->dbState() == BaseBean::INSERT )
         {

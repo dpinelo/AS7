@@ -407,7 +407,7 @@ public slots:
     bool save(const QString &idTransaction = "", bool recalculateFieldsBefore = true, bool markAsUnmodifiedIfSuccess = true);
     bool saveRelatedElements(const QString &idTransaction = "", bool markAsUnmodifiedIfSuccess = true);
     void backupValues();
-    void restoreValues(bool blockSignals = false);
+    void restoreValues(bool blockSignals = false, AlephERP::RelationTypes restoreOnRelations = AlephERP::All);
     void setSerialUniqueId();
     void clean(bool onlyFields = true, bool children = false, bool fathers = false);
     bool reloadFromDb();

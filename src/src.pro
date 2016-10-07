@@ -23,10 +23,29 @@ win32 {
 # Esto último justifica que en config.pri se tenga que incluir o hacer referencia a la primera ruta.
 # Pero hay un tema adicional más: En la versión 4.9.2 (con la que se compila Qt 5.6 y que se incluye por defecto en la distro de Qt)
 # no está presente la librería libiberty.a, sin embargo éste SE NECESITA por libbfd.a
+# Para entender la solución hay que analizar el compilador. Lo mejor es, desde la consola de Qt para MinGW ejecutar un
+#
+# gcc -version
+# siendo la salida
+# C:\Qt\5.6\mingw49_32>gcc --version
+# gcc (i686-posix-dwarf-rev1, Built by MinGW-W64 project) 4.9.2
+# Copyright (C) 2014 Free Software Foundation, Inc.
+# This is free software; see the source for copying conditions.  There is NO
+#
+# Esta misma información se obtiene examinando el fichero C:\Qt\Tools\mingw492_32\build-info, donde se aprecia
+# .patch configuration: --prefix=/c/mingw492/i686-492-posix-dwarf-rt_v3-rev1/mingw32/opt
+# lo que ya nos marca la distro utilizada por Qt.
+#
+# Las librerías bfd e iberty están (o deben estar) incluídas en binutils, y éstas deberían estar incluídas en la
+# propia distribución de MinGW64 para el build antes indicado.
 # Navegando por Internet, se induce que hay un error o un problema en la distribución de MinGW-W64 en 4.9.2 y no incluye esta librería.
-# La solución fue bajarme la distro de MinGW-W64 en su versión 5.3.0 que sí la incorpora desde
-# https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/5.3.0/threads-posix/dwarf/i686-5.3.0-release-posix-dwarf-rt_v4-rev0.7z/download
+# Es decir, si te bajas
+# https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/4.9.2/threads-posix/dwarf/i686-4.9.2-release-posix-dwarf-rt_v3-rev1.7z/download
+# encontrarás que está bfd, pero no está iberty.
+# La solución fue bajarme la distro de MinGW-W64 en su versión 4.8.4 que sí la incorpora desde
+# https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/4.8.4/threads-posix/dwarf/i686-4.8.4-release-posix-dwarf-rt_v3-rev0.7z/download
 # y copiar manualmente el fichero libiberty.a desde ese fichero en C:\Qt\Tools\mingw492_32\lib, y compila.
+# Toda la rama 4.9.X no lleva esa librería.
 }
 
 TRANSLATIONS = alepherp_english.ts \

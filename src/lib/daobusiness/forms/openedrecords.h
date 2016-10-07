@@ -8,6 +8,7 @@
 
 typedef struct stOpenedRecordsData {
     BaseBeanPointer bean;
+    BaseBeanSharedPointer sharedBean;
     QPointer<DBRecordDlg> dialog;
 } OpenedRecordsData;
 
@@ -32,10 +33,12 @@ private:
 public:
     static OpenedRecords *instance();
 
+    void registerRecord(BaseBeanSharedPointer bean, QPointer<DBRecordDlg> dlg);
     void registerRecord(BaseBeanPointer bean, QPointer<DBRecordDlg> dlg);
 
     bool isBeanOpened(BaseBeanPointer bean);
     QPointer<DBRecordDlg> dialogForBean(BaseBeanPointer bean);
+    bool dialogOpenedForRecord(const QString &tableName);
 
 protected slots:
     void recordClosed(QObject *obj);

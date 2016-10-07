@@ -39,6 +39,7 @@
 #include "business/aerpspreadsheet.h"
 #include "forms/dbrecorddlg.h"
 #include "forms/dbsearchdlg.h"
+#include "forms/openedrecords.h"
 #include "widgets/dbtableview.h"
 #include "globales.h"
 
@@ -437,6 +438,7 @@ void DBDetailView::editRecord(const QString &action)
         {
             // Guardar los datos de los hijos agregados, será responsabilidad del bean padre
             // que se está editando
+            OpenedRecords::instance()->registerRecord(bean, dlg);
             dlg->setModal(true);
             dlg->exec();
         }
@@ -462,6 +464,7 @@ void DBDetailView::editRecord(const QString &action)
         {
             if ( openType == AlephERP::Insert )
             {
+                filterModel()->refresh(true);
                 BaseBeanModel *sourceModel = qobject_cast<BaseBeanModel *>(filterModel()->sourceModel());
                 if ( sourceModel )
                 {
@@ -523,9 +526,10 @@ void DBDetailView::deleteRecord()
 
     if ( ret == QMessageBox::Yes )
     {
-        foreach (const QModelIndex &index, rows)
+        while (rows.size() > 0)
         {
-            filterModel()->removeRow(index.row(), QModelIndex());
+            QModelIndex idx = rows.takeLast();
+            filterModel()->removeRow(idx.row(), QModelIndex());
             if ( filterModel() )
             {
                 filterModel()->invalidate();
@@ -683,7 +687,7 @@ void DBDetailView::removeExisting()
         ui->tableView->selectRow(index.row());
         ui->tableView->update();
     }
-    QString mensaje = trUtf8("¿Está seguro de querer desasigar el registro? No será borrado, simplemente se eliminará la relación con el registro actual.");
+    QString mensaje = trUtf8("¿Está seguro de querer desasigar el registro? \nNo será borrado, simplemente se eliminará la relación con el registro actual.");
 
     int ret;
     if ( d->m_promptForDelete )
