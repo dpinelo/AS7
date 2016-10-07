@@ -57,8 +57,8 @@ public slots:
     void cancel();
 
 private slots:
-    void saveSerialsThatChange(BaseBean *bean);
-    void updateSerialsThatChanged(BaseBean *bean);
+    void saveSerialsThatChange(BaseBeanPointer bean);
+    void updateSerialsThatChanged(BaseBeanPointer bean);
 
 signals:
     void initLoad(int itemsCount);

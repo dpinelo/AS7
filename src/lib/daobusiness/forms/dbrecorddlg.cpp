@@ -667,10 +667,10 @@ bool DBRecordDlg::init()
 
     if ( d->m_initContext )
     {
-        connect(AERPTransactionContext::instance(), SIGNAL(beanModified(BaseBean *, bool)), this, SLOT(setWindowModified(BaseBean *, bool)));
+        connect(AERPTransactionContext::instance(), SIGNAL(beanModified(BaseBeanPointer, bool)), this, SLOT(setWindowModified(BaseBeanPointer, bool)));
     }
     AERPTransactionContext::instance()->addToContext(contextName(), d->m_bean.data());
-    connect(AERPTransactionContext::instance(), SIGNAL(beanAddedToContext(QString,BaseBean*)), this, SLOT(possibleRecordToSave(QString,BaseBean*)));
+    connect(AERPTransactionContext::instance(), SIGNAL(beanAddedToContext(QString,BaseBeanPointer)), this, SLOT(possibleRecordToSave(QString,BaseBeanPointer)));
 
     // Veamos si esta tabla permite el filtrar registros por usuario
     if ( !d->m_bean->metadata()->filterRowByUser() || !AERPLoggedUser::instance()->isSuperAdmin() || d->m_openType != AlephERP::Update )
@@ -1781,7 +1781,7 @@ void DBRecordDlg::setWindowModified(bool value)
     setWindowModified(d->m_bean, value);
 }
 
-void DBRecordDlg::setWindowModified(BaseBean *bean, bool value)
+void DBRecordDlg::setWindowModified(BaseBeanPointer bean, bool value)
 {
     if ( d->m_openType == AlephERP::ReadOnly || d->m_bean.isNull() || contextName() != bean->actualContext() )
     {
@@ -1969,9 +1969,9 @@ void DBRecordDlg::navigateBean(BaseBeanPointer bean, AlephERP::FormOpenType open
  * @param contextName
  * @param bean
  */
-void DBRecordDlg::possibleRecordToSave(const QString &contextName, BaseBean *bean)
+void DBRecordDlg::possibleRecordToSave(const QString &contextName, BaseBeanPointer bean)
 {
-    if ( d->m_bean.isNull() || bean == NULL )
+    if ( d->m_bean.isNull() || bean.isNull() )
     {
         return;
     }

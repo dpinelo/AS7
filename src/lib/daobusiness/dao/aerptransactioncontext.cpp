@@ -286,13 +286,13 @@ bool AERPTransactionContext::addToContext(const QString &contextName, const Base
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPTransactionContext::addToContext: Bean agregado al contexto: [%1]. Número de beans en el contexto: [%2]").
                         arg(contextName).arg(d->m_contextObjects[contextName]->list().size()));
 
-    emit beanAddedToContext(contextName, bean.data());
+    emit beanAddedToContext(contextName, bean);
     /*
     connect(bean.data(), static_cast<void (BaseBean::*)(BaseBean *, bool value)>(&BaseBean::beanModified), [=](BaseBean *bean, bool modified) {
         emit beanModified(contextName, bean, modified);
     });
     */
-    connect(bean.data(), SIGNAL(beanModified(BaseBean*,bool)), this, SIGNAL(beanModified(BaseBean*,bool)));
+    connect(bean.data(), SIGNAL(beanModified(BaseBean*,bool)), this, SLOT(emitBeanModified(BaseBean*,bool)));
 
     // Si tiene campos con contadores, registramos el valor que tengan calculado
     foreach(DBField *fld, bean->fields())
@@ -317,8 +317,8 @@ bool AERPTransactionContext::addToContext(const QString &contextName, const Base
             if ( !child.isNull() )
             {
                 AERPTransactionContext::addToContext(contextName, child.data());
-                emit beanAddedToContext(contextName, child.data());
-                connect(child.data(), SIGNAL(beanModified(BaseBean*,bool)), this, SIGNAL(beanModified(BaseBean*,bool)));
+                emit beanAddedToContext(contextName, child);
+                connect(child.data(), SIGNAL(beanModified(BaseBean*,bool)), this, SLOT(emitBeanModified(BaseBean*,bool)));
             }
         }
     }
@@ -331,8 +331,8 @@ bool AERPTransactionContext::addToContext(const QString &contextName, const Base
             if ( !element.isNull() && element->relatedIsLoaded() && !element->relatedBean().isNull() && element->relatedBean()->objectName() != bean->objectName() )
             {
                 AERPTransactionContext::addToContext(contextName, element->relatedBean());
-                emit beanAddedToContext(contextName, element->relatedBean().data());
-                connect(element->relatedBean().data(), SIGNAL(beanModified(BaseBean*,bool)), this, SIGNAL(beanModified(BaseBean*,bool)));
+                emit beanAddedToContext(contextName, element->relatedBean());
+                connect(element->relatedBean().data(), SIGNAL(beanModified(BaseBean*,bool)), this, SLOT(emitBeanModified(BaseBean*,bool)));
             }
         }
     }
@@ -381,7 +381,7 @@ bool AERPTransactionContext::discardFromContext(const BaseBeanPointer &bean, boo
     {
         bean.data()->setActualContext("");
 
-        disconnect(bean.data(), SIGNAL(beanModified(BaseBean*,bool)));
+        disconnect(bean.data(), SLOT(emitBeanModified(BaseBean*,bool)));
 
         // Eliminamos del contexto los hijos o padres de este bean que estuviesen relacionados
         QList<DBRelation *> relations;
@@ -404,7 +404,7 @@ bool AERPTransactionContext::discardFromContext(const BaseBeanPointer &bean, boo
                 if ( !child.isNull() )
                 {
                     AERPTransactionContext::discardFromContext(child.data(), includeFatherBeansOnDiscard, discardStack);
-                    disconnect(child.data(), SIGNAL(beanModified(BaseBean*,bool)));
+                    disconnect(child.data(), SLOT(emitBeanModified(BaseBean*,bool)));
                 }
             }
         }
@@ -563,7 +563,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
         }
         if ( !bean.isNull() )
         {
-            emit workingWithBean(bean.data());
+            emit workingWithBean(bean);
             if ( !bean->save(idTransaction, false, false) )
             {
                 d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. \n%1").arg(BaseDAO::lastErrorMessage());
@@ -575,13 +575,13 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
             }
             if ( bean->dbState() == BaseBean::INSERT || bean->dbState() == BaseBean::UPDATE )
             {
-                emit beanSaved(bean.data());
+                emit beanSaved(bean);
                 bean->emitBeanSaved();
                 beansSaved.append(bean);
             }
             if ( bean->dbState() == BaseBean::DELETED )
             {
-                emit beanDeleted(bean.data());
+                emit beanDeleted(bean);
             }
         }
     }
@@ -701,7 +701,7 @@ bool AERPTransactionContextPrivate::doPrepareTransaction(const QString &contextN
                         m_lastError = QObject::trUtf8("No se han cumplido las condiciones necesarias para la inserción de este registro '%1'").arg(bean->metadata()->alias());
                         return false;
                     }
-                    emit q_ptr->beforeSaveBean(bean.data());
+                    emit q_ptr->beforeSaveBean(bean);
                     bean->emitBeforeInsert();
                     bean->emitBeforeSave();
                 }
@@ -712,7 +712,7 @@ bool AERPTransactionContextPrivate::doPrepareTransaction(const QString &contextN
                         m_lastError = QObject::trUtf8("No se han cumplido las condiciones necesarias para la edición de este registro '%1'").arg(bean->metadata()->alias());
                         return false;
                     }
-                    emit q_ptr->beforeSaveBean(bean.data());
+                    emit q_ptr->beforeSaveBean(bean);
                     bean->emitBeforeUpdate();
                     bean->emitBeforeSave();
                 }
@@ -723,13 +723,13 @@ bool AERPTransactionContextPrivate::doPrepareTransaction(const QString &contextN
                         m_lastError = QObject::trUtf8("No se han cumplido las condiciones necesarias para eliminar este registro '%1'").arg(bean->metadata()->alias());
                         return false;
                     }
-                    emit q_ptr->beforeDeleteBean(bean.data());
+                    emit q_ptr->beforeDeleteBean(bean);
                     // Esta llamada es de especial importancia, ya que permitirá añadir al contexto los elementos relacionados que deban borrarse, por ejemplo.
                     // TODO: Puede estar duplicada con la llamada bean->removeConfiguredRelatedElements, que se hace desde BaseDAO::remove
                     bean->prepareToDeleteRelatedElements();
                     bean->emitBeforeDelete();
                 }
-                emit q_ptr->beforeAction(bean.data());
+                emit q_ptr->beforeAction(bean);
             }
             proccesedBeans.append(bean);
         }
@@ -1119,6 +1119,12 @@ bool AERPTransactionContext::doingCommit(const QString &contextName)
 void AERPTransactionContext::cancel(const QString &contextName)
 {
     d->m_cancel[contextName] = true;
+}
+
+void AERPTransactionContext::emitBeanModified(BaseBean *bean, bool modified)
+{
+    BaseBeanPointer b(bean);
+    emit beanModified(bean, modified);
 }
 
 /**

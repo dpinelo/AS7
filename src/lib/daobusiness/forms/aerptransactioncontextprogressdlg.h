@@ -21,6 +21,7 @@
 #define AERPTRANSACTIONCONTEXTPROGRESSDLG_H
 
 #include <QDialog>
+#include "dao/beans/basebean.h"
 
 namespace Ui
 {
@@ -28,7 +29,6 @@ class AERPTransactionContextProgressDlg;
 }
 
 class AERPTransactionContextProgressDlgPrivate;
-class BaseBean;
 
 /**
  * @brief The AERPTransactionContextProgressDlg class
@@ -54,7 +54,7 @@ public:
 
 public slots:
     void cancel();
-    void showInfo(BaseBean *bean);
+    void showInfo(BaseBeanPointer bean);
     void mustClose(const QString &contextName);
     void transactionProcessInited(const QString &contextName, int count);
 };
