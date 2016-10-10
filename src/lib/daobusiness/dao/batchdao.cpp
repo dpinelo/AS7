@@ -1550,8 +1550,8 @@ bool BatchDAO::uploadChanges(const QString &messageTemplate, QString &report)
     }
     AERPTransactionContext::instance()->setDatabase(d->m_baseDatabase);
     // Conforme se van guardando los beans, vamos a ir actualizando los IDs de los relacionados...
-    connect (AERPTransactionContext::instance(), SIGNAL(beforeSaveBean(BaseBean*)), this, SLOT(saveSerialsThatChange(BaseBean *)));
-    connect (AERPTransactionContext::instance(), SIGNAL(beanSaved(BaseBean*)), this, SLOT(updateSerialsThatChanged(BaseBean *)));
+    connect (AERPTransactionContext::instance(), SIGNAL(beforeSaveBean(BaseBeanPointer)), this, SLOT(saveSerialsThatChange(BaseBeanPointer)));
+    connect (AERPTransactionContext::instance(), SIGNAL(beanSaved(BaseBeanPointer)), this, SLOT(updateSerialsThatChanged(BaseBeanPointer)));
     bool r = AERPTransactionContext::instance()->commit(d->m_contextName);
     AERPTransactionContext::instance()->waitCommitToEnd(d->m_contextName);
     if ( !r )
@@ -1578,8 +1578,12 @@ void BatchDAO::cancel()
  * Vamos a almacenar primero el valor de los campos seriales... a ver si cambian
  * @param bean
  */
-void BatchDAO::saveSerialsThatChange(BaseBean *bean)
+void BatchDAO::saveSerialsThatChange(BaseBeanPointer bean)
 {
+    if ( bean.isNull() )
+    {
+        return;
+    }
     d->m_serials.clear();
     foreach ( DBField *fld, bean->fields() )
     {
@@ -1595,8 +1599,12 @@ void BatchDAO::saveSerialsThatChange(BaseBean *bean)
  * Actualizamos los beans a salvar
  * @param bean
  */
-void BatchDAO::updateSerialsThatChanged(BaseBean *bean)
+void BatchDAO::updateSerialsThatChanged(BaseBeanPointer bean)
 {
+    if ( bean.isNull() )
+    {
+        return;
+    }
     QScopedPointer<QSqlQuery> qryLocal (new QSqlQuery(QSqlDatabase::database(d->m_batchDatabase)));
     foreach ( DBField *fld, bean->fields() )
     {

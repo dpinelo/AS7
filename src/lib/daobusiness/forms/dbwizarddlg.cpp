@@ -238,14 +238,14 @@ bool DBWizardDlg::init()
 
     // Si esta es la ventana que inicia una transacción, deberá estar atenta y vigilante con todos los beans agregados
     // y que deban ser modificados.
-    connect(AERPTransactionContext::instance(), &AERPTransactionContext::beanModified, [=](BaseBean *bean, bool modified) {
-        if ( bean->actualContext() == d->m_contextName )
+    connect(AERPTransactionContext::instance(), &AERPTransactionContext::beanModified, [=](BaseBeanPointer bean, bool modified) {
+        if ( bean && bean->actualContext() == d->m_contextName )
         {
             this->setWindowModified(modified);
         }
     });
     AERPTransactionContext::instance()->addToContext(d->m_contextName, d->m_bean.data());
-    connect(AERPTransactionContext::instance(), SIGNAL(beanAddedToContext(QString,BaseBean*)), this, SLOT(possibleRecordToSave(QString,BaseBean*)));
+    connect(AERPTransactionContext::instance(), SIGNAL(beanAddedToContext(QString,BaseBeanPointer)), this, SLOT(possibleRecordToSave(QString,BaseBeanPointer)));
 
     setWindowFlags(windowFlags() |
                    Qt::WindowMinMaxButtonsHint |

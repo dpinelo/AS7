@@ -175,7 +175,7 @@ public:
 protected slots:
     virtual void lockBreaked(const QString &notificacion);
     virtual void navigate(const QString &direction);
-    virtual void possibleRecordToSave(const QString &contextName, BaseBean *bean);
+    virtual void possibleRecordToSave(const QString &contextName, BaseBeanPointer bean);
     virtual void advancedNavigationListRowChanged(int row);
 
 public slots:
@@ -202,7 +202,7 @@ public slots:
         navigate("last");
     }
     void setWindowModified(bool value);
-    void setWindowModified(BaseBean *bean, bool value);
+    void setWindowModified(BaseBeanPointer bean, bool value);
     virtual void cancel();
     virtual void showHistory();
     virtual void saveAndNew();

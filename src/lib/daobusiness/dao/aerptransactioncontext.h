@@ -72,14 +72,14 @@ public:
     bool doingCommit(const QString &contextName = "");
 
 signals:
-    void beforeSaveBean(BaseBean *bean);
-    void beforeDeleteBean(BaseBean *bean);
-    void beforeAction(BaseBean *bean);
-    void beanSaved(BaseBean *bean);
-    void beanDeleted(BaseBean *bean);
-    void workingWithBean(BaseBean *bean);
-    void beanModified(BaseBean *bean, bool modified);
-    void beanAddedToContext(QString contextName, BaseBean *bean);
+    void beforeSaveBean(BaseBeanPointer bean);
+    void beforeDeleteBean(BaseBeanPointer bean);
+    void beforeAction(BaseBeanPointer bean);
+    void beanSaved(BaseBeanPointer bean);
+    void beanDeleted(BaseBeanPointer bean);
+    void workingWithBean(BaseBeanPointer bean);
+    void beanModified(BaseBeanPointer bean, bool modified);
+    void beanAddedToContext(QString contextName, BaseBeanPointer bean);
     void transactionInited(QString contextName, int items);
     void transactionCommited(QString contextName);
     void transactionAborted(QString contextName);
@@ -92,6 +92,9 @@ signals:
 
 public slots:
     void cancel(const QString &contextName);
+
+private slots:
+    void emitBeanModified(BaseBean *bean, bool modified);
 };
 
 #endif // AERPTRANSACTIONCONTEXT_H

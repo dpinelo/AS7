@@ -40,7 +40,7 @@ AERPTransactionContextProgressDlg::AERPTransactionContextProgressDlg(QWidget *pa
     d(new AERPTransactionContextProgressDlgPrivate)
 {
     ui->setupUi(this);
-    connect(AERPTransactionContext::instance(), SIGNAL(workingWithBean(BaseBean*)), this, SLOT(showInfo(BaseBean*)));
+    connect(AERPTransactionContext::instance(), SIGNAL(workingWithBean(BaseBeanPointer)), this, SLOT(showInfo(BaseBeanPointer)));
     connect(ui->pbCancel, SIGNAL(clicked()), this, SLOT(cancel()));
     connect(AERPTransactionContext::instance(), SIGNAL(transactionCommited(QString)), this, SLOT(mustClose(QString)));
     connect(AERPTransactionContext::instance(), SIGNAL(transactionAborted(QString)), this, SLOT(mustClose(QString)));
@@ -83,8 +83,12 @@ void AERPTransactionContextProgressDlg::cancel()
     AERPTransactionContext::instance()->cancel(d->m_contextName);
 }
 
-void AERPTransactionContextProgressDlg::showInfo(BaseBean *bean)
+void AERPTransactionContextProgressDlg::showInfo(BaseBeanPointer bean)
 {
+    if ( bean.isNull() )
+    {
+        return;
+    }
     if ( bean->actualContext() != d->m_contextName )
     {
         return;

@@ -1,4 +1,3 @@
-
 #define PACKAGE foo
 #include "backtrace.h"
 #include <alepherpdaobusiness.h>
@@ -86,14 +85,9 @@ LONG WINAPI windowsExceptionFilter(LPEXCEPTION_POINTERS info)
 {
     createLogFileAndInitCrashVars();
 
-    if( output.isOpen() )
+#ifndef ALEPHERP_DRMINGW
+    if (output.isOpen())
     {
-/*
-    CONTEXT context;
-    memset(&context, 0, sizeof(CONTEXT));
-    context.ContextFlags = CONTEXT_FULL;
-    RtlCaptureContext(&context);
- */
         QString dumpPath = QDir::toNativeSeparators(alephERPSettings->dataPath());
         qDebug() << "Se va a crear el dump en " << dumpPath;
         createMiniDump(info, dumpPath);
@@ -101,6 +95,7 @@ LONG WINAPI windowsExceptionFilter(LPEXCEPTION_POINTERS info)
         windowsStackTrace(output, info->ContextRecord);
         output.close();
     }
+#endif
 
     /* Mostramos al usuario la traza del error */
     QDir dir;
@@ -109,7 +104,7 @@ LONG WINAPI windowsExceptionFilter(LPEXCEPTION_POINTERS info)
     return 0;
 }
 
-#ifdef __MINGW32__
+#if defined(__MINGW32__) && !defined(ALEPHERP_DRMINGW) && defined(ALEPHERP_USEBFD)
 bool initBfdCtx(struct bfd_ctx *bc, const char *procname)
 {
     bc->handle = NULL;
@@ -223,6 +218,7 @@ void find(struct bfd_ctx *b, DWORD offset, const char **file, const char **func,
 }
 #endif
 
+#ifndef ALEPHERP_DRMINGW
 /**
  * @brief windowsStackTrace
  * @param output
@@ -307,7 +303,7 @@ void windowsStackTrace(QFile &output, PCONTEXT context)
             GetModuleFileNameA((HINSTANCE)moduleBase, moduleNameRaw, MAX_PATH))
         {
             moduleName = moduleNameRaw;
-#ifdef __MINGW32__
+#if defined(__MINGW32__) && defined(ALEPHERP_USEBFD)
             bc = getBc(set, moduleName);
 #endif
         }
@@ -316,7 +312,7 @@ void windowsStackTrace(QFile &output, PCONTEXT context)
         const char * func = NULL;
         unsigned line = 0;
 
-#ifdef __MINGW32__
+#if defined(__MINGW32__) && defined(ALEPHERP_USEBFD)
         if (bc)
         {
             find(bc, stackframe.AddrPC.Offset, &file, &func, &line);
@@ -572,4 +568,5 @@ bool isDataSectionNeeded( const WCHAR* pModuleName )
     return false;
 }
 
+#endif
 #endif
