@@ -11,12 +11,13 @@ QString stackFile;
 
 #ifdef _MSC_VER
 #define SIGABRT 22
-#include <io.h>
 #endif
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
 #include <signal.h>
 #endif
-
+#ifdef Q_OS_WIN
+#include <io.h>
+#endif
 void createLogFileAndInitCrashVars(int signal = SIGABRT)
 {
     QString lin;
@@ -240,7 +241,7 @@ void windowsStackTrace(QFile &output, PCONTEXT context)
 
     GetModuleFileNameA(NULL, procname, sizeof procname);
 
-#ifdef __MINGW32__
+#if defined(__MINGW32__) && defined(ALEPHERP_USEBFD)
     bfd_init();
     struct bfd_set *set = (struct bfd_set *) calloc(1, sizeof(struct bfd_set *));
     struct bfd_ctx *bc = NULL;
@@ -415,16 +416,19 @@ void createMiniDump(LPEXCEPTION_POINTERS info, const QString &path)
                                                   MiniDumpWithThreadInfo |
                                                   MiniDumpWithUnloadedModules );
 
-        BOOL rv = MiniDumpWriteDump( GetCurrentProcess(), GetCurrentProcessId(),
+        BOOL rv = MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),
             hFile, mdt, (info != 0) ? &mdei : 0, 0, &mci );
 
-        if( !rv )
+        if ( !rv )
+        {
             _tprintf( _T("MiniDumpWriteDump failed. Error: %u \n"), GetLastError() );
+        }
         else
+        {
             _tprintf( _T("Minidump created.\n") );
+        }
 
         // Close the file
-
         CloseHandle( hFile );
     }
     else
