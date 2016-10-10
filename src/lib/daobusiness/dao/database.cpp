@@ -291,11 +291,6 @@ bool Database::openPostgreSQL(const QString &connectionName)
 {
     QSqlDatabase db;
 
-    qDebug() << "Vamos a hacer cascar la app";
-    int *aPostaYBorrar;
-    qDebug() << aPostaYBorrar[1];
-    delete aPostaYBorrar;
-
     if ( !QSqlDatabase::isDriverAvailable("QPSQL") )
     {
         QStringList list = QSqlDatabase::drivers();
