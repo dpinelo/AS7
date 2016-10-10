@@ -762,15 +762,7 @@ void DBBaseWidget::applyPropertiesByRole(QPointer<QWidget> widget, const QString
 {
     if ( !roles.isEmpty() && widget )
     {
-        bool hasRole = false;
-        foreach (const QString &rol, roles)
-        {
-            if ( AERPLoggedUser::instance()->hasRole(rol) )
-            {
-                hasRole = true;
-                break;
-            }
-        }
+        bool hasRole = AERPLoggedUser::instance()->hasAnyRole(roles);
         if ( !hasRole )
         {
             if ( widget->property(property).isValid() )
@@ -785,15 +777,7 @@ void DBBaseWidget::applyPropertiesByUser(QPointer<QWidget> widget, const QString
 {
     if ( !users.isEmpty() && widget )
     {
-        bool hasUser = false;
-        foreach (const QString &user, users)
-        {
-            if ( AERPLoggedUser::instance()->userName() == user )
-            {
-                hasUser = true;
-                break;
-            }
-        }
+        bool hasUser = users.contains(AERPLoggedUser::instance()->userName(), Qt::CaseInsensitive);
         if ( !hasUser )
         {
             if ( widget->property(property).isValid() )

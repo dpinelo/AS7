@@ -58,6 +58,7 @@ public:
     bool hasRole(int idRole) const;
     bool hasOnlyRole(const QString &roleName) const;
     bool hasOnlyRole(int idRole) const;
+    bool hasAnyRole(const QStringList &roles) const;
     bool isSuperAdmin() const;
     bool dbaMode() const;
     bool checkMetadataAccess(QChar access, const QString &tableName);
