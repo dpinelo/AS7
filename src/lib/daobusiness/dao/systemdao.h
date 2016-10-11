@@ -85,7 +85,7 @@ public:
     static bool insertSystemObject(AERPSystemObject *systemObject, const QString &connectionName);
     static bool deleteSystemObject(const QString &name, const QString &type, const QString &device, int idOrigin, int version, const QString &connectionName);
     static int versionSystemObject(const QString &name, const QString &type, const QString &device, int idOrigin, const QString &connectionName = "");
-    static AERPSystemObject *systemObject(const QString &name, const QString &type, const QString &device, int idOrigin, const QString &connection = SYSTEM_CONNECTION);
+    static AERPSystemObject *systemObject(const QString &name, const QString &type, const QString &device, int idOrigin, const QString &connection = SYSTEM_CONNECTION, bool forceToSearch = false);
     static AERPSystemObject *systemObject(const QString &name, const QString &type, int idOrigin);
     static AERPSystemObject *systemObject(int idObject);
     static bool insertOrUpdateReport(ReportMetadata *m, const QString &content);

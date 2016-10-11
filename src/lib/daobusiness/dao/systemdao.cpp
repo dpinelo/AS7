@@ -1335,10 +1335,10 @@ int SystemDAO::versionSystemObject(const QString &name, const QString &type, con
     return result;
 }
 
-AERPSystemObject *SystemDAO::systemObject(const QString &name, const QString &type, const QString &device, int idOrigin, const QString &connection)
+AERPSystemObject *SystemDAO::systemObject(const QString &name, const QString &type, const QString &device, int idOrigin, const QString &connection, bool forceToSearch)
 {
     SystemDAO::clearLastDbMessage();
-    if ( SystemDAO::m_systemObjectsLoaded )
+    if ( SystemDAO::m_systemObjectsLoaded && !forceToSearch )
     {
         foreach (AERPSystemObject *sy, SystemDAO::m_systemObjects)
         {
@@ -1349,9 +1349,12 @@ AERPSystemObject *SystemDAO::systemObject(const QString &name, const QString &ty
         }
     }
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
-    QString sql = QString("SELECT nombre, contenido, type, version, debug, on_init_debug, module, device, idorigin FROM %1_system "
+    QString sql = QString("SELECT nombre, contenido, type, version, debug, on_init_debug, module, device, idorigin "
+                          "FROM %1_system "
                           "WHERE nombre = :nombre and type = :type and "
-                          "(device=:device or device='*' or device like '%2.*') and idorigin=:idorigin").
+                          "(device=:device or device='*' or device like '%2.*') and idorigin=:idorigin "
+                          "ORDER BY version DESC "
+                          "LIMIT 1").
             arg(alephERPSettings->systemTablePrefix()).
             arg(device);
     qry->prepare(sql);
@@ -1383,7 +1386,10 @@ AERPSystemObject *SystemDAO::systemObject(const QString &name, const QString &ty
             r->setIsPatch(qry->record().value("ispatch").toInt());
             r->setId(qry->record().value("id").toInt());
             r->setDeviceTypes(qry->record().value("device").toString().split(","));
-            SystemDAO::m_systemObjects.append(r);
+            if ( !forceToSearch )
+            {
+                SystemDAO::m_systemObjects.append(r);
+            }
             return r;
         }
         else

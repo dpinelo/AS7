@@ -192,12 +192,12 @@ void DBLineEdit::setReplacePointCharacter(const QChar &character)
 
 int DBLineEdit::replacePointLength() const
 {
-
+    return d->m_replacePointLength;
 }
 
 void DBLineEdit::setReplacePointLength(int length)
 {
-
+    d->m_replacePointLength = length;
 }
 
 void DBLineEdit::setRelationFilter(const QString &name)

@@ -102,11 +102,6 @@ bool ModulesDAO::importModules(const QString &xmlOrigin, const QString &moduleId
         d->m_lastErrorMessage = trUtf8("File %1 not exists").arg(xmlOrigin);
         return false;
     }
-    if ( !BaseDAO::transaction(BASE_CONNECTION) )
-    {
-        d->m_lastErrorMessage = BaseDAO::lastErrorMessage();
-        return false;
-    }
     QTextStream in(&xmlOriginFile);
     in.setCodec("UTF-8");
     xmlOriginContent = in.readAll();
@@ -125,13 +120,13 @@ bool ModulesDAO::importModules(const QString &xmlOrigin, const QString &moduleId
         {
             for ( int i = 0 ; i < listModules.size() ; i++ )
             {
-                if ( d->m_cancelProcess )
+                QDomElement module = listModules.at(i).toElement();
+                qDebug() << "ModulesDAO::importModules: Procesando " << module.text();
+                if ( !BaseDAO::transaction(BASE_CONNECTION) )
                 {
-                    BaseDAO::rollback(BASE_CONNECTION);
                     return false;
                 }
-                QDomElement module = listModules.at(i).toElement();
-                if ( !d->importModuleFiles(xmlOrigin, module.text(), askForObjects) )
+                if ( !d->importModuleFiles(xmlOrigin, module.text(), askForObjects) || !BaseDAO::commit(BASE_CONNECTION) )
                 {
                     BaseDAO::rollback(BASE_CONNECTION);
                     return false;
@@ -140,7 +135,11 @@ bool ModulesDAO::importModules(const QString &xmlOrigin, const QString &moduleId
         }
         else
         {
-            if ( !d->importModuleFiles(xmlOrigin, moduleId, askForObjects) )
+            if ( !BaseDAO::transaction(BASE_CONNECTION) )
+            {
+                return false;
+            }
+            if ( !d->importModuleFiles(xmlOrigin, moduleId, askForObjects) || !BaseDAO::commit(BASE_CONNECTION) )
             {
                 BaseDAO::rollback(BASE_CONNECTION);
                 return false;
@@ -402,7 +401,8 @@ bool ModulesDAOPrivate::importModuleFiles(const QString &xmlOrigin, const QStrin
                                     itemToImport["type"],
                                     itemToImport["device"],
                                     itemToImport["idOrigin"].toInt(),
-                                    QString(BASE_CONNECTION));
+                                    QString(BASE_CONNECTION),
+                                    true);
                         if ( actualObject == NULL ||
                              actualObject->version() < itemToImport["version"].toInt() ||
                              actualObject->module()->name() != module->name() )
