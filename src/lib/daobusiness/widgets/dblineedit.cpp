@@ -1317,7 +1317,7 @@ void DBLineEditPrivate::processTextEntry()
             int numChars = maxLength - q_ptr->text().size() + 1;
             if ( m_replacePointLength > -1 )
             {
-                numChars = m_replacePointLength;
+                numChars = m_replacePointLength + 1;
             }
             QString chars = QString("").fill(m_replacePointCharacter, numChars);
             QString actualText = q_ptr->text();
