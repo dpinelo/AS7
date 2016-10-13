@@ -125,8 +125,8 @@ void DBTreeViewPrivate::connections()
 
     if ( m_progressDialog.isNull() )
     {
-        m_progressDialog = new QProgressDialog(q_ptr);
-        m_progressDialog->hide();
+        // m_progressDialog = new QProgressDialog(q_ptr);
+        // m_progressDialog->hide();
     }
 
     TreeBaseBeanModel *treeModel = qobject_cast<TreeBaseBeanModel *>(q_ptr->filterModel()->sourceModel());

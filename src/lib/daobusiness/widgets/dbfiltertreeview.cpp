@@ -87,7 +87,7 @@ void DBFilterTreeViewPrivate::initDataStructures()
     {
         return;
     }
-    foreach ( QVariant item, m_treeDefinition )
+    foreach ( const QVariant &item, m_treeDefinition )
     {
         QHash<QString, QVariant> hash = item.toHash();
         BaseBeanMetadata *metadata = BeansFactory::metadataBean(hash.value("name").toString());
@@ -130,7 +130,9 @@ void DBFilterTreeViewPrivate::initDataStructures()
     m_filtersFields.append("");
 }
 
-DBFilterTreeView::DBFilterTreeView(QWidget *parent) : DBAbstractFilterView(parent), d(new DBFilterTreeViewPrivate(this))
+DBFilterTreeView::DBFilterTreeView(QWidget *parent) :
+    DBAbstractFilterView(parent),
+    d(new DBFilterTreeViewPrivate(this))
 {
     DBTreeView *tv = new DBTreeView(this);
     setItemView(tv);
@@ -148,7 +150,7 @@ DBFilterTreeView::DBFilterTreeView(QWidget *parent) : DBAbstractFilterView(paren
     icon.addFile(QString(":/generales/images/down.png"), QSize(), QIcon::Normal, QIcon::Off);
     d->m_pbBranchTree->setIcon(icon);
     d->m_pbBranchTree->setCheckable(true);
-    QHBoxLayout *lay = qobject_cast<QHBoxLayout *>(ui->gbFilter->layout());
+    QBoxLayout *lay = qobject_cast<QBoxLayout *>(ui->hlBranchTree);
     if ( lay != NULL )
     {
         lay->insertWidget(0, d->m_pbBranchTree);
