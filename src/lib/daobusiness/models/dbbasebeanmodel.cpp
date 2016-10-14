@@ -697,16 +697,20 @@ void DBBaseBeanModelPrivate::fetchBeans(int row)
     {
         for ( int i = 0 ; i < results.size() ; i++ )
         {
-            m_vectorBean[i + (m_offset * offsetMultiply)] = results.at(i);
-            m_beansFetched[i + (m_offset * offsetMultiply)] = true;
-            QObject::connect(results.at(i).data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
-                             q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-            QObject::connect(results.at(i).data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
-                             q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-            if ( q_ptr->canEmitDataChanged() )
+            int idx = i + (m_offset * offsetMultiply);
+            if ( AERP_CHECK_INDEX_OK(idx, m_vectorBean) )
             {
-                emit q_ptr->dataChanged(q_ptr->index(i + (m_offset * offsetMultiply), 0),
-                                    q_ptr->index(i + (m_offset * offsetMultiply), q_ptr->columnCount(QModelIndex())));
+                m_vectorBean[idx] = results.at(i);
+                m_beansFetched[idx] = true;
+                QObject::connect(results.at(i).data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
+                                 q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
+                QObject::connect(results.at(i).data(), SIGNAL(defaultValueCalculated(BaseBean *, QString, QVariant)),
+                                 q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
+                if ( q_ptr->canEmitDataChanged() )
+                {
+                    emit q_ptr->dataChanged(q_ptr->index(idx, 0),
+                                            q_ptr->index(idx, q_ptr->columnCount(QModelIndex())));
+                }
             }
         }
         emit q_ptr->beansLoadFinished();

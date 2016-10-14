@@ -220,6 +220,7 @@ public slots:
     virtual void showDBButtons();
     virtual void showOrHideHelp();
     virtual void restoreContext();
+    virtual void sync();
 #ifdef ALEPHERP_DOC_MANAGEMENT
     virtual void showOrHideDocuments();
 #endif
