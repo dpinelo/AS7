@@ -96,8 +96,9 @@ ScriptDlg::~ScriptDlg()
 
 void ScriptDlg::showEvent(QShowEvent * event)
 {
-    Q_UNUSED(event)
+    callQSMethod("showEvent");
     AERPBaseDialog::showEvent(event);
+
 }
 
 void ScriptDlg::closeEvent(QCloseEvent * event)

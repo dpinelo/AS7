@@ -9,12 +9,19 @@ TARGET = $$APPNAME
 win32 {
     CONFIG += windows
     RC_FILE = win32info.rc
-    LIBS += -lDbgHelp
-    win32-g++ {
-        LIBS += -lbfd -liberty -lz
+    contains(DRMINGW, Y) {
+        win32-g++|win64-g++ {
+            # QMAKE_CXXFLAGS = "--enable-stdcall-fixup"
+            LIBS += -lexchndl
+        }
     }
-    win64-g++ {
-        LIBS += -lbfd -liberty -lz
+    !contains(DRMINGW, Y) {
+        LIBS += -lDbgHelp
+        contains(USEBFD, Y) {
+            win32-g++|win64-g++ {
+                LIBS += -lbfd -liberty -lz
+            }
+        }
     }
 # ATENCIÓN: libbfd está presente en la distribución de MinGW-W64 en un directorio diferente al que contienen todas las librerías.
 # En la estructura de directorios de MinGW que incluye Qt se tiene

@@ -2123,6 +2123,14 @@ void DBRecordDlg::restoreContext()
     AERPTransactionContext::instance()->addToContext(contextName(), d->m_bean);
 }
 
+void DBRecordDlg::sync()
+{
+    if ( d->m_bean )
+    {
+        d->m_bean->sync();
+    }
+}
+
 #ifdef ALEPHERP_DEVTOOLS
 void DBRecordDlg::inspectBean()
 {

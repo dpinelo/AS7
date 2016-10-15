@@ -272,8 +272,13 @@ void SystemItemsDlg::showDiff()
         item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
         item->setCheckState(Qt::Checked);
         item->setData(Qt::UserRole, patchText);
+        item->setData(Qt::UserRole+1, p.start1);
         ui->twDiff->insertRow(row);
         ui->twDiff->setItem(row, 0, item);
+
+        QTableWidgetItem *itemPos = new QTableWidgetItem(QString("%1 - %2").arg(p.start1).arg(p.start2));
+        itemPos->setData(Qt::UserRole+1, p.start1);
+        ui->twDiff->setItem(row, 1, itemPos);
     }
 }
 
@@ -301,23 +306,34 @@ void SystemItemsDlg::backDiff()
 
 void SystemItemsDlg::applyIndividualDiff(QTableWidgetItem *item)
 {
-    if ( item == NULL || item->column() != 0 )
+    if ( item == NULL )
     {
         return;
     }
-    diff_match_patch diff;
-
-    QList<Patch> patches;
-
-    for (int i = 0 ; i < ui->twDiff->rowCount() ; ++i)
+    if ( item->column() == 0 )
     {
-        if ( ui->twDiff->item(i, 0)->checkState() == Qt::Checked )
+        diff_match_patch diff;
+
+        QList<Patch> patches;
+
+        for (int i = 0 ; i < ui->twDiff->rowCount() ; ++i)
         {
-            patches << diff.patch_fromText(ui->twDiff->item(i, 0)->data(Qt::UserRole).toString());
+            if ( ui->twDiff->item(i, 0) && ui->twDiff->item(i, 0)->checkState() == Qt::Checked )
+            {
+                patches << diff.patch_fromText(ui->twDiff->item(i, 0)->data(Qt::UserRole).toString());
+            }
         }
+        QPair<QString, QVector<bool> > result = diff.patch_apply(patches, d->m_actualDiffItem["actualContent"]);
+        d->m_actualDiffItem["contentToImport"] = result.first;
     }
-    QPair<QString, QVector<bool> > result = diff.patch_apply(patches, d->m_actualDiffItem["actualContent"]);
-    d->m_actualDiffItem["contentToImport"] = result.first;
+
+    int pos = item->data(Qt::UserRole+1).toInt();
+    if (pos != 0)
+    {
+        QTextCursor textCursor = ui->txtDiff->textCursor();
+        textCursor.setPosition(pos);
+        ui->txtDiff->setTextCursor(textCursor);
+    }
 }
 
 

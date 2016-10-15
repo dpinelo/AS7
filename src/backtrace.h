@@ -32,7 +32,7 @@
 #ifdef Q_OS_WIN
 #include <windows.h>
 #include <DbgHelp.h>
-#ifdef __MINGW32__
+#if defined(__MINGW32__) && defined(ALEPHERP_USEBFD)
 #define PACKAGE foo
 #include <bfd.h>
 

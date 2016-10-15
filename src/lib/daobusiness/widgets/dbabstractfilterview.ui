@@ -53,6 +53,9 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
+         <layout class="QHBoxLayout" name="hlBranchTree"/>
+        </item>
+        <item>
          <widget class="QLabel" name="lblFastFilter">
           <property name="text">
            <string>&amp;Filtro rapido</string>

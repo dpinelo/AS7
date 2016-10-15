@@ -56,12 +56,15 @@ TWAINSUPPORT=N
 JASPERSERVERSUPPORT=N
 BARCODESUPPORT=N
 QTDESIGNERBUILTIN=N
-QTSCRIPTBINDING=N
+QTSCRIPTBINDING=Y
 # Puede ser, xbase64, xbase2 o dbase-code
 DBASELIBRARY=dbase-code
 LINUX32BITS=N
 XLSSUPPORT=Y
 ODSSUPPORT=Y
+
+DRMINGW=N
+USEBFD=N
 
 VMIMESMTPSUPPORT=N
 POCOSMTPSUPPORT=N
@@ -79,30 +82,48 @@ CONFIG += c++11
 
 android {
     BUILDTYPE=android
+    DRMINGW=N
 }
 
 macx {
     BUILDTYPE=macos
     CONFIG-=app_bundle
     QMAKE_CXXFLAGS = -stdlib=libc++
+    DRMINGW=N
 }
 
 win32-g++ {
     BUILDTYPE=win32/gcc
+    contains(DRMINGW, Y) {
+        QMAKE_CXXFLAGS_RELEASE = -g -fno-omit-frame-pointer
+        QMAKE_CFLAGS_RELEASE = -g -fno-omit-frame-pointer
+        QMAKE_LFLAGS_RELEASE =
+    }
 }
+
 win64-g++ {
     BUILDTYPE=win64/gcc
+    contains(DRMINGW, Y) {
+        QMAKE_CXXFLAGS_RELEASE = -g -fno-omit-frame-pointer
+        QMAKE_CFLAGS_RELEASE = -g -fno-omit-frame-pointer
+        QMAKE_LFLAGS_RELEASE =
+    }
 }
+
 win32-msvc* {
     BUILDTYPE=win32/msvc
     XLSSUPPORT=N
     ODSSUPPORT=N
+    DRMINGW=N
 }
+
 win64-msvc* {
     BUILDTYPE=win64/msvc
+    DRMINGW=N
 }
 
 unix {
+    DRMINGW=N
     contains (LINUX32BITS, Y) {
         BUILDTYPE=unix/m32
         QMAKE_LFLAGS = -m32
@@ -308,6 +329,14 @@ contains(DEVTOOLS, Y) {
 
 contains(BARCODESUPPORT, Y) {
     DEFINES += ALEPHERP_BARCODE
+}
+
+contains(DRMINGW, Y) {
+    DEFINES += ALEPHERP_DRMINGW
+}
+
+contains(USEBFD, Y) {
+    DEFINES += ALEPHERP_USEBFD
 }
 
 # --------------------------------------

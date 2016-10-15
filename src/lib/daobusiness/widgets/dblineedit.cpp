@@ -51,6 +51,7 @@ public:
     DBLineEdit *q_ptr;
     bool m_replacePointWithCharacter;
     QChar m_replacePointCharacter;
+    int m_replacePointLength;
 
     /** Permitirá autocompletado de este control. Se supone para ello que este control está enlazado a un DBField, es decir,
       una columna de una tabla de base de datos, y esa columna está relacionada (mediante un DBRelation) con otra tabla.
@@ -98,6 +99,7 @@ public:
     {
         m_replacePointWithCharacter = false;
         m_replacePointCharacter = '0';
+        m_replacePointLength = -1;
         m_autoComplete = AlephERP::NoCompletition;
         m_completerItemView = NULL;
         m_showRecalculateCounterButton = false;
@@ -186,6 +188,16 @@ void DBLineEdit::setReplacePointCharacter(const QChar &character)
             d->m_completerDelegate->setReplaceWildCardCharacter(QChar());
         }
     }
+}
+
+int DBLineEdit::replacePointLength() const
+{
+    return d->m_replacePointLength;
+}
+
+void DBLineEdit::setReplacePointLength(int length)
+{
+    d->m_replacePointLength = length;
 }
 
 void DBLineEdit::setRelationFilter(const QString &name)
@@ -1303,6 +1315,10 @@ void DBLineEditPrivate::processTextEntry()
                 }
             }
             int numChars = maxLength - q_ptr->text().size() + 1;
+            if ( m_replacePointLength > -1 )
+            {
+                numChars = m_replacePointLength - q_ptr->text().size() + 1;
+            }
             QString chars = QString("").fill(m_replacePointCharacter, numChars);
             QString actualText = q_ptr->text();
             QString finalText = actualText.replace('.', chars);

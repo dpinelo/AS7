@@ -86,6 +86,7 @@ class ALEPHERP_DLL_EXPORT DBLineEdit : public QLineEdit, public DBBaseWidget
       replacePointCharacter. */
     Q_PROPERTY (bool replacePointWithCharacter READ replacePointWithCharacter WRITE setReplacePointWithCharacter)
     Q_PROPERTY (QChar replacePointCharacter READ replacePointCharacter WRITE setReplacePointCharacter)
+    Q_PROPERTY (int replacePointLength READ replacePointLength WRITE setReplacePointLength)
     Q_PROPERTY (QString reportParameterBinding READ reportParameterBinding WRITE setReportParameterBinding)
     Q_PROPERTY (QString scriptAfterChooseFromCompleter READ scriptAfterChooseFromCompleter WRITE setScriptAfterChooseFromCompleter)
     Q_PROPERTY (BaseBeanSharedPointer completerSelectedBean READ completerSelectedBean WRITE setCompleterSelectedBean)
@@ -171,6 +172,8 @@ public:
     virtual void setReplacePointWithCharacter(bool value);
     virtual QChar replacePointCharacter() const;
     virtual void setReplacePointCharacter(const QChar &character);
+    virtual int replacePointLength() const;
+    virtual void setReplacePointLength(int length);
     virtual void setRelationFilter(const QString &name);
 
     virtual AlephERP::AutoCompleteTypes autoComplete() const;

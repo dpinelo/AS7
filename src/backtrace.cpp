@@ -1,4 +1,3 @@
-
 #define PACKAGE foo
 #include "backtrace.h"
 #include <alepherpdaobusiness.h>
@@ -12,12 +11,13 @@ QString stackFile;
 
 #ifdef _MSC_VER
 #define SIGABRT 22
-#include <io.h>
 #endif
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
 #include <signal.h>
 #endif
-
+#ifdef Q_OS_WIN
+#include <io.h>
+#endif
 void createLogFileAndInitCrashVars(int signal = SIGABRT)
 {
     QString lin;
@@ -86,14 +86,9 @@ LONG WINAPI windowsExceptionFilter(LPEXCEPTION_POINTERS info)
 {
     createLogFileAndInitCrashVars();
 
-    if( output.isOpen() )
+#ifndef ALEPHERP_DRMINGW
+    if (output.isOpen())
     {
-/*
-    CONTEXT context;
-    memset(&context, 0, sizeof(CONTEXT));
-    context.ContextFlags = CONTEXT_FULL;
-    RtlCaptureContext(&context);
- */
         QString dumpPath = QDir::toNativeSeparators(alephERPSettings->dataPath());
         qDebug() << "Se va a crear el dump en " << dumpPath;
         createMiniDump(info, dumpPath);
@@ -101,6 +96,7 @@ LONG WINAPI windowsExceptionFilter(LPEXCEPTION_POINTERS info)
         windowsStackTrace(output, info->ContextRecord);
         output.close();
     }
+#endif
 
     /* Mostramos al usuario la traza del error */
     QDir dir;
@@ -109,7 +105,7 @@ LONG WINAPI windowsExceptionFilter(LPEXCEPTION_POINTERS info)
     return 0;
 }
 
-#ifdef __MINGW32__
+#if defined(__MINGW32__) && !defined(ALEPHERP_DRMINGW) && defined(ALEPHERP_USEBFD)
 bool initBfdCtx(struct bfd_ctx *bc, const char *procname)
 {
     bc->handle = NULL;
@@ -223,6 +219,7 @@ void find(struct bfd_ctx *b, DWORD offset, const char **file, const char **func,
 }
 #endif
 
+#ifndef ALEPHERP_DRMINGW
 /**
  * @brief windowsStackTrace
  * @param output
@@ -244,7 +241,7 @@ void windowsStackTrace(QFile &output, PCONTEXT context)
 
     GetModuleFileNameA(NULL, procname, sizeof procname);
 
-#ifdef __MINGW32__
+#if defined(__MINGW32__) && defined(ALEPHERP_USEBFD)
     bfd_init();
     struct bfd_set *set = (struct bfd_set *) calloc(1, sizeof(struct bfd_set *));
     struct bfd_ctx *bc = NULL;
@@ -307,7 +304,7 @@ void windowsStackTrace(QFile &output, PCONTEXT context)
             GetModuleFileNameA((HINSTANCE)moduleBase, moduleNameRaw, MAX_PATH))
         {
             moduleName = moduleNameRaw;
-#ifdef __MINGW32__
+#if defined(__MINGW32__) && defined(ALEPHERP_USEBFD)
             bc = getBc(set, moduleName);
 #endif
         }
@@ -316,7 +313,7 @@ void windowsStackTrace(QFile &output, PCONTEXT context)
         const char * func = NULL;
         unsigned line = 0;
 
-#ifdef __MINGW32__
+#if defined(__MINGW32__) && defined(ALEPHERP_USEBFD)
         if (bc)
         {
             find(bc, stackframe.AddrPC.Offset, &file, &func, &line);
@@ -419,16 +416,19 @@ void createMiniDump(LPEXCEPTION_POINTERS info, const QString &path)
                                                   MiniDumpWithThreadInfo |
                                                   MiniDumpWithUnloadedModules );
 
-        BOOL rv = MiniDumpWriteDump( GetCurrentProcess(), GetCurrentProcessId(),
+        BOOL rv = MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(),
             hFile, mdt, (info != 0) ? &mdei : 0, 0, &mci );
 
-        if( !rv )
+        if ( !rv )
+        {
             _tprintf( _T("MiniDumpWriteDump failed. Error: %u \n"), GetLastError() );
+        }
         else
+        {
             _tprintf( _T("Minidump created.\n") );
+        }
 
         // Close the file
-
         CloseHandle( hFile );
     }
     else
@@ -572,4 +572,5 @@ bool isDataSectionNeeded( const WCHAR* pModuleName )
     return false;
 }
 
+#endif
 #endif

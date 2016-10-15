@@ -34,6 +34,12 @@
 #include <signal.h>
 #include "backtrace.h"
 
+#ifdef Q_OS_WIN
+#ifdef ALEPHERP_DRMINGW
+#include <exchndl.h>
+#endif
+#endif
+
 #ifdef ALEPHERP_TEST
 #include "models/test/modeltest.h"
 #ifdef _MSC_VER
@@ -79,6 +85,12 @@ int main(int argc, char *argv[])
     SetUnhandledExceptionFilter(windowsExceptionFilter);
 #endif
 
+#ifdef Q_OS_WIN
+#ifdef ALEPHERP_DRMINGW
+    ExcHndlInit();
+#endif
+#endif
+
     AERPApplication app(argc, argv);
 
 #ifdef ALEPHERP_TEST
@@ -113,6 +125,14 @@ int main(int argc, char *argv[])
     app.setApplicationName(QString::fromUtf8("AlephERP"));
     app.setOrganizationName(QString::fromUtf8("Aleph Sistemas de Información"));
     app.setOrganizationDomain("alephsistemas.es");
+
+#ifdef Q_OS_WIN
+#ifdef ALEPHERP_DRMINGW
+    QString stackFile = alephERPSettings->dataPath() + "/stacktrace.log";
+    QByteArray ba = stackFile.toUtf8();
+    ExcHndlSetLogFileNameA(ba.constData());
+#endif
+#endif
 
     // Si en el directorio del ejecutable, hay una imagen con nombre icon.png, utilizamos esta
     QString icoFilePath = qApp->applicationDirPath() + QDir::separator() + "icon.png";

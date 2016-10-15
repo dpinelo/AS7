@@ -172,6 +172,25 @@ void AERPMainWindowPrivate::processActions()
 
 void AERPMainWindowPrivate::processActionTable(QAction *action)
 {
+    // Comprobamos el nivel de acceso definido en los UI
+    if ( action->property(AlephERP::stEnabledForRoles).isValid() )
+    {
+        action->setEnabled(AERPLoggedUser::instance()->hasAnyRole(action->property(AlephERP::stEnabledForRoles).toStringList()));
+    }
+    if ( action->property(AlephERP::stVisibleForRoles).isValid() )
+    {
+        action->setVisible(AERPLoggedUser::instance()->hasAnyRole(action->property(AlephERP::stVisibleForRoles).toStringList()));
+    }
+    if ( action->property(AlephERP::stVisibleForUsers).isValid() )
+    {
+        action->setVisible(action->property(AlephERP::stVisibleForUsers).toStringList().contains(AERPLoggedUser::instance()->userName()));
+    }
+    if ( action->property(AlephERP::stEnabledForUsers).isValid() )
+    {
+        action->setEnabled(action->property(AlephERP::stEnabledForUsers).toStringList().contains(AERPLoggedUser::instance()->userName()));
+    }
+
+    // Comprobamos el nivel de acceso definido en base de datos
     QString tableName = action->objectName();
     tableName.replace("table_", "");
     if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', tableName) )

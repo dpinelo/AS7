@@ -175,6 +175,20 @@ bool AERPLoggedUser::hasOnlyRole(int idRole) const
     return d->m_roles.first().idRole == idRole;
 }
 
+bool AERPLoggedUser::hasAnyRole(const QStringList &roles) const
+{
+    bool hasRole = false;
+    foreach (const QString &rol, roles)
+    {
+        if ( AERPLoggedUser::instance()->hasRole(rol) )
+        {
+            hasRole = true;
+            break;
+        }
+    }
+    return hasRole;
+}
+
 bool AERPLoggedUser::isSuperAdmin() const
 {
     QMutexLocker lock(&mutex);

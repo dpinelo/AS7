@@ -123,20 +123,6 @@ void DBTreeViewPrivate::connections()
         return;
     }
 
-    if ( m_progressDialog.isNull() )
-    {
-        m_progressDialog = new QProgressDialog(q_ptr);
-        m_progressDialog->hide();
-    }
-
-    TreeBaseBeanModel *treeModel = qobject_cast<TreeBaseBeanModel *>(q_ptr->filterModel()->sourceModel());
-    if ( treeModel != NULL && treeModel->metadata() && treeModel->metadata()->showOnTreePreloadRecords() )
-    {
-        QObject::connect(treeModel, SIGNAL(populateAllModel(int)), m_progressDialog.data(), SLOT(setMaximum(int)));
-        QObject::connect(treeModel, SIGNAL(populateAllModelProgress(int)), m_progressDialog.data(), SLOT(setValue(int)));
-    }
-    QObject::connect(q_ptr->filterModel(), SIGNAL(initLoadingData()), m_progressDialog.data(), SLOT(show()));
-    QObject::connect(q_ptr->filterModel(), SIGNAL(endLoadingData()), m_progressDialog.data(), SLOT(hide()));
     QObject::connect(q_ptr->filterModel(), SIGNAL(endLoadingData()), q_ptr, SLOT(hideAnimation()));
     QObject::connect(q_ptr->filterModel(), SIGNAL(initLoadingData()), q_ptr, SLOT(showAnimation()));
 
@@ -500,19 +486,10 @@ void DBTreeView::showEvent(QShowEvent * event)
 
     if ( !d->m_tableNames.isEmpty() )
     {
-        if ( d->m_progressDialog.isNull() )
-        {
-            d->m_progressDialog = new QProgressDialog(this);
-            d->m_progressDialog->hide();
-        }
         if ( !property(AlephERP::stInited).toBool() )
         {
             init();
             setProperty(AlephERP::stInited, true);
-        }
-        if ( m_metadata )
-        {
-            d->m_progressDialog->setLabelText(trUtf8("Carga de '%1'").arg(m_metadata->alias()));
         }
         setCheckFatherCheckChildrens(d->m_checkFatherCheckChildrens);
         setItemCheckBox(d->m_itemCheckBox);
@@ -1067,6 +1044,21 @@ void DBTreeView::populateAllModel()
     if ( sourceModel == NULL )
     {
         return;
+    }
+    if ( d->m_progressDialog.isNull() )
+    {
+        d->m_progressDialog = new QProgressDialog(this);
+        d->m_progressDialog->hide();
+        if ( sourceModel != NULL &&
+             sourceModel->metadata() &&
+             sourceModel->metadata()->showOnTreePreloadRecords() )
+        {
+            d->m_progressDialog->setLabelText(trUtf8("Carga de '%1'").arg(sourceModel->metadata()->alias()));
+            QObject::connect(sourceModel, SIGNAL(populateAllModel(int)), d->m_progressDialog.data(), SLOT(setMaximum(int)));
+            QObject::connect(sourceModel, SIGNAL(populateAllModelProgress(int)), d->m_progressDialog.data(), SLOT(setValue(int)));
+        }
+        QObject::connect(filterModel(), SIGNAL(initLoadingData()), d->m_progressDialog.data(), SLOT(show()));
+        QObject::connect(filterModel(), SIGNAL(endLoadingData()), d->m_progressDialog.data(), SLOT(hide()));
     }
     d->m_retrievingAllModel = true;
     sourceModel->populateAllModel();
