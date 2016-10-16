@@ -90,8 +90,10 @@ class DBRecordDlgPrivate
 //    Q_DECLARE_PUBLIC(DBRecordDlg)
 public:
     DBRecordDlg *q_ptr;
-    /** BaseBean que se edita */
+    /** BaseBean que se edita y sobre el que trabajará el formulario */
     BaseBeanPointer m_bean;
+    /** Bean compartido, caso de que el original pueda perderse */
+    BaseBeanSharedPointer m_sharedBean;
     /** Widget principal */
     QPointer<QWidget> m_widget;
     /** Indica si el usuario ha guardado los datos o ha cancelado la edición */
@@ -170,6 +172,7 @@ public:
                            DBRecordDlg::Print;
     }
 
+    void constructor(BaseBeanPointer bean, AlephERP::FormOpenType openType, bool initTransaction);
     bool insertRow(QItemSelectionModel *selectionModel);
     BaseBeanPointer nextIndex(const QString &direction);
     bool isPrintButtonVisible();
@@ -532,67 +535,81 @@ DBRecordDlg::DBRecordDlg(BaseBeanPointer bean,
     ui(new Ui::DBRecordDlg),
     d(new DBRecordDlgPrivate(this))
 {
-    d->m_bean = bean;
+    d->constructor(bean, openType, initTransaction);
+}
+
+DBRecordDlg::DBRecordDlg(BaseBeanSharedPointer bean, AlephERP::FormOpenType openType, bool initTransaction, QWidget *parent, Qt::WindowFlags fl) :
+    AERPBaseDialog(parent, fl),
+    ui(new Ui::DBRecordDlg),
+    d(new DBRecordDlgPrivate(this))
+{
+    d->m_sharedBean = bean;
+    d->constructor(bean.data(), openType, initTransaction);
+}
+
+void DBRecordDlgPrivate::constructor(BaseBeanPointer bean, AlephERP::FormOpenType openType, bool initTransaction)
+{
+    m_bean = bean;
     if ( bean.isNull() )
     {
-        QMessageBox::warning(this,
+        QMessageBox::warning(q_ptr,
                              qApp->applicationName(),
-                             tr("Ha ocurrido un error al abrir el registro."));
-        setOpenSuccess(false);
+                             QObject::tr("Ha ocurrido un error al abrir el registro."));
+        q_ptr->setOpenSuccess(false);
         return;
     }
     // Este chivato indica si el registro lo guardará este formulario en base de datos o no
-    d->m_openType = openType;
+    m_openType = openType;
     // Indica si este formulario inicia una nueva transacción.
-    d->m_initContext = initTransaction;
-    if ( d->m_initContext )
+    m_initContext = initTransaction;
+    if ( m_initContext )
     {
-        d->m_originalBeanContext = bean->actualContext();
-        setContextName(QUuid::createUuid().toString());
+        m_originalBeanContext = bean->actualContext();
+        q_ptr->setContextName(QUuid::createUuid().toString());
     }
     else
     {
-        setContextName(bean->actualContext());
+        q_ptr->setContextName(bean->actualContext());
     }
     // Si se pulsa Guardar, se pondrá esto a true
-    ui->setupUi(this);
+    q_ptr->ui->setupUi(q_ptr);
 
-    setOpenSuccess(true);
-    if ( d->m_openType == AlephERP::Insert && !d->m_bean->checkAccess('w') )
+    q_ptr->setOpenSuccess(true);
+    if ( m_openType == AlephERP::Insert && !m_bean->checkAccess('w') )
     {
-        QMessageBox::warning(this,
+        QMessageBox::warning(q_ptr,
                              qApp->applicationName(),
-                             tr("No tiene permisos para insertar este registro."));
-        setOpenSuccess(false);
+                             QObject::tr("No tiene permisos para insertar este registro."));
+        q_ptr->setOpenSuccess(false);
     }
-    else if ( d->m_openType == AlephERP::Update )
+    else if ( m_openType == AlephERP::Update )
     {
-        if ( !d->m_bean->checkAccess('r') )
+        if ( !m_bean->checkAccess('r') )
         {
-            QMessageBox::warning(this,
+            QMessageBox::warning(q_ptr,
                                  qApp->applicationName(),
-                                 tr("No tiene permisos para acceder a este registro."));
-            setOpenSuccess(false);
+                                 QObject::tr("No tiene permisos para acceder a este registro."));
+            q_ptr->setOpenSuccess(false);
         }
-        if ( !d->m_bean->checkAccess('w') )
+        if ( !m_bean->checkAccess('w') )
         {
-            QMessageBox::warning(this,
+            QMessageBox::warning(q_ptr,
                                  qApp->applicationName(),
-                                 tr("Sólo tiene permisos para visualizar este registro."));
-            d->m_openType = AlephERP::ReadOnly;
+                                 QObject::tr("Sólo tiene permisos para visualizar este registro."));
+            m_openType = AlephERP::ReadOnly;
         }
     }
 
-    d->m_signalMapper = new QSignalMapper(this);
-    d->m_signalMapper->setMapping(ui->pbNext, QString("next"));
-    d->m_signalMapper->setMapping(ui->pbPrevious, QString("previous"));
-    d->m_signalMapper->setMapping(ui->pbLast, QString("last"));
-    d->m_signalMapper->setMapping(ui->pbFirst, QString("first"));
-    connect (ui->pbNext, SIGNAL(clicked()), d->m_signalMapper, SLOT(map()));
-    connect (ui->pbPrevious, SIGNAL(clicked()), d->m_signalMapper, SLOT(map()));
-    connect (ui->pbFirst, SIGNAL(clicked()), d->m_signalMapper, SLOT(map()));
-    connect (ui->pbLast, SIGNAL(clicked()), d->m_signalMapper, SLOT(map()));
-    connect (d->m_signalMapper, SIGNAL(mapped(const QString &)), this, SLOT(navigate(const QString &)));
+    m_signalMapper = new QSignalMapper(q_ptr);
+    m_signalMapper->setMapping(q_ptr->ui->pbNext, QString("next"));
+    m_signalMapper->setMapping(q_ptr->ui->pbPrevious, QString("previous"));
+    m_signalMapper->setMapping(q_ptr->ui->pbLast, QString("last"));
+    m_signalMapper->setMapping(q_ptr->ui->pbFirst, QString("first"));
+    QObject::connect (q_ptr->ui->pbNext, SIGNAL(clicked()), m_signalMapper, SLOT(map()));
+    QObject::connect (q_ptr->ui->pbPrevious, SIGNAL(clicked()), m_signalMapper, SLOT(map()));
+    QObject::connect (q_ptr->ui->pbFirst, SIGNAL(clicked()), m_signalMapper, SLOT(map()));
+    QObject::connect (q_ptr->ui->pbLast, SIGNAL(clicked()), m_signalMapper, SLOT(map()));
+    QObject::connect (m_signalMapper, SIGNAL(mapped(const QString &)), q_ptr, SLOT(navigate(const QString &)));
 }
 
 bool DBRecordDlg::init()

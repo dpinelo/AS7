@@ -232,7 +232,6 @@ private slots:
     void hideRecalculateButton();
     void recalculateCounterField();
     void checkBarCode(const QString &text);
-
 };
 
 Q_DECLARE_METATYPE(DBLineEdit*)

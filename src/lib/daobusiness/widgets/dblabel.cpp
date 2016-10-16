@@ -32,7 +32,11 @@
 #include "dao/dbfieldobserver.h"
 #include "dao/beans/dbfield.h"
 #include "dao/beans/basebean.h"
+#include "dao/beans/basebeanmetadata.h"
+#include "dao/beans/beansfactory.h"
+#include "dao/basedao.h"
 #include "forms/dbrecorddlg.h"
+#include "qlogger.h"
 
 class DBLabelPrivate
 {
@@ -51,7 +55,7 @@ DBLabel::DBLabel(QWidget *parent) :
     DBBaseWidget()
 {
     d = new DBLabelPrivate(this);
-    connect(this, SIGNAL(linkActivated(QString)), this, SLOT(openLink()));
+    connect(this, SIGNAL(linkActivated(QString)), this, SLOT(openLink(QString)));
 }
 
 DBLabel::~DBLabel()
@@ -140,8 +144,59 @@ void DBLabel::observerUnregistered()
     blockSignals(blockState);
 }
 
-void DBLabel::openLink()
+void DBLabel::openLink(const QString &link)
 {
+    if ( !link.isEmpty() )
+    {
+        // Comprobamos si el link tiene el formato adecuado, que será
+        // #tablename;OID-o-ID de base de datos
+        if ( !link.startsWith("#") )
+        {
+            return;
+        }
+        QStringList parts = link.split(";");
+        if ( parts.size() < 2 )
+        {
+            return;
+        }
+        QString tableName = parts.at(0);
+        tableName = tableName.replace("#", "");
+        QString stOidOrWhere = parts.at(1);
+        bool ok;
+        qlonglong idOrOid = stOidOrWhere.toLongLong(&ok);
+        BaseBeanMetadata *m = BeansFactory::instance()->metadataBean(tableName);
+        if ( m == NULL || !ok )
+        {
+            QLogger::QLog_Debug(AlephERP::stLogOther,
+                                trUtf8("El link [%] no corresponde a formato válido de apertura."));
+            return;
+        }
+        BaseBeanSharedPointer bean = BeansFactory::instance()->newQBaseBean(m->tableName());
+        if ( bean.isNull() )
+        {
+            return;
+        }
+        if ( !BaseDAO::selectByOid(idOrOid, bean.data()) )
+        {
+            if ( !BaseDAO::selectFirst(bean.data(), stOidOrWhere, QString("")) )
+            {
+                QLogger::QLog_Debug(AlephERP::stLogOther,
+                                    trUtf8("El link [%] no corresponde a formato válido de apertura."));
+                return;
+            }
+        }
+        if ( bean->dbState() == BaseBean::UPDATE )
+        {
+            QScopedPointer<DBRecordDlg> dlg (new DBRecordDlg(bean.data(),
+                                                             AlephERP::ReadOnly,
+                                                             true));
+            if ( dlg->openSuccess() && dlg->init() )
+            {
+                dlg->setModal(true);
+                dlg->show();
+            }
+        }
+    }
     if ( observer() == NULL )
     {
         return;

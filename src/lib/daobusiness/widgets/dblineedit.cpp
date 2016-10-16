@@ -36,6 +36,7 @@
 #include "dao/beans/beansfactory.h"
 #include "dao/beans/basebeanmetadata.h"
 #include "dao/dbfieldobserver.h"
+#include "dao/basedao.h"
 #include "forms/perpbasedialog.h"
 #include "forms/dbrecorddlg.h"
 #include "models/dbbasebeanmodel.h"
@@ -118,7 +119,9 @@ public:
 };
 
 DBLineEdit::DBLineEdit(QWidget *parent) :
-    QLineEdit(parent), DBBaseWidget(), d(new DBLineEditPrivate(this))
+    QLineEdit(parent),
+    DBBaseWidget(),
+    d(new DBLineEditPrivate(this))
 {
     // Efecto incómodo de line edit con máscara y vacío, se pincha y se queda el cursor a la mitad.
     d->m_return.installOn(this);

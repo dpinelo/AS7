@@ -123,9 +123,7 @@ public slots:
     void refresh();
     void observerUnregistered();
     void setFocus() { QWidget::setFocus(); }
-
-private slots:
-    void openLink();
+    void openLink(const QString &link);
 
 };
 

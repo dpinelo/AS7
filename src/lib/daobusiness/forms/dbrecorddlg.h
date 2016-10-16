@@ -135,6 +135,11 @@ public:
                 bool initTransaction,
                 QWidget* parent = 0,
                 Qt::WindowFlags fl = 0);
+    DBRecordDlg(BaseBeanSharedPointer bean,
+                AlephERP::FormOpenType openType,
+                bool initTransaction,
+                QWidget* parent = 0,
+                Qt::WindowFlags fl = 0);
     ~DBRecordDlg();
 
     bool isWindowModified();

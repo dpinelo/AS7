@@ -1061,7 +1061,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     }
     else
     {
-        dlg = new DBRecordDlg(bean.data(), openType, true);
+        dlg = new DBRecordDlg(bean, openType, true);
     }
     CommonsFunctions::restoreOverrideCursor();
     if ( !uiCode.isEmpty() )
@@ -1168,7 +1168,7 @@ void DBFormDlg::insertChild()
                         model->invalidate();
                     }
                     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
-                    QPointer<DBRecordDlg> dlg = new DBRecordDlg(bean.data(), AlephERP::Insert, true, this);
+                    QPointer<DBRecordDlg> dlg = new DBRecordDlg(bean, AlephERP::Insert, true, this);
                     CommonsFunctions::restoreOverrideCursor();
                     if ( dlg->openSuccess() && dlg->init() )
                     {
@@ -2225,7 +2225,7 @@ void DBFormDlg::view()
     }
     else
     {
-        dlg = new DBRecordDlg(bean.data(), openType, true);
+        dlg = new DBRecordDlg(bean, openType, true);
     }
     CommonsFunctions::restoreOverrideCursor();
     if ( dlg->openSuccess() && dlg->init() )
