@@ -116,6 +116,10 @@ public:
     int widthForMaxLength();
     void processTextEntry();
     QString setValueFromCompletition(DBField *fld);
+    bool completerCheckRestrictValue(const QVariant &value);
+    bool completerCheckRestrictValueFromFieldValues(const QVariant &value);
+    bool completerCheckRestrictValueFromTable(const QVariant &value);
+    bool completerCheckRestrictValueFromRelation(const QVariant &value);
 };
 
 DBLineEdit::DBLineEdit(QWidget *parent) :
@@ -978,10 +982,10 @@ void DBLineEdit::processAutocompletion()
     BaseBean *formBean = beanFromContainer();
     DBField *fld = NULL;
     FilterBaseBeanModel *mdl = qobject_cast<FilterBaseBeanModel *>(d->m_completerModel);
-    QModelIndexList items;
-    if ( mdl != NULL && !text().isEmpty() )
+
+    if ( mdl == NULL )
     {
-        items = mdl->match(mdl->index(0, 0), Qt::DisplayRole, text(), 1, Qt::MatchStartsWith);
+        return;
     }
 
     if ( observer() != NULL )
@@ -997,55 +1001,57 @@ void DBLineEdit::processAutocompletion()
         }
     }
 
-    if ( d->m_autoComplete.testFlag(AlephERP::ValuesFromThisField) )
+    if ( d->m_autoComplete.testFlag(AlephERP::ValuesFromThisField) &&
+         d->m_autoComplete.testFlag(AlephERP::RestrictValueToItemFromList) &&
+         !d->completerCheckRestrictValue(text()) )
     {
-        if ( d->m_autoComplete.testFlag(AlephERP::RestrictValueToItemFromList) && items.isEmpty() )
+        QLineEdit::clear();
+        if ( fld != NULL )
         {
-            QLineEdit::clear();
-            if ( fld != NULL )
+            fld->setValue(QVariant());
+        }
+        if ( d->m_autoComplete.testFlag(AlephERP::UpdateOwnerFieldBean) )
+        {
+            if ( formBean != NULL )
             {
-                fld->setValue(QVariant());
-            }
-            if ( d->m_autoComplete.testFlag(AlephERP::UpdateOwnerFieldBean) )
-            {
-                if ( formBean != NULL )
+                QStringList parts = m_fieldName.split(".");
+                if ( parts.size() == 2 )
                 {
-                    QStringList parts = m_fieldName.split(".");
-                    if ( parts.size() == 2 )
+                    DBRelation *rel = formBean->relation(parts.at(0));
+                    if ( rel != NULL )
                     {
-                        DBRelation *rel = formBean->relation(parts.at(0));
-                        if ( rel != NULL )
+                        DBField *destFld = formBean->field(rel->metadata()->rootFieldName());
+                        if ( destFld != NULL )
                         {
-                            DBField *destFld = formBean->field(rel->metadata()->rootFieldName());
-                            if ( destFld != NULL )
-                            {
-                                bool blockState = destFld->blockSignals(true);
-                                destFld->setValue(QVariant());
-                                destFld->blockSignals(blockState);
-                            }
+                            bool blockState = destFld->blockSignals(true);
+                            destFld->setValue(QVariant());
+                            destFld->blockSignals(blockState);
                         }
                     }
                 }
             }
         }
     }
-    else if ( d->m_autoComplete.testFlag(AlephERP::ValuesFromTableWithNoRelation) )
+    else if ( d->m_autoComplete.testFlag(AlephERP::ValuesFromTableWithNoRelation) &&
+              d->m_autoComplete.testFlag(AlephERP::RestrictValueToItemFromList) )
     {
-        if ( d->m_autoComplete.testFlag(AlephERP::RestrictValueToItemFromList) )
+        if ( !text().isEmpty() )
         {
-            if ( !text().isEmpty() )
+            if ( !d->completerCheckRestrictValue(text()) )
             {
-                if ( items.isEmpty() )
+                QLineEdit::clear();
+                if ( fld != NULL )
                 {
-                    QLineEdit::clear();
-                    if ( fld != NULL )
-                    {
-                        fld->setValue(QVariant());
-                    }
+                    fld->setValue(QVariant());
                 }
-                else
+            }
+            else
+            {
+                BaseBeanSharedPointer b = BeansFactory::instance()->newQBaseBean(d->m_autoCompleteTableName);
+                if (fld != NULL &&
+                    BaseDAO::selectFirst(b, QString("%1 = %2").arg(d->m_autoCompleteColumn).arg(fld->sqlValue())) )
                 {
-                    d->m_completerBaseBean = mdl->bean(items.at(0));
+                    d->m_completerBaseBean = b;
                     if ( !d->m_completerBaseBean.isNull() && text() != d->m_completerBaseBean->fieldValue(d->m_autoCompleteColumn) )
                     {
                         // Caso en el que el usuario ha introducido parcialmente el texto de un item. Ponemos el texto completo.
@@ -1054,13 +1060,13 @@ void DBLineEdit::processAutocompletion()
                     executeScriptAfterChooseFromCompleter();
                 }
             }
-            else
+        }
+        else
+        {
+            if ( !d->m_completerBaseBean.isNull() )
             {
-                if ( !d->m_completerBaseBean.isNull() )
-                {
-                    d->m_completerBaseBean.clear();
-                    executeScriptAfterChooseFromCompleter();
-                }
+                d->m_completerBaseBean.clear();
+                executeScriptAfterChooseFromCompleter();
             }
         }
     }
@@ -1084,20 +1090,25 @@ void DBLineEdit::processAutocompletion()
             formBean->setFieldValue(rel->metadata()->rootFieldName(), QVariant());
             return;
         }
-        if ( items.size() == 0 )
+
+        if ( mdl != NULL && !text().isEmpty() )
         {
-            // Caso 1
-            QLineEdit::clear();
-            formBean->setFieldValue(rel->metadata()->rootFieldName(), QVariant());
-            return;
-        }
-        // Caso 2
-        BaseBeanSharedPointer beanToBeSelected = mdl->bean(items.at(0));
-        if ( !beanToBeSelected.isNull() )
-        {
-            formBean->setFieldValue(rel->metadata()->rootFieldName(), beanToBeSelected->fieldValue(rel->metadata()->childFieldName()));
-            setCompleterSelectedBean(beanToBeSelected);
-            executeScriptAfterChooseFromCompleter();
+            QModelIndexList items = mdl->match(mdl->index(0, 0), Qt::DisplayRole, text(), 1, Qt::MatchStartsWith);
+            if ( items.size() == 0 )
+            {
+                // Caso 1
+                QLineEdit::clear();
+                formBean->setFieldValue(rel->metadata()->rootFieldName(), QVariant());
+                return;
+            }
+            // Caso 2
+            BaseBeanSharedPointer beanToBeSelected = mdl->bean(items.at(0));
+            if ( !beanToBeSelected.isNull() )
+            {
+                formBean->setFieldValue(rel->metadata()->rootFieldName(), beanToBeSelected->fieldValue(rel->metadata()->childFieldName()));
+                setCompleterSelectedBean(beanToBeSelected);
+                executeScriptAfterChooseFromCompleter();
+            }
         }
     }
 }
@@ -1406,4 +1417,97 @@ bool DBLineEdit::enableAutoCompleteVisibleFieldsOnDesigner()
         return false;
     }
     return true;
+}
+
+/**
+ * @brief DBLineEditPrivate::completerCheckRestrictValue
+ * @param value
+ * @return
+ * Utilizando un completer, si hay que restringir el valor al listado de elementos, esta función hará la comprobación.
+ */
+bool DBLineEditPrivate::completerCheckRestrictValue(const QVariant &value)
+{
+    if ( m_autoComplete.testFlag(AlephERP::ValuesFromRelation) )
+    {
+        return completerCheckRestrictValueFromRelation(value);
+    }
+    else if ( m_autoComplete.testFlag(AlephERP::ValuesFromThisField) )
+    {
+        return completerCheckRestrictValueFromFieldValues(value);
+    }
+    else if ( m_autoComplete.testFlag(AlephERP::ValuesFromTableWithNoRelation) )
+    {
+        return completerCheckRestrictValueFromTable(value);
+    }
+    return false;
+}
+
+bool DBLineEditPrivate::completerCheckRestrictValueFromFieldValues(const QVariant &value)
+{
+    DBField *fld = qobject_cast<DBField *>(q_ptr->observer()->entity());
+    if ( fld == NULL )
+    {
+        return false;
+    }
+    QStringList keys = fld->metadata()->optionsList().keys();
+    return keys.contains(value.toString());
+}
+
+bool DBLineEditPrivate::completerCheckRestrictValueFromTable(const QVariant &value)
+{
+    DBField *fld = qobject_cast<DBField *>(q_ptr->observer()->entity());
+    if ( fld == NULL )
+    {
+        return false;
+    }
+    QString filter = QString("%1 = %2").arg(m_autoCompleteColumn).arg(fld->metadata()->sqlValue(value));
+    if ( !m_autoCompleteTableNameFilter.isEmpty() )
+    {
+        filter.append(QString(" AND %1").arg(m_autoCompleteTableNameFilter));
+    }
+    QString sql = QString("SELECT count(*) FROM %1 WHERE %2").arg(m_autoCompleteTableName).arg(filter);
+    QVariant result;
+    if ( !BaseDAO::execute(sql, result) )
+    {
+        return false;
+    }
+    return result.toInt() > 0;
+}
+
+bool DBLineEditPrivate::completerCheckRestrictValueFromRelation(const QVariant &value)
+{
+    DBField *fld = qobject_cast<DBField *>(q_ptr->observer()->entity());
+    if ( fld == NULL )
+    {
+        return false;
+    }
+    QList<DBRelation *> relations = fld->relations(AlephERP::ManyToOne | AlephERP::OneToOne);
+    if ( relations.size() > 1 )
+    {
+        QLogger::QLog_Debug(AlephERP::stLogOther,
+                            QString("DBBaseWidget::initCompleter:  [%1] ] Mal formado. Tiene varias referencias M a 1. Se escoge la primera relación.").arg(fld->metadata()->dbFieldName()));
+    }
+    if ( relations.size() == 0 )
+    {
+        return false;
+    }
+    BaseBeanMetadata *fatherMetadata = BeansFactory::metadataBean(relations.first()->metadata()->tableName());
+    if ( fatherMetadata == NULL )
+    {
+        return false;
+    }
+    relations.first()->setFilter(q_ptr->relationFilter());
+
+    QString filter = QString("%1 = %2").arg(m_autoCompleteColumn).arg(fld->metadata()->sqlValue(value));
+    if ( !relations.first()->sqlRelationWhere().isEmpty() )
+    {
+        filter.append(QString(" AND %1").arg(relations.first()->sqlRelationWhere()));
+    }
+    QString sql = QString("SELECT count(*) FROM %1 WHERE %2").arg(m_autoCompleteTableName).arg(filter);
+    QVariant result;
+    if ( !BaseDAO::execute(sql, result) )
+    {
+        return false;
+    }
+    return result.toInt() > 0;
 }
