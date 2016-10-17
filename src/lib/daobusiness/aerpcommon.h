@@ -147,6 +147,7 @@ public:
     static const char * stEnabledForUsers;
     static const char * stVisibleForUsers;
     static const char * stDataEditableForUsers;
+    static const char * stInactive;
 
     static const char * stLogDB;
     static const char * stLogScript;

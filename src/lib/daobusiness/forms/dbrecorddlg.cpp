@@ -795,15 +795,20 @@ bool DBRecordDlg::init()
 
     d->setWidgetStateFromDesignerProperties();
 
-    if ( d->m_openType == AlephERP::ReadOnly || d->m_bean->readOnly() || !editable )
+    if ( d->m_openType == AlephERP::ReadOnly ||
+         d->m_bean->readOnly() ||
+         !editable )
     {
         setReadOnly();
         // Por si las moscas.
         setWindowModified(false);
-        ui->pbSave->setVisible(false);
-        ui->pbSaveAndNew->setVisible(false);
-        ui->pbSaveAndClose->setVisible(false);
-        ui->pbSaveAndNew->setVisible(false);
+        if ( !d->m_bean->inactive() )
+        {
+            ui->pbSave->setVisible(false);
+            ui->pbSaveAndNew->setVisible(false);
+            ui->pbSaveAndClose->setVisible(false);
+            ui->pbSaveAndNew->setVisible(false);
+        }
 #ifdef ALEPHERP_DOC_MANAGEMENT
         if ( !d->m_documentWidget.isNull() )
         {
@@ -846,11 +851,15 @@ void DBRecordDlg::setReadOnly(bool value)
     QList<QWidget *> widgets = findChildren<QWidget *>();
     foreach ( QWidget *widget, widgets )
     {
-        if ( widget->property(AlephERP::stAerpControl).isValid() && widget->property(AlephERP::stAerpControl).toBool() )
+        if ( widget->property(AlephERP::stAerpControl).isValid() &&
+             widget->property(AlephERP::stAerpControl).toBool() )
         {
             DBBaseWidget *dbWidget = dynamic_cast<DBBaseWidget *>(widget);
-            dbWidget->setDataEditable(!value);
-            dbWidget->applyFieldProperties();
+            if ( dbWidget->fieldName() != QLatin1Literal(AlephERP::stInactive) )
+            {
+                dbWidget->setDataEditable(!value);
+                dbWidget->applyFieldProperties();
+            }
         }
     }
 }

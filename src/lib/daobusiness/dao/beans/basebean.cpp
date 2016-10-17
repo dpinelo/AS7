@@ -3285,6 +3285,11 @@ bool BaseBean::readOnly()
     {
         return !fldEditable->value().toBool();
     }
+    DBField *fldInactive = field(AlephERP::stInactive);
+    if ( fldInactive != NULL )
+    {
+        return fldInactive->value().toBool();
+    }
     return false;
 }
 
@@ -3299,6 +3304,25 @@ bool BaseBean::setReadOnly(bool value)
         fldEditable->setInternalValue(!value);
     }
     return previousReadOnly;
+}
+
+bool BaseBean::inactive()
+{
+    DBField *fldInactive = field(AlephERP::stInactive);
+    if ( fldInactive != NULL )
+    {
+        return fldInactive->value().toBool();
+    }
+    return false;
+}
+
+void BaseBean::setInactive(bool value)
+{
+    DBField *fldInactive = field(AlephERP::stInactive);
+    if ( fldInactive != NULL )
+    {
+        fldInactive->setValue(value);
+    }
 }
 
 bool BaseBean::calculatedFieldsEnabled() const

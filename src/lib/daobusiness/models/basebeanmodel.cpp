@@ -407,6 +407,11 @@ QVariant BaseBeanModel::data(DBField *field, const QModelIndex &item, int role) 
                 }
             }
         }
+        BaseBean *b = field->bean();
+        if ( b != NULL && b->inactive() )
+        {
+            font.setStrikeOut(true);
+        }
         return font;
     }
     else if ( role == Qt::BackgroundRole )
@@ -422,6 +427,11 @@ QVariant BaseBeanModel::data(DBField *field, const QModelIndex &item, int role) 
         }
         else
         {
+            BaseBean *b = field->bean();
+            if ( b != NULL && b->inactive() )
+            {
+                return QBrush(Qt::lightGray);
+            }
             return QVariant();
         }
     }

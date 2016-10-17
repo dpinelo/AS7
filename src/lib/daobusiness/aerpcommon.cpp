@@ -115,6 +115,7 @@ const char * AlephERP::stDataEditableForRoles = "dataEditableForRoles";
 const char * AlephERP::stEnabledForUsers = "enabledForUsers";
 const char * AlephERP::stVisibleForUsers = "visibleForUsers";
 const char * AlephERP::stDataEditableForUsers = "dataEditableForUsers";
+const char * AlephERP::stInactive = "debaja";
 
 
 #ifdef ALEPHERP_DEVTOOLS
