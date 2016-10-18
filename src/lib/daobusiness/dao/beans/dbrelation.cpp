@@ -1401,7 +1401,8 @@ BaseBeanPointer DBRelation::father(bool retrieveOnDemand)
             d->m_canDeleteFather = true;
             if (!ownBean->actualContext().isEmpty())
             {
-                AERPTransactionContext::instance()->addToContext(ownBean->actualContext(), d->m_father.data());
+                AERPTransactionContext::instance()->addToContext(ownBean->actualContext(),
+                                                                 d->m_father.data());
             }
             // Añadimos la conexión adecuada: Si el campo que relaciona este father con el bean padre cambia, se actualiza el valor
             DBField *fatherFieldKey = d->m_father->field(d->m->childFieldName());

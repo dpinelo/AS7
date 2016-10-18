@@ -1161,14 +1161,14 @@ void AERPMainWindow::init()
     {
         if ( property(AlephERP::stStaticToolBars).toBool() )
         {
-            d->createModuleToolbarFromMetadata();
+            // d->createModuleToolbarFromMetadata();
         }
     }
     if ( property(AlephERP::stStaticMenu).isValid() )
     {
         if ( property(AlephERP::stStaticMenu).toBool() )
         {
-            d->addActionsToMenuFromMetadata();
+            // d->addActionsToMenuFromMetadata();
         }
     }
 
