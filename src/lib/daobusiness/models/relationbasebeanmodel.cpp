@@ -263,7 +263,7 @@ void RelationBaseBeanModel::childInserted(BaseBean *bean, int position)
     {
         return;
     }
-    beginInsertRows(QModelIndex(), position, position);
+    beginInsertRows(QModelIndex(), position - 1, position - 1);
     endInsertRows();
 }
 
@@ -274,7 +274,7 @@ void RelationBaseBeanModel::childDeleted(BaseBean *bean, int position)
     {
         return;
     }
-    beginRemoveRows(QModelIndex(), position, position);
+    beginRemoveRows(QModelIndex(), position - 1, position - 1);
     endRemoveRows();
 }
 

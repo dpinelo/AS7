@@ -283,8 +283,10 @@ bool AERPTransactionContext::addToContext(const QString &contextName, const Base
     }
     d->m_contextObjects[contextName]->addBean(bean);
     bean->setActualContext(contextName);
-    QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPTransactionContext::addToContext: Bean agregado al contexto: [%1]. Número de beans en el contexto: [%2]").
-                        arg(contextName).arg(d->m_contextObjects[contextName]->list().size()));
+    QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPTransactionContext::addToContext: Bean agregado al contexto: [%1] tabla [%2]. Número de beans en el contexto: [%3]").
+                        arg(contextName).
+                        arg(bean->metadata()->tableName()).
+                        arg(d->m_contextObjects[contextName]->list().size()));
 
     emit beanAddedToContext(contextName, bean);
     /*

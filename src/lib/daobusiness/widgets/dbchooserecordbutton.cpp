@@ -113,7 +113,15 @@ BaseBeanPointer DBChooseRecordButtonPrivate::selectedBean()
     {
         if ( dlgBeanRelation->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
         {
-            return dlgBeanRelation->father();
+            if ( dlgBeanRelation->masterField() != NULL &&
+                 !dlgBeanRelation->masterField()->isEmpty() )
+            {
+                return dlgBeanRelation->father();
+            }
+            else
+            {
+                return NULL;
+            }
         }
         else if ( dlgBeanRelation->metadata()->type() == DBRelationMetadata::ONE_TO_ONE && !dlgBeanRelation->brother().isNull() )
         {

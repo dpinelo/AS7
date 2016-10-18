@@ -132,59 +132,57 @@ void DBRelation::updateChildrens()
     }
     setOnExecution(AlephERP::UpdateChildren);
 
-    if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE )
+    if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE &&
+         !d->m_father.isNull() )
     {
-        if ( !d->m_father.isNull() )
+        // Hay que tener en cuenta un caso: Se esta insertando un bean "father" (por ejemplo empresas).
+        // El usuario abre el formulario de inserción de un bean hijo (ejercicios). Esta función debe
+        // saber que en ese caso particular NO puede ir a la base de datos a recuperar el registro padre,
+        // ya que éste se está insertando, y por tanto no puede hacerle ningun cambio, ya que borraría
+        // todos los datos. Por eso, debe comprobarse que el registro padre no se encuentre en estado "modified"
+        // Además, la condición de INSERT hace que descartemos cualquier padre insertado previamente, ya que
+        // se ha dado un nuevo valor a la relación.
+        if ( !d->m_father->modified() && d->m_fatherLoaded )
         {
-            // Hay que tener en cuenta un caso: Se esta insertando un bean "father" (por ejemplo empresas).
-            // El usuario abre el formulario de inserción de un bean hijo (ejercicios). Esta función debe
-            // saber que en ese caso particular NO puede ir a la base de datos a recuperar el registro padre,
-            // ya que éste se está insertando, y por tanto no puede hacerle ningun cambio, ya que borraría
-            // todos los datos. Por eso, debe comprobarse que el registro padre no se encuentre en estado "modified"
-            // Además, la condición de INSERT hace que descartemos cualquier padre insertado previamente, ya que
-            // se ha dado un nuevo valor a la relación.
-            if ( !d->m_father->modified() && d->m_fatherLoaded )
+            if ( rootField->rawValue().isValid() && d->haveToSearchOnDatabase(rootField) )
             {
-                if ( rootField->rawValue().isValid() && d->haveToSearchOnDatabase(rootField) )
+                QString where = QString("%1 = %2").arg(d->m->childFieldName()).arg(rootField->sqlValue(true, "", true));
+                // Como vamos a obtener el nuevo padre, habrá que limpiarlo (por ejemplo, si tiene
+                // hijos de una relación)
+                foreach (DBRelation *rel, d->m_father->relations())
                 {
-                    QString where = QString("%1 = %2").arg(d->m->childFieldName()).arg(rootField->sqlValue(true, "", true));
-                    // Como vamos a obtener el nuevo padre, habrá que limpiarlo (por ejemplo, si tiene
-                    // hijos de una relación)
-                    foreach (DBRelation *rel, d->m_father->relations())
-                    {
-                        rel->unloadChildren();
-                    }
+                    rel->unloadChildren();
+                }
 
-                    if ( BaseDAO::selectFirst(d->m_father.data(), where) )
-                    {
-                        bool blockSignalsState = d->m_father->blockSignals(true);
-                        d->m_father->setDbState(BaseBean::UPDATE);
-                        d->m_father->blockSignals(blockSignalsState);
-                        d->m_fatherLoaded = true;
-                        d->emitFatherLoaded(d->m_father.data());
-                    }
-                    else
-                    {
-                        d->m_father->setDbState(BaseBean::INSERT);
-                        d->m_father->resetToDefaultValues();
-                        d->m_father->uncheckModifiedFields();
-                    }
+                if ( BaseDAO::selectFirst(d->m_father.data(), where) )
+                {
+                    bool blockSignalsState = d->m_father->blockSignals(true);
+                    d->m_father->setDbState(BaseBean::UPDATE);
+                    d->m_father->blockSignals(blockSignalsState);
+                    d->m_fatherLoaded = true;
+                    d->emitFatherLoaded(d->m_father.data());
                 }
                 else
                 {
-                    d->m_father->clean(true);
-                    d->m_fatherLoaded = false;
-                    d->emitFatherUnloaded();
+                    d->m_father->setDbState(BaseBean::INSERT);
+                    d->m_father->resetToDefaultValues();
+                    d->m_father->uncheckModifiedFields();
                 }
             }
-            if ( d->m_father->observer() != NULL )
+            else
             {
-                d->m_father->observer()->sync();
+                d->m_father->clean(true);
+                d->m_fatherLoaded = false;
+                d->emitFatherUnloaded();
             }
-            // Actualizamos los controles asociados a los fields de este bean padre
-            QList<BaseBean *> stack;
-            d->updateChildren(d->m_father.data(), stack);
         }
+        if ( d->m_father->observer() != NULL )
+        {
+            d->m_father->observer()->sync();
+        }
+        // Actualizamos los controles asociados a los fields de este bean padre
+        QList<BaseBean *> stack;
+        d->updateChildren(d->m_father.data(), stack);
     }
     else if ( d->m->type() == DBRelationMetadata::ONE_TO_ONE || d->m->type() == DBRelationMetadata::ONE_TO_MANY )
     {
