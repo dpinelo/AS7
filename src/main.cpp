@@ -272,8 +272,6 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    Database::closeServerConnection();
-
     // ¿La base de datos a la que nos conectamos tiene objetos de sistema definidos?
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     int countSystemObjects = Database::countSystemObjects();

@@ -212,6 +212,7 @@ signals:
     void endLoadingDataBackground();
     void beansLoaded(DBRelation *rel, BaseBeanSharedPointerList list);
     /** Los registros que cuelgan de esta relación, se han descargado de memoria */
+    void childrenAboutToBeUnloaded();
     void childrenUnloaded();
 
 private slots:

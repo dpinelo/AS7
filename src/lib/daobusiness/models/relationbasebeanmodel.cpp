@@ -108,7 +108,8 @@ void RelationBaseBeanModelPrivate::setInternalDataAndConnections()
     QObject::connect(m_relation, SIGNAL(beanLoaded(DBRelation*,int,BaseBeanSharedPointer)), q_ptr, SLOT(beanLoadedOnBackground(DBRelation*,int,BaseBeanSharedPointer)));
     QObject::connect(m_relation, SIGNAL(initLoadingDataBackground()), q_ptr, SIGNAL(initLoadingData()));
     QObject::connect(m_relation, SIGNAL(endLoadingDataBackground()), q_ptr, SIGNAL(endLoadingData()));
-    QObject::connect(m_relation, SIGNAL(childrenUnloaded()), q_ptr, SLOT(refresh()));
+    QObject::connect(m_relation, SIGNAL(childrenAboutToBeUnloaded()), q_ptr, SIGNAL(modelAboutToBeReset()));
+    QObject::connect(m_relation, SIGNAL(childrenUnloaded()), q_ptr, SIGNAL(modelReset()));
 
     CommonsFunctions::restoreOverrideCursor();
 }

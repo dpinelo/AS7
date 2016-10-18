@@ -1947,6 +1947,7 @@ bool DBRelation::unloadChildren(bool ignoreNotSavedBeans)
             return false;
         }
     }
+    emit childrenAboutToBeUnloaded();
     d->m_children.clear();
     d->m_otherChildren.clear();
     d->m_childrenLoaded = false;
