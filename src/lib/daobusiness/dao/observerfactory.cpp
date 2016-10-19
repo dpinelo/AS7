@@ -51,7 +51,7 @@ ObserverFactory::~ObserverFactory()
  */
 ObserverFactory * ObserverFactory::instance()
 {
-    if ( QThread::currentThread() != qApp->thread() )
+    if ( qApp && QThread::currentThread() != qApp->thread() )
     {
         return NULL;
     }

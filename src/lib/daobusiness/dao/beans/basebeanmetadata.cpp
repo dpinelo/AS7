@@ -2280,7 +2280,10 @@ void BaseBeanMetadataPrivate::setConfig()
                 }
                 else
                 {
-                    field->setDefaultValue(QVariant(defaultValue));
+                    if ( !field->memo() )
+                    {
+                        field->setDefaultValue(QVariant(defaultValue));
+                    }
                 }
             }
             if ( field->coordinates() )
