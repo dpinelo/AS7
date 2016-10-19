@@ -1633,8 +1633,11 @@ QVariant DBFieldMetadata::defaultValue() const
 
 void DBFieldMetadata::setDefaultValue(const QVariant &value)
 {
-    d->m_defaultValue = value;
-    d->m_hasDefaultValue = value.isValid();
+    if ( value.isValid() )
+    {
+        d->m_defaultValue = value;
+        d->m_hasDefaultValue = value.isValid();
+    }
 }
 
 /**

@@ -1295,12 +1295,6 @@ BaseBeanSharedPointer DBBaseBeanModel::bean(const QModelIndex &index, bool reloa
             }
         }
     }
-    // Tras la carga en background, esto ya no es necesario...
-    /*
-    bool blockSignalsState = bean->blockSignals(true);
-    bean->uncheckModifiedFields();
-    bean->blockSignals(blockSignalsState);
-    */
     return bean;
 }
 

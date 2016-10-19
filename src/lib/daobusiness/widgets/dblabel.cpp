@@ -171,7 +171,7 @@ void DBLabel::openLink(const QString &link)
                                 trUtf8("El link [%] no corresponde a formato válido de apertura."));
             return;
         }
-        BaseBeanSharedPointer bean = BeansFactory::instance()->newQBaseBean(m->tableName());
+        BaseBeanSharedPointer bean = BeansFactory::instance()->newQBaseBean(m->tableName(), false);
         if ( bean.isNull() )
         {
             return;

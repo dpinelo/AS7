@@ -241,7 +241,7 @@ bool TreeBaseBeanModelPrivate::fetchBean(BeanTreeItemPointer item)
 {
     if ( item != NULL )
     {
-        BaseBeanSharedPointer b = BeansFactory::instance()->newQBaseBean(item->tableName());
+        BaseBeanSharedPointer b = BeansFactory::instance()->newQBaseBean(item->tableName(), false);
         if (BaseDAO::selectByOid(item->id(), b.data()) )
         {
             replaceBean(item, b, false);

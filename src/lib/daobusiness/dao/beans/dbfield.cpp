@@ -1216,7 +1216,10 @@ void DBField::setValue(const QVariant &argNewValue)
     }
     else
     {
-        data = d->setDataToType(newValue);
+        if ( newValue.isValid() || newValue.isNull() )
+        {
+            data = d->setDataToType(newValue);
+        }
     }
     // Si el campo es de tipo serial, es seguro que el valor no se ha modificado por el usuario (estos valores
     // sólo los da la base de datos)

@@ -876,11 +876,11 @@ BaseBeanPointer DBAbstractViewInterface::beanToEditFromRelation(DBRelation *rel)
         BaseBeanSharedPointer sharedBean;
         if ( b->metadata()->dbObjectType() == AlephERP::View )
         {
-            sharedBean = BeansFactory::instance()->newQBaseBean(b->metadata()->viewForTable());
+            sharedBean = BeansFactory::instance()->newQBaseBean(b->metadata()->viewForTable(), false);
         }
         else
         {
-            sharedBean = BeansFactory::instance()->newQBaseBean(b->metadata()->tableName());
+            sharedBean = BeansFactory::instance()->newQBaseBean(b->metadata()->tableName(), false);
         }
         BaseDAO::selectByOid(b->dbOid(), sharedBean.data());
         b = sharedBean.data();
