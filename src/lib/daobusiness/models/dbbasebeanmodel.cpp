@@ -134,7 +134,6 @@ public:
     DBFieldMetadata *fieldForColumn(int column);
     bool stillBackgroundUpdatePetitions();
     void newBeanAvailableSetInRow(int modelRow, BaseBeanSharedPointer updateBean);
-    void updateRowBean(int idx, int modelRow, BaseBeanSharedPointer updateBean);
     void checkRefreshEnd();
 };
 
@@ -254,10 +253,12 @@ DBBaseBeanModel::DBBaseBeanModel(const QString &tableName, const QString &where,
         freezeModel();
     }
 
-    QSqlDatabase db = Database::getQDatabase();
-    QObject::connect(BackgroundDAO::instance(), SIGNAL(availableBean(QString,int,BaseBeanSharedPointer)), this, SLOT(availableBean(QString,int,BaseBeanSharedPointer)));
-    QObject::connect(BackgroundDAO::instance(), SIGNAL(queryExecuted(QString,bool)), this, SLOT(backgroundQueryExecuted(QString,bool)));
+    QObject::connect(BackgroundDAO::instance(), SIGNAL(availableBeans(QString,int,BaseBeanSharedPointerList)),
+                     this, SLOT(availableBeans(QString,int,BaseBeanSharedPointerList)));
+    QObject::connect(BackgroundDAO::instance(), SIGNAL(queryExecuted(QString,bool)),
+                     this, SLOT(backgroundQueryExecuted(QString,bool)));
 #if (QT_VERSION > QT_VERSION_CHECK(5,0,0))
+    QSqlDatabase db = Database::getQDatabase();
     if ( db.driver()->hasFeature(QSqlDriver::EventNotifications) )
     {
         QObject::connect (db.driver(), SIGNAL(notification(QString,QSqlDriver::NotificationSource,QVariant)), this, SLOT(possibleRowDeleted(QString,QSqlDriver::NotificationSource,QVariant)));
@@ -753,7 +754,7 @@ void DBBaseBeanModelPrivate::fetchBeansOnBackground(int row)
  * @param row
  * @param bean
  */
-void DBBaseBeanModel::availableBean(QString id, int row, BaseBeanSharedPointer updateBean)
+void DBBaseBeanModel::availableBeans(QString id, int offset, BaseBeanSharedPointerList updateBeans)
 {
     // Veamos si ya se había pedido previamente obtener esa posición
     int idx = d->petitionForRow(id);
@@ -763,17 +764,31 @@ void DBBaseBeanModel::availableBean(QString id, int row, BaseBeanSharedPointer u
 
         if ( AERP_CHECK_INDEX_OK(idx, d->m_beansPetitions) )
         {
-            int modelRow = row + d->m_beansPetitions.at(idx).initRow;
+            int initModelRow = offset;
             if ( !d->m_beansPetitions.at(idx).updatePetition )
             {
-                d->newBeanAvailableSetInRow(modelRow, updateBean);
+                for ( int i = 0 ; i < updateBeans.size() ; i++ )
+                {
+                    BaseBeanSharedPointer updateBean = updateBeans.at(i);
+                    d->newBeanAvailableSetInRow(initModelRow + i, updateBean);
+                }
             }
             else
             {
-                if ( AERP_CHECK_INDEX_OK(modelRow, d->m_vectorBean) && !isFrozenModel() )
+                if ( AERP_CHECK_INDEX_OK(initModelRow, d->m_vectorBean) && !isFrozenModel() )
                 {
-                    d->updateRowBean(idx, modelRow, updateBean);
+                    for ( int i = 0 ; i < updateBeans.size() ; i++ )
+                    {
+                        BaseBeanSharedPointer updateBean = updateBeans.at(i);
+                        d->replaceInternalBean(initModelRow + i, updateBean);
+                    }
                 }
+            }
+            if ( canEmitDataChanged() )
+            {
+                QModelIndex idxModel1 = index(initModelRow, 0, QModelIndex());
+                QModelIndex idxModel2 = index(initModelRow + updateBeans.size(), columnCount(QModelIndex())-1, QModelIndex());
+                emit dataChanged(idxModel1, idxModel2);
             }
         }
     }
@@ -802,27 +817,6 @@ void DBBaseBeanModelPrivate::newBeanAvailableSetInRow(int modelRow, BaseBeanShar
                          q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
         QObject::connect(updateBean.data(), SIGNAL(fieldModified(BaseBean *, QString, QVariant)),
                          q_ptr, SLOT(fieldBaseBeanModified(BaseBean *, QString, QVariant)));
-        if ( q_ptr->canEmitDataChanged() )
-        {
-            emit q_ptr->dataChanged(q_ptr->index(modelRow, 0), q_ptr->index(modelRow, q_ptr->columnCount(QModelIndex())));
-        }
-    }
-}
-
-/**
- * @brief DBBaseBeanModelPrivate::updateRowBean
- * @param modelRow
- * @param updateBean
- * Se ha recibido un nuevo bean... actualizamos la información
- */
-void DBBaseBeanModelPrivate::updateRowBean(int idx, int modelRow, BaseBeanSharedPointer updateBean)
-{
-    replaceInternalBean(modelRow, updateBean);
-    if ( q_ptr->canEmitDataChanged() )
-    {
-        QModelIndex idxModel1 = q_ptr->index(idx, 0, QModelIndex());
-        QModelIndex idxModel2 = q_ptr->index(idx, q_ptr->columnCount(QModelIndex())-1, QModelIndex());
-        emit q_ptr->dataChanged(idxModel1, idxModel2);
     }
 }
 

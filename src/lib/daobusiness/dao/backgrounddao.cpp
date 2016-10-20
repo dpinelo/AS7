@@ -34,8 +34,10 @@ BackgroundDAO::BackgroundDAO(QObject *parent) :
     connect(d->m_thread.data(), SIGNAL(started()), d->m_worker.data(), SLOT(init()));
 
     connect(d->m_worker, SIGNAL(sqlExecuted(QString, bool)), this, SLOT(queryHasBeenExecuted(QString, bool)));
-    connect(d->m_worker, SIGNAL(availableBean(QString,int,BaseBeanSharedPointer)), this, SIGNAL(availableBean(QString,int,BaseBeanSharedPointer)));
-    connect(d->m_worker, SIGNAL(availableBeans(QString,BaseBeanSharedPointerList)), this, SLOT(availableBeansExecuted(QString,BaseBeanSharedPointerList)));
+    connect(d->m_worker, SIGNAL(availableBean(QString,int,BaseBeanSharedPointer)),
+            this, SIGNAL(availableBean(QString,int,BaseBeanSharedPointer)));
+    connect(d->m_worker, SIGNAL(availableBeans(QString,int,BaseBeanSharedPointerList)),
+            this, SLOT(availableBeansExecuted(QString,int,BaseBeanSharedPointerList)));
 
     // Invocaremos al worker mediante señales para hacer todo thread safe
     connect(this, SIGNAL(programQueryRequest(QString,QString)), d->m_worker.data(), SLOT(addSql(QString,QString)));
@@ -105,7 +107,7 @@ QString BackgroundDAO::programQuery(const QString &query)
     return id;
 }
 
-QString BackgroundDAO::selectBeans(const QString &tableName, const QString &where, const QString &order, int initRow, int numRows)
+QString BackgroundDAO::selectBeans(const QString &tableName, const QString &where, const QString &order, int offset, int numRows)
 {
     QMutexLocker lock(&d->m_mutex);
 #if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
@@ -114,7 +116,7 @@ QString BackgroundDAO::selectBeans(const QString &tableName, const QString &wher
     QString id = QUuid::createUuid().toString();
 #endif
 
-    BaseBeanSelect sel = d->requestOnQueue(tableName, where, order, numRows, initRow);
+    BaseBeanSelect sel = d->requestOnQueue(tableName, where, order, numRows, offset);
     if ( !sel.id.isEmpty() )
     {
         return sel.id;
@@ -124,7 +126,7 @@ QString BackgroundDAO::selectBeans(const QString &tableName, const QString &wher
     sel.where = where;
     sel.order = order;
     sel.numRows = numRows;
-    sel.offset = initRow;
+    sel.offset = offset;
     d->m_requestedSelects.append(sel);
     /*
     if ( !QMetaObject::invokeMethod(d->m_worker.data(), "addSelectBeans", Qt::AutoConnection,
@@ -135,7 +137,7 @@ QString BackgroundDAO::selectBeans(const QString &tableName, const QString &wher
     }
     */
 
-    emit selectBeansRequest(id, tableName, where, order, numRows, initRow);
+    emit selectBeansRequest(id, tableName, where, order, numRows, offset);
     return id;
 }
 
@@ -177,10 +179,10 @@ void BackgroundDAO::queryHasBeenExecuted(QString id, bool result)
     emit queryExecuted(id, result);
 }
 
-void BackgroundDAO::availableBeansExecuted(QString id, BaseBeanSharedPointerList beans)
+void BackgroundDAO::availableBeansExecuted(QString id, int offset, BaseBeanSharedPointerList beans)
 {
     d->removeRequest(id);
-    emit availableBeans(id, beans);
+    emit availableBeans(id, offset, beans);
 }
 
 bool BackgroundDAO::isWorking()

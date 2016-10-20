@@ -76,7 +76,7 @@ public slots:
 signals:
     void sqlExecuted(QString id, bool result);
     void availableBean(QString id, int row, BaseBeanSharedPointer bean);
-    void availableBeans(QString id, BaseBeanSharedPointerList beans);
+    void availableBeans(QString id, int offset, BaseBeanSharedPointerList beans);
 };
 
 class BackgroundDAOPrivate

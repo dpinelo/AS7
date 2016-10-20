@@ -192,7 +192,7 @@ void BackgroundDAOWorker::run()
                     emit availableBean(select.id, row, bean);
                     row++;
                 }
-                emit availableBeans(select.id, list);
+                emit availableBeans(select.id, select.offset, list);
             }
             else
             {
@@ -208,7 +208,11 @@ void BackgroundDAOWorker::run()
 
 
 
-BaseBeanSelect BackgroundDAOPrivate::requestOnQueue(const QString &tableName, const QString &where, const QString &order, int numRows, int offset)
+BaseBeanSelect BackgroundDAOPrivate::requestOnQueue(const QString &tableName,
+                                                    const QString &where,
+                                                    const QString &order,
+                                                    int numRows,
+                                                    int offset)
 {
     foreach (const BaseBeanSelect &sel, m_requestedSelects)
     {

@@ -120,7 +120,7 @@ public slots:
 
 private slots:
     void fieldBaseBeanModified(BaseBean *bean, const QString &dbFieldName, const QVariant &value);
-    void availableBean(QString id, int row, BaseBeanSharedPointer updateBean);
+    void availableBeans(QString id, int offset, BaseBeanSharedPointerList updateBean);
     void backgroundQueryExecuted(QString id, bool result);
     void possibleRowDeleted(const QString &notification, QSqlDriver::NotificationSource source, QVariant payLoad);
     void resetModel();

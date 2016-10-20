@@ -57,13 +57,14 @@ signals:
     void queryExecuted(QString id, bool result);
     void availableBean(QString id, int row, BaseBeanSharedPointer bean);
     void availableBeans(QString id, BaseBeanSharedPointerList beans);
+    void availableBeans(QString id, int offset, BaseBeanSharedPointerList beans);
 
     void programQueryRequest(QString id, QString query);
     void selectBeansRequest(QString id, QString tableName, QString where, QString order, int numRow, int offset);
 
 private slots:
     void queryHasBeenExecuted(QString id, bool result);
-    void availableBeansExecuted(QString id, BaseBeanSharedPointerList beans);
+    void availableBeansExecuted(QString id, int offset, BaseBeanSharedPointerList beans);
 
 public slots:
     bool isWorking();
