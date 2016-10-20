@@ -475,7 +475,7 @@ void DBRelationPrivate::addOtherChildren(BaseBeanPointerList list)
             {
                 AERPTransactionContext::instance()->addToContext(q_ptr->ownerBean()->actualContext(), bean.data());
             }
-            emitChildInserted(bean.data(), m_childrenCount);
+            emitChildInserted(bean.data(), m_childrenCount - 1);
             q_ptr->connections(bean.data());
             // Toca ahora actualizar los value
             if ( !q_ptr->ownerBean().isNull() )

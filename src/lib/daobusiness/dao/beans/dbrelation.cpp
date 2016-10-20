@@ -796,7 +796,7 @@ BaseBeanSharedPointer DBRelation::newChild(int pos)
     connections(child.data());
     if ( pos == -1 )
     {
-        d->emitChildInserted(child.data(), d->m_children.size());
+        d->emitChildInserted(child.data(), d->m_children.size() - 1);
     }
     else
     {
