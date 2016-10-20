@@ -326,14 +326,21 @@ bool UserDAO::createUser(const QString &userName, const QString &password)
 
 void UserDAO::writeDbMessages(QSqlQuery *qry)
 {
-    if ( qry->lastError().driverText() == qry->lastError().databaseText() )
+    if ( qry->lastError().databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
     {
-        UserDAO::m_lastMessage = QString("Database Error: %2").arg(qry->lastError().driverText());
+        UserDAO::m_lastMessage = qry->lastError().databaseText();
     }
     else
     {
-        UserDAO::m_lastMessage = QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
-                                 arg(qry->lastError().databaseText());
+        if ( qry->lastError().driverText() == qry->lastError().databaseText() )
+        {
+            UserDAO::m_lastMessage = QString("Database Error: %2").arg(qry->lastError().driverText());
+        }
+        else
+        {
+            UserDAO::m_lastMessage = QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
+                                     arg(qry->lastError().databaseText());
+        }
     }
     QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("UserDAO: BBDD LastQuery: [%1]").arg(qry->lastQuery()));
     QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("UserDAO: BBDD Message(databaseText): [%1]").arg(qry->lastError().databaseText()));

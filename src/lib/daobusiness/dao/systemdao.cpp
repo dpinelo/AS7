@@ -557,14 +557,21 @@ QString SystemDAO::lastErrorMessage()
  */
 void SystemDAO::writeDbMessages(QSqlQuery *qry)
 {
-    if ( qry->lastError().driverText() == qry->lastError().databaseText() )
+    if ( qry->lastError().databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
     {
-        SystemDAO::m_lastMessage = QString("Database Error: %2").arg(qry->lastError().driverText());
+        SystemDAO::m_lastMessage = qry->lastError().databaseText();
     }
     else
     {
-        SystemDAO::m_lastMessage = QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
-                                   arg(qry->lastError().databaseText());
+        if ( qry->lastError().driverText() == qry->lastError().databaseText() )
+        {
+            SystemDAO::m_lastMessage = QString("Database Error: %2").arg(qry->lastError().driverText());
+        }
+        else
+        {
+            SystemDAO::m_lastMessage = QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
+                                       arg(qry->lastError().databaseText());
+        }
     }
     QLogger::QLog_Error(AlephERP::stLogDB, QString("SystemDAO: BBDD LastQuery: [%1]").arg(qry->lastQuery()));
     QLogger::QLog_Error(AlephERP::stLogDB, QString("SystemDAO: BBDD Message(databaseText): [%1]").arg(qry->lastError().databaseText()));

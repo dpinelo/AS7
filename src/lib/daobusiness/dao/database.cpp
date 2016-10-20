@@ -590,13 +590,20 @@ bool Database::createServerTablesSQLite()
 
 void Database::buildError(const QSqlError &error)
 {
-    if ( error.driverText() == error.databaseText() )
+    if ( error.databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
     {
-        Database::m_lastErrorMessage = error.driverText();
+        Database::m_lastErrorMessage = error.databaseText();
     }
     else
     {
-        Database::m_lastErrorMessage = QObject::trUtf8("Driver message: %1\nDatabase message: %2").arg(error.driverText()).arg(error.databaseText());
+        if ( error.driverText() == error.databaseText() )
+        {
+            Database::m_lastErrorMessage = error.driverText();
+        }
+        else
+        {
+            Database::m_lastErrorMessage = QObject::trUtf8("Driver message: %1\nDatabase message: %2").arg(error.driverText()).arg(error.databaseText());
+        }
     }
 }
 

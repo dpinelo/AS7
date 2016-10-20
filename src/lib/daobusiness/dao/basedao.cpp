@@ -217,14 +217,21 @@ bool BaseDAO::commit(const QString &connection)
     }
     else
     {
-        if ( db.lastError().driverText() == db.lastError().databaseText() )
+        if ( db.lastError().databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
         {
-            m_threadLastMessage.setLocalData(QString("Database Error: %2").arg(db.lastError().driverText()));
+            m_threadLastMessage.setLocalData(db.lastError().databaseText());
         }
         else
         {
-            m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").arg(db.lastError().driverText()).
-                                             arg(db.lastError().databaseText()));
+            if ( db.lastError().driverText() == db.lastError().databaseText() )
+            {
+                m_threadLastMessage.setLocalData(QString("Database Error: %2").arg(db.lastError().driverText()));
+            }
+            else
+            {
+                m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").arg(db.lastError().driverText()).
+                                                 arg(db.lastError().databaseText()));
+            }
         }
         QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::commit: ERROR: [%1]").arg(m_threadLastMessage.localData()));
         return false;
@@ -2410,15 +2417,22 @@ bool BaseDAO::updateBrothersFieldKey(BaseBean *bean, const QString &idTransactio
 
 void BaseDAO::writeDbMessages(QSqlQuery *qry)
 {
-    if ( qry->lastError().driverText() == qry->lastError().databaseText() )
+    if ( qry->lastError().databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
     {
-        m_threadLastMessage.setLocalData(QString("Database Error: %2").arg(qry->lastError().driverText()));
+        m_threadLastMessage.setLocalData(qry->lastError().driverText());
     }
     else
     {
-        m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").
-                                         arg(qry->lastError().driverText()).
-                                         arg(qry->lastError().databaseText()));
+        if ( qry->lastError().driverText() == qry->lastError().databaseText() )
+        {
+            m_threadLastMessage.setLocalData(QString("Database Error: %2").arg(qry->lastError().driverText()));
+        }
+        else
+        {
+            m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").
+                                             arg(qry->lastError().driverText()).
+                                             arg(qry->lastError().databaseText()));
+        }
     }
     QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("BaseDAO: writeDbMessages: BBDD LastQuery: [%1]").arg(qry->lastQuery()));
     QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("BaseDAO: writeDbMessages: BBDD Message(Error databaseText): [%1]").arg(qry->lastError().databaseText()));

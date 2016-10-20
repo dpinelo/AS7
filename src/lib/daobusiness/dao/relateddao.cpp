@@ -46,14 +46,21 @@ QString RelatedDAO::lastErrorMessage()
 
 void RelatedDAO::writeDbMessages(QSqlQuery *qry)
 {
-    if ( qry->lastError().driverText() == qry->lastError().databaseText() )
+    if ( qry->lastError().databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
     {
-        m_relatedDaoThreadLastMessage.setLocalData(QString("Database Error: %2").arg(qry->lastError().driverText()));
+        m_relatedDaoThreadLastMessage.setLocalData(qry->lastError().databaseText());
     }
     else
     {
-        m_relatedDaoThreadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
-                arg(qry->lastError().databaseText()));
+        if ( qry->lastError().driverText() == qry->lastError().databaseText() )
+        {
+            m_relatedDaoThreadLastMessage.setLocalData(QString("Database Error: %2").arg(qry->lastError().driverText()));
+        }
+        else
+        {
+            m_relatedDaoThreadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
+                    arg(qry->lastError().databaseText()));
+        }
     }
     QLogger::QLog_Error(AlephERP::stLogDB, QString("RelatedDAO: writeDbMessages: BBDD LastQuery: [%1]").arg(qry->lastQuery()));
     QLogger::QLog_Error(AlephERP::stLogDB, QString("RelatedDAO: writeDbMessages: BBDD Message(Error databaseText): [%1]").arg(qry->lastError().databaseText()));

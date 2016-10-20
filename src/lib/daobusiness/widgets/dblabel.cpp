@@ -146,14 +146,10 @@ void DBLabel::observerUnregistered()
 
 void DBLabel::openLink(const QString &link)
 {
-    if ( !link.isEmpty() )
+    if ( !link.isEmpty() && link.startsWith("#") )
     {
         // Comprobamos si el link tiene el formato adecuado, que será
         // #tablename;OID-o-ID de base de datos
-        if ( !link.startsWith("#") )
-        {
-            return;
-        }
         QStringList parts = link.split(";");
         if ( parts.size() < 2 )
         {

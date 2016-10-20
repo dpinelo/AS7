@@ -368,14 +368,21 @@ bool EmailDAO::readSerialValuesAfterInsert(EmailObject &emailObject, int oid)
 
 void EmailDAO::writeDbMessages(QSqlQuery *qry)
 {
-    if ( qry->lastError().driverText() == qry->lastError().databaseText() )
+    if ( qry->lastError().databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
     {
-        m_lastErrorMessage = QString("Database Error: %2").arg(qry->lastError().driverText());
+        m_lastErrorMessage = qry->lastError().databaseText();
     }
     else
     {
-        m_lastErrorMessage = QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
-                             arg(qry->lastError().databaseText());
+        if ( qry->lastError().driverText() == qry->lastError().databaseText() )
+        {
+            m_lastErrorMessage = QString("Database Error: %2").arg(qry->lastError().driverText());
+        }
+        else
+        {
+            m_lastErrorMessage = QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
+                                 arg(qry->lastError().databaseText());
+        }
     }
     QLogger::QLog_Error(AlephERP::stLogOther, QString("EmailDAO: writeDbMessages: BBDD LastQuery: [%1]").arg(qry->lastQuery()));
     QLogger::QLog_Error(AlephERP::stLogOther, QString("EmailDAO: writeDbMessages: BBDD Message(Error databaseText): [%1]").arg(qry->lastError().databaseText()));
