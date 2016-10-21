@@ -186,7 +186,7 @@ void DBRelation::updateChildrens()
     }
     else if ( d->m->type() == DBRelationMetadata::ONE_TO_ONE || d->m->type() == DBRelationMetadata::ONE_TO_MANY )
     {
-        foreach ( BaseBeanSharedPointer bean, d->m_children )
+        foreach ( BaseBeanSharedPointer bean, d->children() )
         {
             if ( bean )
             {
@@ -298,14 +298,19 @@ BaseBeanPointer DBRelation::childByFilter(const QString &filter, bool includeToB
   */
 BaseBeanPointerList DBRelation::childrenByFilter(const QString &filter, const QString &order, bool includeToBeDeleted)
 {
-    // Primero obtenemos las condiciones
-    BaseBeanPointerList list;
+    QString cacheKey = d->cacheKey(filter, order, includeToBeDeleted, false);
+    if ( d->isOnCache(cacheKey) )
+    {
+        return d->cache(cacheKey);
+    }
 
     if ( filter.isEmpty() )
     {
         return children();
     }
+
     // Iteramos por cada bean hijo, y por cada condición de filtrado.
+    BaseBeanPointerList list;
     foreach ( BaseBeanPointer bean, children() )
     {
         if ( !bean.isNull() )
@@ -331,6 +336,7 @@ BaseBeanPointerList DBRelation::childrenByFilter(const QString &filter, const QS
     {
         d->sortChildren<BaseBeanPointerList>(list, order);
     }
+    d->addToCache(cacheKey, list);
     return list;
 }
 
@@ -387,7 +393,7 @@ bool DBRelation::blockAllSignals(bool value)
         blockSignals(value);
         if ( d->m_childrenLoaded )
         {
-            foreach (BaseBeanSharedPointer child, d->m_children)
+            foreach (BaseBeanSharedPointer child, d->children())
             {
                 if ( child )
                 {
@@ -428,7 +434,7 @@ int DBRelation::childrenCount(bool includeToBeDeleted)
     }
     if ( childrenLoaded() )
     {
-        count = d->m_children.size() + d->m_otherChildren.size();
+        count = d->childrenSize() + d->m_otherChildren.size();
     }
     else
     {
@@ -444,7 +450,7 @@ int DBRelation::childrenCount(bool includeToBeDeleted)
     }
     if ( !includeToBeDeleted )
     {
-        foreach (BaseBeanSharedPointer bean, d->m_children)
+        foreach (BaseBeanSharedPointer bean, d->children())
         {
             if ( bean && bean->dbState() == BaseBean::TO_BE_DELETED && bean->dbState() != BaseBean::DELETED )
             {
@@ -483,7 +489,7 @@ int DBRelation::childrenCountByState(BaseBean::DbBeanStates state)
     else
     {
         count = 0 ;
-        foreach (BaseBeanSharedPointer bean, d->m_children)
+        foreach (BaseBeanSharedPointer bean, d->children())
         {
             if ( bean && bean->dbState() == state)
             {
@@ -513,13 +519,13 @@ void DBRelation::setChildrenCount(int value)
 
 BaseBeanPointer DBRelation::child(int row)
 {
-    if ( AERP_CHECK_INDEX_OK(row, d->m_children) )
+    if ( AERP_CHECK_INDEX_OK(row, d->children()) )
     {
-        return d->m_children.at(row).data();
+        return d->childrenAt(row).data();
     }
-    if ( AERP_CHECK_INDEX_OK((row - d->m_children.size()), d->m_otherChildren) )
+    if ( AERP_CHECK_INDEX_OK((row - d->childrenSize()), d->m_otherChildren) )
     {
-        return d->m_otherChildren.at( row - d->m_children.size() );
+        return d->m_otherChildren.at( row - d->childrenSize() );
     }
     return BaseBeanPointer();
 }
@@ -539,18 +545,18 @@ void DBRelation::restoreValues(bool blockSignals)
     if ( metadata()->type() == DBRelationMetadata::ONE_TO_ONE || metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
     {
         int i = 0;
-        while (i < d->m_children.size())
+        while (i < d->childrenSize())
         {
-            if ( !d->m_children.at(i).isNull() )
+            if ( !d->childrenAt(i).isNull() )
             {
-                if ( d->m_children.at(i)->dbState() == BaseBean::INSERT )
+                if ( d->childrenAt(i)->dbState() == BaseBean::INSERT )
                 {
                     removeChild(i);
                     i = 0;
                 }
-                else if ( d->m_children.at(i)->dbState() == BaseBean::UPDATE && d->m_children.at(i)->modified() )
+                else if ( d->childrenAt(i)->dbState() == BaseBean::UPDATE && d->childrenAt(i)->modified() )
                 {
-                    d->m_children[i]->restoreValues(blockSignals);
+                    d->childrenAt(i)->restoreValues(blockSignals);
                     i++;
                 }
                 else
@@ -609,7 +615,7 @@ BaseBeanPointerList DBRelation::internalChildren()
     }
     else
     {
-        foreach (BaseBeanSharedPointer b, d->m_children)
+        foreach (BaseBeanSharedPointer b, d->children())
         {
             if ( b )
             {
@@ -646,7 +652,7 @@ void DBRelation::addInternalOtherChildren(BaseBeanPointer bean)
         connect(bean.data(), SIGNAL(destroyed(QObject*)), this, SLOT(otherChildrenDestroyed(QObject *)));
         if ( d->m_childrenLoaded )
         {
-            d->m_childrenCount = d->m_children.size() + d->m_otherChildren.size();
+            d->m_childrenCount = d->childrenSize + d->m_otherChildren.size();
         }
         else
         {
@@ -775,19 +781,20 @@ BaseBeanSharedPointer DBRelation::newChild(int pos)
     }
     if ( pos != -1 )
     {
-        if ( pos > d->m_children.size() )
+        if ( pos > d->childrenSize )
         {
-            d->m_children.append(child);
+            d->childrenAppend(child);
         }
         else
         {
-            d->m_children.insert(pos, child);
+            d->childrenInsert(pos, child);
         }
     }
     else
     {
-        d->m_children.append(child);
+        d->childrenAppend(child);
     }
+    d->clearCache();
     if ( d->m_childrenCount == -1 )
     {
         d->m_childrenCount = 0;
@@ -796,7 +803,7 @@ BaseBeanSharedPointer DBRelation::newChild(int pos)
     connections(child.data());
     if ( pos == -1 )
     {
-        d->emitChildInserted(child.data(), d->m_children.size() - 1);
+        d->emitChildInserted(child.data(), d->childrenSize - 1);
     }
     else
     {
@@ -804,9 +811,9 @@ BaseBeanSharedPointer DBRelation::newChild(int pos)
     }
     d->emitChildDbStateModified(child.data(), BaseBean::INSERT);
     d->m_addingNewChild = false;
-    if ( d->m_childrenCount == 1 && d->m_children.size() == 1 && d->m->type() == DBRelationMetadata::ONE_TO_ONE )
+    if ( d->m_childrenCount == 1 && d->childrenSize == 1 && d->m->type() == DBRelationMetadata::ONE_TO_ONE )
     {
-        d->emitBrotherLoaded(d->m_children.first().data());
+        d->emitBrotherLoaded(d->children().first().data());
     }
     return child;
 }
@@ -872,7 +879,7 @@ void DBRelation::addChildren(BaseBeanSharedPointerList list)
                 {
                     d->m_removedChildren.removeAt(idx);
                 }
-                d->m_children.append(bean);
+                d->childrenAppend(bean);
                 countChildren++;
                 added = true;
                 bean->setOwner(this);
@@ -895,7 +902,7 @@ void DBRelation::addChildren(BaseBeanSharedPointerList list)
     {
         if ( !d->m_childrenLoaded )
         {
-            d->m_childrenCount = d->m_children.size() + d->m_otherChildren.size();
+            d->m_childrenCount = d->childrenSize + d->m_otherChildren.size();
         }
         else
         {
@@ -985,7 +992,7 @@ void DBRelation::setChildrenLoadedInternaly()
     }
     d->m_childrenLoaded = true;
     d->m_canDeleteFather = false;
-    d->m_childrenCount = d->m_children.size() + d->m_otherChildren.size();
+    d->m_childrenCount = d->childrenSize + d->m_otherChildren.size();
     d->m_fatherLoaded = true;
 }
 
@@ -1012,35 +1019,37 @@ void DBRelation::otherChildrenDestroyed(QObject *obj)
 void DBRelation::removeChild(int row)
 {
     QMutexLocker lock(&d->m_mutex);
-    if ( AERP_CHECK_INDEX_OK(row, d->m_children) )
+    if ( AERP_CHECK_INDEX_OK(row, d->children()) )
     {
         BaseBeanSharedPointer c;
-        if ( !d->m_children.at(row).isNull() )
+        if ( !d->childrenAt(row).isNull() )
         {
-            c = d->m_children.at(row);
+            c = d->childrenAt(row);
             if ( c->dbState() == BaseBean::INSERT )
             {
                 c->setDbState(BaseBean::DELETED);
             }
             d->m_removedChildren.append(c);
         }
-        d->m_children.removeAt(row);
+        d->childrenRemoveAt(row);
         d->m_childrenCount--;
+        d->clearCache();
         if ( !c.isNull() )
         {
             d->emitChildDeleted(c.data(), row);
         }
     }
-    else if ( AERP_CHECK_INDEX_OK(row-d->m_children.size(), d->m_otherChildren) )
+    else if ( AERP_CHECK_INDEX_OK(row-d->childrenSize, d->m_otherChildren) )
     {
         BaseBeanPointer c;
-        int offsetRow = row - d->m_children.size();
+        int offsetRow = row - d->childrenSize;
         if ( !d->m_otherChildren.at(offsetRow).isNull() )
         {
             c = d->m_otherChildren.at(offsetRow);
         }
         d->m_otherChildren.removeAt(offsetRow);
         d->m_childrenCount--;
+        d->clearCache();
         if ( !c.isNull() )
         {
             d->emitChildDeleted(c.data(), row);
@@ -1061,7 +1070,7 @@ void DBRelation::removeChild(BaseBeanWeakPointer child)
     BaseBeanSharedPointer shChild = child.toStrongRef();
     if (!shChild.isNull())
     {
-        int index = AERPListContainsBean<BaseBeanSharedPointerList, BaseBeanWeakPointer>(d->m_children.toList(), shChild);
+        int index = AERPListContainsBean<BaseBeanSharedPointerList, BaseBeanWeakPointer>(d->children().toList(), shChild);
         if ( index > -1 )
         {
             removeChild(index);
@@ -1072,7 +1081,7 @@ void DBRelation::removeChild(BaseBeanWeakPointer child)
         int index = AERPListContainsBean<BaseBeanPointerList, BaseBeanPointer>(d->m_otherChildren, child.data());
         if ( index > -1 )
         {
-            removeChild(index + d->m_children.size());
+            removeChild(index + d->childrenSize);
         }
     }
 }
@@ -1086,9 +1095,9 @@ void DBRelation::removeChild(BaseBeanWeakPointer child)
 void DBRelation::removeChild(QVariant pk)
 {
     QMutexLocker lock(&d->m_mutex);
-    for ( int i = 0 ; i < d->m_children.size() ; i++ )
+    for ( int i = 0 ; i < d->childrenSize ; i++ )
     {
-        BaseBeanSharedPointer child = d->m_children.at(i);
+        BaseBeanSharedPointer child = d->childrenAt(i);
         if ( child && child->pkEqual(pk) )
         {
             removeChild(i);
@@ -1100,7 +1109,7 @@ void DBRelation::removeChild(QVariant pk)
         BaseBeanPointer child = d->m_otherChildren.at(i);
         if ( child && child->pkEqual(pk) )
         {
-            removeChild(i + d->m_children.size());
+            removeChild(i + d->childrenSize);
             return;
         }
     }
@@ -1113,9 +1122,9 @@ void DBRelation::removeChild(QVariant pk)
 void DBRelation::removeChildByObjectName(const QString &objectName)
 {
     QMutexLocker lock(&d->m_mutex);
-    for ( int i = 0 ; i < d->m_children.size() ; i++ )
+    for ( int i = 0 ; i < d->childrenSize ; i++ )
     {
-        BaseBeanSharedPointer child = d->m_children.at(i);
+        BaseBeanSharedPointer child = d->childrenAt(i);
         if ( child && child->objectName() == objectName )
         {
             removeChild(i);
@@ -1127,7 +1136,7 @@ void DBRelation::removeChildByObjectName(const QString &objectName)
         BaseBeanPointer child = d->m_otherChildren.at(i);
         if ( child && child->objectName() == objectName )
         {
-            removeChild(i + d->m_children.size());
+            removeChild(i + d->childrenSize);
             return;
         }
     }
@@ -1139,22 +1148,22 @@ void DBRelation::removeChildByObjectName(const QString &objectName)
 void DBRelation::removeAllChildren()
 {
     QMutexLocker lock(&d->m_mutex);
-    for ( int i = 0 ; i < d->m_children.size() ; i++ )
+    for ( int i = 0 ; i < d->childrenSize ; i++ )
     {
-        BaseBeanSharedPointer child = d->m_children.at(i);
+        BaseBeanSharedPointer child = d->childrenAt(i);
         d->emitChildDeleted(child.data(), i);
         if ( child )
         {
             d->m_removedChildren.append(child);
         }
     }
-    d->m_children.clear();
+    d->childrenClear;
     for ( int i = 0 ; i < d->m_otherChildren.size() ; i++ )
     {
         d->emitChildDeleted(d->m_otherChildren.at(i).data(), i);
     }
-    d->m_children.clear();
     d->m_otherChildren.clear();
+    d->clearCache();
     d->m_childrenCount = -1;
 }
 
@@ -1211,11 +1220,11 @@ void DBRelation::deleteChildByObjectName(const QString &objectName)
 BaseBeanPointerList DBRelation::modifiedChildren()
 {
     BaseBeanPointerList list;
-    if ( d->m_children.isEmpty() )
+    if ( d->children().isEmpty() )
     {
         return list;
     }
-    foreach ( BaseBeanSharedPointer bean, d->m_children )
+    foreach ( BaseBeanSharedPointer bean, d->children() )
     {
         if ( bean && bean->modified() )
         {
@@ -1241,6 +1250,13 @@ BaseBeanPointerList DBRelation::modifiedChildren()
 BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeDeleted, bool includeOtherChildren)
 {
     QMutexLocker lock(&d->m_mutex);
+
+    QString cacheKey = d->cacheKey("", order, includeToBeDeleted, includeOtherChildren);
+    if ( d->isOnCache(cacheKey) )
+    {
+        return d->cache(cacheKey);
+    }
+
     BaseBeanPointerList temp;
     BaseBeanPointer ownBean = ownerBean();
     if ( ownBean.isNull() || isExecuting(AlephERP::Children) )
@@ -1307,7 +1323,7 @@ BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeD
     }
     if ( !includeToBeDeleted )
     {
-        foreach ( BaseBeanSharedPointer bean, d->m_children )
+        foreach ( BaseBeanSharedPointer bean, d->children() )
         {
             if ( bean && (bean->dbState() != BaseBean::TO_BE_DELETED && bean->dbState() != BaseBean::DELETED) )
             {
@@ -1327,7 +1343,7 @@ BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeD
     }
     else
     {
-        temp = AERP_STRONGLIST_TO_POINTERLIST(d->m_children.toList());
+        temp = AERP_STRONGLIST_TO_POINTERLIST(d->children().toList());
         if ( includeOtherChildren )
         {
             temp += d->m_otherChildren;
@@ -1337,6 +1353,7 @@ BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeD
     {
         d->sortChildren<BaseBeanPointerList>(temp, order);
     }
+    d->addToCache(cacheKey, temp);
     restoreOverrideOnExecution();
     return temp;
 }
@@ -1656,9 +1673,16 @@ bool DBRelation::brotherSetted()
 }
 
 /** Devuelve sólo aquellas referencias de hijos compartido (esto excluye a todos los otros otherChilds).
- Esta función se utiliza para aquellos objetos que necesitan trabajar con los hijos de esta relación*/
+ Esta función se utiliza para aquellos objetos que necesitan trabajar con los hijos de esta relación */
 QVector<BaseBeanSharedPointer> DBRelation::sharedChildren(const QString &order)
 {
+    QString cacheKey = d->cacheKey("", order, true, false);
+
+    if ( d->isOnSharedCache(cacheKey) )
+    {
+        return d->sharedCache(cacheKey).toVector();
+    }
+
     BaseBeanPointer ownBean = ownerBean();
     if ( ownBean.isNull() || isExecuting(AlephERP::Children) )
     {
@@ -1680,13 +1704,14 @@ QVector<BaseBeanSharedPointer> DBRelation::sharedChildren(const QString &order)
     }
     restoreOverrideOnExecution();
 
-    QVector<BaseBeanSharedPointer> items = d->m_children;
+    QVector<BaseBeanSharedPointer> items = d->children();
+    BaseBeanSharedPointerList tmp = items.toList();
     if ( !order.isEmpty() )
     {
-        BaseBeanSharedPointerList tmp = items.toList();
         d->sortChildren<BaseBeanSharedPointerList>(tmp, order);
         items = tmp.toVector();
     }
+    d->addToCache(cacheKey, tmp);
     return items;
 }
 
@@ -1762,8 +1787,9 @@ void DBRelation::setFilter(const QString &filter)
     if ( filter != d->m_filter )
     {
         d->m_filter = filter;
-        d->m_children.clear();
+        d->childrenClear();
         d->m_otherChildren.clear();
+        d->clearCache();
         d->m_childrenCount = -1;
         d->m_childrenLoaded = false;
     }
@@ -1948,7 +1974,7 @@ bool DBRelation::unloadChildren(bool ignoreNotSavedBeans)
         }
     }
     emit childrenAboutToBeUnloaded();
-    d->m_children.clear();
+    d->childrenClear();
     d->m_otherChildren.clear();
     d->m_childrenLoaded = false;
     d->m_childrenModified = false;
@@ -2011,7 +2037,7 @@ bool DBRelation::loadChildrenOnBackground(const QString &order)
         if ( BaseDAO::execute(sql, result) )
         {
             d->m_childrenCount = result.toInt();
-            d->m_children.resize(d->m_childrenCount);
+            d->childrenResize(d->m_childrenCount);
         }
         else
         {
@@ -2022,8 +2048,9 @@ bool DBRelation::loadChildrenOnBackground(const QString &order)
     }
     else
     {
-        d->m_children.resize(d->m_childrenCount);
+        d->childrenResize(d->m_childrenCount);
     }
+    d->clearCache();
     connect(BackgroundDAO::instance(), SIGNAL(availableBean(QString,int,BaseBeanSharedPointer)), this, SLOT(availableBean(QString,int,BaseBeanSharedPointer)));
     connect(BackgroundDAO::instance(), SIGNAL(queryExecuted(QString,bool)), this, SLOT(backgroundQueryExecuted(QString,bool)));
     d->m_backgroundPetition = BackgroundDAO::instance()->selectBeans(d->m->tableName(), sqlRelationWhere(), finalOrder, d->m_backgroundOffset, alephERPSettings->fetchRowCount());
@@ -2040,15 +2067,16 @@ void DBRelation::availableBean(QString id, int backgroundRow, BaseBeanSharedPoin
     }
 
     int row = backgroundRow + d->m_backgroundOffset;
-    if ( d->m_children.size() <= row )
+    if ( d->childrenSize <= row )
     {
-        d->m_children.resize(row+1);
+        d->childrenResize(row+1);
         d->m_childrenCount = row;
     }
-    if ( AERP_CHECK_INDEX_OK(row, d->m_children) )
+    if ( AERP_CHECK_INDEX_OK(row, d->children()) )
     {
-        d->m_children[row] = bean;
+        d->childrenSet(row, bean);
     }
+    d->clearCache();
     bool blockSignalsState = bean->blockSignals(true);
     bean->setOwner(this);
     // Si el padre está en un contexto, el hijo se agregará también al contexto

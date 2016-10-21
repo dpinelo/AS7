@@ -30,6 +30,15 @@ class DBRelationMetadata;
 
 class ALEPHERP_DLL_EXPORT DBRelationPrivate
 {
+private:
+    /** Caché de ordenaciones de hijos para rendimiento (se evitan llamadas a los métodos QuickSort */
+    QHash<QString, BaseBeanSharedPointerList> m_cacheOrderedSharedBeans;
+    QHash<QString, BaseBeanPointerList> m_cacheOrderedBeans;
+    /** Referencia a los hijos del bean raiz de esta relación */
+    QVector<BaseBeanSharedPointer> m_children;
+    /** Hay otros hijos añadidos, que no pueden ser elevados a SharedPointer, por ser por ejemplo padres genreando relaciones circulares. Van aquí */
+    BaseBeanPointerList m_otherChildren;
+
 //    Q_DECLARE_PUBLIC(DBRelation)
 public:
     DBRelation *q_ptr;
@@ -37,13 +46,9 @@ public:
     BaseBeanPointer m_father;
     /** Casos especiales en los que se puede borrar el padre */
     bool m_canDeleteFather;
-    /** Referencia a los hijos del bean raiz de esta relación */
-    QVector<BaseBeanSharedPointer> m_children;
     /** Los beans que son eliminados de la relación se almacenan en esta estructura. La razón es asegurar que existan (son QSharedPointer)
      * hasta que son guardados en la base de datos, desde el contexto */
     BaseBeanSharedPointerList m_removedChildren;
-    /** Hay otros hijos añadidos, que no pueden ser elevados a SharedPointer, por ser por ejemplo padres genreando relaciones circulares. Van aquí */
-    BaseBeanPointerList m_otherChildren;
     /** Se obtienen los hijos con algún filtro */
     QString m_filter;
     /** ¿Están los hijos cargados? */
@@ -129,6 +134,35 @@ public:
     bool haveToSearchOnDatabase(DBField *fld);
     void addOtherChildren(BaseBeanPointerList list);
     void addOtherChild(BaseBeanPointer child);
+
+    QString cacheKey(const QString &filter, const QString &order, bool includeToBeDeleted, bool includeOtherChildren);
+    bool isOnSharedCache(const QString &key);
+    bool isOnCache(const QString &key);
+    BaseBeanSharedPointerList sharedCache(const QString &key);
+    BaseBeanPointerList cache(const QString &key);
+    void clearCache();
+    void addToCache(const QString &key, BaseBeanSharedPointerList list);
+    void addToCache(const QString &key, BaseBeanPointerList list);
+
+    int childrenSize() const;
+    BaseBeanSharedPointerList children();
+    BaseBeanSharedPointer childrenAt(int idx);
+    void childrenClear();
+    void childrenResize(int newSize);
+    void childrenAppend(BaseBeanSharedPointer bean);
+    void childrenInsert(int pos, BaseBeanSharedPointer bean);
+    void childrenRemoveAt(int pos);
+    void childrenSet(int pos, BaseBeanSharedPointer bean);
+
+    int otherChildrenSize() const;
+    BaseBeanSharedPointerList otherChildren();
+    BaseBeanSharedPointer otherChildrenAt(int idx);
+    void otherChildrenClear();
+    void otherChildrenResize(int newSize);
+    void otherChildrenAppend(BaseBeanSharedPointer bean);
+    void otherChildrenInsert(int pos, BaseBeanSharedPointer bean);
+    void otherChildrenRemoveAt(int pos);
+    void otherChildrenSet(int pos, BaseBeanSharedPointer bean);
 
     void emitChildModified(BaseBean *bean, bool value);
     void emitChildInserted(BaseBean *bean, int pos);

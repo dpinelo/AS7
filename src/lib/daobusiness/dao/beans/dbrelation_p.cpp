@@ -438,6 +438,7 @@ void DBRelationPrivate::loadOneToManyChildren(const QString &order, const QStrin
                 bean->blockSignals(blockSignalsState);
                 q_ptr->connections(bean.data());
                 bean->setReadOnly(m->readOnly());
+                clearCache();
             }
             m_childrenLoaded = true;
             if ( m_childrenCount == 1 && m_children.size() == 1 && m->type() == DBRelationMetadata::ONE_TO_ONE )
@@ -483,6 +484,8 @@ void DBRelationPrivate::addOtherChildren(BaseBeanPointerList list)
                 bean->setFieldValue(m->childFieldName(), q_ptr->ownerBean()->fieldValue(m->rootFieldName()));
             }
             m_otherChildren.append(bean);
+            m_cacheOrderedBeans.clear();
+            m_cacheOrderedSharedBeans.clear();
             QObject::connect(bean.data(), SIGNAL(destroyed(QObject*)), q_ptr, SLOT(otherChildrenDestroyed(QObject *)));
             if ( q_ptr->allSignalsBlocked() )
             {
@@ -509,6 +512,113 @@ void DBRelationPrivate::addOtherChild(BaseBeanPointer child)
     BaseBeanPointerList list;
     list << child;
     addOtherChildren(list);
+}
+
+QString DBRelationPrivate::cacheKey(const QString &filter, const QString &order, bool includeToBeDeleted, bool includeOtherChildren)
+{
+    QString key;
+    key = QString("%1|%2|%3|%4").
+            arg(filter).
+            arg(order).
+            arg(includeToBeDeleted ? "1" : "0").
+            arg(includeOtherChildren ? "1" : "0");
+    return key;
+}
+
+bool DBRelationPrivate::isOnSharedCache(const QString &key)
+{
+    return m_cacheOrderedSharedBeans.contains(key);
+}
+
+bool DBRelationPrivate::isOnCache(const QString &key)
+{
+    return m_cacheOrderedSharedBeans.contains(key);
+}
+
+BaseBeanSharedPointerList DBRelationPrivate::sharedCache(const QString &key)
+{
+    return m_cacheOrderedSharedBeans.value(key);
+}
+
+BaseBeanPointerList DBRelationPrivate::cache(const QString &key)
+{
+    return m_cacheOrderedBeans.value(key);
+}
+
+void DBRelationPrivate::clearCache()
+{
+    m_cacheOrderedBeans.clear();
+    m_cacheOrderedSharedBeans.clear();
+}
+
+void DBRelationPrivate::addToCache(const QString &key, BaseBeanSharedPointerList list)
+{
+    m_cacheOrderedSharedBeans[key] = list;
+}
+
+void DBRelationPrivate::addToCache(const QString &key, BaseBeanPointerList list)
+{
+    m_cacheOrderedBeans[key] = list;
+}
+
+void DBRelationPrivate::childrenClear()
+{
+    m_children.clear();
+    clearCache();
+}
+
+void DBRelationPrivate::childrenResize(int newSize)
+{
+    m_children.resize(newSize);
+    clearCache();
+}
+
+void DBRelationPrivate::childrenAppend(BaseBeanSharedPointer bean)
+{
+    m_children.append(bean);
+    clearCache();
+}
+
+void DBRelationPrivate::childrenInsert(int pos, BaseBeanSharedPointer bean)
+{
+    m_children.insert(pos, bean);
+    clearCache();
+}
+
+void DBRelationPrivate::childrenRemoveAt(int pos)
+{
+    m_children.removeAt(pos);
+    clearCache();
+}
+
+void DBRelationPrivate::childrenSet(int pos, BaseBeanSharedPointer bean)
+{
+    m_children[pos] = bean;
+    clearCache();
+}
+
+int DBRelationPrivate::childrenSize() const
+{
+    return m_children.size();
+}
+
+int DBRelationPrivate::otherChildrenSize() const
+{
+    return m_otherChildren.size();
+}
+
+BaseBeanSharedPointerList DBRelationPrivate::children()
+{
+    return m_children;
+}
+
+BaseBeanSharedPointer DBRelationPrivate::childrenAt(int idx)
+{
+    if ( AERP_CHECK_INDEX_OK(idx, m_children) )
+    {
+        return m_children.at(idx);
+    }
+    return BaseBeanSharedPointer();
 }
 
 /**
