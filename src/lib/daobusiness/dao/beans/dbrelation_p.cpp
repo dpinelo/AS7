@@ -484,8 +484,7 @@ void DBRelationPrivate::addOtherChildren(BaseBeanPointerList list)
                 bean->setFieldValue(m->childFieldName(), q_ptr->ownerBean()->fieldValue(m->rootFieldName()));
             }
             m_otherChildren.append(bean);
-            m_cacheOrderedBeans.clear();
-            m_cacheOrderedSharedBeans.clear();
+            clearCache();
             QObject::connect(bean.data(), SIGNAL(destroyed(QObject*)), q_ptr, SLOT(otherChildrenDestroyed(QObject *)));
             if ( q_ptr->allSignalsBlocked() )
             {
@@ -607,7 +606,48 @@ int DBRelationPrivate::otherChildrenSize() const
     return m_otherChildren.size();
 }
 
-BaseBeanSharedPointerList DBRelationPrivate::children()
+BaseBeanPointerList DBRelationPrivate::otherChildren()
+{
+    return m_otherChildren;
+}
+
+BaseBeanPointer DBRelationPrivate::otherChildrenAt(int idx)
+{
+    return m_otherChildren.at(idx);
+}
+
+void DBRelationPrivate::otherChildrenClear()
+{
+    m_otherChildren.clear();
+    clearCache();
+}
+
+void DBRelationPrivate::otherChildrenAppend(BaseBeanPointer bean)
+{
+    m_otherChildren.append(bean);
+}
+
+void DBRelationPrivate::otherChildrenInsert(int pos, BaseBeanPointer bean)
+{
+    m_otherChildren.insert(pos, bean);
+}
+
+void DBRelationPrivate::otherChildrenRemoveAt(int pos)
+{
+    m_otherChildren.removeAt(pos);
+}
+
+void DBRelationPrivate::otherChildrenSet(int pos, BaseBeanPointer bean)
+{
+    m_otherChildren[pos] = bean;
+}
+
+void DBRelationPrivate::otherChildrenRemoveAll(BaseBeanPointer bean)
+{
+    m_otherChildren.removeAll(bean);
+}
+
+QVector<BaseBeanSharedPointer> DBRelationPrivate::children()
 {
     return m_children;
 }

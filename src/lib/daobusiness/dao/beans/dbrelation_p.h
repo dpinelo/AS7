@@ -145,7 +145,7 @@ public:
     void addToCache(const QString &key, BaseBeanPointerList list);
 
     int childrenSize() const;
-    BaseBeanSharedPointerList children();
+    QVector<BaseBeanSharedPointer> children();
     BaseBeanSharedPointer childrenAt(int idx);
     void childrenClear();
     void childrenResize(int newSize);
@@ -155,14 +155,14 @@ public:
     void childrenSet(int pos, BaseBeanSharedPointer bean);
 
     int otherChildrenSize() const;
-    BaseBeanSharedPointerList otherChildren();
-    BaseBeanSharedPointer otherChildrenAt(int idx);
+    BaseBeanPointerList otherChildren();
+    BaseBeanPointer otherChildrenAt(int idx);
     void otherChildrenClear();
-    void otherChildrenResize(int newSize);
-    void otherChildrenAppend(BaseBeanSharedPointer bean);
-    void otherChildrenInsert(int pos, BaseBeanSharedPointer bean);
+    void otherChildrenAppend(BaseBeanPointer bean);
+    void otherChildrenInsert(int pos, BaseBeanPointer bean);
     void otherChildrenRemoveAt(int pos);
-    void otherChildrenSet(int pos, BaseBeanSharedPointer bean);
+    void otherChildrenSet(int pos, BaseBeanPointer bean);
+    void otherChildrenRemoveAll(BaseBeanPointer bean);
 
     void emitChildModified(BaseBean *bean, bool value);
     void emitChildInserted(BaseBean *bean, int pos);
