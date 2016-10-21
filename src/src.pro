@@ -55,6 +55,32 @@ win32 {
 # Toda la rama 4.9.X no lleva esa librería.
 }
 
+# Una utilidad para memory leaks, sólo en debug
+contains(CHECKLEAKS, Y) {
+    CONFIG(debug, debug|release) {
+        DEFINES += ALEPHERP_MEMORY_LEAK_CHECK
+
+        HEADERS += \
+            3rdparty/nvwa-0.8/nvwa/bool_array.h \
+            3rdparty/nvwa-0.8/nvwa/class_level_lock.h \
+            3rdparty/nvwa-0.8/nvwa/cont_ptr_utils.h \
+            3rdparty/nvwa-0.8/nvwa/debug_new.h \
+            3rdparty/nvwa-0.8/nvwa/fast_mutex.h \
+            3rdparty/nvwa-0.8/nvwa/fixed_mem_pool.h \
+            3rdparty/nvwa-0.8/nvwa/mem_pool_base.h \
+            3rdparty/nvwa-0.8/nvwa/object_level_lock.h \
+            3rdparty/nvwa-0.8/nvwa/pctimer.h \
+            3rdparty/nvwa-0.8/nvwa/set_assign.h \
+            3rdparty/nvwa-0.8/nvwa/static_assert.h \
+            3rdparty/nvwa-0.8/nvwa/static_mem_pool.h
+        SOURCES += \
+            3rdparty/nvwa-0.8/nvwa/bool_array.cpp \
+            3rdparty/nvwa-0.8/nvwa/debug_new.cpp \
+            3rdparty/nvwa-0.8/nvwa/mem_pool_base.cpp \
+            3rdparty/nvwa-0.8/nvwa/static_mem_pool.cpp
+    }
+}
+
 TRANSLATIONS = alepherp_english.ts \
                alepherp_spanish.ts \
                alepherp_french.ts \
@@ -158,4 +184,3 @@ OTHER_FILES += \
 
 HEADERS += \
     backtrace.h
-

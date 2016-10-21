@@ -866,22 +866,25 @@ QWidget *CommonsFunctions::firstFocusWidget(QWidget *widget)
     QWidget *w = widget->nextInFocusChain();
     do
     {
-        if ( w != NULL && w->focusPolicy() != Qt::NoFocus )
+        if ( w != NULL )
         {
-            QLabel *lbl = qobject_cast<QLabel *>(w);
-            if ( lbl )
+            if ( w->focusPolicy() != Qt::NoFocus )
             {
-                if ( lbl->buddy() != NULL && lbl->buddy()->property(AlephERP::stAerpControl).toBool() && lbl->buddy()->property(AlephERP::stDataEditable).toBool() )
+                QLabel *lbl = qobject_cast<QLabel *>(w);
+                if ( lbl )
+                {
+                    if ( lbl->buddy() != NULL && lbl->buddy()->property(AlephERP::stAerpControl).toBool() && lbl->buddy()->property(AlephERP::stDataEditable).toBool() )
+                    {
+                        return w;
+                    }
+                }
+                else if ( !w->property(AlephERP::stAerpControl).toBool() || w->property(AlephERP::stDataEditable).toBool() )
                 {
                     return w;
                 }
             }
-            else if ( !w->property(AlephERP::stAerpControl).toBool() || w->property(AlephERP::stDataEditable).toBool() )
-            {
-                return w;
-            }
+            w = w->nextInFocusChain();
         }
-        w = w->nextInFocusChain();
     } while (w);
     return NULL;
 }

@@ -1477,7 +1477,7 @@ void BaseBeanMetadataPrivate::setConfig()
                     else
                     {
                         QMessageBox::critical(0, qApp->applicationName(), QObject::trUtf8("El archivo XML de sistema <b>%1</b> no es correcto. "
-                                              "El programa no funcionará. Consulte con <i>Aleph Sistemas de Información</i>.").
+                                              "El programa no funcionará. Consulte con <i>Asycom Technological Solutions</i>.").
                                               arg(systemObject->name()),
                                               QMessageBox::Ok);
                         QLogger::QLog_Error(AlephERP::stLogOther, QString("-------------------------------------------------------------------------------------------------------"));
@@ -2384,7 +2384,7 @@ void BaseBeanMetadataPrivate::setConfig()
         QLogger::QLog_Error(AlephERP::stLogOther, QString::fromUtf8("BaseBeanMetadata: setConfig(): FILE: [%1]. ERROR: Line: [%2] Column: [%3]. ERROR [%4] ").arg(m_tableName).arg(errorLine).arg(errorColumn).arg(errorString));
         QLogger::QLog_Error(AlephERP::stLogOther, QString::fromUtf8("-------------------------------------------------------------------------------------------------------"));
         QMessageBox::critical(0, qApp->applicationName(), QObject::trUtf8("El archivo XML de sistema <b>%1</b> no es correcto. "
-                              "El programa no funcionará. Consulte con <i>Aleph Sistemas de Información</i>.").arg(m_tableName),
+                              "El programa no funcionará. Consulte con <i>Asycom Technological Solutions</i>.").arg(m_tableName),
                               QMessageBox::Ok);
     }
 }
@@ -3633,7 +3633,11 @@ QString BaseBeanMetadata::repositoryPathScriptExecute(BaseBean *b)
 QString BaseBeanMetadata::toStringExecute(BaseBean *b)
 {
     QString result;
-    if ( b != NULL && d->m_toStringType == QLatin1String("js") && !d->m_toStringScript.isEmpty() )
+    if ( b == NULL )
+    {
+        return result;
+    }
+    if ( d->m_toStringType == QLatin1String("js") && !d->m_toStringScript.isEmpty() )
     {
         d->m_engine->addFunctionArgument("bean", b);
         d->m_engine->setScript(d->m_toStringScript, QString("%1.toString.js").arg(d->m_tableName));

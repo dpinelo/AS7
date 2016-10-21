@@ -397,6 +397,10 @@ void AERPMainWindowPrivate::openChildForm(const QString &tableName, const QIcon 
     if ( dlg->openSuccess() )
     {
         BaseBeanMetadata *m = BeansFactory::metadataBean(tableName);
+        if ( m == NULL )
+        {
+            return;
+        }
         // Muy importante para el mapeo MDI
         dlg->setObjectName(formName);
         dlg->setAttribute(Qt::WA_DeleteOnClose);

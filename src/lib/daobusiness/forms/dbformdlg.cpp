@@ -197,6 +197,10 @@ QString DBFormDlgPrivate::qsDbNewRecordForSelectedRow()
 
 bool DBFormDlgPrivate::isPrintButtonVisible()
 {
+    if ( m_metadata == NULL )
+    {
+        return false;
+    }
     if ( m_metadata->viewForTable().isEmpty() )
     {
         QList<ReportMetadata *> reports = ReportRun::availableReports(m_metadata->tableName());

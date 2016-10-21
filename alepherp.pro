@@ -27,9 +27,9 @@ contains (SMTPBUILTIN, Y) {
 contains (AERPADVANCEDEDIT, Y) {
     # Por alguna extraña razón, en Windows, con MinGW, esta librería hace cascar a cc1plus.exe (crash).
     win32 {
-        CONFIG(release, debug|release) {
+        #CONFIG(release, debug|release) {
             SUBDIRS += src/3rdparty/qwwrichtextedit
-        }
+        #}
     }
     unix {
         SUBDIRS += src/3rdparty/qwwrichtextedit

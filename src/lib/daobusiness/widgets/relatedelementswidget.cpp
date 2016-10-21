@@ -193,7 +193,11 @@ void RelatedElementsWidget::showContextMenu(const QPoint &point)
 void RelatedElementsWidget::openAttachment()
 {
 #ifdef ALEPHERP_SMTP_SUPPORT
-    if ( d->m_treeMenuItemSelected == NULL && d->m_treeMenuItemSelected->relatedElement() != NULL )
+    if ( d->m_treeMenuItemSelected == NULL )
+    {
+        return;
+    }
+    if ( d->m_treeMenuItemSelected->relatedElement() != NULL )
     {
         return;
     }
@@ -261,7 +265,11 @@ void RelatedElementsWidget::openEmail()
 void RelatedElementsWidget::openDocument()
 {
 #ifdef ALEPHERP_DOC_MANAGEMENT
-    if ( d->m_treeMenuItemSelected == NULL && d->m_treeMenuItemSelected->relatedElement() != NULL )
+    if ( d->m_treeMenuItemSelected == NULL )
+    {
+        return;
+    }
+    if ( d->m_treeMenuItemSelected->relatedElement() != NULL )
     {
         return;
     }
@@ -300,11 +308,14 @@ void RelatedElementsWidget::openDocument()
 void RelatedElementsWidget::saveDocument()
 {
 #ifdef ALEPHERP_DOC_MANAGEMENT
-    if ( d->m_treeMenuItemSelected == NULL && d->m_treeMenuItemSelected->relatedElement() != NULL )
+    if ( d->m_treeMenuItemSelected == NULL )
     {
         return;
     }
-    QString error;
+    if ( d->m_treeMenuItemSelected->relatedElement() != NULL )
+    {
+        return;
+    }
     AERPDocMngmntDocument *doc = d->m_treeMenuItemSelected->relatedElement()->document();
     if ( doc == NULL )
     {

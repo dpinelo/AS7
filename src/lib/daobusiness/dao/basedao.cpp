@@ -915,7 +915,8 @@ QString BaseDAO::buildSqlSelectWithLimits(BaseBeanMetadata *metadata, const QStr
     QString sql;
     if ( metadata == NULL )
     {
-        QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::buildSqlSelectWithLimits: [%1] no existe en las definiciones").arg( metadata->tableName()));
+        QLogger::QLog_Debug(AlephERP::stLogDB,
+                            QString::fromUtf8("BaseDAO::buildSqlSelectWithLimits: Llamado con metadatos nulos"));
         return sql;
     }
     QList<DBFieldMetadata *> fields = metadata->fields();

@@ -40,6 +40,12 @@
 #endif
 #endif
 
+#ifndef _MSC_VER
+#ifdef ALEPHERP_MEMORY_LEAK_CHECK
+#include "3rdparty/nvwa-0.8/nvwa/debug_new.h"
+#endif
+#endif
+
 #ifdef ALEPHERP_TEST
 #include "models/test/modeltest.h"
 #ifdef _MSC_VER

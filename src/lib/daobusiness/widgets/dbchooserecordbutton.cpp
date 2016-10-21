@@ -419,7 +419,7 @@ void DBChooseRecordButton::buttonClicked()
         }
     }
 
-    if ( !tableName.isEmpty() )
+    if ( thisForm != NULL && !tableName.isEmpty() )
     {
         QPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName, d->m_useNewContext, this));
         if ( !d->m_masterBean.isNull() )

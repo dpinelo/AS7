@@ -182,11 +182,7 @@ QString StringExpression::applyExpressionRules(DBObject *obj, const QHash<QStrin
         while (idx != -1)
         {
             QStringList list = exp.capturedTexts();
-            if ( list.isEmpty() )
-            {
-                idx = 0;
-            }
-            else
+            if ( !list.isEmpty() )
             {
                 foreach (const QString &item, list)
                 {
@@ -262,11 +258,7 @@ QList<DBField *> StringExpression::fieldsInvolvedOnCalc(BaseBean *bean)
     while (idx != -1)
     {
         QStringList list = exp.capturedTexts();
-        if ( list.isEmpty() )
-        {
-            idx = 0;
-        }
-        else
+        if ( !list.isEmpty() )
         {
             foreach (const QString &item, list)
             {

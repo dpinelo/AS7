@@ -1002,11 +1002,11 @@ void DBAbstractViewInterface::fromMenuHideColumn()
     }
     if ( m_clickedColumn != -1)
     {
-        if ( className() == QStringLiteral("DBTableView") )
+        if ( table != NULL && className() == QStringLiteral("DBTableView") )
         {
             table->hideColumn(m_clickedColumn);
         }
-        else if ( className() == QStringLiteral("DBTreeView") )
+        else if ( tree != NULL && className() == QStringLiteral("DBTreeView") )
         {
             tree->hideColumn(m_clickedColumn);
         }

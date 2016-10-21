@@ -124,10 +124,6 @@ void BuiltInExpressionDef::processExpression()
                 }
             }
         }
-        else
-        {
-            idx = 0;
-        }
         idx = exp.indexIn(result);
     }
     m_expression = result;
