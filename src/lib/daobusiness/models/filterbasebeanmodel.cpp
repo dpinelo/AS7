@@ -797,6 +797,11 @@ void FilterBaseBeanModel::clearColumnCount()
     d->m_columnCount = -1;
 }
 
+void FilterBaseBeanModel::resetInternalData()
+{
+    clearAcceptedRows();
+}
+
 BaseBeanSharedPointer FilterBaseBeanModel::bean (const QModelIndex &index)
 {
     if ( index.isValid() )

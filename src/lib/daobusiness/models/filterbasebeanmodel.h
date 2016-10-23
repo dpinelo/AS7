@@ -153,6 +153,7 @@ public slots:
 
 protected slots:
     void clearColumnCount();
+    void resetInternalData();
 };
 
 #endif // FILTERBASEBEANMODEL_H
