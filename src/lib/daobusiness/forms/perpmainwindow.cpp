@@ -173,21 +173,31 @@ void AERPMainWindowPrivate::processActions()
 void AERPMainWindowPrivate::processActionTable(QAction *action)
 {
     // Comprobamos el nivel de acceso definido en los UI
+    QStringList enabledForRoles, visibleForRoles;
     if ( action->property(AlephERP::stEnabledForRoles).isValid() )
     {
-        action->setEnabled(AERPLoggedUser::instance()->hasAnyRole(action->property(AlephERP::stEnabledForRoles).toStringList()));
+        enabledForRoles = action->property(AlephERP::stEnabledForRoles).toStringList();
+        action->setEnabled(AERPLoggedUser::instance()->hasAnyRole(enabledForRoles));
     }
     if ( action->property(AlephERP::stVisibleForRoles).isValid() )
     {
-        action->setVisible(AERPLoggedUser::instance()->hasAnyRole(action->property(AlephERP::stVisibleForRoles).toStringList()));
+        visibleForRoles = action->property(AlephERP::stVisibleForRoles).toStringList();
+        action->setVisible(AERPLoggedUser::instance()->hasAnyRole(visibleForRoles));
     }
     if ( action->property(AlephERP::stVisibleForUsers).isValid() )
     {
-        action->setVisible(action->property(AlephERP::stVisibleForUsers).toStringList().contains(AERPLoggedUser::instance()->userName()));
+        // Si el usuario pertenece a un rol válido, esto no se tiene en cuenta
+        if ( !AERPLoggedUser::instance()->hasAnyRole(visibleForRoles) )
+        {
+            action->setVisible(action->property(AlephERP::stVisibleForUsers).toStringList().contains(AERPLoggedUser::instance()->userName()));
+        }
     }
     if ( action->property(AlephERP::stEnabledForUsers).isValid() )
     {
-        action->setEnabled(action->property(AlephERP::stEnabledForUsers).toStringList().contains(AERPLoggedUser::instance()->userName()));
+        if ( !AERPLoggedUser::instance()->hasAnyRole(enabledForRoles) )
+        {
+            action->setEnabled(action->property(AlephERP::stEnabledForUsers).toStringList().contains(AERPLoggedUser::instance()->userName()));
+        }
     }
 
     // Comprobamos el nivel de acceso definido en base de datos
