@@ -325,7 +325,7 @@ BaseBeanSharedPointerList RelationBaseBeanModel::beans(const QModelIndexList &li
 /*!
   Devuelve el bean asociado a la fila index.row()
 */
-BaseBeanSharedPointer RelationBaseBeanModel::bean (const QModelIndex &index, bool reloadIfNeeded) const
+BaseBeanSharedPointer RelationBaseBeanModel::bean(const QModelIndex &index, bool reloadIfNeeded) const
 {
     Q_UNUSED(reloadIfNeeded)
     if ( d->m_relation )

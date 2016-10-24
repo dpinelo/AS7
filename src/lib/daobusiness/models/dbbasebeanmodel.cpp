@@ -1597,7 +1597,7 @@ void DBBaseBeanModel::addStaticRow(const QIcon &icon, const QString &text, const
 /**
   En modelos que presenten vistas, no se podran insertar filas...
   */
-bool DBBaseBeanModel::insertRows (int row, int count, const QModelIndex & parent)
+bool DBBaseBeanModel::insertRows(int row, int count, const QModelIndex & parent)
 {
     if ( d->m_metadata == NULL )
     {

@@ -576,12 +576,34 @@ void DBRelationPrivate::childrenAppend(BaseBeanSharedPointer bean)
 {
     m_children.append(bean);
     clearCache();
+    /*
+    // Insertamos, al final, en todos los sitios de la caché
+    foreach (const QString &cache, m_cacheOrderedBeans)
+    {
+        m_cacheOrderedBeans[cache].append(bean.data());
+    }
+    foreach (const QString &cache, m_cacheOrderedSharedBeans)
+    {
+        m_cacheOrderedSharedBeans[cache].append(bean);
+    }
+    */
 }
 
 void DBRelationPrivate::childrenInsert(int pos, BaseBeanSharedPointer bean)
 {
     m_children.insert(pos, bean);
     clearCache();
+    /*
+    // Insertamos, al final, en todos los sitios de la caché
+    foreach (const QString &cache, m_cacheOrderedBeans)
+    {
+        m_cacheOrderedBeans[cache].append(bean.data());
+    }
+    foreach (const QString &cache, m_cacheOrderedSharedBeans)
+    {
+        m_cacheOrderedSharedBeans[cache].append(bean);
+    }
+    */
 }
 
 void DBRelationPrivate::childrenRemoveAt(int pos)

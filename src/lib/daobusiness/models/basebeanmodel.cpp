@@ -905,6 +905,16 @@ BaseBeanSharedPointer BaseBeanModel::beanToBeEdited(const QModelIndex &index)
     return bean(index);
 }
 
+BaseBeanSharedPointer BaseBeanModel::lastInsertedBean() const
+{
+    return m_lastInsertedBean;
+}
+
+void BaseBeanModel::setLastInsertedBean(BaseBeanSharedPointer bean)
+{
+    m_lastInsertedBean = bean;
+}
+
 QString BaseBeanModel::where() const
 {
     return QString();
