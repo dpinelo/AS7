@@ -69,6 +69,8 @@ public:
     QVariant m_customItemValue;
     QString m_customItemText;
     QString m_customItemIcon;
+    /** El método init puede tener una componente recursiva que evitamos */
+    bool m_initing;
 
     DBComboBox *q_ptr;
 
@@ -78,6 +80,7 @@ public:
         m_currentIndexChangedEmitted = false;
         m_openListOnGetFocus = false;
         m_customItem = false;
+        m_initing = false;
     }
 
     void initFromOptionList();
@@ -326,6 +329,11 @@ void DBComboBox::setModelColumn()
 
 void DBComboBox::init()
 {
+    if ( d->m_initing )
+    {
+        return;
+    }
+    d->m_initing = true;
     desconexiones();
     if ( d->m_listTableModel.isEmpty() )
     {
@@ -339,7 +347,8 @@ void DBComboBox::init()
                 {
                     d->initFromOptionList();
                 }
-                else if ( fld->relations(AlephERP::ManyToOne).size() == 1 )
+                else if ( fld->relations(AlephERP::ManyToOne).size() == 1 &&
+                          fld->relations(AlephERP::ManyToOne).first() != NULL )
                 {
                     DBRelation *rel = fld->relations(AlephERP::ManyToOne).first();
                     d->m_listTableModel = rel->metadata()->tableName();
@@ -360,7 +369,6 @@ void DBComboBox::init()
                 conexiones();
             }
         }
-        return;
     }
     // Al crearse el modelo, y este venir de base de datos, no se permite la carga en segundo plano.
     // No tendría sentido almacenar muchos datos en el combobox
@@ -371,6 +379,7 @@ void DBComboBox::init()
     BaseBeanMetadata *m = BeansFactory::metadataBean(d->m_listTableModel);
     if ( m == NULL )
     {
+        d->m_initing = false;
         return;
     }
     d->m_model = new DBBaseBeanModel(d->m_listTableModel, d->m_listSqlFilter, m->initOrderSort(), true, true, false, this);
@@ -402,6 +411,7 @@ void DBComboBox::init()
     }
     conexiones();
     d->m_inited = true;
+    d->m_initing = false;
 }
 
 void DBComboBox::setValue(const QVariant &v)
