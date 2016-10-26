@@ -2050,13 +2050,17 @@ bool DBRelation::loadChildrenOnBackground(const QString &order)
         d->childrenResize(d->m_childrenCount);
     }
     d->clearCache();
-    connect(BackgroundDAO::instance(), SIGNAL(availableBean(QString,int,BaseBeanSharedPointer)), this, SLOT(availableBean(QString,int,BaseBeanSharedPointer)));
+    connect(BackgroundDAO::instance(), SIGNAL(availableBeans(QString,int,BaseBeanSharedPointerList)), this, SLOT(availableBeans(QString,int,BaseBeanSharedPointer)));
     connect(BackgroundDAO::instance(), SIGNAL(queryExecuted(QString,bool)), this, SLOT(backgroundQueryExecuted(QString,bool)));
-    d->m_backgroundPetition = BackgroundDAO::instance()->selectBeans(d->m->tableName(), sqlRelationWhere(), finalOrder, d->m_backgroundOffset, alephERPSettings->fetchRowCount());
+    d->m_backgroundPetition = BackgroundDAO::instance()->selectBeans(d->m->tableName(),
+                                                                     sqlRelationWhere(),
+                                                                     finalOrder,
+                                                                     d->m_backgroundOffset,
+                                                                     alephERPSettings->fetchRowCount());
     return true;
 }
 
-void DBRelation::availableBean(QString id, int backgroundRow, BaseBeanSharedPointer bean)
+void DBRelation::availableBeans(QString id, int offset, BaseBeanSharedPointerList beans)
 {
     QMutexLocker lock(&d->m_mutex);
     // Veamos si ya se había pedido previamente obtener esa posición
@@ -2065,29 +2069,34 @@ void DBRelation::availableBean(QString id, int backgroundRow, BaseBeanSharedPoin
         return;
     }
 
-    int row = backgroundRow + d->m_backgroundOffset;
-    if ( d->childrenSize() <= row )
+    int initRow = offset;
+    if ( d->childrenSize() <= initRow )
     {
-        d->childrenResize(row+1);
-        d->m_childrenCount = row;
+        d->childrenResize(initRow + beans.size());
+        d->m_childrenCount = initRow + beans.size();
     }
-    if ( AERP_CHECK_INDEX_OK(row, d->children()) )
+    for (int i = 0 ; i < beans.size() ; ++i)
     {
-        d->childrenSet(row, bean);
+        if ( AERP_CHECK_INDEX_OK(initRow + i, d->children()) )
+        {
+            BaseBeanSharedPointer bean = beans.at(i);
+            d->childrenSet(initRow + i, bean);
+            bool blockSignalsState = bean->blockSignals(true);
+            bean->setOwner(this);
+            // Si el padre está en un contexto, el hijo se agregará también al contexto
+            if ( !ownerBean()->actualContext().isEmpty() )
+            {
+                AERPTransactionContext::instance()->addToContext(ownerBean()->actualContext(), bean.data());
+            }
+            bean->blockSignals(blockSignalsState);
+            connections(bean.data());
+            bean->setReadOnly(d->m->readOnly());
+            emit beanLoaded(bean);
+            emit beanLoaded(this, initRow, bean);
+        }
     }
     d->clearCache();
-    bool blockSignalsState = bean->blockSignals(true);
-    bean->setOwner(this);
-    // Si el padre está en un contexto, el hijo se agregará también al contexto
-    if ( !ownerBean()->actualContext().isEmpty() )
-    {
-        AERPTransactionContext::instance()->addToContext(ownerBean()->actualContext(), bean.data());
-    }
-    bean->blockSignals(blockSignalsState);
-    connections(bean.data());
-    bean->setReadOnly(d->m->readOnly());
-    emit beanLoaded(bean);
-    emit beanLoaded(this, row, bean);
+    emit beansLoaded(this, offset, beans);
 }
 
 void DBRelation::backgroundQueryExecuted(QString id, bool result)
@@ -2105,7 +2114,7 @@ void DBRelation::backgroundQueryExecuted(QString id, bool result)
                 return;
             }
         }
-        disconnect(BackgroundDAO::instance(), SIGNAL(availableBean(QString,int,BaseBeanSharedPointer)), this, SLOT(availableBean(QString,int,BaseBeanSharedPointer)));
+        disconnect(BackgroundDAO::instance(), SIGNAL(availableBeans(QString,int,BaseBeanSharedPointer)), this, SLOT(availableBeans(QString,int,BaseBeanSharedPointer)));
         disconnect(BackgroundDAO::instance(), SIGNAL(queryExecuted(QString,bool)), this, SLOT(backgroundQueryExecuted(QString,bool)));
         d->m_backgroundPetition.clear();
         d->m_childrenLoaded = true;

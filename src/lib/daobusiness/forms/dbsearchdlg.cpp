@@ -485,7 +485,7 @@ void DBSearchDlgPrivate::initTableModel()
         DBRelation *rel = m_masterBean->relation(q_ptr->tableName());
         if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
         {
-            m_model = new RelationBaseBeanModel(rel, true, "", q_ptr);
+            m_model = new RelationBaseBeanModel(rel, true, "", false, q_ptr);
         }
     }
     if ( m_model.isNull() )

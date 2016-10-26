@@ -32,7 +32,6 @@
 #include "dao/basedao.h"
 #include "dao/observerfactory.h"
 #include "dao/aerptransactioncontext.h"
-#include "dao/backgrounddao.h"
 #include "widgets/dbdetailview.h"
 #include "globales.h"
 

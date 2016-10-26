@@ -114,6 +114,8 @@ class ALEPHERP_DLL_EXPORT DBListView : public QListView, public DBAbstractViewIn
     Q_PROPERTY (QStringList visibleForUsers READ visibleForUsers WRITE setVisibleForUsers)
     /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
     Q_PROPERTY (QStringList dataEditableForUsers READ dataEditableForUsers WRITE setDataEditableForUsers)
+    /** Permite especificar que se carguen en segundo plano los hijos */
+    Q_PROPERTY (bool loadOnBackground READ loadOnBackground WRITE setLoadOnBackground)
 
     friend class DBListViewPrivate;
 

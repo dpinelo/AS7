@@ -207,10 +207,10 @@ signals:
     /** Carga en background */
     void beanLoaded(BaseBeanSharedPointer bean);
     void beanLoaded(DBRelation *rel, int row, BaseBeanSharedPointer bean);
+    void beansLoaded(DBRelation *rel, int offset, BaseBeanSharedPointerList beans);
     void initLoadingDataBackground();
     void endLoadingDataBackground(bool result);
     void endLoadingDataBackground();
-    void beansLoaded(DBRelation *rel, BaseBeanSharedPointerList list);
     /** Los registros que cuelgan de esta relación, se han descargado de memoria */
     void childrenAboutToBeUnloaded();
     void childrenUnloaded();
@@ -226,7 +226,7 @@ private slots:
     void emitChildEndEdit(BaseBean *bean);
     void setChildrenLoadedInternaly();
     void otherChildrenDestroyed(QObject *obj);
-    void availableBean(QString id, int backgroundRow, BaseBeanSharedPointer bean);
+    void availableBeans(QString id, int offset, BaseBeanSharedPointerList bean);
     void backgroundQueryExecuted(QString id, bool result);
 
 protected slots:
