@@ -64,7 +64,7 @@ win64-msvc* {
     message("DAOBUSINESS: Opciones de configuración para MSVC 64 bits")
 }
 win32-msvc* {
-    LIBS += -llibpng -ljpeg -lzlib -lUser32
+    LIBS += -llibpng16 -ljpeg -lzlib -lUser32
 }
 win32-g++ {
     LIBS += -liconv -lpng -ljpeg -lz

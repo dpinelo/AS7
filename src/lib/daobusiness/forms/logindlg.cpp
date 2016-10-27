@@ -121,6 +121,7 @@ LoginDlg::LoginDlg(QWidget *parent) :
         d->m_model = new QSqlTableModel(this, d->m_db);
         d->m_model->setTable("alepherp_servers");
         d->m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+        d->m_model->setSort(1, Qt::AscendingOrder);
         d->m_model->select();
         ui->cbServers->setModel(d->m_model);
         ui->cbServers->setModelColumn(1);
