@@ -263,7 +263,7 @@ void DBComboBox::showEvent(QShowEvent *event)
 
 void DBComboBoxPrivate::initFromOptionList()
 {
-    DBFieldObserver *obs = qobject_cast<DBFieldObserver *>(q_ptr->observer());
+    DBFieldObserver *obs = qobject_cast<DBFieldObserver *>(q_ptr->observer(false));
     if ( obs != NULL && !m_inited )
     {
         DBField *fld = qobject_cast<DBField *> (obs->entity());
@@ -337,7 +337,7 @@ void DBComboBox::init()
     desconexiones();
     if ( d->m_listTableModel.isEmpty() )
     {
-        DBFieldObserver *obs = qobject_cast<DBFieldObserver *>(observer());
+        DBFieldObserver *obs = qobject_cast<DBFieldObserver *>(observer(false));
         if ( obs != NULL )
         {
             DBField *fld = qobject_cast<DBField *> (obs->entity());
@@ -394,10 +394,13 @@ void DBComboBox::init()
     }
     if ( !d->m_model.isNull() && !d->m_filterModel.isNull() )
     {
+        bool signalsBlocked = blockSignals(true);
+        // Poner el modelo, puede invocar eventos que descadenen llamadas recursivas.
         QComboBox::setModel(d->m_filterModel.data());
         setModelColumn();
         setMaxVisibleItems(15);
         QComboBox::setCurrentIndex(-1);
+        blockSignals(signalsBlocked);
         if ( completer() != NULL )
         {
             connect(completer(), SIGNAL(activated(QModelIndex)), this, SLOT(setValueFromModel(QModelIndex)));

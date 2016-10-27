@@ -117,6 +117,8 @@ private slots:
     void childInserted(BaseBean *bean, int position);
     void childDeleted(BaseBean *bean, int position);
     void beanLoadedOnBackground(DBRelation *rel, int row, BaseBeanSharedPointer bean);
+    void loadChildren();
+    void clear();
 
 public slots:
     void refresh(bool force = false);

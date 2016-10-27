@@ -92,26 +92,8 @@ void RelationBaseBeanModelPrivate::setInternalDataAndConnections()
         QLogger::QLog_Error(AlephERP::stLogOther, QString("RelationBaseBeanModel: No existe la tabla: [%1]").arg(m_relation->metadata()->tableName()));
         return;
     }
-    int count = m_relation->childrenCount(false);
-    q_ptr->beginInsertRows(QModelIndex(), 0, count);
-    if ( m_relation->metadata()->loadOnBackground() ||
-         m_loadOnBackground )
-    {
-        if ( !m_relation->childrenLoaded() )
-        {
-            // Tratamos el caso de estar cargando en segundo plano...
-            m_relation->loadChildrenOnBackground(m_order);
-        }
-    }
-    else
-    {
-        QVector<BaseBeanSharedPointer> beans = m_relation->sharedChildren(m_order);
-        foreach (BaseBeanSharedPointer bean, beans)
-        {
-            m_beans.append(bean.data());
-        }
-    }
-    q_ptr->endInsertRows();
+    m_beans.clear();
+    q_ptr->loadChildren();
     QObject::connect(m_relation, SIGNAL(destroyed(QObject*)), q_ptr, SLOT(refresh()));
     QObject::connect(m_relation, SIGNAL(fieldChildModified(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
     QObject::connect(m_relation, SIGNAL(fieldChildDefaultValueCalculated(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
@@ -123,7 +105,7 @@ void RelationBaseBeanModelPrivate::setInternalDataAndConnections()
     QObject::connect(m_relation, SIGNAL(initLoadingDataBackground()), q_ptr, SIGNAL(initLoadingData()));
     QObject::connect(m_relation, SIGNAL(endLoadingDataBackground()), q_ptr, SIGNAL(endLoadingData()));
     QObject::connect(m_relation, SIGNAL(childrenAboutToBeUnloaded()), q_ptr, SIGNAL(modelAboutToBeReset()));
-    QObject::connect(m_relation, SIGNAL(childrenUnloaded()), q_ptr, SIGNAL(modelReset()));
+    QObject::connect(m_relation, SIGNAL(childrenUnloaded()), q_ptr, SLOT(clear()));
 
     CommonsFunctions::restoreOverrideCursor();
 }
@@ -325,6 +307,35 @@ void RelationBaseBeanModel::beanLoadedOnBackground(DBRelation *rel, int row, Bas
     }
 }
 
+void RelationBaseBeanModel::loadChildren()
+{
+    int count = d->m_relation->childrenCount(false);
+    beginInsertRows(QModelIndex(), 0, count);
+    if ( d->m_relation->metadata()->loadOnBackground() ||
+         d->m_loadOnBackground )
+    {
+        if ( !d->m_relation->childrenLoaded() )
+        {
+            // Tratamos el caso de estar cargando en segundo plano...
+            d->m_relation->loadChildrenOnBackground(d->m_order);
+        }
+    }
+    else
+    {
+        QVector<BaseBeanSharedPointer> beans = d->m_relation->sharedChildren(d->m_order);
+        foreach (BaseBeanSharedPointer bean, beans)
+        {
+            d->m_beans.append(bean.data());
+        }
+    }
+    endInsertRows();
+}
+
+void RelationBaseBeanModel::clear()
+{
+    d->m_beans.clear();
+}
+
 /*!
   Devuelve el bean ubicado en la fila row
 */
@@ -357,6 +368,7 @@ BaseBeanSharedPointer RelationBaseBeanModel::bean(const QModelIndex &index, bool
         foreach (BaseBeanSharedPointer child, children)
         {
             if ( child &&
+                 d->m_beans.at(index.row()) &&
                  d->m_beans.at(index.row())->objectName() == child->objectName() )
             {
                  return child;
@@ -589,7 +601,8 @@ bool RelationBaseBeanModel::removeRows(int row, int count, const QModelIndex & p
                 {
                     for (int j = 0 ; j < d->m_beans.size() ; ++j )
                     {
-                        if ( d->m_beans.at(j)->objectName() == bean->objectName() )
+                        if ( d->m_beans.at(j) &&
+                             d->m_beans.at(j)->objectName() == bean->objectName() )
                         {
                             d->m_beans.removeAt(j);
                             break;
