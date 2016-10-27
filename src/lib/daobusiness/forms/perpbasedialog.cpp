@@ -443,7 +443,7 @@ void AERPBaseDialog::installEventFilters()
     }
 }
 
-bool AERPBaseDialog::connectPushButtonsToQsFunctions()
+void AERPBaseDialog::connectPushButtonsToQsFunctions()
 {
     QList<QPushButton *> buttons = findChildren<QPushButton *>();
     foreach (QPushButton *button, buttons)
