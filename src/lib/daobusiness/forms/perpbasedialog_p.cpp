@@ -266,11 +266,11 @@ bool AERPBaseDialogPrivate::connectPushButtonToQsFunction(QPushButton *button)
         QScriptValue functionOnProtoype = thisObject.prototype().property(methodNameToInvokeOnClicked);
         if ( function.isValid() && function.isFunction() )
         {
-            qScriptConnect(button, SIGNAL(triggered(bool)), thisObject, function);
+            qScriptConnect(button, SIGNAL(clicked(bool)), thisObject, function);
         }
         else if ( functionOnProtoype.isValid() && functionOnProtoype.isFunction() )
         {
-            qScriptConnect(button, SIGNAL(triggered(bool)), thisObject, functionOnProtoype);
+            qScriptConnect(button, SIGNAL(clicked(bool)), thisObject, functionOnProtoype);
         }
     }
     return true;
