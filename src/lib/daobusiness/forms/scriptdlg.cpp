@@ -85,6 +85,7 @@ bool ScriptDlg::init()
 
     // Código propio del formulario
     execQs();
+    connectPushButtonsToQsFunctions();
 
     return true;
 }

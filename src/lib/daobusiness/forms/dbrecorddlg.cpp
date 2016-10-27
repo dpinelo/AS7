@@ -761,6 +761,7 @@ bool DBRecordDlg::init()
     setWindowModified(false);
     // Código propio del formulario
     execQs();
+    connectPushButtonsToQsFunctions();
 
     // Si es una versión de desarrollo, no se puede editar el script
     ui->pbEditScript->setVisible(alephERPSettings->debuggerEnabled() && !aerpQsEngine()->scriptName().isEmpty());

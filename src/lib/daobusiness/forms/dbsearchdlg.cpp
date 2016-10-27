@@ -163,7 +163,7 @@ public:
     bool setupExternalWidget();
     void setCheckStateToPartially();
     void setCombosNotSelected();
-    void setupQs();
+    void execQs();
     void connectObjectsToSearch();
     void initTreeModel();
     void initTableModel();
@@ -437,7 +437,8 @@ bool DBSearchDlg::init()
             baseWidget->setDataEditable(true);
         }
     }
-    d->setupQs();
+    d->execQs();
+    connectPushButtonsToQsFunctions();
     if ( !d->m_defaultValues.isEmpty() )
     {
         search();
@@ -760,7 +761,7 @@ void DBSearchDlgPrivate::setCombosNotSelected()
  * @brief DBSearchDlg::setupQs
  * Ejecuta el código QScript asociado.
  */
-void DBSearchDlgPrivate::setupQs()
+void DBSearchDlgPrivate::execQs()
 {
     QString qsName;
     QString uiName;

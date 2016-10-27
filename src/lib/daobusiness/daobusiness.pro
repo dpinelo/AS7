@@ -458,7 +458,8 @@ SOURCES += globales.cpp \
     models/aerpitemdelegate.cpp \
     widgets/dbgrouprelationmmhelper.cpp \
     models/multiplerelationbasebeanmodel.cpp \
-    business/graph.cpp
+    business/graph.cpp \
+    forms/perpbasedialog_p.cpp
 
 HEADERS += globales.h \
     dao/basedao.h \
