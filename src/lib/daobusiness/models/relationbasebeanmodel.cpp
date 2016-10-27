@@ -61,6 +61,7 @@ public:
      * que nos puedan afectar */
     QVector<BaseBeanPointer> m_beans;
     bool m_loadOnBackground;
+    bool m_childrenLoaded;
 
     RelationBaseBeanModelPrivate(RelationBaseBeanModel *qq) : q_ptr(qq)
     {
@@ -70,6 +71,7 @@ public:
         m_canMoveRows = false;
         m_refreshing = false;
         m_loadOnBackground = false;
+        m_childrenLoaded = false;
     }
 
     void setInternalDataAndConnections();
@@ -77,6 +79,7 @@ public:
     QString orderField();
     QString orderFieldClausule();
     DBFieldMetadata *fieldForColumn(int column);
+    void loadChildren();
 };
 
 void RelationBaseBeanModelPrivate::setInternalDataAndConnections()
@@ -93,7 +96,10 @@ void RelationBaseBeanModelPrivate::setInternalDataAndConnections()
         return;
     }
     m_beans.clear();
-    q_ptr->loadChildren();
+    int count = m_relation->childrenCount(false);
+    q_ptr->beginInsertRows(QModelIndex(), 0, count);
+    loadChildren();
+    q_ptr->endInsertRows();
     QObject::connect(m_relation, SIGNAL(destroyed(QObject*)), q_ptr, SLOT(refresh()));
     QObject::connect(m_relation, SIGNAL(fieldChildModified(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
     QObject::connect(m_relation, SIGNAL(fieldChildDefaultValueCalculated(BaseBean *,QString,QVariant)), q_ptr, SLOT(fieldBeanModified(BaseBean *,QString,QVariant)));
@@ -112,6 +118,10 @@ void RelationBaseBeanModelPrivate::setInternalDataAndConnections()
 
 int RelationBaseBeanModelPrivate::rowCount()
 {
+    if ( !m_childrenLoaded )
+    {
+        loadChildren();
+    }
     return m_beans.size();
 }
 
@@ -307,33 +317,36 @@ void RelationBaseBeanModel::beanLoadedOnBackground(DBRelation *rel, int row, Bas
     }
 }
 
-void RelationBaseBeanModel::loadChildren()
+void RelationBaseBeanModelPrivate::loadChildren()
 {
-    int count = d->m_relation->childrenCount(false);
-    beginInsertRows(QModelIndex(), 0, count);
-    if ( d->m_relation->metadata()->loadOnBackground() ||
-         d->m_loadOnBackground )
+    if ( m_relation.isNull() )
     {
-        if ( !d->m_relation->childrenLoaded() )
+        return;
+    }
+    if ( m_relation->metadata()->loadOnBackground() ||
+         m_loadOnBackground )
+    {
+        if ( !m_relation->childrenLoaded() )
         {
             // Tratamos el caso de estar cargando en segundo plano...
-            d->m_relation->loadChildrenOnBackground(d->m_order);
+            m_relation->loadChildrenOnBackground(m_order);
         }
     }
     else
     {
-        QVector<BaseBeanSharedPointer> beans = d->m_relation->sharedChildren(d->m_order);
+        QVector<BaseBeanSharedPointer> beans = m_relation->sharedChildren(m_order);
         foreach (BaseBeanSharedPointer bean, beans)
         {
-            d->m_beans.append(bean.data());
+            m_beans.append(bean.data());
         }
     }
-    endInsertRows();
+    m_childrenLoaded = true;
 }
 
 void RelationBaseBeanModel::clear()
 {
     d->m_beans.clear();
+    d->m_childrenLoaded = false;
 }
 
 /*!
@@ -451,7 +464,7 @@ QVariant RelationBaseBeanModel::headerData(int section, Qt::Orientation orientat
     return BaseBeanModel::headerData(field, section, orientation, role);
 }
 
-Qt::ItemFlags RelationBaseBeanModel::flags (const QModelIndex & index) const
+Qt::ItemFlags RelationBaseBeanModel::flags(const QModelIndex & index) const
 {
     Qt::ItemFlags flags;
     if ( !index.isValid() || index.row() < 0 || index.row() >= d->rowCount() )
