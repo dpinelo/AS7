@@ -319,6 +319,10 @@ void RelationBaseBeanModel::beanLoadedOnBackground(DBRelation *rel, int row, Bas
 
 void RelationBaseBeanModelPrivate::loadChildren()
 {
+    if ( m_childrenLoaded )
+    {
+        return;
+    }
     if ( m_relation.isNull() )
     {
         return;
