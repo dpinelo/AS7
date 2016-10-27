@@ -111,6 +111,7 @@ public:
     void processActions();
     void processActionTable(QAction *action);
     void processActionReport(QAction *action);
+    bool connectActionToQsFunction(QAction *action);
     void processObjectVisibility(QObject *action);
     void processSpecialActions();
     void openChildForm(const QString &tableName, const QIcon &icon);
@@ -252,6 +253,30 @@ void AERPMainWindowPrivate::processActionReport(QAction *action)
     }
     m_signalMapper->setMapping(action, action->objectName());
     q_ptr->connect(action, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
+}
+
+bool AERPMainWindowPrivate::connectActionToQsFunction(QAction *action)
+{
+    QString methodNameToInvokeOnClicked = action->property(AlephERP::stQsFunction).toString();
+    if ( methodNameToInvokeOnClicked.isEmpty() )
+    {
+        return false;
+    }
+    QScriptValue thisObject = m_engine.qsThisObject();
+    if ( thisObject.isValid() )
+    {
+        QScriptValue function = thisObject.property(methodNameToInvokeOnClicked);
+        QScriptValue functionOnProtoype = thisObject.prototype().property(methodNameToInvokeOnClicked);
+        if ( function.isValid() && function.isFunction() )
+        {
+            qScriptConnect(action, SIGNAL(triggered(bool)), thisObject, function);
+        }
+        else if ( functionOnProtoype.isValid() && functionOnProtoype.isFunction() )
+        {
+            qScriptConnect(action, SIGNAL(triggered(bool)), thisObject, functionOnProtoype);
+        }
+    }
+    return true;
 }
 
 void AERPMainWindowPrivate::processObjectVisibility(QObject *object)
@@ -842,7 +867,8 @@ bool AERPMainWindowPrivate::dropOnToolBar(QObject *target, QEvent *event)
 }
 
 AERPMainWindow::AERPMainWindow(QWidget* parent, Qt::WindowFlags fl)
-    : QMainWindow( parent, fl ), d(new AERPMainWindowPrivate(this))
+    : QMainWindow( parent, fl ),
+      d(new AERPMainWindowPrivate(this))
 {
     d->m_mdiArea = new AERPMdiArea(this);
     d->m_mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -1152,6 +1178,13 @@ void AERPMainWindow::createSystemTrayWidget()
 void AERPMainWindow::init()
 {
     execQs();
+
+    // Conectamos según las definiciones del UI
+    QList<QAction *> actions = findChildren<QAction *>();
+    foreach (QAction *action, actions)
+    {
+        d->connectActionToQsFunction(action);
+    }
 
     // Veamos si la ayuda está disponible
     QString collectionHelpFilePath = QString("%1/alepherp.qhc").arg(alephERPSettings->dataPath());

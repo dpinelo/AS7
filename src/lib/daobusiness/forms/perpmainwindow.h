@@ -28,6 +28,7 @@
 #include <QtWidgets>
 #endif
 #include <alepherpglobal.h>
+#include <QtScript>
 
 class ThreadLoadInitialData;
 class AERPMainWindowPrivate;
@@ -45,13 +46,12 @@ class BaseBean;
   El sistema buscará en base de datos el UI: normalUserMainWindow.ui y el QS: normalUserMainWindow.qs
   y los propondrá como formulario Main
   */
-class ALEPHERP_DLL_EXPORT AERPMainWindow : public QMainWindow
+class ALEPHERP_DLL_EXPORT AERPMainWindow : public QMainWindow, public QScriptable
 {
     Q_OBJECT
 
 private:
     AERPMainWindowPrivate *d;
-    Q_DECLARE_PRIVATE(AERPMainWindow)
 
     bool execQs();
     void addActionsFromSubMenu(QAction *action, QMenu *menuToAdd);
@@ -121,6 +121,7 @@ signals:
 };
 
 Q_DECLARE_METATYPE(AERPMainWindow*)
+Q_SCRIPT_DECLARE_QMETAOBJECT(AERPMainWindow, AERPMainWindow*)
 
 #endif
 

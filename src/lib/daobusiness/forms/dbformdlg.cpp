@@ -1491,6 +1491,7 @@ void DBFormDlg::deleteRecord(void)
                      !d->m_frozenModelByQs )
                 {
                     d->m_itemView->defrostModel();
+                    d->m_itemView->refresh();
                 }
                 emit afterDelete(false);
                 return;
@@ -1507,6 +1508,7 @@ void DBFormDlg::deleteRecord(void)
                                     arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
                                  QMessageBox::Ok);
             sourceModel->rollback();
+            sourceModel->refresh(true);
             emit afterDelete(false);
         }
         else
@@ -1520,10 +1522,8 @@ void DBFormDlg::deleteRecord(void)
     {
         d->m_itemView->defrostModel();
     }
-    if ( filterModel != NULL )
-    {
-        filterModel->clearAcceptedRows();
-    }
+    filterModel->clearAcceptedRows();
+    filterModel->invalidate();
 }
 
 /*!
