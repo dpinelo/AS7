@@ -315,6 +315,7 @@ public:
         ValuesFromThisField = 0x001,
         ValuesFromRelation = 0x002,
         ValuesFromTableWithNoRelation = 0x004,
+        NoPopup = 0x020,
         RestrictValueToItemFromList = 0x008,
         UpdateOwnerFieldBean = 0x010
     };

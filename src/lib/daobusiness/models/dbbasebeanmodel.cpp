@@ -1283,10 +1283,6 @@ BaseBeanSharedPointer DBBaseBeanModel::bean(const QModelIndex &index, bool reloa
             {
                 BaseDAO::reloadBeanFromDB(bean.data());
             }
-            else
-            {
-                qDebug() << "DBBaseBeanModel: bean: Bean reciente. No es necesario obtenerlo. Msecs desde la última carga: " << bean->loadTime().msecsTo(QDateTime::currentDateTime());
-            }
         }
     }
     return bean;
@@ -1334,7 +1330,6 @@ BaseBeanSharedPointerList DBBaseBeanModel::beans(const QModelIndexList &list)
                         }
                         else
                         {
-                            qDebug() << "DBBaseBeanModel: beans: Bean reciente. No es necesario obtenerlo";
                             result.append(bean);
                         }
                     }
