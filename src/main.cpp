@@ -496,9 +496,6 @@ void closeApp()
     BeansFactory::end();
     alephERPSettings->save();
 
-    QLogger::QLog_Debug(AlephERP::stLogOther, QString("Beans existentes en memoria: %1").arg(BaseBean::countBeans()));
-    QLogger::QLog_Debug(AlephERP::stLogOther, QString("Max num de beans creados: %1").arg(BaseBean::maxCountBeans()));
-
     logger->closeLogger();
     logger->wait();
     AlephERPSettings::release();

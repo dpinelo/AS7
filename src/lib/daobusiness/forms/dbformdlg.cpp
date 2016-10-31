@@ -1464,7 +1464,7 @@ void DBFormDlg::deleteRecord(void)
             QString message = d->checkIfCanBeDeleted(idx, filterModel);
             if ( !message.isEmpty() )
             {
-                if ( message == QLatin1String(VALIDATION_ERROR) )
+                if ( message != QLatin1String(VALIDATION_ERROR) )
                 {
                     QMessageBox::warning(this,
                                          qApp->applicationName(),
