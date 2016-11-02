@@ -53,11 +53,10 @@ void DBGroupRelationMMHelperPrivate::init()
     }
     QGridLayout *lay = new QGridLayout(q_ptr);
 
-    int column = 0;
-    int row = 0;
-
     if ( BaseDAO::select(m_otherBeans, m_otherTableName) )
     {
+        int column = 0;
+        int row = 0;
         foreach (BaseBeanSharedPointer bean, m_otherBeans)
         {
             QCheckBox *chk = new QCheckBox();

@@ -411,7 +411,7 @@ void AERPScheduledJob::setIsWorking()
         if ( QString(method.methodSignature()).contains(QStringLiteral("begin")) )
         {
 #else
-        if ( QString(method.signature()).contains(QStringLiteral("begin") )
+        if ( QString(method.signature()).contains(QStringLiteral("begin")) )
         {
 #endif
             d->m_isWorking = true;

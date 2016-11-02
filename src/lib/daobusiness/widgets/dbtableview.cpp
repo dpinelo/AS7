@@ -849,7 +849,6 @@ void DBTableView::applyRowSpan()
     }
     for (int row = 0 ; row < model()->rowCount() ; row++ )
     {
-        int rowSpan = 1;
         QModelIndex idx1 = model()->index(row, 0);
         QModelIndex idx2 = model()->index(row+1, 0);
         if ( idx1.data(AlephERP::RowFetchedRole).toBool() && idx2.data(AlephERP::RowFetchedRole).toBool() )
@@ -858,6 +857,7 @@ void DBTableView::applyRowSpan()
             QVariant dbOid2 = idx2.data(AlephERP::DBOidRole);
             if (dbOid1.toInt() != 0 && dbOid2.toInt() != 0)
             {
+                int rowSpan = 1;
                 bool canContinue = true;
                 while ( canContinue &&
                         dbOid1 == dbOid2 &&

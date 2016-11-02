@@ -192,10 +192,6 @@ QScriptValue BaseBeanQsFunctionPrivate::call(QScriptEngine *eng, const QScriptVa
     QScriptValue result(QScriptValue::UndefinedValue);
     QScriptValue arrayArgs = args;
 
-#ifdef ALEPHERP_DEVTOOLS
-    QScriptEngineDebugger *debugger = NULL;
-#endif
-
     if ( m_isRunning )
     {
         return result;
@@ -208,6 +204,9 @@ QScriptValue BaseBeanQsFunctionPrivate::call(QScriptEngine *eng, const QScriptVa
     BaseBean *bean = qobject_cast<BaseBean *>(q_ptr->parent());
     if ( bean != NULL && eng != NULL )
     {
+#ifdef ALEPHERP_DEVTOOLS
+        QScriptEngineDebugger *debugger = NULL;
+#endif
         // Los argumentos de una función deben ser un array...
         if ( !args.isArray() )
         {

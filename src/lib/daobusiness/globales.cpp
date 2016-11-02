@@ -102,7 +102,7 @@ e) 6,275 o 6,275000 ⇒ Regla 5: Si el dígito a la derecha del último requerid
     double numLeft = value;
     double numRight = value;
     double numTopLeft = value;
-    int digitLeft, digitRight, digitTopLeft;
+    int digitLeft, digitTopLeft;
 
     numLeft *= pow(10, decimalPoints + 1);
     numTopLeft *= pow(10, decimalPoints + 2);
@@ -112,7 +112,7 @@ e) 6,275 o 6,275000 ⇒ Regla 5: Si el dígito a la derecha del último requerid
     if (digitLeft == 5 && digitTopLeft == 0)
     {
         numRight *= pow(10, decimalPoints);
-        digitRight = fmod(numRight, 10);
+        int digitRight = fmod(numRight, 10);
 
         if (digitRight % 2 == 0) // if even
         {

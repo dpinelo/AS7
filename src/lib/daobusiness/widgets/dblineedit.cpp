@@ -1148,33 +1148,34 @@ void DBLineEdit::processAutocompletion()
 
 void DBLineEditPrivate::initCompleter()
 {
-    if ( !m_autoComplete.testFlag(AlephERP::NoCompletition) && m_completer.isNull() )
+    if ( m_autoComplete.testFlag(AlephERP::NoCompletition) || !m_completer.isNull() )
     {
-        m_completer = new QCompleter();
-        if ( m_autoComplete.testFlag(AlephERP::ValuesFromRelation) )
-        {
-            initCompleterFromRelation();
-        }
-        else if ( m_autoComplete.testFlag(AlephERP::ValuesFromThisField) )
-        {
-            initCompleterFromFieldValues();
-        }
-        else if ( m_autoComplete.testFlag(AlephERP::ValuesFromTableWithNoRelation) )
-        {
-            initCompleterFromTable();
-        }
-        if ( m_completerItemView != NULL && !m_autoComplete.testFlag(AlephERP::NoPopup) )
-        {
-            // Se hace porque así garantizamos que setModel borrará un modelo previo.
-            m_completerModel->setParent(m_completer);
-            m_completer->setModel(m_completerModel);
-            m_completer->setCaseSensitivity(Qt::CaseInsensitive);
-            m_completer->setWrapAround(true);
-            m_completer->setCompletionMode(QCompleter::PopupCompletion);
-            m_completer->setPopup(m_completerItemView);
-            m_completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
-            m_completerItemView->installEventFilter(q_ptr);
-        }
+        return;
+    }
+    m_completer = new QCompleter();
+    if ( m_autoComplete.testFlag(AlephERP::ValuesFromRelation) )
+    {
+        initCompleterFromRelation();
+    }
+    else if ( m_autoComplete.testFlag(AlephERP::ValuesFromThisField) )
+    {
+        initCompleterFromFieldValues();
+    }
+    else if ( m_autoComplete.testFlag(AlephERP::ValuesFromTableWithNoRelation) )
+    {
+        initCompleterFromTable();
+    }
+    if ( m_completerItemView != NULL && !m_autoComplete.testFlag(AlephERP::NoPopup) )
+    {
+        // Se hace porque así garantizamos que setModel borrará un modelo previo.
+        m_completerModel->setParent(m_completer);
+        m_completer->setModel(m_completerModel);
+        m_completer->setCaseSensitivity(Qt::CaseInsensitive);
+        m_completer->setWrapAround(true);
+        m_completer->setCompletionMode(QCompleter::PopupCompletion);
+        m_completer->setPopup(m_completerItemView);
+        m_completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+        m_completerItemView->installEventFilter(q_ptr);
     }
 }
 
@@ -1333,54 +1334,60 @@ int DBLineEditPrivate::widthForMaxLength()
  */
 void DBLineEditPrivate::processTextEntry()
 {
-    DBFieldObserver *obs = qobject_cast<DBFieldObserver *>(q_ptr->observer());
-    if ( obs != NULL )
+    if ( !m_replacePointWithCharacter )
     {
-        DBField *fld = qobject_cast<DBField *>(obs->entity());
-        if ( m_replacePointWithCharacter && fld != NULL )
+        return;
+    }
+    DBFieldObserver *obs = qobject_cast<DBFieldObserver *>(q_ptr->observer());
+    if ( obs == NULL )
+    {
+        return;
+    }
+    DBField *fld = qobject_cast<DBField *>(obs->entity());
+    if ( fld == NULL )
+    {
+        return;
+    }
+    // Hay que tener en cuenta el caso en el que se presente un completer
+    int maxLength = obs->maxLength();
+    if ( m_autoComplete.testFlag(AlephERP::ValuesFromRelation) && !m_autoCompleteColumn.isEmpty() )
+    {
+        QList<DBRelation *> rels = fld->relations(AlephERP::ManyToOne);
+        if ( rels.size() > 0 )
         {
-            // Hay que tener en cuenta el caso en el que se presente un completer
-            int maxLength = obs->maxLength();
-            if ( m_autoComplete.testFlag(AlephERP::ValuesFromRelation) && !m_autoCompleteColumn.isEmpty() )
+            BaseBean *father = rels.first()->father();
+            DBField *fldM = father->field(m_autoCompleteColumn);
+            if ( fldM != NULL )
             {
-                QList<DBRelation *> rels = fld->relations(AlephERP::ManyToOne);
-                if ( rels.size() > 0 )
+                maxLength = fldM->length();
+            }
+        }
+        else
+        {
+            rels = fld->relations(AlephERP::OneToOne);
+            if ( rels.size() > 0 )
+            {
+                BaseBean *brother = rels.first()->brother();
+                if ( brother )
                 {
-                    BaseBean *father = rels.first()->father();
-                    DBField *fldM = father->field(m_autoCompleteColumn);
+                    DBField *fldM = brother->field(m_autoCompleteColumn);
                     if ( fldM != NULL )
                     {
                         maxLength = fldM->length();
                     }
                 }
-                else
-                {
-                    rels = fld->relations(AlephERP::OneToOne);
-                    if ( rels.size() > 0 )
-                    {
-                        BaseBean *brother = rels.first()->brother();
-                        if ( brother )
-                        {
-                            DBField *fldM = brother->field(m_autoCompleteColumn);
-                            if ( fldM != NULL )
-                            {
-                                maxLength = fldM->length();
-                            }
-                        }
-                    }
-                }
             }
-            int numChars = maxLength - q_ptr->text().size() + 1;
-            if ( m_replacePointLength > -1 )
-            {
-                numChars = m_replacePointLength - q_ptr->text().size() + 1;
-            }
-            QString chars = QString("").fill(m_replacePointCharacter, numChars);
-            QString actualText = q_ptr->text();
-            QString finalText = actualText.replace('.', chars);
-            q_ptr->setText(finalText);
         }
     }
+    int numChars = maxLength - q_ptr->text().size() + 1;
+    if ( m_replacePointLength > -1 )
+    {
+        numChars = m_replacePointLength - q_ptr->text().size() + 1;
+    }
+    QString chars = QString("").fill(m_replacePointCharacter, numChars);
+    QString actualText = q_ptr->text();
+    QString finalText = actualText.replace('.', chars);
+    q_ptr->setText(finalText);
 }
 
 QString DBLineEditPrivate::setValueFromCompletition(DBField *fld)

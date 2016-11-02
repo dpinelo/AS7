@@ -1206,11 +1206,12 @@ QVariant FilterBaseBeanModel::data(const QModelIndex &proxyIndex, int role) cons
     {
         canEmitDataChanged = mdl->setCanEmitDataChanged(false);
     }
-    return QSortFilterProxyModel::data(proxyIndex, role);
+    QVariant v = QSortFilterProxyModel::data(proxyIndex, role);
     if ( mdl != NULL )
     {
         mdl->setCanEmitDataChanged(canEmitDataChanged);
     }
+    return v;
 }
 
 QString FilterBaseBeanModel::lastErrorMessage() const

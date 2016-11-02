@@ -78,6 +78,7 @@ static BatchDAO *batchDAO;
 
 BeansFactory::BeansFactory(QObject *parent) : QObject(parent)
 {
+    m_progressOffset = 0;
 }
 
 BeansFactory::~BeansFactory()

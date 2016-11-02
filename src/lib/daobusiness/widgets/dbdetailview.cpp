@@ -378,10 +378,9 @@ void DBDetailView::editRecord(const QString &action)
         }
     }
 
-    int row = -1;
     if ( d->m_inlineEdit && openType == AlephERP::Insert )
     {
-        row = filterModel()->rowCount();
+        int row = filterModel()->rowCount();
         if ( !filterModel()->insertRow(row) )
         {
             if ( !filterModel()->property(AlephERP::stLastErrorMessage).toString().isEmpty() )

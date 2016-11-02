@@ -166,11 +166,10 @@ int AERPScheduleViewPrivate::pointToOffset(const QPoint & point)
 AERPScheduleInternalItem * AERPScheduleViewPrivate::internalItemAt(const QPoint & pt) const
 {
     QListIterator<AERPScheduleInternalItem *>iterator(m_Items);
-    AERPScheduleInternalItem *currentItem;
     iterator.toBack();
     while (iterator.hasPrevious())
     {
-        currentItem = iterator.previous();
+        AERPScheduleInternalItem *currentItem = iterator.previous();
         if (currentItem->contains(pt))
         {
             return currentItem;
@@ -191,10 +190,9 @@ void AERPScheduleViewPrivate::reloadItemsFromModel()
 
     int iNumItems = qxt_p().model()->rowCount();
     //delete all old stuff here
-    AERPScheduleInternalItem *currentItem;
     for (int iLoop = 0; iLoop < iNumItems; iLoop++)
     {
-        currentItem = new AERPScheduleInternalItem(&qxt_p(), qxt_p().model()->index(iLoop, 0));
+        AERPScheduleInternalItem *currentItem = new AERPScheduleInternalItem(&qxt_p(), qxt_p().model()->index(iLoop, 0));
         m_Items.append(currentItem);
         connect(currentItem, SIGNAL(geometryChanged(AERPScheduleInternalItem*, QVector<QRect>)), this, SLOT(itemGeometryChanged(AERPScheduleInternalItem * , QVector< QRect >)));
     }
@@ -481,11 +479,10 @@ void AERPScheduleViewPrivate::handleItemConcurrency(const int from, const int to
 
                     //this is very expensive.I try to check if my item can span over more than one col
                     int possibleCols = 1;
-                    bool foundCollision;
 
                     for (int tmpCol = col + 1; tmpCol < virtualTable.size(); tmpCol++)
                     {
-                        foundCollision = false;
+                        bool foundCollision = false;
                         for (int tmpItem = 0; tmpItem < virtualTable.at(tmpCol).size() ; tmpItem++)
                         {
                             if ((virtualTable[tmpCol][tmpItem]->visualEndTableOffset() >=  virtualTable[col][item]->visualStartTableOffset()

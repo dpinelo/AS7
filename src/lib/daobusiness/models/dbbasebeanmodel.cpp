@@ -1652,7 +1652,7 @@ QModelIndexList DBBaseBeanModel::match(const QModelIndex &start, int role,
 {
     QModelIndexList result;
     uint matchType = flags & 0x0F;
-    Qt::CaseSensitivity cs = flags & Qt::MatchCaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive;
+    Qt::CaseSensitivity cs = (flags & Qt::MatchCaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive;
     bool recurse = flags & Qt::MatchRecursive;
     bool wrap = flags & Qt::MatchWrap;
     bool allHits = (hits == -1);
