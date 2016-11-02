@@ -96,6 +96,7 @@ class ALEPHERP_DLL_EXPORT DBFrameButtons : public QFrame, public DBBaseWidget
 
     Q_PROPERTY(QVariant value READ value WRITE setValue)
     Q_PROPERTY(bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
 
     /** Altura fija que queremos dar a los botones */
     Q_PROPERTY(int buttonFixedHeight READ buttonFixedHeight WRITE setButtonFixedHeight)

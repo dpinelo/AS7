@@ -55,6 +55,7 @@ class ALEPHERP_DLL_EXPORT DBTreeView : public QTreeView, public DBAbstractViewIn
     Q_PROPERTY (QString relationFilter READ relationFilter WRITE setRelationFilter)
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     /** Tablas referenciadas que se utilizarán para mostrar los datos (es
       decir, deben existir relaciones de padres a hijas definidas en los XML).
       Se separan por puntos y coma, por ejemplo: familias;subfamilias;articulos

@@ -91,7 +91,7 @@ public:
     bool m_calculateFieldsEnabled;
     QString m_lastError;
 
-    BaseBeanPrivate(BaseBean *qq);
+    explicit BaseBeanPrivate(BaseBean *qq);
 
     static QString extractFilterOperator(const QString &filter);
     void setDefaultValues(BaseBeanPointerList fathers = BaseBeanPointerList());

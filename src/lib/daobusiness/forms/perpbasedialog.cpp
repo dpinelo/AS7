@@ -461,7 +461,8 @@ void AERPBaseDialog::exposeAERPControlToQsEngine(QDialog *dlg, AERPScriptQsObjec
     QList<QWidget *> list = dlg->findChildren<QWidget *>();
     foreach ( QWidget *widget, list )
     {
-        if ( widget->property(AlephERP::stAerpControl).toBool() )
+        if ( widget->property(AlephERP::stAerpControl).toBool() ||
+             widget->property(AlephERP::stAddToThisForm).toBool() )
         {
             engine->addPropertyToThisForm(widget->objectName(), widget);
             dlg->setProperty(widget->objectName().toUtf8(), QVariant::fromValue((void *) widget));

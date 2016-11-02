@@ -63,6 +63,7 @@ DBBaseWidget::DBBaseWidget()
     m_onBarCodeReadNextFocus = false;
     m_previousKeyPress = QDateTime::currentDateTime();
     m_sqlConnectedToWorker = false;
+    m_animationVisible = false;
 }
 
 DBBaseWidget::~DBBaseWidget()

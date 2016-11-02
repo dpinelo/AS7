@@ -63,6 +63,7 @@ class ALEPHERP_DLL_EXPORT DBScheduleView : public AERPScheduleView, public DBAbs
 
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     Q_PROPERTY (bool aerpControlRelation READ aerpControlRelation)
 
     /** Por defecto, los DBDetailView tienen un nombre generado automáticamente. Aquí se puede

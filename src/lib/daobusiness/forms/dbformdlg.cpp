@@ -988,7 +988,8 @@ void DBFormDlg::exposeAERPControlToQsEngine()
     QList<QWidget *> list = this->findChildren<QWidget *>();
     foreach ( QWidget *widget, list )
     {
-        if ( widget->property(AlephERP::stAerpControl).toBool() )
+        if ( widget->property(AlephERP::stAerpControl).toBool() ||
+             widget->property(AlephERP::stAddToThisForm).toBool() )
         {
             d->m_engine.addPropertyToThisForm(widget->objectName(), widget);
         }

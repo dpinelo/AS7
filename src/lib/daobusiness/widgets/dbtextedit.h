@@ -47,6 +47,7 @@ class ALEPHERP_DLL_EXPORT DBTextEdit : public QPlainTextEdit, public DBBaseWidge
     Q_PROPERTY (QString relationFilter READ relationFilter WRITE setRelationFilter)
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     Q_PROPERTY (bool userModified READ userModified WRITE setUserModified)
     Q_PROPERTY (QVariant value READ value WRITE setValue)
     /** Un control puede estar dentro de un AERPScriptWidget. ¿De dónde lee los datos? Los puede leer

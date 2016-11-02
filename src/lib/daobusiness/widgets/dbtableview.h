@@ -77,6 +77,7 @@ class ALEPHERP_DLL_EXPORT DBTableView : public QTableView, public DBAbstractView
 
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     Q_PROPERTY (bool aerpControlRelation READ aerpControlRelation)
 
     /** Devuelve el objeto bean que se encuentra seleccionado */

@@ -47,6 +47,7 @@ class ALEPHERP_DLL_EXPORT DBCodeEdit : public QWidget, public DBBaseWidget, publ
     Q_PROPERTY (QString relationFilter READ relationFilter WRITE setRelationFilter)
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     Q_PROPERTY (bool userModified READ userModified WRITE setUserModified)
     Q_PROPERTY (QVariant value READ value WRITE setValue)
     Q_PROPERTY (bool dataFromParentDialog READ dataFromParentDialog WRITE setDataFromParentDialog)

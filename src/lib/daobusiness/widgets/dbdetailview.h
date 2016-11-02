@@ -73,6 +73,7 @@ class ALEPHERP_DLL_EXPORT DBDetailView : public QWidget, public DBAbstractViewIn
     Q_PROPERTY (QString relationFilter READ relationFilter WRITE setRelationFilter)
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     Q_PROPERTY (bool aerpControlRelation READ aerpControlRelation)
     Q_PROPERTY (QString order READ order WRITE setOrder)
     Q_PROPERTY (QAbstractItemView::EditTriggers editTriggers READ editTriggers WRITE setEditTriggers)

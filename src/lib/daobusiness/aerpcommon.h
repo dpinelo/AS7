@@ -150,6 +150,7 @@ public:
     static const char * stInactive;
     static const char * stDatabaseErrorPrefix;
     static const char * stQsFunction;
+    static const char * stAddToThisForm;
 
     static const char * stLogDB;
     static const char * stLogScript;
