@@ -49,7 +49,7 @@ public:
     bool m_needsDatabaseConnection;
     QString m_databaseNotification;
 
-    AERPScheduledJobsMetadataPrivate(AERPScheduledJobMetadata *qq) : q_ptr(qq)
+    explicit AERPScheduledJobsMetadataPrivate(AERPScheduledJobMetadata *qq) : q_ptr(qq)
     {
         m_needsDatabaseConnection = false;
     }
@@ -453,7 +453,7 @@ public:
         m_isActive = false;
     }
 
-    int processCronPart(const QString &part, int now);
+    static int processCronPart(const QString &part, int now);
 };
 
 QMutex AERPScheduledJobWorkerPrivate::m_mutex;

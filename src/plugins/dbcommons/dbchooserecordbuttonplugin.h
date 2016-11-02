@@ -36,7 +36,7 @@ class DBChooseRecordButtonPlugin : public DBBasePlugin
 private:
 
 public:
-    DBChooseRecordButtonPlugin(QObject *parent = 0);
+    explicit DBChooseRecordButtonPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     QIcon icon() const;

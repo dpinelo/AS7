@@ -102,7 +102,7 @@ public:
     void calculateAggregateScriptItem(const QString &relation, const QString &filter, const QString &script, double &sumResult, int &countResult);
     void calculateAggregateExpressionItem(int indexAggregate, const QString &relation, const QString &filter, double &sumResult, int &countResult);
     QVariant setDataToType(const QVariant &value);
-    QString sqlValue(const QVariant &val, bool includeQuotesOnString, const QString &dialect);
+    QString sqlValue(const QVariant &val, bool includeQuotesOnString, const QString &dialect) const;
     QVariant calculateCounterOldMethod(const QString &connection, bool searchOnTransaction);
     QVariant calculateCounter(const QString &connection, bool searchOnTransaction);
     QVariant calculateValue();
@@ -713,7 +713,7 @@ QVariant DBFieldPrivate::setDataToType(const QVariant &v)
     return result;
 }
 
-QString DBFieldPrivate::sqlValue(const QVariant &val, bool includeQuotesOnString, const QString &dialect)
+QString DBFieldPrivate::sqlValue(const QVariant &val, bool includeQuotesOnString, const QString &dialect) const
 {
     QString result;
     QString driverName;

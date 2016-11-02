@@ -36,7 +36,7 @@ class AERPSystemObjectEditorWidgetPlugin : public DBBasePlugin
 private:
 
 public:
-    AERPSystemObjectEditorWidgetPlugin(QObject *parent = 0);
+    explicit AERPSystemObjectEditorWidgetPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     QIcon icon() const;

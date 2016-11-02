@@ -40,7 +40,7 @@ public:
     RelatedElementsModelPrivate()
     {
     }
-    void addChildren(RelatedTreeItem *parent);
+    static void addChildren(RelatedTreeItem *parent);
 };
 
 RelatedElementsModel::RelatedElementsModel(BaseBean *bean, QObject *parent) :

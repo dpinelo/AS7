@@ -150,7 +150,7 @@ public:
      * pertenecen a esa transacción o no*/
     bool m_initContext;
 
-    DBSearchDlgPrivate(DBSearchDlg *qq) : q_ptr(qq)
+    explicit DBSearchDlgPrivate(DBSearchDlg *qq) : q_ptr(qq)
     {
         m_userClickOk = false;
         m_userInsertNewRecord = false;

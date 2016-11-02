@@ -30,7 +30,7 @@ public:
     DBFullScheduleView *q_ptr;
     QDateTime m_initDate;
 
-    DBFullScheduleViewPrivate(DBFullScheduleView *qq) : q_ptr(qq)
+    explicit DBFullScheduleViewPrivate(DBFullScheduleView *qq) : q_ptr(qq)
     {
         m_initDate = QDateTime::currentDateTime();
     }

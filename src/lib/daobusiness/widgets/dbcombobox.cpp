@@ -74,7 +74,7 @@ public:
 
     DBComboBox *q_ptr;
 
-    DBComboBoxPrivate(DBComboBox *qq) : q_ptr(qq)
+    explicit DBComboBoxPrivate(DBComboBox *qq) : q_ptr(qq)
     {
         m_inited = false;
         m_currentIndexChangedEmitted = false;

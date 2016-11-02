@@ -99,7 +99,7 @@ public:
      * Es muy importante su valor, para evitar Casques de la app */
     bool m_frozenModelByQs;
 
-    DBFormDlgPrivate(DBFormDlg *qq) : q_ptr(qq)
+    explicit DBFormDlgPrivate(DBFormDlg *qq) : q_ptr(qq)
     {
         m_metadata = NULL;
         m_signalMapper = NULL;
@@ -219,7 +219,14 @@ bool DBFormDlgPrivate::isPrintButtonVisible()
 bool DBFormDlgPrivate::isEmailButtonVisible()
 {
 #ifdef ALEPHERP_SMTP_SUPPORT
-    return m_metadata->canSendEmail();
+    if ( m_metadata != NULL )
+    {
+        return m_metadata->canSendEmail();
+    }
+    else
+    {
+        return false;
+    }
 #else
     return false;
 #endif
@@ -2278,7 +2285,7 @@ void DBFormDlg::view()
     }
 }
 
-void DBFormDlg::specialEdit(const QString code)
+void DBFormDlg::specialEdit(const QString &code)
 {
     QStringList list = code.split(';');
     edit(list.at(0), list.at(1), list.at(2));

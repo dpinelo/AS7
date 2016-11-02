@@ -95,7 +95,7 @@ public:
 
     void connections();
     void disconnect();
-    DBTreeViewPrivate(DBTreeView *qq);
+    explicit DBTreeViewPrivate(DBTreeView *qq);
     QString configurationName();
     BaseBeanMetadata * lastTableMetadata();
     QString lastTableName();

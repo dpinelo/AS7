@@ -493,7 +493,7 @@ Qt::ItemFlags RelationBaseBeanModel::flags(const QModelIndex & index) const
     {
         flags = Qt::ItemIsSelectable;
     }
-    if ( field != NULL && !field->metadata()->serial() )
+    if ( !field->metadata()->serial() )
     {
         flags = flags | Qt::ItemIsEnabled;
         if ( !d->m_readOnly && !field->metadata()->calculated() && !readOnlyColumns().contains(field->metadata()->dbFieldName()) )

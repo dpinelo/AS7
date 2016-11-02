@@ -39,7 +39,7 @@ public:
     /** Para evitar llamadas recursivas en estas funciones... */
     bool m_isRunning;
 
-    BaseBeanQsFunctionPrivate(BaseBeanQsFunction *qq) : q_ptr(qq)
+    explicit BaseBeanQsFunctionPrivate(BaseBeanQsFunction *qq) : q_ptr(qq)
     {
         m_isRunning = false;
     }

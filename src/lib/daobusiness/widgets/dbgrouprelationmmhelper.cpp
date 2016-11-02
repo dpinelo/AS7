@@ -15,7 +15,7 @@ public:
     int m_columnCount;
     /** Último botón añadido: primera item: columna, segundo item: fila */
 
-    DBGroupRelationMMHelperPrivate(DBGroupRelationMMHelper *qq) : q_ptr(qq)
+    explicit DBGroupRelationMMHelperPrivate(DBGroupRelationMMHelper *qq) : q_ptr(qq)
     {
         m_inited = false;
         m_columnCount = 1000;

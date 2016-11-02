@@ -38,7 +38,7 @@ private:
     bool m_initialized;
 
 public:
-    PERPScriptWidgetPlugin(QObject *parent = 0);
+    explicit PERPScriptWidgetPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     bool isInitialized() const;

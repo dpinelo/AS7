@@ -63,7 +63,7 @@ public:
     QStringList m_exportMetadataFields;
     bool m_exportPutHeader;
 
-    ReportMetadataPrivate(ReportMetadata *qq) : q_ptr(qq)
+    explicit ReportMetadataPrivate(ReportMetadata *qq) : q_ptr(qq)
     {
         m_iface = NULL;
         m_exportPutHeader = true;

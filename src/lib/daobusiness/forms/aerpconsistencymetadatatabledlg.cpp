@@ -46,12 +46,12 @@ class AERPConsistencyMetadataTableDlgPrivate
 public:
     AERPConsistencyMetadataTableDlg *q_ptr;
 
-    AERPConsistencyMetadataTableDlgPrivate(AERPConsistencyMetadataTableDlg *qq) : q_ptr(qq)
+    explicit AERPConsistencyMetadataTableDlgPrivate(AERPConsistencyMetadataTableDlg *qq) : q_ptr(qq)
     {
 
     }
 
-    QString priorityForError(const QString &code);
+    static QString priorityForError(const QString &code);
 };
 
 AERPConsistencyMetadataTableDlg::AERPConsistencyMetadataTableDlg(const QVariantList &err, QWidget *parent) :

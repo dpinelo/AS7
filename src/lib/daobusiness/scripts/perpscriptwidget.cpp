@@ -63,7 +63,7 @@ public:
     AERPScriptWidget *q_ptr;
     QVBoxLayout *m_layout;
 
-    AERPScriptWidgetPrivate(AERPScriptWidget * qq) : q_ptr(qq)
+    explicit AERPScriptWidgetPrivate(AERPScriptWidget * qq) : q_ptr(qq)
     {
         m_widget = NULL;
         m_init = false;

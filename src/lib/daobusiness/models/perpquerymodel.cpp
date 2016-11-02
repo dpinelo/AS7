@@ -42,7 +42,7 @@ public:
     static QMutex m_mutex;
     AERPReadDataWorker *m_worker;
 
-    AERPQueryModelPrivate(AERPQueryModel *qq);
+    explicit AERPQueryModelPrivate(AERPQueryModel *qq);
     ~AERPQueryModelPrivate();
 
     void countResults();

@@ -103,7 +103,7 @@ public:
     QPointer<QPushButton> m_cancelProgressBatchButton;
 #endif
 
-    AERPMainWindowPrivate(AERPMainWindow *qq) : q_ptr(qq)
+    explicit AERPMainWindowPrivate(AERPMainWindow *qq) : q_ptr(qq)
     {
     }
 

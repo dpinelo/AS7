@@ -154,7 +154,7 @@ public:
     QString toXml() const;
     void setXml(const QString &value);
 
-    AlephERP::EmailState state();
+    AlephERP::EmailState state() const;
 
 };
 

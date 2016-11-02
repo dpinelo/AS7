@@ -152,7 +152,7 @@ public:
         return m_beansItems.m_oidItem.contains(b->dbOid());
     }
 
-    __inline BeanTreeItemPointer itemByOid(qlonglong oid)
+    __inline BeanTreeItemPointer itemByOid(qlonglong oid) const
     {
         return m_beansItems.m_oidItem[oid];
     }

@@ -35,7 +35,7 @@ public:
     bool m_openFailed;
     DBChooseRecordButtonAssignFieldsDlg *q;
 
-    DBChooseRecordButtonAssignFieldsDlgPrivate(DBChooseRecordButtonAssignFieldsDlg *q_ptr) : q(q_ptr)
+    explicit DBChooseRecordButtonAssignFieldsDlgPrivate(DBChooseRecordButtonAssignFieldsDlg *q_ptr) : q(q_ptr)
     {
         m_button = NULL;
         m_userClickOk = false;

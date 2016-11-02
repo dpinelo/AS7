@@ -30,7 +30,7 @@ public:
     int m_stepInMinutes;
     QDate m_initRange;
 
-    DBScheduleViewPrivate(DBScheduleView *qq) : q_ptr(qq)
+    explicit DBScheduleViewPrivate(DBScheduleView *qq) : q_ptr(qq)
     {
         m_canMoveItems = true;
         m_stepInMinutes = 5;

@@ -52,7 +52,7 @@ class DBFilterTableViewPrivate
 public:
     DBFilterTableView *q_ptr;
 
-    DBFilterTableViewPrivate(DBFilterTableView *qq) : q_ptr(qq)
+    explicit DBFilterTableViewPrivate(DBFilterTableView *qq) : q_ptr(qq)
     {
     }
 };

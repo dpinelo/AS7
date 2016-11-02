@@ -328,7 +328,7 @@ public:
     }
 
     void importHeritanceElementsOnDom(QDomDocument &document, QDomDocument &otherDocument, QDomNode inheritNode);
-    QDomNode importNode(QDomDocument &document, QDomNode &inheritNode, QDomNode &nodeToImport);
+    static QDomNode importNode(QDomDocument &document, QDomNode &inheritNode, QDomNode &nodeToImport);
     QString checkWildCards(QDomElement &element);
     QString checkWildCards(QDomNode &node);
     void setConfig();
@@ -341,7 +341,7 @@ public:
     void readItemsFilterColumn(const QDomElement &e);
     void readEnvVarsFilter(const QDomElement &e);
     void readFont(const QDomElement &e, DBFieldMetadata *field);
-    void readCounterDefinition(const QDomElement &e, DBFieldMetadata *field);
+    static void readCounterDefinition(const QDomElement &e, DBFieldMetadata *field);
     void readTreeDefinition(const QDomElement &e);
     void readBehaviourOnInlineEdit(const QDomElement &e, DBFieldMetadata *fld);
     void readRelatedElementsContentToBeDelete(const QDomNode &e);
@@ -351,13 +351,13 @@ public:
     void readScheduledData(const QDomElement &e);
     void addSqlPart(const QString &clause, const QString &value);
     QList<QObject *> senders(const QString &senderQs, BaseBean *bean);
-    void createInternalConnectionForBean(BaseBean *sender, const QString &signalName, BaseBeanQsFunction *qsFunction);
-    void createInternalConnectionForRelation(DBRelation *sender, const QString &signalName, BaseBeanQsFunction *qsFunction);
-    void createInternalConnectionForField(DBField *sender, const QString &signalName, BaseBeanQsFunction *qsFunction);
-    void createInternalConnectionForRelatedElement(RelatedElement *sender, const QString &signalName, BaseBeanQsFunction *qsFunction);
+    static void createInternalConnectionForBean(BaseBean *sender, const QString &signalName, BaseBeanQsFunction *qsFunction);
+    static void createInternalConnectionForRelation(DBRelation *sender, const QString &signalName, BaseBeanQsFunction *qsFunction);
+    static void createInternalConnectionForField(DBField *sender, const QString &signalName, BaseBeanQsFunction *qsFunction);
+    static void createInternalConnectionForRelatedElement(RelatedElement *sender, const QString &signalName, BaseBeanQsFunction *qsFunction);
     int countEnvVarForOneField(const QString &fieldName);
     void readFormsConfigNames(const QDomElement &root);
-    QString getValueForRole(const QHash<QString, QString> &values);
+    static QString getValueForRole(const QHash<QString, QString> &values);
 };
 
 bool BaseBeanMetadataPrivate::m_registerFieldsInvolvedOnCalc;
@@ -3200,7 +3200,7 @@ bool BaseBeanMetadata::isScheduleValid()
             foundDuration = true;
         }
     }
-    return foundStartTime & foundDuration;
+    return (foundStartTime && foundDuration);
 }
 
 DBRelationMetadata * BaseBeanMetadata::relation(const QString &relationName)

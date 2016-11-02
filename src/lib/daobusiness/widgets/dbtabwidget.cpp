@@ -54,7 +54,7 @@ public:
     BaseBeanSharedPointerList m_list;
     bool m_useAsChildFilter;
 
-    DBTabWidgetPrivate(DBTabWidget *qq) : q_ptr(qq) {
+    explicit DBTabWidgetPrivate(DBTabWidget *qq) : q_ptr(qq) {
         m_useAsChildFilter = false;
     }
 

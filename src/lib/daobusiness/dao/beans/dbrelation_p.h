@@ -90,7 +90,7 @@ public:
     }
 
     template<typename T>
-    int colocar(T &list, int beginning, int end, const QString &order)
+    static int colocar(T &list, int beginning, int end, const QString &order)
     {
         int pivote = beginning;
         if ( list.at(pivote).isNull() )
@@ -131,11 +131,11 @@ public:
     }
 
     int isOnRemovedChildren(BaseBeanSharedPointer bean);
-    bool haveToSearchOnDatabase(DBField *fld);
+    static bool haveToSearchOnDatabase(DBField *fld);
     void addOtherChildren(BaseBeanPointerList list);
     void addOtherChild(BaseBeanPointer child);
 
-    QString cacheKey(const QString &filter, const QString &order, bool includeToBeDeleted, bool includeOtherChildren);
+    static QString cacheKey(const QString &filter, const QString &order, bool includeToBeDeleted, bool includeOtherChildren);
     bool isOnSharedCache(const QString &key);
     bool isOnCache(const QString &key);
     BaseBeanSharedPointerList sharedCache(const QString &key);
@@ -145,7 +145,7 @@ public:
     void addToCache(const QString &key, BaseBeanPointerList list);
 
     int childrenSize() const;
-    QVector<BaseBeanSharedPointer> children();
+    QVector<BaseBeanSharedPointer> children() const;
     BaseBeanSharedPointer childrenAt(int idx);
     void childrenClear();
     void childrenResize(int newSize);
@@ -155,7 +155,7 @@ public:
     void childrenSet(int pos, BaseBeanSharedPointer bean);
 
     int otherChildrenSize() const;
-    BaseBeanPointerList otherChildren();
+    BaseBeanPointerList otherChildren() const;
     BaseBeanPointer otherChildrenAt(int idx);
     void otherChildrenClear();
     void otherChildrenAppend(BaseBeanPointer bean);

@@ -66,7 +66,7 @@ public:
     RelatedElement::RelatedElementStates m_state;
     bool m_found;
 
-    RelatedElementPrivate(RelatedElement *qq) : q_ptr(qq)
+    explicit RelatedElementPrivate(RelatedElement *qq) : q_ptr(qq)
     {
         m_state = RelatedElement::INSERT;
         m_modified = false;
@@ -809,10 +809,10 @@ QString RelatedElementPrivate::documentTooltipText() const
 
 bool RelatedElementPrivate::loadDocument()
 {
-    bool result = false;
 #ifdef ALEPHERP_DOC_MANAGEMENT
     m_document = AERPDocumentDAOWrapper::instance()->document(m_relatedDbOid, q_ptr);
-    result = m_document != NULL;
+    return m_document != NULL;
+#else
+    return false;
 #endif
-    return result;
 }

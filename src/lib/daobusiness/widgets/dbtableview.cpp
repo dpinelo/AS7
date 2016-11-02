@@ -60,7 +60,7 @@ public:
     bool m_emittingShowContextMenu;
     bool m_showAnimationOnDataLoad;
 
-    DBTableViewPrivate(DBTableView *qq);
+    explicit DBTableViewPrivate(DBTableView *qq);
 };
 
 DBTableViewPrivate::DBTableViewPrivate (DBTableView *qq) : q_ptr(qq)

@@ -60,7 +60,7 @@ public:
     QString m_afterRemoveExistingScript;
     bool m_useNewContext;
 
-    DBRelatedElementsViewPrivate(DBRelatedElementsView *qq) : q_ptr(qq)
+    explicit DBRelatedElementsViewPrivate(DBRelatedElementsView *qq) : q_ptr(qq)
     {
         m_visibleButtons = DBRelatedElementsView::Buttons(DBRelatedElementsView::Insert | DBRelatedElementsView::Update | DBRelatedElementsView::Delete | DBRelatedElementsView::View);
         m_inited = false;

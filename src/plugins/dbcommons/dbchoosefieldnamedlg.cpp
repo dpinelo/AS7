@@ -32,7 +32,7 @@ public:
     QString m_field;
     bool m_openFailed;
 
-    DBChooseFieldNameDlgPrivate(DBChooseFieldNameDlg *q_ptr) : q(q_ptr)
+    explicit DBChooseFieldNameDlgPrivate(DBChooseFieldNameDlg *q_ptr) : q(q_ptr)
     {
         m_openFailed = false;
         m_widget = NULL;

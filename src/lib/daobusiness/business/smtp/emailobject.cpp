@@ -327,7 +327,7 @@ void EmailObject::setXml(const QString &value)
     }
 }
 
-AlephERP::EmailState EmailObject::state()
+AlephERP::EmailState EmailObject::state() const
 {
     return m_state;
 }

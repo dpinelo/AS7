@@ -96,7 +96,7 @@ public:
     void addFieldsCombo();
     void addOptionsCombo(DBFieldMetadata *fld);
     DBFieldMetadata * dbFieldSelectedOnCombo();
-    bool historyContainsFilter(QObject *obj, const QString &textFilter);
+    static bool historyContainsFilter(QObject *obj, const QString &textFilter);
     bool isEvolutionFilter(QObject *obj, const QString &textFilter);
     bool existsHistory(QObject *obj);
     void createSubTotals();

@@ -104,7 +104,7 @@ public:
     QString m_databaseConnection;
     QMutex m_mutex;
 
-    AERPScriptPrivate(AERPScript *qq);
+    explicit AERPScriptPrivate(AERPScript *qq);
     QStringList argsNamesForFunction();
     QScriptValueList argsForFunction();
     bool useOldStyleFunction(const QString &scriptFunctionName);

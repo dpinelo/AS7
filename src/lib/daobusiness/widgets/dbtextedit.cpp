@@ -36,7 +36,7 @@ public:
     DBTextEdit *q_ptr;
     bool m_connectedToObserver;
 
-    DBTextEditPrivate(DBTextEdit *qq) : q_ptr(qq)
+    explicit DBTextEditPrivate(DBTextEdit *qq) : q_ptr(qq)
     {
         m_connectedToObserver = false;
     }

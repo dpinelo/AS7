@@ -627,7 +627,7 @@ int DBRelationPrivate::otherChildrenSize() const
     return m_otherChildren.size();
 }
 
-BaseBeanPointerList DBRelationPrivate::otherChildren()
+BaseBeanPointerList DBRelationPrivate::otherChildren() const
 {
     return m_otherChildren;
 }
@@ -668,7 +668,7 @@ void DBRelationPrivate::otherChildrenRemoveAll(BaseBeanPointer bean)
     m_otherChildren.removeAll(bean);
 }
 
-QVector<BaseBeanSharedPointer> DBRelationPrivate::children()
+QVector<BaseBeanSharedPointer> DBRelationPrivate::children() const
 {
     return m_children;
 }

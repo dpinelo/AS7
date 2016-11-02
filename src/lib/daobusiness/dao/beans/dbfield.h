@@ -281,7 +281,7 @@ private slots:
 // Para comparar campos calculados
 class CompareCalculatedDBField {
 public:
-    bool operator() (const DBField* e1, const DBField* e2)
+    bool operator() (const DBField* e1, const DBField* e2) const
     {
         return e1->metadata()->calculatedOrder() < e2->metadata()->calculatedOrder();
     }

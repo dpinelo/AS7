@@ -30,7 +30,7 @@ class DBFilterScheduleViewPrivate
 public:
     DBFilterScheduleView *q_ptr;
 
-    DBFilterScheduleViewPrivate(DBFilterScheduleView *qq) : q_ptr(qq)
+    explicit DBFilterScheduleViewPrivate(DBFilterScheduleView *qq) : q_ptr(qq)
     {
 
     }

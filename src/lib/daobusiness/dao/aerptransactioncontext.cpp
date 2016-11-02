@@ -201,7 +201,7 @@ public:
     // de error se restaura. Lo mismo, para los modified.
     QList<BaseBeanStatePreviousCommit> m_beansStatePreviousCommit;
 
-    AERPTransactionContextPrivate(AERPTransactionContext *qq) : q_ptr(qq)
+    explicit AERPTransactionContextPrivate(AERPTransactionContext *qq) : q_ptr(qq)
     {
     }
 

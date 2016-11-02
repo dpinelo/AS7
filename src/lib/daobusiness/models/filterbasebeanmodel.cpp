@@ -400,13 +400,17 @@ bool FilterBaseBeanModel::filterAcceptsRow(int sourceRow, const QModelIndex &sou
 bool FilterBaseBeanModelPrivate::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent)
 {
     BaseBeanModel *model = qobject_cast<BaseBeanModel *>(q_ptr->sourceModel());
+    if ( model == NULL )
+    {
+        return true;
+    }
     QModelIndex index = model->index(sourceRow, 0, sourceParent);
     TreeBaseBeanModel *treeSource = qobject_cast<TreeBaseBeanModel *>(q_ptr->sourceModel());
     RelationBaseBeanModel *relationModel = qobject_cast<RelationBaseBeanModel *> (q_ptr->sourceModel());
     BaseBeanMetadata *metadata = model->metadata();
     BaseBeanSharedPointer bean;
 
-    if ( model == NULL || model->metadata() == NULL )
+    if ( metadata == NULL )
     {
         return true;
     }

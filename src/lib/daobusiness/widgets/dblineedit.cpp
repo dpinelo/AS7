@@ -98,7 +98,7 @@ public:
     bool m_automaticWidthBasedOnFieldMaxLength;
     AERPReturnOnFocus m_return;
 
-    DBLineEditPrivate(DBLineEdit *qq) : q_ptr(qq)
+    explicit DBLineEditPrivate(DBLineEdit *qq) : q_ptr(qq)
     {
         m_replacePointWithCharacter = false;
         m_replacePointCharacter = '0';
@@ -465,7 +465,7 @@ void DBLineEdit::itemActivatedOnCompleterModel(const QModelIndex &idx)
                 {
                     BaseBean *formBean = beanFromContainer();
                     QAbstractProxyModel *completionModel = qobject_cast<QAbstractProxyModel *>(d->m_completer->completionModel());
-                    if ( mdl != NULL && formBean != NULL && completionModel != NULL )
+                    if ( formBean != NULL && completionModel != NULL )
                     {
                         QModelIndex sourceIdx = completionModel->mapToSource(idx);
                         BaseBeanSharedPointer beanSelectedOnCompleter = mdl->bean(sourceIdx);

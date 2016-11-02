@@ -36,8 +36,8 @@ public:
 
     }
 
-    QIcon getIconForJob(AERPScheduledJob *job);
-    QString getTextForJob(AERPScheduledJob *job);
+    static QIcon getIconForJob(AERPScheduledJob *job);
+    static QString getTextForJob(AERPScheduledJob *job);
 
 };
 

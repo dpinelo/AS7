@@ -36,7 +36,7 @@ class DBRelatedElementsViewPlugin : public DBBasePlugin
 private:
 
 public:
-    DBRelatedElementsViewPlugin(QObject *parent = 0);
+    explicit DBRelatedElementsViewPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     QIcon icon() const;

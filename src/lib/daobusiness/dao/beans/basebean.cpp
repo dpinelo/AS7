@@ -93,7 +93,7 @@ public:
 
     BaseBeanPrivate(BaseBean *qq);
 
-    QString extractFilterOperator(const QString &filter);
+    static QString extractFilterOperator(const QString &filter);
     void setDefaultValues(BaseBeanPointerList fathers = BaseBeanPointerList());
     void connectCounterFields();
     void connectAggregateFields();
@@ -1096,12 +1096,14 @@ QVariant BaseBean::fieldValue(const QString &dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL &&
-         !dbFieldName.isEmpty() &&
-         dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
-         dbFieldName != QLatin1String(AlephERP::stInactive) )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        if ( !dbFieldName.isEmpty() &&
+             dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+             dbFieldName != QLatin1String(AlephERP::stInactive) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        }
     }
     else
     {
@@ -1754,7 +1756,7 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore, 
         if ( fld->metadata()->hasCounterDefinition() )
         {
             if ( !fld->metadata()->counterDefinition()->userCanModified ||
-                 (fld->metadata()->counterDefinition()->userCanModified && !fld->modified()) )
+                 !fld->modified() )
             {
                 if ( (fld->metadata()->counterDefinition()->calculateOnlyOnInsert && dbState() == BaseBean::INSERT) || !fld->metadata()->counterDefinition()->calculateOnlyOnInsert )
                 {

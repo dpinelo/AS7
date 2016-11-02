@@ -44,7 +44,7 @@ public:
     DBLabel *q_ptr;
     bool m_link;
 
-    DBLabelPrivate(DBLabel *qq) : q_ptr(qq)
+    explicit DBLabelPrivate(DBLabel *qq) : q_ptr(qq)
     {
         m_link = false;
     }

@@ -66,7 +66,7 @@ private:
 protected:
     static void clearDbMessages();
 
-    BaseDAO(QObject *parent = 0);
+    explicit BaseDAO(QObject *parent = 0);
     ~BaseDAO();
 
 public:

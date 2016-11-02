@@ -145,7 +145,7 @@ public:
     DBRecordDlg::DBRecordButtons m_visibleButtons;
     QString m_originalBeanContext;
 
-    DBRecordDlgPrivate(DBRecordDlg *qq) : q_ptr(qq)
+    explicit DBRecordDlgPrivate(DBRecordDlg *qq) : q_ptr(qq)
     {
         m_closeButtonAskForSave = true;
         m_widget = NULL;

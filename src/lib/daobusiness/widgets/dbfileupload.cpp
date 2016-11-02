@@ -38,7 +38,7 @@ public:
     QPixmap m_pixmap;
     bool m_connectedToObserver;
 
-    DBFileUploadPrivate(DBFileUpload *qq) : q_ptr(qq)
+    explicit DBFileUploadPrivate(DBFileUpload *qq) : q_ptr(qq)
     {
         m_connectedToObserver = false;
     }

@@ -15,7 +15,7 @@ class MenuTreeWidgetPlugin : public QObject, public QDesignerCustomWidgetInterfa
     bool m_initialized;
 
 public:
-    MenuTreeWidgetPlugin(QObject *parent = 0);
+    explicit MenuTreeWidgetPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     bool isInitialized() const;

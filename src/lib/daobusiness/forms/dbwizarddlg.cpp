@@ -56,7 +56,7 @@ public:
     AERPScriptQsObject m_engine;
     QString m_contextName;
 
-    DBWizardDlgPrivate(DBWizardDlg *qq) : q_ptr(qq)
+    explicit DBWizardDlgPrivate(DBWizardDlg *qq) : q_ptr(qq)
     {
         m_contextName = QUuid::createUuid().toString();
     }
