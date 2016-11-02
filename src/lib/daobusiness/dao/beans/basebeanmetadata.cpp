@@ -300,7 +300,7 @@ public:
     static bool m_registerFieldsInvolvedOnCalc;
     static QList<DBField *> m_fieldsInvolvedOnCalc;
 
-    BaseBeanMetadataPrivate(BaseBeanMetadata *qq) : q_ptr(qq)
+    explicit BaseBeanMetadataPrivate(BaseBeanMetadata *qq) : q_ptr(qq)
     {
         m_logicalDelete = false;
         m_isCached = false;
@@ -327,7 +327,7 @@ public:
         m_canNavigate = true;
     }
 
-    void importHeritanceElementsOnDom(QDomDocument &document, QDomDocument &otherDocument, QDomNode inheritNode);
+    static void importHeritanceElementsOnDom(QDomDocument &document, QDomDocument &otherDocument, QDomNode inheritNode);
     static QDomNode importNode(QDomDocument &document, QDomNode &inheritNode, QDomNode &nodeToImport);
     QString checkWildCards(QDomElement &element);
     QString checkWildCards(QDomNode &node);

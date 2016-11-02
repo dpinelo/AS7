@@ -964,7 +964,7 @@ public:
     QHash<QString, QVariant> m_availableProperties;
     QMutex m_mutex;
 
-    AERPScriptQsObjectPrivate(AERPScriptQsObject *qq) :
+    explicit AERPScriptQsObjectPrivate(AERPScriptQsObject *qq) :
         q_ptr(qq),
         m_mutex(QMutex::Recursive)
     {

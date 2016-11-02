@@ -97,7 +97,7 @@ public:
     /** Indicará cuando el campo debe ser recalculado */
     bool m_valueIsOld;
 
-    DBFieldPrivate(DBField *qq);
+    explicit DBFieldPrivate(DBField *qq);
     QVariant calculateAggregateValue();
     void calculateAggregateScriptItem(const QString &relation, const QString &filter, const QString &script, double &sumResult, int &countResult);
     void calculateAggregateExpressionItem(int indexAggregate, const QString &relation, const QString &filter, double &sumResult, int &countResult);
@@ -956,9 +956,9 @@ QVariant DBField::value()
                 }
                 else
                 {
-                    if ( !d->m->calculatedOneTime() || (d->m->calculatedOneTime() && !d->m_hasBeenCalculated ))
+                    if ( !d->m->calculatedOneTime() || !d->m_hasBeenCalculated )
                     {
-                        if ( !d->m->calculatedOnlyOnInsert() || (d->m->calculatedOnlyOnInsert() && d->m_bean->dbState() == BaseBean::INSERT) )
+                        if ( !d->m->calculatedOnlyOnInsert() || d->m_bean->dbState() == BaseBean::INSERT )
                         {
                             QVariant data = d->setDataToType(d->m->calculateValue(this));
                             if ( data.isValid() && d->m_value != data )
@@ -2873,7 +2873,7 @@ void DBField::recalculateCounterField(const QString &connection)
         return;
     }
     if ( !d->m->counterDefinition()->userCanModified ||
-         (d->m->counterDefinition()->userCanModified && !modified()) )
+         !modified() )
     {
         if ( !d->m_bean.isNull() )
         {

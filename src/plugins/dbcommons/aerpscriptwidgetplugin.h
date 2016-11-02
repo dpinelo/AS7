@@ -36,7 +36,7 @@ private:
     bool m_initialized;
 
 public:
-    AERPScriptWidgetPlugin(QObject *parent = 0);
+    explicit AERPScriptWidgetPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     bool isInitialized() const;

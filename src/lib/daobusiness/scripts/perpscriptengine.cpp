@@ -187,8 +187,6 @@ QScriptValue scriptPath(QScriptContext *context, QScriptEngine *engine)
  */
 QScriptValue loadJS(QScriptContext *context, QScriptEngine *engine)
 {
-    return QScriptValue();
-    /*
     QString fileToLoad;
     for ( int i = 0; i < context->argumentCount(); ++i )
     {
@@ -221,7 +219,6 @@ QScriptValue loadJS(QScriptContext *context, QScriptEngine *engine)
     QScriptValue result = engine->evaluate(fileContent, fileToLoad);
     QLogger::QLog_Debug(AlephERP::stLogScript, QString::fromUtf8("loadJs: File [%1]. Tiempo empleado en evaluación: [%2] ms").arg(fileToLoad).arg(elapsedTimer.elapsed()));
     return result;
-    */
 }
 
 QScriptValue copyBeanFieldValues(QScriptContext *context, QScriptEngine *engine)

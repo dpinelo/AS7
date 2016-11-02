@@ -59,7 +59,7 @@ public:
     /** Parametros desde Qs */
     QVariantMap m_qsParameters;
 
-    DBReportRunDlgPrivate(DBReportRunDlg *qq) : q_ptr(qq)
+    explicit DBReportRunDlgPrivate(DBReportRunDlg *qq) : q_ptr(qq)
     {
     }
 
