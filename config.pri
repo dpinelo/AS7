@@ -4,10 +4,16 @@
 ALEPHERPPATH=$$PWD
 APPNAME=alepherp
 
-CONFIG += 64bit
-
 # Paths importantes
 win32 {
+    contains(QT_ARCH, x86_64) {
+        message("DETECTADA COMPILACION 64 bits")
+        CONFIG += 64bit
+    } else {
+        message("DETECTADA COMPILACION 32 bits")
+        CONFIG += 32bit
+    }
+
     win32-g++ {
         #FIREBIRDPATH=/usr
         #ADDITIONALLIBS=/home/david/src/alepherp/build.win32
@@ -159,7 +165,7 @@ win32-msvc*|win64-msvc*{
     }
 }
 BUILDPATH=$$ALEPHERPPATH/build/$$QT_VERSION/$$BUILDTYPE
-message( "CONFIG: Construyendo en:"  $$BUILDPATH " para arquitectura " $$QMAKE_HOST.arch )
+message( "CONFIG: Construyendo en:"  $$BUILDPATH " para arquitectura " $$QMAKE_HOST.arch $$QT_ARCH )
 
 # Para Qt 4.8.3
 #CONFIG += rtti

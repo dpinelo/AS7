@@ -72,7 +72,7 @@ public:
     QHash<QString, QVariant> hashCachedSingleResults;
     QHash<QString, QVariantList> hashCachedMultipleResults;
 
-    CachedContent(QObject *parent) : QObject(parent) {}
+    explicit CachedContent(QObject *parent) : QObject(parent) {}
     ~CachedContent()
     {
         QHashIterator<QString, BaseBeanSharedPointerList> it(hashCachedBeans);
@@ -106,7 +106,7 @@ class CachedBean : public QObject
 {
 public:
     QHash<QString, BaseBeanSharedPointer > hash;
-    CachedBean(QObject *parent) : QObject(parent) {}
+    explicit CachedBean(QObject *parent) : QObject(parent) {}
     ~CachedBean()
     {
         QHashIterator<QString, BaseBeanSharedPointer > it(hash);

@@ -71,7 +71,7 @@ public:
     BaseBeanSharedPointerList m_remoteBeans;
     BaseBeanSharedPointerList m_localBeans;
 
-    BatchDAOPrivate(BatchDAO *q) : q_ptr(q)
+    explicit BatchDAOPrivate(BatchDAO *q) : q_ptr(q)
     {
         m_progressCounter = -1;
         m_cancel = false;
