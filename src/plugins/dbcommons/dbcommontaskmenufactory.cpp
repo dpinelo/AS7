@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include <alepherpdaobusiness.h>
 #include <alepherpdbcommons.h>
+#include <QDesignerPropertySheetExtension>
 
 DBCommonTaskMenuFactory::DBCommonTaskMenuFactory(QExtensionManager *parent)
     : QExtensionFactory(parent)
@@ -27,20 +28,26 @@ DBCommonTaskMenuFactory::DBCommonTaskMenuFactory(QExtensionManager *parent)
 
 QObject * DBCommonTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if ( iid != Q_TYPEID(QDesignerTaskMenuExtension) )
+    if ( iid == Q_TYPEID(QDesignerTaskMenuExtension) )
     {
-        return 0;
-    }
+        if ( QWidget *widget = qobject_cast<QWidget *>(object) )
+        {
 
-    if ( QWidget *widget = qobject_cast<QWidget *>(object) )
-    {
-        if ( QString(widget->metaObject()->className()) == QStringLiteral("DBChooseRecordButton") )
-        {
-            return new DBChooseRecordButtonTaskMenu(qobject_cast<DBChooseRecordButton *>(widget), parent);
+            if ( QString(widget->metaObject()->className()) == QStringLiteral("DBChooseRecordButton") )
+            {
+                return new DBChooseRecordButtonTaskMenu(qobject_cast<DBChooseRecordButton *>(widget), parent);
+            }
+            else
+            {
+                return new DBChooseFieldNameTaskMenu(widget, parent);
+            }
         }
-        else
+    }
+    if ( iid != Q_TYPEID(QDesignerPropertySheetExtension) )
+    {
+        if ( QWidget *widget = qobject_cast<QWidget *>(object) )
         {
-            return new DBChooseFieldNameTaskMenu(widget, parent);
+            return new AERPPermissionsPropertySheetExtension(widget, parent);
         }
     }
 
