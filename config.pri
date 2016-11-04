@@ -91,6 +91,7 @@ DBASELIBRARY=dbase-code
 LINUX32BITS=N
 XLSSUPPORT=Y
 ODSSUPPORT=Y
+SQLCIPHER=Y
 
 DRMINGW=N
 USEBFD=N
@@ -466,4 +467,8 @@ contains (AERPDOCMNGSUPPORT, Y) {
     unix {
         INCLUDEPATH += $$ALEPHERPPATH/src/plugins/qsane
     }
+}
+
+contains (SQLCIPHER, Y) {
+    DEFINES += ALEPHERP_SQLCIPHER
 }

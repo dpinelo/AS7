@@ -247,6 +247,11 @@ contains (USELIBMAGIC, Y) {
     RESOURCES += business/mime/freedesktopmime.qrc
 }
 
+contains (SQLCIPHER, Y) {
+    SOURCES += dao/aerpgeneratekey.cpp
+    HEADERS += dao/aerpgeneratekey.h
+}
+
 contains(AERPFIREBIRDSUPPORT, Y) {
     message( "DAOBUSINESS: Configurando sistema para dar soporte a base de datos Firebird..." )
     DEFINES -= UNICODE
