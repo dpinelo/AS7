@@ -56,7 +56,7 @@ QList<AERPScheduledJobMetadata *> BeansFactory::metadataJobs;
 QList<AERPScheduledJob *> BeansFactory::jobs;
 QStringList BeansFactory::systemWidgets;
 QStringList BeansFactory::systemReports;
-QHash<QString, QBuffer> BeansFactory::systemUi;
+QHash<QString, QByteArray> BeansFactory::systemUi;
 QHash<QString, QString> BeansFactory::systemScripts;
 QHash<QString, bool> BeansFactory::systemScriptsDebug;
 QHash<QString, bool> BeansFactory::systemScriptsDebugOnInit;
