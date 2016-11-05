@@ -39,7 +39,7 @@ private:
     AERPMainWindow *m_mainWindow;
 
 public:
-    AERPMainWindowPlugin(QObject *parent = 0);
+    explicit AERPMainWindowPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     bool isInitialized() const;

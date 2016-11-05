@@ -15,7 +15,7 @@ public:
     int m_columnCount;
     /** Último botón añadido: primera item: columna, segundo item: fila */
 
-    DBGroupRelationMMHelperPrivate(DBGroupRelationMMHelper *qq) : q_ptr(qq)
+    explicit DBGroupRelationMMHelperPrivate(DBGroupRelationMMHelper *qq) : q_ptr(qq)
     {
         m_inited = false;
         m_columnCount = 1000;
@@ -53,11 +53,10 @@ void DBGroupRelationMMHelperPrivate::init()
     }
     QGridLayout *lay = new QGridLayout(q_ptr);
 
-    int column = 0;
-    int row = 0;
-
     if ( BaseDAO::select(m_otherBeans, m_otherTableName) )
     {
+        int column = 0;
+        int row = 0;
         foreach (BaseBeanSharedPointer bean, m_otherBeans)
         {
             QCheckBox *chk = new QCheckBox();

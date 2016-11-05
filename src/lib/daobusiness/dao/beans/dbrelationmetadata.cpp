@@ -125,6 +125,10 @@ void DBRelationMetadata::setChildFieldName(const QString &value)
 
 QString DBRelationMetadata::tableName()
 {
+    if ( d->m_tableName.isEmpty() )
+    {
+        return d->m_name;
+    }
     return d->m_tableName;
 }
 

@@ -54,7 +54,7 @@ public:
     QList<DBFieldMetadata *> m_visibleFieldsMetadata;
     bool m_canEmitDataChanged;
 
-    BaseBeanModelPrivate(BaseBeanModel *qq) : q_ptr(qq)
+    explicit BaseBeanModelPrivate(BaseBeanModel *qq) : q_ptr(qq)
     {
         m_frozenModel = false;
         m_timerId = -1;
@@ -65,10 +65,10 @@ public:
     }
 
     bool isFunction(int column);
-    bool isFunction(const QString &name);
-    QString fieldNameFromFunction(const QString &name);
+    static bool isFunction(const QString &name);
+    static QString fieldNameFromFunction(const QString &name);
     QVariant incrementalSum(const QModelIndex &item);
-    QString headerDataFunction(int column);
+    QString headerDataFunction(int column) const;
 };
 
 BaseBeanModel::BaseBeanModel(QObject *parent) :
@@ -596,10 +596,6 @@ QVariant BaseBeanModel::headerData(DBFieldMetadata *field, int section, Qt::Orie
         {
             returnData = int (Qt::AlignCenter | Qt::AlignRight);
         }
-        else if ( field->type() == QVariant::Bool )
-        {
-            returnData = int (Qt::AlignHCenter | Qt::AlignVCenter);
-        }
         else
         {
             returnData = int (Qt::AlignVCenter | Qt::AlignLeft);
@@ -903,6 +899,16 @@ BaseBeanSharedPointer BaseBeanModel::beanToBeEdited(int row)
 BaseBeanSharedPointer BaseBeanModel::beanToBeEdited(const QModelIndex &index)
 {
     return bean(index);
+}
+
+BaseBeanSharedPointer BaseBeanModel::lastInsertedBean() const
+{
+    return m_lastInsertedBean;
+}
+
+void BaseBeanModel::setLastInsertedBean(BaseBeanSharedPointer bean)
+{
+    m_lastInsertedBean = bean;
 }
 
 QString BaseBeanModel::where() const
@@ -1461,7 +1467,7 @@ QVariant BaseBeanModelPrivate::incrementalSum(const QModelIndex &item)
     return displayValue;
 }
 
-QString BaseBeanModelPrivate::headerDataFunction(int column)
+QString BaseBeanModelPrivate::headerDataFunction(int column) const
 {
     DBFieldMetadata *fld = q_ptr->functionMetadata(column);
     if ( fld == NULL )

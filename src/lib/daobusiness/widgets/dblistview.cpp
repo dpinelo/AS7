@@ -57,7 +57,7 @@ public:
     QString m_valueSeparator;
     bool m_inited;
 
-    DBListViewPrivate(DBListView *qq);
+    explicit DBListViewPrivate(DBListView *qq);
 
     QVariant valueFromBeans();
     QVariant valueFromField();

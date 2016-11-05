@@ -112,6 +112,7 @@ class ALEPHERP_DLL_EXPORT AERPScriptWidget : public QWidget, public DBBaseWidget
     /** Indica si los controles dentro de este widget son editables o no */
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
 
 private:
     AERPScriptWidgetPrivate *d;

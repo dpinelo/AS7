@@ -48,7 +48,7 @@ public:
         m_usePreemptiveAuthentication = false;
     }
 
-    QString errorToString(const QNetworkReply *err);
+    static QString errorToString(const QNetworkReply *err);
 };
 
 AERPHTTPConnection::AERPHTTPConnection(QObject *parent) :

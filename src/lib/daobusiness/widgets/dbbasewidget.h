@@ -162,6 +162,10 @@ public:
     {
         return true;
     }
+    virtual bool addToThisForm() const
+    {
+        return true;
+    }
     virtual AlephERP::ObserverType observerType(BaseBean *bean) = 0;
     virtual QString reportParameterBinding();
     virtual void setReportParameterBinding(const QString &value);

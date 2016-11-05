@@ -45,6 +45,7 @@ class ALEPHERP_DLL_EXPORT DBChooseRelatedRecordButton : public QPushButton, publ
     Q_OBJECT
 
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     /** Separado por ; los metadatos a los que se podrá asociar el registro en el que está este boton*/
     Q_PROPERTY(QString allowedMetadatas READ allowedMetadatas WRITE setAllowedMetadatas)
     /** Categoría en la que se encuadrará */

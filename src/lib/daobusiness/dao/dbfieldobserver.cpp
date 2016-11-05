@@ -73,11 +73,7 @@ bool DBFieldObserver::readOnly()
     {
         return true;
     }
-    if ( fld != NULL )
-    {
-        return fld->metadata()->readOnly();
-    }
-    return false;
+    return fld->metadata()->readOnly();
 }
 
 /*!

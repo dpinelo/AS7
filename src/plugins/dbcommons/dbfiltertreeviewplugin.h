@@ -36,7 +36,7 @@ class DBFilterTreeViewPlugin: public DBBasePlugin
 private:
 
 public:
-    DBFilterTreeViewPlugin(QObject *parent = 0);
+    explicit DBFilterTreeViewPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     QIcon icon() const;

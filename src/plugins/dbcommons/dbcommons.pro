@@ -63,7 +63,8 @@ HEADERS = dbcomboboxplugin.h \
     dbchoosefieldnamedlg.h \
     dbchooserecordbuttontaskmenu.h \
     dbchooserecordbuttonassignfieldsdlg.h \
-    dbgrouprelationmmhelperplugin.h
+    dbgrouprelationmmhelperplugin.h \
+    aerppermissionspropertysheetextension.h
 
 SOURCES = dbcomboboxplugin.cpp \
     dbdetailviewplugin.cpp \
@@ -98,7 +99,8 @@ SOURCES = dbcomboboxplugin.cpp \
     dbchoosefieldnamedlg.cpp \
     dbchooserecordbuttontaskmenu.cpp \
     dbchooserecordbuttonassignfieldsdlg.cpp \
-    dbgrouprelationmmhelperplugin.cpp
+    dbgrouprelationmmhelperplugin.cpp \
+    aerppermissionspropertysheetextension.cpp
 
 FORMS += \
     $$LIB_DAOBUSINESS/widgets/dbdetailview.ui \

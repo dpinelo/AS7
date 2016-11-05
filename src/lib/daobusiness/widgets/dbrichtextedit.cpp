@@ -37,7 +37,7 @@ public:
     DBRichTextEdit *q_ptr;
     bool m_connectedToObserver;
 
-    DBRichTextEditPrivate(DBRichTextEdit *qq) : q_ptr(qq)
+    explicit DBRichTextEditPrivate(DBRichTextEdit *qq) : q_ptr(qq)
     {
         m_connectedToObserver = false;
     }

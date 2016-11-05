@@ -66,6 +66,7 @@ protected:
     virtual void hideEvent(QHideEvent *event);
     virtual bool eventFilter(QObject *target, QEvent *event);
     void installEventFilters();
+    void connectPushButtonsToQsFunctions();
 
 public:
     explicit AERPBaseDialog(QWidget* parent = 0, Qt::WindowFlags fl = 0);

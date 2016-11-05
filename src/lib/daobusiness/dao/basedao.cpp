@@ -72,7 +72,7 @@ public:
     QHash<QString, QVariant> hashCachedSingleResults;
     QHash<QString, QVariantList> hashCachedMultipleResults;
 
-    CachedContent(QObject *parent) : QObject(parent) {}
+    explicit CachedContent(QObject *parent) : QObject(parent) {}
     ~CachedContent()
     {
         QHashIterator<QString, BaseBeanSharedPointerList> it(hashCachedBeans);
@@ -106,7 +106,7 @@ class CachedBean : public QObject
 {
 public:
     QHash<QString, BaseBeanSharedPointer > hash;
-    CachedBean(QObject *parent) : QObject(parent) {}
+    explicit CachedBean(QObject *parent) : QObject(parent) {}
     ~CachedBean()
     {
         QHashIterator<QString, BaseBeanSharedPointer > it(hash);
@@ -1922,12 +1922,12 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
     QString sql, sqlFields, sqlValues;
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
     bool result;
-    QList<DBField *> pkFields = bean->pkFields();
-
     if ( bean == NULL )
     {
         return false;
     }
+
+    QList<DBField *> pkFields = bean->pkFields();
     // Para evitar los problemas de escape de caracteres y demás, se utilizará la claúsula bindValue
     // para lo cual, debemos primero construir un INSERT del tipo:
     // INSERT INTO tabla (field1, field2, field3) VALUES(?, ?,?);

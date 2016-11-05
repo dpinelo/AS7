@@ -52,6 +52,7 @@ class ALEPHERP_DLL_EXPORT DBLineEdit : public QLineEdit, public DBBaseWidget
     /** Indica si el control está en modo readOnly o no */
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     /** Útil desde Qs, para conocer si el usuario ha modificado el valor que contiene */
     Q_PROPERTY (bool userModified READ userModified WRITE setUserModified)
     /** Acceso al valor del field asociado (la columna de base de datos */
@@ -79,6 +80,12 @@ class ALEPHERP_DLL_EXPORT DBLineEdit : public QLineEdit, public DBBaseWidget
     Q_PROPERTY (QString autoCompleteVisibleFields READ autoCompleteVisibleFields WRITE setAutoCompleteVisibleFields DESIGNABLE enableAutoCompleteVisibleFieldsOnDesigner)
     /** Posible filtro para el caso de que se autocomplete con una tabla */
     Q_PROPERTY (QString autoCompleteTableNameFilter READ autoCompleteTableNameFilter WRITE setAutoCompleteTableNameFilter DESIGNABLE enableAutoCompleteTableNameOnDesigner)
+    /** Si el control se utiliza para obtener un valor de otra tabla (por ejemplo un ID de una tabla externa que se edita a través
+    de un valor más legible) este será el valor de la columna de la tabla externa. Por ejemplo, se utiliza la referencia de artículo
+    para actualizar el ID de artículo, aquí se utilizaría "id" de la tabla artículo */
+    Q_PROPERTY (QString autoCompleteColumnToSave READ autoCompleteColumnToSave WRITE setAutoCompleteColumnToSave DESIGNABLE enableAutoCompleteTableNameOnDesigner)
+    /** El valor que se actualizará del registro en el que se está en este momento (idartículo) */
+    Q_PROPERTY (QString autoCompleteColumnSaved READ autoCompleteColumnSaved WRITE setAutoCompleteColumnSaved DESIGNABLE enableAutoCompleteTableNameOnDesigner)
     /** Este tipo de campos pueden tener una ayuda para el usuario a la hora de introducir valores numéricos. Por ejemplo,
       el usuario quiere introducir la cuenta contable, 4300001, debiendo escribir 4 ceros, y no solo eso, contándolos para
       el ancho adecuado del campo. Activando esta propiedad, si el usuario escribe 43.1 el sistema rellenará ese espacio
@@ -188,6 +195,10 @@ public:
     virtual void setAutoCompleteTableNameFilter(const QString &value);
     virtual QString autoCompleteVisibleFields() const;
     virtual void setAutoCompleteVisibleFields(const QString &value);
+    virtual QString autoCompleteColumnToSave() const;
+    virtual void setAutoCompleteColumnToSave(const QString &value);
+    virtual QString autoCompleteColumnSaved() const;
+    virtual void setAutoCompleteColumnSaved(const QString &value);
     virtual QString scriptAfterChooseFromCompleter() const;
     virtual void setScriptAfterChooseFromCompleter(const QString &value);
     virtual BaseBeanSharedPointer completerSelectedBean() const;

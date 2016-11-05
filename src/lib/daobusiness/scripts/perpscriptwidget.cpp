@@ -63,7 +63,7 @@ public:
     AERPScriptWidget *q_ptr;
     QVBoxLayout *m_layout;
 
-    AERPScriptWidgetPrivate(AERPScriptWidget * qq) : q_ptr(qq)
+    explicit AERPScriptWidgetPrivate(AERPScriptWidget * qq) : q_ptr(qq)
     {
         m_widget = NULL;
         m_init = false;
@@ -299,19 +299,16 @@ bool AERPScriptWidget::initQs()
   */
 bool AERPScriptWidgetPrivate::setupWidget()
 {
-    QString fileName = QString("%1/%2.widget.ui").
-                       arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                       arg(q_ptr->name());
-    QFile file (fileName);
+    QString fileName = QString("%1.widget.ui").arg(q_ptr->name());
     QString mensaje = QObject::trUtf8("No se ha podido cargar la interfaz de usuario del objeto %1. "
                                       "Existe un problema en la definición de las tablas de sistema de su programa.").
                       arg(q_ptr->name());
     bool result = true;
 
-    if ( file.exists() )
+    if ( BeansFactory::systemUi.contains(fileName) )
     {
-        file.open( QFile::ReadOnly );
-        m_widget = AERPUiLoader::instance()->load(&file, q_ptr);
+        QBuffer buffer(BeansFactory::systemUi[fileName]);
+        m_widget = AERPUiLoader::instance()->load(&buffer, q_ptr);
         if ( m_widget != NULL )
         {
             // Ahora instalamos los filtros que el diálogo principal necesita
@@ -345,7 +342,6 @@ bool AERPScriptWidgetPrivate::setupWidget()
         m_layout->addWidget(lbl);
         result = false;
     }
-    file.close();
     return result;
 }
 

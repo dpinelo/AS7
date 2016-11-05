@@ -6,6 +6,14 @@ APPNAME=alepherp
 
 # Paths importantes
 win32 {
+    contains(QT_ARCH, x86_64) {
+        message("DETECTADA COMPILACION 64 bits")
+        CONFIG += 64bit
+    } else {
+        message("DETECTADA COMPILACION 32 bits")
+        CONFIG += 32bit
+    }
+
     win32-g++ {
         #FIREBIRDPATH=/usr
         #ADDITIONALLIBS=/home/david/src/alepherp/build.win32
@@ -13,7 +21,7 @@ win32 {
         #ADDITIONALLIBS=D:/programacion/alepherp/libraries/build.32b
         #FIREBIRDPATH=C:/Users/David/programacion/Firebird-2.5.2.26540
         #ADDITIONALLIBS=C:/Users/david/src/alepherp/libraries/win32/gcc
-        ADDITIONALLIBS=C:/Users/d_pin/Documents/src/libraries/build.32b
+        ADDITIONALLIBS=C:/Users/d_pin/Documents/src/libraries/gcc/build.32b
         INCLUDEPATH+=C:/Qt/Tools/mingw492_32/include
         LIBS+=-LC:/Qt/Tools/mingw492_32/lib
     }
@@ -24,13 +32,34 @@ win32 {
         LIBS+=-LC:/Qt/Tools/mingw492_32/lib
     }
     win32-msvc* {
-        #FIREBIRDPATH=C:/Users/David/programacion/Firebird-2.5.2.26540
-        #ADDITIONALLIBS=C:/Users/David/programacion/libraries/win32/msvc
-        FIREBIRDPATH=C:/Users/David/src/Firebird-2.5.2.26540
-        ADDITIONALLIBS=C:/Users/d_pin/Documents/src/libraries/msvc/build
-        INCLUDEPATH += $$PWD/projects/msvc/src/3rdparty/zlib-1.2.8 \
-                       $$PWD/projects/msvc/src/3rdparty/libpng-1.6.15 \
-                       $$PWD/projects/msvc/src/3rdparty/jpeg-9b
+        CONFIG(32bit) {
+            #FIREBIRDPATH=C:/Users/David/programacion/Firebird-2.5.2.26540
+            #ADDITIONALLIBS=C:/Users/David/programacion/libraries/win32/msvc
+            FIREBIRDPATH=C:/Users/David/src/Firebird-2.5.2.26540
+            CONFIG(release, debug|release) {
+                ADDITIONALLIBS=C:/Users/d_pin/Documents/src/libraries/msvc/build.win32/release
+            }
+            CONFIG(debug, debug|release) {
+                ADDITIONALLIBS=C:/Users/d_pin/Documents/src/libraries/msvc/build.win32/debug
+            }
+            INCLUDEPATH += C:/Users/d_pin/Documents/src/libraries/msvc/src/zlib-1.2.8 \
+                           C:/Users/d_pin/Documents/src/libraries/msvc/src/lpng1626 \
+                           C:/Users/d_pin/Documents/src/libraries/msvc/src/jpeg-9b
+        }
+        CONFIG(64bit) {
+            #FIREBIRDPATH=C:/Users/David/programacion/Firebird-2.5.2.26540
+            #ADDITIONALLIBS=C:/Users/David/programacion/libraries/win32/msvc
+            FIREBIRDPATH=C:/Users/David/src/Firebird-2.5.2.26540
+            CONFIG(release, debug|release) {
+                ADDITIONALLIBS=C:/Users/d_pin/Documents/src/libraries/msvc/build.win64/release
+            }
+            CONFIG(debug, debug|release) {
+                ADDITIONALLIBS=C:/Users/d_pin/Documents/src/libraries/msvc/build.win64/debug
+            }
+            INCLUDEPATH += C:/Users/d_pin/Documents/src/libraries/msvc/src/zlib-1.2.8 \
+                           C:/Users/d_pin/Documents/src/libraries/msvc/src/lpng1626 \
+                           C:/Users/d_pin/Documents/src/libraries/msvc/src/jpeg-9b
+        }
     }
     INCLUDEPATH += $$ADDITIONALLIBS/include
 }
@@ -62,6 +91,7 @@ DBASELIBRARY=dbase-code
 LINUX32BITS=N
 XLSSUPPORT=Y
 ODSSUPPORT=Y
+SQLCIPHER=Y
 
 DRMINGW=N
 USEBFD=N
@@ -111,18 +141,6 @@ win64-g++ {
     }
 }
 
-win32-msvc* {
-    BUILDTYPE=win32/msvc
-    XLSSUPPORT=N
-    ODSSUPPORT=N
-    DRMINGW=N
-}
-
-win64-msvc* {
-    BUILDTYPE=win64/msvc
-    DRMINGW=N
-}
-
 unix {
     DRMINGW=N
     contains (LINUX32BITS, Y) {
@@ -137,8 +155,18 @@ unix {
     }
 }
 
+win32-msvc*|win64-msvc*{
+    CONFIG(32bit) {
+        BUILDTYPE=win32/msvc
+        DRMINGW=N
+    }
+    CONFIG(64bit) {
+        BUILDTYPE=win64/msvc
+        DRMINGW=N
+    }
+}
 BUILDPATH=$$ALEPHERPPATH/build/$$QT_VERSION/$$BUILDTYPE
-message( "CONFIG: Construyendo en:"  $$BUILDPATH " para arquitectura " $$QMAKE_HOST.arch )
+message( "CONFIG: Construyendo en:"  $$BUILDPATH " para arquitectura " $$QMAKE_HOST.arch $$QT_ARCH )
 
 # Para Qt 4.8.3
 #CONFIG += rtti
@@ -191,6 +219,7 @@ CONFIG(debug, debug|release) {
     # Esta opción del compilador permite hacer un análisis estático del código
     # QMAKE_CXXFLAGS += -Weffc++
 }
+message( "CONFIG: Directorio destino: "  $$DESTDIR )
 
 win32 {
     # Con esto evitamos usar las librerias libstdc++-6.dll and libgcc_s_sjlj-1.dll de minggw
@@ -438,4 +467,8 @@ contains (AERPDOCMNGSUPPORT, Y) {
     unix {
         INCLUDEPATH += $$ALEPHERPPATH/src/plugins/qsane
     }
+}
+
+contains (SQLCIPHER, Y) {
+    DEFINES += ALEPHERP_SQLCIPHER
 }

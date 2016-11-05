@@ -70,7 +70,7 @@ public:
     int m_buttonFixedWidth;
     bool m_showButtonText;
 
-    DBFrameButtonsPrivate(DBFrameButtons * qq) : q_ptr (qq)
+    explicit DBFrameButtonsPrivate(DBFrameButtons * qq) : q_ptr (qq)
     {
         m_init = false;
         m_layoutButtons = NULL;

@@ -149,6 +149,8 @@ public:
     static const char * stDataEditableForUsers;
     static const char * stInactive;
     static const char * stDatabaseErrorPrefix;
+    static const char * stQsFunction;
+    static const char * stAddToThisForm;
 
     static const char * stLogDB;
     static const char * stLogScript;
@@ -314,6 +316,7 @@ public:
         ValuesFromThisField = 0x001,
         ValuesFromRelation = 0x002,
         ValuesFromTableWithNoRelation = 0x004,
+        NoPopup = 0x020,
         RestrictValueToItemFromList = 0x008,
         UpdateOwnerFieldBean = 0x010
     };

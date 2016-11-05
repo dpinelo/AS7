@@ -44,7 +44,7 @@ public:
     bool m_masterBeanChoosen;
     bool m_useNewContext;
 
-    DBChooseRelatedRecordButtonPrivate(DBChooseRelatedRecordButton *qq) : q_ptr(qq)
+    explicit DBChooseRelatedRecordButtonPrivate(DBChooseRelatedRecordButton *qq) : q_ptr(qq)
     {
         m_masterBeanRetrievedFromParents = false;
         m_masterBeanChoosen = false;

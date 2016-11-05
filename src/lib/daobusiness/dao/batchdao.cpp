@@ -71,7 +71,7 @@ public:
     BaseBeanSharedPointerList m_remoteBeans;
     BaseBeanSharedPointerList m_localBeans;
 
-    BatchDAOPrivate(BatchDAO *q) : q_ptr(q)
+    explicit BatchDAOPrivate(BatchDAO *q) : q_ptr(q)
     {
         m_progressCounter = -1;
         m_cancel = false;
@@ -88,12 +88,12 @@ public:
     QDateTime lastLocalUpdateOnTable(const QString &tableName);
     bool synchronizeBatchData(const QString &tableName);
     bool synchronizeBatchRelations();
-    void loadRecordOnBean(BaseBean *bean, const QSqlRecord &rec);
+    static void loadRecordOnBean(BaseBean *bean, const QSqlRecord &rec);
     bool updateSequenceNumber(BaseBeanMetadata *metadata);
     bool checkForEmptyHistoryOnRemote(BaseBeanMetadata *metadata);
 
-    QString sqlSelectFieldsClausule(const QList<DBFieldMetadata *> &fields, const QString &alias);
-    QString sqlSerializePk(BaseBeanMetadata *metadata, const QString &alias = "");
+    static QString sqlSelectFieldsClausule(const QList<DBFieldMetadata *> &fields, const QString &alias);
+    static QString sqlSerializePk(BaseBeanMetadata *metadata, const QString &alias = "");
     bool checkPreviousRecordWasEqual(const QString &tableName, const QString &pkey, const QString &hash, int &recordCount);
     bool deletePreviousRecord(BaseBean *bean);
 
@@ -104,7 +104,7 @@ public:
     bool alterTableToDropForeignKey();
     int countRecordsOnLocalTable(const QString &tableName);
 
-    QString calculateHash(const QString &tableName, const QSqlRecord &rec);
+    static QString calculateHash(const QString &tableName, const QSqlRecord &rec);
 
     int countRecordsToUpload();
     bool hashToCompare(BaseBeanMetadata *metadata, QString &hashLocal, QString &hashRemote, const QString &serializedPkey);

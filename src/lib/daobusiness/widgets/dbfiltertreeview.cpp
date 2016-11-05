@@ -69,7 +69,7 @@ public:
     QPointer<QPropertyAnimation> m_animation;
     QPointer<QPushButton> m_pbBranchTree;
 
-    DBFilterTreeViewPrivate(DBFilterTreeView *qq) : q_ptr(qq)
+    explicit DBFilterTreeViewPrivate(DBFilterTreeView *qq) : q_ptr(qq)
     {
         m_branchFilter = NULL;
     }

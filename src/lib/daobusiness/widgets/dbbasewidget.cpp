@@ -63,6 +63,7 @@ DBBaseWidget::DBBaseWidget()
     m_onBarCodeReadNextFocus = false;
     m_previousKeyPress = QDateTime::currentDateTime();
     m_sqlConnectedToWorker = false;
+    m_animationVisible = false;
 }
 
 DBBaseWidget::~DBBaseWidget()
@@ -528,13 +529,17 @@ void DBBaseWidget::workerDataAvailable(QVariant &value)
   sus datos de UI para mostrar los datos. Este es el origen por el que se empieza a producir
   la sincronía entre los datos de la capa de negocio y la de visualización
   */
-void DBBaseWidget::showEvent(QShowEvent * event)
+void DBBaseWidget::showEvent(QShowEvent *event)
 {
     Q_UNUSED (event)
     observer();
     showtMandatoryWildcardForLabel();
     applyPropertiesByRole();
     applyPropertiesByUser();
+    if ( m_observer != NULL )
+    {
+        m_observer->sync();
+    }
 }
 
 void DBBaseWidget::hideEvent(QHideEvent * event)

@@ -1330,9 +1330,16 @@ int SystemDAO::versionSystemObject(const QString &name, const QString &type, con
     qry->bindValue(":type", type);
     qry->bindValue(":device", device);
     qry->bindValue(":idorigin", idOrigin);
-    if ( qry->exec() & qry->first() )
+    if ( qry->exec() )
     {
-        result = qry->value(0).toInt();
+        if ( qry->first() )
+        {
+            result = qry->value(0).toInt();
+        }
+        else
+        {
+            result = 0;
+        }
     }
     else
     {

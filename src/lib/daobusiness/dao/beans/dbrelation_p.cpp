@@ -32,7 +32,6 @@
 #include "dao/basedao.h"
 #include "dao/observerfactory.h"
 #include "dao/aerptransactioncontext.h"
-#include "dao/backgrounddao.h"
 #include "widgets/dbdetailview.h"
 #include "globales.h"
 
@@ -576,12 +575,34 @@ void DBRelationPrivate::childrenAppend(BaseBeanSharedPointer bean)
 {
     m_children.append(bean);
     clearCache();
+    /*
+    // Insertamos, al final, en todos los sitios de la caché
+    foreach (const QString &cache, m_cacheOrderedBeans)
+    {
+        m_cacheOrderedBeans[cache].append(bean.data());
+    }
+    foreach (const QString &cache, m_cacheOrderedSharedBeans)
+    {
+        m_cacheOrderedSharedBeans[cache].append(bean);
+    }
+    */
 }
 
 void DBRelationPrivate::childrenInsert(int pos, BaseBeanSharedPointer bean)
 {
     m_children.insert(pos, bean);
     clearCache();
+    /*
+    // Insertamos, al final, en todos los sitios de la caché
+    foreach (const QString &cache, m_cacheOrderedBeans)
+    {
+        m_cacheOrderedBeans[cache].append(bean.data());
+    }
+    foreach (const QString &cache, m_cacheOrderedSharedBeans)
+    {
+        m_cacheOrderedSharedBeans[cache].append(bean);
+    }
+    */
 }
 
 void DBRelationPrivate::childrenRemoveAt(int pos)
@@ -606,7 +627,7 @@ int DBRelationPrivate::otherChildrenSize() const
     return m_otherChildren.size();
 }
 
-BaseBeanPointerList DBRelationPrivate::otherChildren()
+BaseBeanPointerList DBRelationPrivate::otherChildren() const
 {
     return m_otherChildren;
 }
@@ -647,7 +668,7 @@ void DBRelationPrivate::otherChildrenRemoveAll(BaseBeanPointer bean)
     m_otherChildren.removeAll(bean);
 }
 
-QVector<BaseBeanSharedPointer> DBRelationPrivate::children()
+QVector<BaseBeanSharedPointer> DBRelationPrivate::children() const
 {
     return m_children;
 }

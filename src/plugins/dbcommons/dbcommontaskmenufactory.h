@@ -28,7 +28,7 @@ class DBCommonTaskMenuFactory : public QExtensionFactory
     Q_OBJECT
 
 public:
-    DBCommonTaskMenuFactory(QExtensionManager *parent = 0);
+    explicit DBCommonTaskMenuFactory(QExtensionManager *parent = 0);
 
 protected:
     QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;

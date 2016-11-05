@@ -73,6 +73,7 @@ DBAbstractViewInterface::DBAbstractViewInterface(QWidget *widget, QHeaderView *h
     m_atRowsEndNewRow = false;
     m_useFiltersValueOnCreateBean = false;
     m_restoreStateEnabled = true;
+    m_loadOnBackground = false;
 }
 
 DBAbstractViewInterface::~DBAbstractViewInterface()
@@ -255,6 +256,16 @@ void DBAbstractViewInterface::setLinkColumns(const QString &value)
     {
         filterModel()->setLinkColumns(m_linkColumns);
     }
+}
+
+bool DBAbstractViewInterface::loadOnBackground() const
+{
+    return m_loadOnBackground;
+}
+
+void DBAbstractViewInterface::setLoadOnBackground(bool value)
+{
+    m_loadOnBackground = value;
 }
 
 QScriptValue DBAbstractViewInterface::checkedMetadatas()
@@ -573,7 +584,7 @@ bool DBAbstractViewInterface::setupInternalModel()
                                 DBRelation *relation = beanFromContainer()->relation(m_relationName);
                                 if ( relation )
                                 {
-                                    m_sourceModel = new RelationBaseBeanModel(relation, true, m_order, m_thisWidget);
+                                    m_sourceModel = new RelationBaseBeanModel(relation, true, m_order, m_loadOnBackground, m_thisWidget);
                                 }
                             }
                         }
@@ -588,7 +599,7 @@ bool DBAbstractViewInterface::setupInternalModel()
                                 DBRelation *relation = beanFromContainer()->relation(m_relationName);
                                 if ( relation )
                                 {
-                                    m_sourceModel = new RelationBaseBeanModel(relation, m_readOnlyModel, m_order, m_thisWidget);
+                                    m_sourceModel = new RelationBaseBeanModel(relation, m_readOnlyModel, m_order, m_loadOnBackground, m_thisWidget);
                                 }
                             }
                         }

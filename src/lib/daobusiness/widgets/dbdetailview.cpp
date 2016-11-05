@@ -64,7 +64,7 @@ public:
     bool m_useNewContextDirectDescents;
     bool m_useNewContextExistingPrevious;
 
-    DBDetailViewPrivate(DBDetailView *qq) : q_ptr(qq)
+    explicit DBDetailViewPrivate(DBDetailView *qq) : q_ptr(qq)
     {
         m_signalMapper = NULL;
         m_inlineEdit = false;
@@ -126,7 +126,7 @@ void DBDetailView::setValue(const QVariant &value)
     Q_UNUSED(value)
 }
 
-QAbstractItemView::EditTriggers DBDetailView::editTriggers () const
+QAbstractItemView::EditTriggers DBDetailView::editTriggers() const
 {
     return ui->tableView->editTriggers();
 }
@@ -136,7 +136,7 @@ void DBDetailView::setEditTriggers (QAbstractItemView::EditTriggers triggers)
     ui->tableView->setEditTriggers(triggers);
 }
 
-bool DBDetailView::inlineEdit () const
+bool DBDetailView::inlineEdit() const
 {
     return d->m_inlineEdit;
 }
@@ -378,10 +378,9 @@ void DBDetailView::editRecord(const QString &action)
         }
     }
 
-    int row = -1;
     if ( d->m_inlineEdit && openType == AlephERP::Insert )
     {
-        row = filterModel()->rowCount();
+        int row = filterModel()->rowCount();
         if ( !filterModel()->insertRow(row) )
         {
             if ( !filterModel()->property(AlephERP::stLastErrorMessage).toString().isEmpty() )

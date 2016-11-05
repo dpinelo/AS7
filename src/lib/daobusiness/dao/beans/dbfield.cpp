@@ -97,12 +97,12 @@ public:
     /** Indicará cuando el campo debe ser recalculado */
     bool m_valueIsOld;
 
-    DBFieldPrivate(DBField *qq);
+    explicit DBFieldPrivate(DBField *qq);
     QVariant calculateAggregateValue();
     void calculateAggregateScriptItem(const QString &relation, const QString &filter, const QString &script, double &sumResult, int &countResult);
     void calculateAggregateExpressionItem(int indexAggregate, const QString &relation, const QString &filter, double &sumResult, int &countResult);
     QVariant setDataToType(const QVariant &value);
-    QString sqlValue(const QVariant &val, bool includeQuotesOnString, const QString &dialect);
+    QString sqlValue(const QVariant &val, bool includeQuotesOnString, const QString &dialect) const;
     QVariant calculateCounterOldMethod(const QString &connection, bool searchOnTransaction);
     QVariant calculateCounter(const QString &connection, bool searchOnTransaction);
     QVariant calculateValue();
@@ -713,7 +713,7 @@ QVariant DBFieldPrivate::setDataToType(const QVariant &v)
     return result;
 }
 
-QString DBFieldPrivate::sqlValue(const QVariant &val, bool includeQuotesOnString, const QString &dialect)
+QString DBFieldPrivate::sqlValue(const QVariant &val, bool includeQuotesOnString, const QString &dialect) const
 {
     QString result;
     QString driverName;
@@ -956,9 +956,9 @@ QVariant DBField::value()
                 }
                 else
                 {
-                    if ( !d->m->calculatedOneTime() || (d->m->calculatedOneTime() && !d->m_hasBeenCalculated ))
+                    if ( !d->m->calculatedOneTime() || !d->m_hasBeenCalculated )
                     {
-                        if ( !d->m->calculatedOnlyOnInsert() || (d->m->calculatedOnlyOnInsert() && d->m_bean->dbState() == BaseBean::INSERT) )
+                        if ( !d->m->calculatedOnlyOnInsert() || d->m_bean->dbState() == BaseBean::INSERT )
                         {
                             QVariant data = d->setDataToType(d->m->calculateValue(this));
                             if ( data.isValid() && d->m_value != data )
@@ -2873,7 +2873,7 @@ void DBField::recalculateCounterField(const QString &connection)
         return;
     }
     if ( !d->m->counterDefinition()->userCanModified ||
-         (d->m->counterDefinition()->userCanModified && !modified()) )
+         !modified() )
     {
         if ( !d->m_bean.isNull() )
         {

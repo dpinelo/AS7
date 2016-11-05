@@ -1264,7 +1264,6 @@ BaseBeanSharedPointer DBBaseBeanModel::bean(const QModelIndex &index, bool reloa
     if ( !d->m_beansFetched.at(index.row()) )
     {
         d->fetchBean(index.row());
-        beansHasBeenFetched = true;
         return bean;
     }
     if ( !AERP_CHECK_INDEX_OK(index.row(), d->m_vectorBean) )
@@ -1282,10 +1281,6 @@ BaseBeanSharedPointer DBBaseBeanModel::bean(const QModelIndex &index, bool reloa
                  bean->loadTime().msecsTo(QDateTime::currentDateTime()) > alephERPSettings->timeBetweenReloads() )
             {
                 BaseDAO::reloadBeanFromDB(bean.data());
-            }
-            else
-            {
-                qDebug() << "DBBaseBeanModel: bean: Bean reciente. No es necesario obtenerlo. Msecs desde la última carga: " << bean->loadTime().msecsTo(QDateTime::currentDateTime());
             }
         }
     }
@@ -1334,7 +1329,6 @@ BaseBeanSharedPointerList DBBaseBeanModel::beans(const QModelIndexList &list)
                         }
                         else
                         {
-                            qDebug() << "DBBaseBeanModel: beans: Bean reciente. No es necesario obtenerlo";
                             result.append(bean);
                         }
                     }
@@ -1597,7 +1591,7 @@ void DBBaseBeanModel::addStaticRow(const QIcon &icon, const QString &text, const
 /**
   En modelos que presenten vistas, no se podran insertar filas...
   */
-bool DBBaseBeanModel::insertRows (int row, int count, const QModelIndex & parent)
+bool DBBaseBeanModel::insertRows(int row, int count, const QModelIndex & parent)
 {
     if ( d->m_metadata == NULL )
     {
@@ -1657,7 +1651,7 @@ QModelIndexList DBBaseBeanModel::match(const QModelIndex &start, int role,
 {
     QModelIndexList result;
     uint matchType = flags & 0x0F;
-    Qt::CaseSensitivity cs = flags & Qt::MatchCaseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive;
+    Qt::CaseSensitivity cs = (flags & Qt::MatchCaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive;
     bool recurse = flags & Qt::MatchRecursive;
     bool wrap = flags & Qt::MatchWrap;
     bool allHits = (hits == -1);

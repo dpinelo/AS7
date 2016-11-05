@@ -97,7 +97,7 @@ public:
     QPointer<QDesignerWorkbench> m_qtDesigner;
 #endif
 
-    AERPSystemObjectEditorDlgPrivate(AERPSystemObjectEditorWidget *qq) : q_ptr(qq) {}
+    explicit AERPSystemObjectEditorDlgPrivate(AERPSystemObjectEditorWidget *qq) : q_ptr(qq) {}
 
     void importTemplate(const QString &resource);
 };

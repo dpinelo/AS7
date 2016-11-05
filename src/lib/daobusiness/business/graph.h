@@ -27,7 +27,7 @@ class ALEPHERP_DLL_EXPORT Graph
     void topologicalSortUtil(int v, bool visited[], stack<int> &Stack);
 
 public:
-    Graph(int V);   // Constructor
+    explicit Graph(int V);   // Constructor
     ~Graph();
 
      // function to add an edge to graph

@@ -57,6 +57,8 @@ protected:
     QString m_filter;
     /** Orden en el que se muestran los datos */
     QString m_order;
+    /** Permite especificar que los hijos se carguen en segundo plano */
+    bool m_loadOnBackground;
     /** Chivato que indicará si el modelo se ha pasado ya creado y externo (por setModel)
       o es interno */
     bool m_externalModel;
@@ -131,6 +133,8 @@ public:
     virtual void setVisibleColumns(const QString &value);
     virtual QString linkColumns() const;
     virtual void setLinkColumns(const QString &value);
+    bool loadOnBackground() const;
+    void setLoadOnBackground(bool value);
 
     virtual QScriptValue checkedBeans() = 0;
     virtual void setCheckedBeans(BaseBeanSharedPointerList list, bool checked = true) = 0;

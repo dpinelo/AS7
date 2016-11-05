@@ -45,9 +45,6 @@
 #include "dao/beans/aerpdocmngmntdocument.h"
 #endif
 
-int BaseBean::m_beansCount;
-int BaseBean::m_maxBeansCount;
-
 class BaseBeanPrivate
 {
 //	Q_DECLARE_PUBLIC(BaseBean)
@@ -94,9 +91,9 @@ public:
     bool m_calculateFieldsEnabled;
     QString m_lastError;
 
-    BaseBeanPrivate(BaseBean *qq);
+    explicit BaseBeanPrivate(BaseBean *qq);
 
-    QString extractFilterOperator(const QString &filter);
+    static QString extractFilterOperator(const QString &filter);
     void setDefaultValues(BaseBeanPointerList fathers = BaseBeanPointerList());
     void connectCounterFields();
     void connectAggregateFields();
@@ -438,12 +435,6 @@ BaseBean::BaseBean(QObject *parent) : DBObject(parent), d(new BaseBeanPrivate(th
     {
         m_observer = ObserverFactory::instance()->newObserver(this);
     }
-    BaseBean::m_beansCount++;
-    QLogger::QLog_Debug(AlephERP::stLogDB, QString("BaseBean::BaseBean: Nuevo bean creado. Beans que existen: [%1]").arg(BaseBean::m_beansCount));
-    if ( BaseBean::m_beansCount > BaseBean::m_maxBeansCount )
-    {
-        BaseBean::m_maxBeansCount = BaseBean::m_beansCount;
-    }
     connect(this, SIGNAL(relatedElementAdded(RelatedElement*)), this, SLOT(setRelatedElementsModified()));
     connect(this, SIGNAL(relatedElementDeleted(RelatedElement*)), this, SLOT(setRelatedElementsModified()));
     connect(this, SIGNAL(relatedElementModified(RelatedElement*)), this, SLOT(setRelatedElementsModified()));
@@ -452,8 +443,6 @@ BaseBean::BaseBean(QObject *parent) : DBObject(parent), d(new BaseBeanPrivate(th
 
 BaseBean::~BaseBean()
 {
-    BaseBean::m_beansCount--;
-    QLogger::QLog_Debug(AlephERP::stLogDB, QString("BaseBean::~BaseBean: Bean destruido. Beans que siguen existiendo: [%1]").arg(BaseBean::m_beansCount));
     delete d;
 }
 
@@ -935,7 +924,10 @@ DBField *BaseBean::field(const QString &dbFieldName)
             }
         }
     }
-    if ( field == NULL && !dbFieldName.isEmpty() && dbFieldName != "editable" )
+    if ( field == NULL &&
+         !dbFieldName.isEmpty() &&
+         dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+         dbFieldName != QLatin1String(AlephERP::stInactive) )
     {
         QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::field: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
     }
@@ -982,7 +974,10 @@ int BaseBean::fieldIndex(const QString &dbFieldName)
             break;
         }
     }
-    if ( index == -1 && !dbFieldName.isEmpty() && dbFieldName != "editable" )
+    if ( index == -1 &&
+         !dbFieldName.isEmpty() &&
+         dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+         dbFieldName != QLatin1String(AlephERP::stInactive) )
     {
         QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldIndex: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
     }
@@ -1101,11 +1096,14 @@ QVariant BaseBean::fieldValue(const QString &dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL ||
-         dbFieldName.isEmpty() ||
-         dbFieldName == QLatin1String("editable") )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        if ( !dbFieldName.isEmpty() &&
+             dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+             dbFieldName != QLatin1String(AlephERP::stInactive) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        }
     }
     else
     {
@@ -1758,7 +1756,7 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore, 
         if ( fld->metadata()->hasCounterDefinition() )
         {
             if ( !fld->metadata()->counterDefinition()->userCanModified ||
-                 (fld->metadata()->counterDefinition()->userCanModified && !fld->modified()) )
+                 !fld->modified() )
             {
                 if ( (fld->metadata()->counterDefinition()->calculateOnlyOnInsert && dbState() == BaseBean::INSERT) || !fld->metadata()->counterDefinition()->calculateOnlyOnInsert )
                 {
@@ -3787,19 +3785,6 @@ void BaseBeanPrivate::removeRelatedElement(RelatedElementPointer element)
             return;
         }
     }
-}
-
-/*!
-  Función util para profiling. Vamos a ver cuántos beans genera la aplicación, cuántos libera...
-  */
-int BaseBean::countBeans()
-{
-    return BaseBean::m_beansCount;
-}
-
-int BaseBean::maxCountBeans()
-{
-    return BaseBean::m_maxBeansCount;
 }
 
 /**

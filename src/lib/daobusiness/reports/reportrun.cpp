@@ -50,7 +50,7 @@ public:
     bool m_dialogIsShowedNow;
     QString m_linkedTo;
 
-    ReportRunPrivate(ReportRun *qq) : q_ptr(qq)
+    explicit ReportRunPrivate(ReportRun *qq) : q_ptr(qq)
     {
         m_parentWidget = NULL;
         m_dialogIsShowedNow = false;

@@ -74,6 +74,7 @@ class ALEPHERP_DLL_EXPORT DBComboBox : public QComboBox, public DBBaseWidget
     Q_PROPERTY (QString listColumnToSave READ listColumnToSave WRITE setListColumnToSave)
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     Q_PROPERTY (bool userModified READ userModified WRITE setUserModified)
     Q_PROPERTY (QVariant value READ value WRITE setValue)
     Q_PROPERTY (int currentIndex READ currentIndex WRITE setCurrentIndex)

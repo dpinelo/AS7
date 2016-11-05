@@ -163,10 +163,6 @@ class ALEPHERP_DLL_EXPORT BaseBean : public DBObject
     friend class BaseBeanMetadataPrivate;
     friend class DBField;
 
-    /** Para profiling */
-    static int m_beansCount;
-    static int m_maxBeansCount;
-
 private:
     Q_DISABLE_COPY(BaseBean)
     BaseBeanPrivate *d;
@@ -394,9 +390,6 @@ public:
     static QScriptValue toScriptValueWeakPointer(QScriptEngine *engine, const BaseBeanWeakPointer &in);
     static void fromScriptValueWeakPointer(const QScriptValue &object, BaseBeanWeakPointer &out);
 #endif
-
-    static int countBeans();
-    static int maxCountBeans();
 
     bool allSignalsBlocked() const;
 

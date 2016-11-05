@@ -242,7 +242,7 @@ public:
 
     QStringList m_dependOnFieldsToCalc;
 
-    DBFieldMetadataPrivate (DBFieldMetadata *qq) : q_ptr(qq)
+    explicit DBFieldMetadataPrivate (DBFieldMetadata *qq) : q_ptr(qq)
     {
         m_index = 0;
         m_readOnly = false;

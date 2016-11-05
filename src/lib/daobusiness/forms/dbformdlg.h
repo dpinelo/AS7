@@ -213,7 +213,7 @@ protected slots:
     void endReloadViewData();
 
 private slots:
-    void specialEdit(const QString code);
+    void specialEdit(const QString &code);
     void recordDlgClosed(BaseBeanPointer bean, bool userSaveData);
     void recordDlgCanceled(BaseBeanPointer bean, bool userSaveData);
 

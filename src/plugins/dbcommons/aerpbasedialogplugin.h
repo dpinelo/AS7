@@ -38,7 +38,7 @@ private:
     AERPBaseDialog *m_dialog;
 
 public:
-    AERPBaseDialogPlugin(QObject *parent = 0);
+    explicit AERPBaseDialogPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     bool isInitialized() const;

@@ -36,7 +36,7 @@ class DBTreeViewPlugin : public DBBasePlugin
 private:
 
 public:
-    DBTreeViewPlugin(QObject *parent = 0);
+    explicit DBTreeViewPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     QIcon icon() const;

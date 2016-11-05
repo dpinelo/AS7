@@ -56,6 +56,8 @@ private:
 
 protected:
     QHash<int, bool> m_checkedItems;
+    BaseBeanSharedPointer m_lastInsertedBean;
+
     virtual QString sqlSelectFieldsClausule(BaseBeanMetadata *metadata, QList<DBFieldMetadata *> fields, bool includeOid, const QString &alias = "");
     virtual QString buildSqlSelect(BaseBeanMetadata *metadata, const QString &where, const QString &order);
     virtual QString addEnvVarWhere(BaseBeanMetadata *metadata, const QString &initialWhere);
@@ -83,6 +85,8 @@ public:
     virtual BaseBeanSharedPointerList beansToBeEdited(const QModelIndexList &list);
     virtual BaseBeanSharedPointer beanToBeEdited(int row);
     virtual BaseBeanSharedPointer beanToBeEdited(const QModelIndex &index);
+    virtual BaseBeanSharedPointer lastInsertedBean() const;
+    virtual void setLastInsertedBean(BaseBeanSharedPointer bean);
 
     virtual QString where() const;
     virtual void setWhere(const QString &where, const QString &order = "");

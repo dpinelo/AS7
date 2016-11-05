@@ -77,6 +77,7 @@ class ALEPHERP_DLL_EXPORT DBTableView : public QTableView, public DBAbstractView
 
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     Q_PROPERTY (bool aerpControlRelation READ aerpControlRelation)
 
     /** Devuelve el objeto bean que se encuentra seleccionado */
@@ -133,6 +134,8 @@ class ALEPHERP_DLL_EXPORT DBTableView : public QTableView, public DBAbstractView
     Q_PROPERTY (QStringList dataEditableForUsers READ dataEditableForUsers WRITE setDataEditableForUsers)
     /** Indica si muestra animación en la carga de muchos registros (con un movie delegate) */
     Q_PROPERTY (bool showAnimationOnDataLoad READ showAnimationOnDataLoad WRITE setShowAnimationOnDataLoad)
+    /** Permite especificar que se carguen en segundo plano los hijos */
+    Q_PROPERTY (bool loadOnBackground READ loadOnBackground WRITE setLoadOnBackground)
 
 private:
     DBTableViewPrivate *d;

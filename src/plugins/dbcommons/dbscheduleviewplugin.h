@@ -36,7 +36,7 @@ class DBScheduleViewPlugin: public DBBasePlugin
 private:
 
 public:
-    DBScheduleViewPlugin(QObject *parent = 0);
+    explicit DBScheduleViewPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     QIcon icon() const;

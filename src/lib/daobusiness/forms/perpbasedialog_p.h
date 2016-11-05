@@ -71,6 +71,7 @@ public:
     QHash<int, QWidgetList> setupDBRecordDlg(BaseBeanMetadata *metadata);
     QHash<int, QWidgetList> setupDBSearchDlg(BaseBeanMetadata *metadata);
     QComboBox * createComboOperators(const QString &fld);
+    bool connectPushButtonToQsFunction(QPushButton *button);
 };
 
 

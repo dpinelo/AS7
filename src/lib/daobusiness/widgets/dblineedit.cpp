@@ -72,6 +72,8 @@ public:
     QString m_autoCompleteVisibleFields;
     /** En el caso en el que se especifique una table, es posible indicar un filtro */
     QString m_autoCompleteTableNameFilter;
+    QString m_autoCompleteColumnToSave;
+    QString m_autoCompleteColumnSaved;
     /** El objeto de autocompletado */
     QPointer<QCompleter> m_completer;
     /** Modelo del autocompletado */
@@ -96,7 +98,7 @@ public:
     bool m_automaticWidthBasedOnFieldMaxLength;
     AERPReturnOnFocus m_return;
 
-    DBLineEditPrivate(DBLineEdit *qq) : q_ptr(qq)
+    explicit DBLineEditPrivate(DBLineEdit *qq) : q_ptr(qq)
     {
         m_replacePointWithCharacter = false;
         m_replacePointCharacter = '0';
@@ -224,6 +226,10 @@ AlephERP::AutoCompleteTypes DBLineEdit::autoComplete() const
 void DBLineEdit::setAutoComplete(AlephERP::AutoCompleteTypes value)
 {
     d->m_autoComplete = value;
+    if ( d->m_autoComplete.testFlag(AlephERP::NoPopup) )
+    {
+        d->m_autoComplete |= AlephERP::ValuesFromTableWithNoRelation | AlephERP::RestrictValueToItemFromList;
+    }
 }
 
 QString DBLineEdit::autoCompleteTableName()
@@ -274,6 +280,26 @@ QString DBLineEdit::autoCompleteVisibleFields() const
 void DBLineEdit::setAutoCompleteVisibleFields(const QString &value)
 {
     d->m_autoCompleteVisibleFields = value;
+}
+
+QString DBLineEdit::autoCompleteColumnToSave() const
+{
+    return d->m_autoCompleteColumnToSave;
+}
+
+QString DBLineEdit::autoCompleteColumnSaved() const
+{
+    return d->m_autoCompleteColumnSaved;
+}
+
+void DBLineEdit::setAutoCompleteColumnSaved(const QString &value)
+{
+    d->m_autoCompleteColumnSaved = value;
+}
+
+void DBLineEdit::setAutoCompleteColumnToSave(const QString &value)
+{
+    d->m_autoCompleteColumnToSave = value;
 }
 
 QString DBLineEdit::scriptAfterChooseFromCompleter() const
@@ -439,7 +465,7 @@ void DBLineEdit::itemActivatedOnCompleterModel(const QModelIndex &idx)
                 {
                     BaseBean *formBean = beanFromContainer();
                     QAbstractProxyModel *completionModel = qobject_cast<QAbstractProxyModel *>(d->m_completer->completionModel());
-                    if ( mdl != NULL && formBean != NULL && completionModel != NULL )
+                    if ( formBean != NULL && completionModel != NULL )
                     {
                         QModelIndex sourceIdx = completionModel->mapToSource(idx);
                         BaseBeanSharedPointer beanSelectedOnCompleter = mdl->bean(sourceIdx);
@@ -761,7 +787,7 @@ void DBLineEdit::showEvent(QShowEvent *event)
 
 void DBLineEdit::keyPressEvent(QKeyEvent *event)
 {
-    if ( !d->m_completer.isNull() )
+    if ( !d->m_completerBeanModel.isNull() )
     {
         // ¿Debemos empezar a filtrar con el wildcard? Si es así, informémosle al modelo
         if ( !d->m_replacePointCharacter.isNull() && !d->m_completerBeanModel.isNull() )
@@ -1057,6 +1083,13 @@ void DBLineEdit::processAutocompletion()
                         // Caso en el que el usuario ha introducido parcialmente el texto de un item. Ponemos el texto completo.
                         setText(d->m_completerBaseBean->fieldValue(d->m_autoCompleteColumn).toString());
                     }
+                    if ( d->m_autoComplete.testFlag(AlephERP::NoPopup) &&
+                         !d->m_autoCompleteColumnSaved.isEmpty() &&
+                         !d->m_autoCompleteColumnToSave.isEmpty() &&
+                         formBean != NULL )
+                    {
+                        formBean->setFieldValue(d->m_autoCompleteColumnSaved, b->fieldValue(d->m_autoCompleteColumnToSave));
+                    }
                     executeScriptAfterChooseFromCompleter();
                 }
             }
@@ -1113,35 +1146,36 @@ void DBLineEdit::processAutocompletion()
     }
 }
 
-void DBLineEditPrivate::initCompleter ()
+void DBLineEditPrivate::initCompleter()
 {
-    if ( !m_autoComplete.testFlag(AlephERP::NoCompletition) && m_completer.isNull() )
+    if ( m_autoComplete.testFlag(AlephERP::NoCompletition) || !m_completer.isNull() )
     {
-        m_completer = new QCompleter();
-        if ( m_autoComplete.testFlag(AlephERP::ValuesFromRelation) )
-        {
-            initCompleterFromRelation();
-        }
-        else if ( m_autoComplete.testFlag(AlephERP::ValuesFromThisField) )
-        {
-            initCompleterFromFieldValues();
-        }
-        else if ( m_autoComplete.testFlag(AlephERP::ValuesFromTableWithNoRelation) )
-        {
-            initCompleterFromTable();
-        }
-        if ( m_completerItemView != NULL )
-        {
-            // Se hace porque así garantizamos que setModel borrará un modelo previo.
-            m_completerModel->setParent(m_completer);
-            m_completer->setModel(m_completerModel);
-            m_completer->setCaseSensitivity(Qt::CaseInsensitive);
-            m_completer->setWrapAround(true);
-            m_completer->setCompletionMode(QCompleter::PopupCompletion);
-            m_completer->setPopup(m_completerItemView);
-            m_completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
-            m_completerItemView->installEventFilter(q_ptr);
-        }
+        return;
+    }
+    m_completer = new QCompleter();
+    if ( m_autoComplete.testFlag(AlephERP::ValuesFromRelation) )
+    {
+        initCompleterFromRelation();
+    }
+    else if ( m_autoComplete.testFlag(AlephERP::ValuesFromThisField) )
+    {
+        initCompleterFromFieldValues();
+    }
+    else if ( m_autoComplete.testFlag(AlephERP::ValuesFromTableWithNoRelation) )
+    {
+        initCompleterFromTable();
+    }
+    if ( m_completerItemView != NULL && !m_autoComplete.testFlag(AlephERP::NoPopup) )
+    {
+        // Se hace porque así garantizamos que setModel borrará un modelo previo.
+        m_completerModel->setParent(m_completer);
+        m_completer->setModel(m_completerModel);
+        m_completer->setCaseSensitivity(Qt::CaseInsensitive);
+        m_completer->setWrapAround(true);
+        m_completer->setCompletionMode(QCompleter::PopupCompletion);
+        m_completer->setPopup(m_completerItemView);
+        m_completer->setModelSorting(QCompleter::CaseInsensitivelySortedModel);
+        m_completerItemView->installEventFilter(q_ptr);
     }
 }
 
@@ -1189,20 +1223,23 @@ void DBLineEditPrivate::initCompleterFromRelation()
     m_completerBeanModel = mdl;
     filter->setSourceModel(m_completerBeanModel);
     m_completerModel = filter;
-    if ( filter->visibleFields().size() == 1 )
+    if ( !m_autoComplete.testFlag(AlephERP::NoPopup) )
     {
-        m_completerItemView = new QListView;
+        if ( filter->visibleFields().size() == 1 )
+        {
+            m_completerItemView = new QListView;
+        }
+        else
+        {
+            m_completerItemView = new DBTableView;
+            (qobject_cast<DBTableView *>(m_completerItemView))->horizontalHeader()->setVisible(false);
+        }
+        int idxColumn = filter->dbFieldColumnIndex(m_autoCompleteColumn);
+        m_completerDelegate = new AERPCompleterHighlightDelegate();
+        m_completerItemView->setItemDelegateForColumn(idxColumn, m_completerDelegate);
+        m_completer->setCompletionColumn(idxColumn);
+        m_completer->setCompletionRole(AlephERP::ReplaceWildCards);
     }
-    else
-    {
-        m_completerItemView = new DBTableView;
-        (qobject_cast<DBTableView *>(m_completerItemView))->horizontalHeader()->setVisible(false);
-    }
-    int idxColumn = filter->dbFieldColumnIndex(m_autoCompleteColumn);
-    m_completerDelegate = new AERPCompleterHighlightDelegate();
-    m_completerItemView->setItemDelegateForColumn(idxColumn, m_completerDelegate);
-    m_completer->setCompletionColumn(idxColumn);
-    m_completer->setCompletionRole(AlephERP::ReplaceWildCards);
 }
 
 void DBLineEditPrivate::initCompleterFromFieldValues()
@@ -1228,10 +1265,13 @@ void DBLineEditPrivate::initCompleterFromFieldValues()
                   arg(fld->bean()->metadata()->tableName()).arg(fld->metadata()->dbFieldName());
     model->setQuery(sql);
     m_completerModel = model;
-    m_completerItemView = new QListView;
-    m_completer->setCompletionColumn(0);
-    m_completerDelegate = new AERPCompleterHighlightDelegate();
-    m_completerItemView->setItemDelegateForColumn(0, m_completerDelegate);
+    if ( !m_autoComplete.testFlag(AlephERP::NoPopup) )
+    {
+        m_completerItemView = new QListView;
+        m_completer->setCompletionColumn(0);
+        m_completerDelegate = new AERPCompleterHighlightDelegate();
+        m_completerItemView->setItemDelegateForColumn(0, m_completerDelegate);
+    }
 }
 
 void DBLineEditPrivate::initCompleterFromTable()
@@ -1254,20 +1294,23 @@ void DBLineEditPrivate::initCompleterFromTable()
     m_completerBeanModel = mdl;
     filter->setSourceModel(m_completerBeanModel);
     m_completerModel = filter;
-    if ( filter->visibleFields().size() == 1 )
+    if ( !m_autoComplete.testFlag(AlephERP::NoPopup) )
     {
-        m_completerItemView = new QListView;
+        if ( filter->visibleFields().size() == 1 )
+        {
+            m_completerItemView = new QListView;
+        }
+        else
+        {
+            m_completerItemView = new DBTableView;
+            (qobject_cast<DBTableView *>(m_completerItemView))->horizontalHeader()->setVisible(false);
+        }
+        int idxColumn = filter->dbFieldColumnIndex(m_autoCompleteColumn);
+        m_completerDelegate = new AERPCompleterHighlightDelegate();
+        m_completerItemView->setItemDelegateForColumn(idxColumn, m_completerDelegate);
+        m_completer->setCompletionColumn(idxColumn);
+        m_completer->setCompletionRole(AlephERP::ReplaceWildCards);
     }
-    else
-    {
-        m_completerItemView = new DBTableView;
-        (qobject_cast<DBTableView *>(m_completerItemView))->horizontalHeader()->setVisible(false);
-    }
-    int idxColumn = filter->dbFieldColumnIndex(m_autoCompleteColumn);
-    m_completerDelegate = new AERPCompleterHighlightDelegate();
-    m_completerItemView->setItemDelegateForColumn(idxColumn, m_completerDelegate);
-    m_completer->setCompletionColumn(idxColumn);
-    m_completer->setCompletionRole(AlephERP::ReplaceWildCards);
 }
 
 int DBLineEditPrivate::widthForMaxLength()
@@ -1291,54 +1334,60 @@ int DBLineEditPrivate::widthForMaxLength()
  */
 void DBLineEditPrivate::processTextEntry()
 {
-    DBFieldObserver *obs = qobject_cast<DBFieldObserver *>(q_ptr->observer());
-    if ( obs != NULL )
+    if ( !m_replacePointWithCharacter )
     {
-        DBField *fld = qobject_cast<DBField *>(obs->entity());
-        if ( m_replacePointWithCharacter && fld != NULL )
+        return;
+    }
+    DBFieldObserver *obs = qobject_cast<DBFieldObserver *>(q_ptr->observer());
+    if ( obs == NULL )
+    {
+        return;
+    }
+    DBField *fld = qobject_cast<DBField *>(obs->entity());
+    if ( fld == NULL )
+    {
+        return;
+    }
+    // Hay que tener en cuenta el caso en el que se presente un completer
+    int maxLength = obs->maxLength();
+    if ( m_autoComplete.testFlag(AlephERP::ValuesFromRelation) && !m_autoCompleteColumn.isEmpty() )
+    {
+        QList<DBRelation *> rels = fld->relations(AlephERP::ManyToOne);
+        if ( rels.size() > 0 )
         {
-            // Hay que tener en cuenta el caso en el que se presente un completer
-            int maxLength = obs->maxLength();
-            if ( m_autoComplete.testFlag(AlephERP::ValuesFromRelation) && !m_autoCompleteColumn.isEmpty() )
+            BaseBean *father = rels.first()->father();
+            DBField *fldM = father->field(m_autoCompleteColumn);
+            if ( fldM != NULL )
             {
-                QList<DBRelation *> rels = fld->relations(AlephERP::ManyToOne);
-                if ( rels.size() > 0 )
+                maxLength = fldM->length();
+            }
+        }
+        else
+        {
+            rels = fld->relations(AlephERP::OneToOne);
+            if ( rels.size() > 0 )
+            {
+                BaseBean *brother = rels.first()->brother();
+                if ( brother )
                 {
-                    BaseBean *father = rels.first()->father();
-                    DBField *fldM = father->field(m_autoCompleteColumn);
+                    DBField *fldM = brother->field(m_autoCompleteColumn);
                     if ( fldM != NULL )
                     {
                         maxLength = fldM->length();
                     }
                 }
-                else
-                {
-                    rels = fld->relations(AlephERP::OneToOne);
-                    if ( rels.size() > 0 )
-                    {
-                        BaseBean *brother = rels.first()->brother();
-                        if ( brother )
-                        {
-                            DBField *fldM = brother->field(m_autoCompleteColumn);
-                            if ( fldM != NULL )
-                            {
-                                maxLength = fldM->length();
-                            }
-                        }
-                    }
-                }
             }
-            int numChars = maxLength - q_ptr->text().size() + 1;
-            if ( m_replacePointLength > -1 )
-            {
-                numChars = m_replacePointLength - q_ptr->text().size() + 1;
-            }
-            QString chars = QString("").fill(m_replacePointCharacter, numChars);
-            QString actualText = q_ptr->text();
-            QString finalText = actualText.replace('.', chars);
-            q_ptr->setText(finalText);
         }
     }
+    int numChars = maxLength - q_ptr->text().size() + 1;
+    if ( m_replacePointLength > -1 )
+    {
+        numChars = m_replacePointLength - q_ptr->text().size() + 1;
+    }
+    QString chars = QString("").fill(m_replacePointCharacter, numChars);
+    QString actualText = q_ptr->text();
+    QString finalText = actualText.replace('.', chars);
+    q_ptr->setText(finalText);
 }
 
 QString DBLineEditPrivate::setValueFromCompletition(DBField *fld)

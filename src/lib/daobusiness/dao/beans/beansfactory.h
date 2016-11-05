@@ -86,6 +86,7 @@ public:
     /** Contiene un puntero a los widgets que definen algunos formularios, y que están
       en base de datos. Se crea al principio de la aplicación */
     static QStringList systemWidgets;
+    static QHash<QString, QByteArray> systemUi;
     /** Los widgets anteriores, tendrán un pequeño código asignado en Qt Script. */
     static QHash<QString, QString> systemScripts;
     /** Variables para saber si esos scripts se depuran o no */
@@ -103,7 +104,6 @@ public:
     static bool end();
     static bool initSystemsBeans(QString &failedBean);
     static void cleanTempPath();
-    static bool refreshSystemObject(const QString &name, const QString &type, int idOrigin);
     static bool isOnBatchMode();
     static QDateTime initOfBatchMode();
     static bool checkConsistencyMetadataDatabase(QVariantList &log);

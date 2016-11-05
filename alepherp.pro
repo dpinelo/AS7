@@ -16,6 +16,15 @@ contains (DEVTOOLS, Y) {
     }
 }
 
+contains (SQLCIPHER, Y) {
+    win32 {
+        SUBDIRS += src/3rdparty/qtciphersqliteplugin/sqlitecipher
+    }
+    unix {
+        SUBDIRS += src/3rdparty/qt5-sqlcipher
+    }
+}
+
 contains (BARCODESUPPORT, Y) {
     SUBDIRS += src/3rdparty/zint
 }

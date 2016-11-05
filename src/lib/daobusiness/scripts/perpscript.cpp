@@ -104,7 +104,7 @@ public:
     QString m_databaseConnection;
     QMutex m_mutex;
 
-    AERPScriptPrivate(AERPScript *qq);
+    explicit AERPScriptPrivate(AERPScript *qq);
     QStringList argsNamesForFunction();
     QScriptValueList argsForFunction();
     bool useOldStyleFunction(const QString &scriptFunctionName);
@@ -964,7 +964,7 @@ public:
     QHash<QString, QVariant> m_availableProperties;
     QMutex m_mutex;
 
-    AERPScriptQsObjectPrivate(AERPScriptQsObject *qq) :
+    explicit AERPScriptQsObjectPrivate(AERPScriptQsObject *qq) :
         q_ptr(qq),
         m_mutex(QMutex::Recursive)
     {

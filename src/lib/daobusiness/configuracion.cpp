@@ -165,7 +165,11 @@ AlephERPSettings::AlephERPSettings(QObject *parent) :
     m_humanKeyPressIntervalMsecs = 0;
     m_modelsRefresh = true;
     m_reportsToShowCombobox = 8;
+    m_lookAndFeelDark = false;
+    m_userWritesHistory = true;
+    m_logLevel = QLogger::InfoLevel;
 #ifdef ALEPHERP_LOCALMODE
+    m_secondsLoadBackground = 60 * 60;
     m_localMode = false;
     m_batchLoadBackground = false;
 #endif

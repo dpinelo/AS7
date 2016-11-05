@@ -64,7 +64,7 @@ win64-msvc* {
     message("DAOBUSINESS: Opciones de configuración para MSVC 64 bits")
 }
 win32-msvc* {
-    LIBS += -llibpng -ljpeg -lzlib -lUser32
+    LIBS += -llibpng16 -ljpeg -lzlib -lUser32
 }
 win32-g++ {
     LIBS += -liconv -lpng -ljpeg -lz
@@ -245,6 +245,11 @@ contains (USELIBMAGIC, Y) {
     SOURCES += business/mime/freedesktopmime.cpp
     HEADERS += business/mime/freedesktopmime.h
     RESOURCES += business/mime/freedesktopmime.qrc
+}
+
+contains (SQLCIPHER, Y) {
+    SOURCES += dao/aerpgeneratekey.cpp
+    HEADERS += dao/aerpgeneratekey.h
 }
 
 contains(AERPFIREBIRDSUPPORT, Y) {
@@ -458,7 +463,8 @@ SOURCES += globales.cpp \
     models/aerpitemdelegate.cpp \
     widgets/dbgrouprelationmmhelper.cpp \
     models/multiplerelationbasebeanmodel.cpp \
-    business/graph.cpp
+    business/graph.cpp \
+    forms/perpbasedialog_p.cpp
 
 HEADERS += globales.h \
     dao/basedao.h \

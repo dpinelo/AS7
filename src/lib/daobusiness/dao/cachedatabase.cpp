@@ -28,7 +28,7 @@ public:
     CacheDatabase *q_ptr;
     QString m_databaseUUID;
 
-    CacheDatabasePrivate(CacheDatabase *qq) : q_ptr(qq)
+    explicit CacheDatabasePrivate(CacheDatabase *qq) : q_ptr(qq)
     {
 
     }

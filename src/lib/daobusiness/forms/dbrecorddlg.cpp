@@ -145,7 +145,7 @@ public:
     DBRecordDlg::DBRecordButtons m_visibleButtons;
     QString m_originalBeanContext;
 
-    DBRecordDlgPrivate(DBRecordDlg *qq) : q_ptr(qq)
+    explicit DBRecordDlgPrivate(DBRecordDlg *qq) : q_ptr(qq)
     {
         m_closeButtonAskForSave = true;
         m_widget = NULL;
@@ -177,7 +177,7 @@ public:
     BaseBeanPointer nextIndex(const QString &direction);
     bool isPrintButtonVisible();
     bool isEmailButtonVisible();
-    QString widgetFileName();
+    QBuffer widgetFileName();
     void showNavigationBeanWidget();
     void addBeanToNavigationWidget(BaseBeanPointer bean, AlephERP::FormOpenType openType);
     BeansOnNavigation navigationWidgetSelectCurrentBean();
@@ -222,7 +222,7 @@ bool DBRecordDlgPrivate::isEmailButtonVisible()
 #endif
 }
 
-QString DBRecordDlgPrivate::widgetFileName()
+QBuffer DBRecordDlgPrivate::widgetFileName()
 {
     QString fileUiNewRecord, fileQmlNewRecord;
     QString fileUiEditRecord, fileQmlEditRecord;
@@ -237,53 +237,41 @@ QString DBRecordDlgPrivate::widgetFileName()
     {
         if ( m_bean->metadata()->uiNewDbRecord().isEmpty() )
         {
-            fileUiNewRecord = QString("%1/%2.new.dbrecord.ui").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                          arg(m_bean->metadata()->tableName());
-            fileQmlNewRecord = QString("%1/%2.new.dbrecord.qml").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                          arg(m_bean->metadata()->tableName());
+            fileUiNewRecord = QString("%1.new.dbrecord.ui").arg(m_bean->metadata()->tableName());
+            fileQmlNewRecord = QString("%1.new.dbrecord.qml").arg(m_bean->metadata()->tableName());
             existsQmlCode = true;
             existsUiCode = true;
         }
         else
         {
-            fileUiNewRecord = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                          arg(m_bean->metadata()->uiNewDbRecord());
-            fileQmlNewRecord = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                          arg(m_bean->metadata()->qmlNewDbRecord());
+            fileUiNewRecord = m_bean->metadata()->uiNewDbRecord();
+            fileQmlNewRecord = m_bean->metadata()->qmlNewDbRecord();
             existsUiCode = !m_bean->metadata()->uiNewDbRecord().isEmpty();
             existsQmlCode = !m_bean->metadata()->qmlNewDbRecord().isEmpty();
         }
         if ( m_bean->metadata()->uiDbRecord().isEmpty() )
         {
-            fileUiEditRecord = QString("%1/%2.dbrecord.ui").
-                           arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
+            fileUiEditRecord = QString("%1.dbrecord.ui").
                            arg(m_bean->metadata()->tableName());
-            fileQmlEditRecord = QString("%1/%2.dbrecord.qml").
-                           arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
+            fileQmlEditRecord = QString("%1.dbrecord.qml").
                            arg(m_bean->metadata()->tableName());
             existsQmlCode = true;
             existsUiCode = true;
         }
         else
         {
-            fileUiEditRecord = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                           arg(m_bean->metadata()->uiDbRecord());
-            fileQmlEditRecord = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                           arg(m_bean->metadata()->qmlDbRecord());
+            fileUiEditRecord = m_bean->metadata()->uiDbRecord();
+            fileQmlEditRecord = m_bean->metadata()->qmlDbRecord();
             existsUiCode = !m_bean->metadata()->uiDbRecord().isEmpty();
             existsQmlCode = !m_bean->metadata()->qmlDbRecord().isEmpty();
         }
     }
     else
     {
-        fileUiNewRecord = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                      arg(m_uiCode);
-        fileUiEditRecord = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                       arg(m_uiCode);
-        fileQmlNewRecord = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                      arg(m_qmlCode);
-        fileQmlEditRecord = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                       arg(m_qmlCode);
+        fileUiNewRecord = m_uiCode;
+        fileUiEditRecord = m_uiCode;
+        fileQmlNewRecord = m_qmlCode;
+        fileQmlEditRecord = m_qmlCode;
         existsUiCode = !m_uiCode.isEmpty();
         existsQmlCode = !m_qmlCode.isEmpty();
     }
@@ -293,13 +281,13 @@ QString DBRecordDlgPrivate::widgetFileName()
     // Los archivos QML tendrán prioridad sobre los UI
     if ( m_openType == AlephERP::Insert )
     {
-        if ( existsQmlCode && QFile::exists(fileQmlNewRecord) )
+        if ( existsQmlCode && BeansFactory::systemUi.contains(fileQmlNewRecord) )
         {
             fileName = fileQmlNewRecord;
             // Nombre único para identificar las propiedades de este formulario
             q_ptr->setObjectName(QString("%1.new.dbrecord.qml").arg(m_bean->metadata()->tableName()));
         }
-        else if ( existsUiCode && QFile::exists(fileUiNewRecord) )
+        else if ( existsUiCode && BeansFactory::systemUi.contains(fileUiNewRecord) )
         {
             fileName = fileUiNewRecord;
             // Nombre único para identificar las propiedades de este formulario
@@ -307,7 +295,7 @@ QString DBRecordDlgPrivate::widgetFileName()
         }
         else
         {
-            if ( existsQmlCode && QFile::exists(fileQmlEditRecord) )
+            if ( existsQmlCode && BeansFactory::systemUi.contains(fileQmlEditRecord) )
             {
                 fileName = fileQmlEditRecord;
                 // Nombre único para identificar las propiedades de este formulario
@@ -323,7 +311,7 @@ QString DBRecordDlgPrivate::widgetFileName()
     }
     else
     {
-        if ( existsQmlCode && QFile::exists(fileQmlEditRecord) )
+        if ( existsQmlCode && BeansFactory::systemUi.contains(fileQmlEditRecord) )
         {
             fileName = fileQmlEditRecord;
             // Nombre único para identificar las propiedades de este formulario
@@ -336,7 +324,12 @@ QString DBRecordDlgPrivate::widgetFileName()
             q_ptr->setObjectName(QString("%1.dbrecord.ui").arg(m_bean->metadata()->tableName()));
         }
     }
-    return fileName;
+    QBuffer buffer;
+    if ( BeansFactory::systemUi.contains(fileName) )
+    {
+        buffer.setData(BeansFactory::systemUi[fileName]);
+    }
+    return buffer;
 }
 
 void DBRecordDlgPrivate::showNavigationBeanWidget()
@@ -439,69 +432,54 @@ void DBRecordDlgPrivate::checkModifiedToSave()
  */
 void DBRecordDlgPrivate::setWidgetStateFromDesignerProperties()
 {
-    QList<const char *> propertiesByRole, propertiesByUser;
-    propertiesByRole.append(AlephERP::stEnabledForRoles);
-    propertiesByRole.append(AlephERP::stDataEditableForRoles);
-    propertiesByRole.append(AlephERP::stVisibleForRoles);
-    propertiesByUser.append(AlephERP::stEnabledForUsers);
-    propertiesByUser.append(AlephERP::stDataEditableForUsers);
-    propertiesByUser.append(AlephERP::stVisibleForUsers);
+    QHash<const char *, const char *> propertiesHashNames;
+    propertiesHashNames[AlephERP::stEnabledForRoles] = AlephERP::stEnabledForUsers;
+    propertiesHashNames[AlephERP::stDataEditableForRoles] = AlephERP::stDataEditableForUsers;
+    propertiesHashNames[AlephERP::stVisibleForRoles] = AlephERP::stVisibleForUsers;
 
     QMultiHash<const char *, const char *> propertiesToApply;
     propertiesToApply.insert(AlephERP::stEnabledForRoles, "enabled");
     propertiesToApply.insert(AlephERP::stDataEditableForRoles, "dataEditable");
     propertiesToApply.insert(AlephERP::stDataEditableForRoles, "readOnly");
     propertiesToApply.insert(AlephERP::stVisibleForRoles, "visible");
-    propertiesToApply.insert(AlephERP::stEnabledForUsers, "enabled");
-    propertiesToApply.insert(AlephERP::stDataEditableForUsers, "dataEditable");
-    propertiesToApply.insert(AlephERP::stDataEditableForUsers, "readOnly");
-    propertiesToApply.insert(AlephERP::stVisibleForUsers, "visible");
 
     QList<QWidget *> widgets = q_ptr->findChildren<QWidget *>();
 
-    foreach (const char *prop, propertiesByRole)
+    foreach (QWidget *widget, widgets)
     {
-        foreach (QWidget *widget, widgets)
+        foreach (const char *roleProperty, propertiesHashNames.keys())
         {
-            if ( widget->property(prop).isValid() )
+            if ( widget->property(roleProperty).isValid() )
             {
-                QList<const char *> props = propertiesToApply.values(prop);
+                QStringList roles = widget->property(roleProperty).toStringList();
+                QList<const char *> props = propertiesToApply.values(roleProperty);
                 foreach (const char *finalPro, props)
                 {
-                    DBBaseWidget::applyPropertiesByRole(widget, widget->property(prop).toStringList(), finalPro);
+                    DBBaseWidget::applyPropertiesByRole(widget, roles, finalPro);
                 }
-                // Extendemos la propiedad a los hijos que cuelgen de este
-                QStringList values = widget->property(prop).toStringList();
-                if ( !values.isEmpty() )
+                // Si el usuario actual no tiene alguno de los roles para los que se han aplicado la propiedad, es cuando
+                // miramos las propiedades de usuario
+                if ( !AERPLoggedUser::instance()->hasAnyRole(roles) )
                 {
-                    QObjectList children = widget->children();
-                    foreach (QObject * child, children)
+                    QList<const char *> usersProperties = propertiesHashNames.values(roleProperty);
+                    foreach (const char *userProperty, usersProperties)
                     {
-                        child->setProperty(prop, values);
+                        QStringList users = widget->property(userProperty).toStringList();
+                        QList<const char *> props = propertiesToApply.values(roleProperty);
+                        foreach (const char *finalPro, props)
+                        {
+                            DBBaseWidget::applyPropertiesByUser(widget, users, finalPro);
+                        }
                     }
                 }
-            }
-        }
-    }
-    foreach (const char *prop, propertiesByUser)
-    {
-        foreach (QWidget *widget, widgets)
-        {
-            if ( widget->property(prop).isValid() )
-            {
-                QList<const char *> props = propertiesToApply.values(prop);
-                foreach (const char *finalPro, props)
-                {
-                    DBBaseWidget::applyPropertiesByUser(widget, widget->property(prop).toStringList(), finalPro);
-                }
                 // Extendemos la propiedad a los hijos que cuelgen de este
-                QStringList values = widget->property(prop).toStringList();
+                QStringList values = widget->property(roleProperty).toStringList();
                 if ( !values.isEmpty() )
                 {
                     QObjectList children = widget->children();
                     foreach (QObject * child, children)
                     {
-                        child->setProperty(prop, values);
+                        child->setProperty(roleProperty, values);
                     }
                 }
             }
@@ -776,6 +754,7 @@ bool DBRecordDlg::init()
     setWindowModified(false);
     // Código propio del formulario
     execQs();
+    connectPushButtonsToQsFunctions();
 
     // Si es una versión de desarrollo, no se puede editar el script
     ui->pbEditScript->setVisible(alephERPSettings->debuggerEnabled() && !aerpQsEngine()->scriptName().isEmpty());
@@ -1461,13 +1440,11 @@ bool DBRecordDlg::eventFilter (QObject *target, QEvent *event)
   */
 void DBRecordDlg::setupMainWidget()
 {
-    QString fileName = d->widgetFileName();
+    QBuffer buffer = d->widgetFileName();
 
-    if ( QFile::exists(fileName) )
+    if ( buffer.isOpen() )
     {
-        QFile file (fileName);
-        file.open(QFile::ReadOnly);
-        d->m_widget = AERPUiLoader::instance()->load(&file, 0);
+        d->m_widget = AERPUiLoader::instance()->load(&buffer, 0);
         if ( d->m_widget != NULL )
         {
             d->m_widget->setParent(this);
@@ -1482,7 +1459,7 @@ void DBRecordDlg::setupMainWidget()
                                  QMessageBox::Ok);
             reject();
         }
-        file.close();
+        buffer.close();
     }
     else
     {

@@ -49,7 +49,7 @@ public:
     bool m_needsDatabaseConnection;
     QString m_databaseNotification;
 
-    AERPScheduledJobsMetadataPrivate(AERPScheduledJobMetadata *qq) : q_ptr(qq)
+    explicit AERPScheduledJobsMetadataPrivate(AERPScheduledJobMetadata *qq) : q_ptr(qq)
     {
         m_needsDatabaseConnection = false;
     }
@@ -411,7 +411,7 @@ void AERPScheduledJob::setIsWorking()
         if ( QString(method.methodSignature()).contains(QStringLiteral("begin")) )
         {
 #else
-        if ( QString(method.signature()).contains(QStringLiteral("begin") )
+        if ( QString(method.signature()).contains(QStringLiteral("begin")) )
         {
 #endif
             d->m_isWorking = true;
@@ -453,7 +453,7 @@ public:
         m_isActive = false;
     }
 
-    int processCronPart(const QString &part, int now);
+    static int processCronPart(const QString &part, int now);
 };
 
 QMutex AERPScheduledJobWorkerPrivate::m_mutex;

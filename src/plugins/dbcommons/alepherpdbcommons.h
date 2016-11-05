@@ -36,6 +36,7 @@
 #include "dbscheduleviewplugin.h"
 #include "dbmappositionplugin.h"
 #include "dbgrouprelationmmhelperplugin.h"
+#include "aerppermissionspropertysheetextension.h"
 #ifdef ALEPHERP_BARCODE
 #include "dbbarcodeplugin.h"
 #endif

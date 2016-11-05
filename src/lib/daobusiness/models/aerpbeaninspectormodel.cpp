@@ -180,7 +180,7 @@ public:
     InspectorTreeItem *m_rootItem;
     QStringList m_inspectableProperties;
 
-    AERPBeanInspectorModelPrivate (AERPBeanInspectorModel *qq) : q_ptr(qq)
+    explicit AERPBeanInspectorModelPrivate (AERPBeanInspectorModel *qq) : q_ptr(qq)
     {
         m_rootItem = NULL;
     }

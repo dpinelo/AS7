@@ -56,7 +56,7 @@ public:
     AERPScriptQsObject m_engine;
     QString m_contextName;
 
-    DBWizardDlgPrivate(DBWizardDlg *qq) : q_ptr(qq)
+    explicit DBWizardDlgPrivate(DBWizardDlg *qq) : q_ptr(qq)
     {
         m_contextName = QUuid::createUuid().toString();
     }
@@ -376,12 +376,10 @@ bool DBWizardDlg::setupMainWidget()
 
     foreach (const QString uiPage, wizardPages)
     {
-        QString fileUi = QString("%1/%2").arg(alephERPSettings->dataPath()).arg(uiPage);
-        if ( QFile::exists(fileUi) )
+        if ( BeansFactory::systemUi.contains(uiPage) )
         {
-            QFile file(fileUi);
-            file.open(QFile::ReadOnly);
-            QWidget *widget = AERPUiLoader::instance()->load(&file, 0);
+            QBuffer buffer(BeansFactory::systemUi[uiPage]);
+            QWidget *widget = AERPUiLoader::instance()->load(&buffer, 0);
             if ( widget != NULL )
             {
                 // Si el widget presenta un stackedwidget en primera plana, cada widget del stackedwidget,
@@ -429,7 +427,6 @@ bool DBWizardDlg::setupMainWidget()
                                      QMessageBox::Ok);
                 return false;
             }
-            file.close();
         }
         else
         {

@@ -44,7 +44,7 @@ public:
     DBLabel *q_ptr;
     bool m_link;
 
-    DBLabelPrivate(DBLabel *qq) : q_ptr(qq)
+    explicit DBLabelPrivate(DBLabel *qq) : q_ptr(qq)
     {
         m_link = false;
     }
@@ -66,7 +66,6 @@ DBLabel::~DBLabel()
 
 void DBLabel::setValue(const QVariant &value)
 {
-    bool settedValue = false;
     AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(this);
     if ( thisForm )
     {
@@ -75,21 +74,18 @@ void DBLabel::setValue(const QVariant &value)
         if ( result.isValid() && !result.toString().isEmpty() )
         {
             QLabel::setText(result.toString());
-            settedValue = true;
+            return;
         }
     }
 
-    if ( !settedValue )
+    if ( d->m_link )
     {
-        if ( d->m_link )
-        {
-            QString link = QString("<a href='%1'>%1</a>").arg(value.toString());
-            QLabel::setText(link);
-        }
-        else
-        {
-            QLabel::setText(value.toString());
-        }
+        QString link = QString("<a href='%1'>%1</a>").arg(value.toString());
+        QLabel::setText(link);
+    }
+    else
+    {
+        QLabel::setText(value.toString());
     }
 }
 

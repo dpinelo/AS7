@@ -56,6 +56,7 @@ QList<AERPScheduledJobMetadata *> BeansFactory::metadataJobs;
 QList<AERPScheduledJob *> BeansFactory::jobs;
 QStringList BeansFactory::systemWidgets;
 QStringList BeansFactory::systemReports;
+QHash<QString, QBuffer> BeansFactory::systemUi;
 QHash<QString, QString> BeansFactory::systemScripts;
 QHash<QString, bool> BeansFactory::systemScriptsDebug;
 QHash<QString, bool> BeansFactory::systemScriptsDebugOnInit;
@@ -78,6 +79,7 @@ static BatchDAO *batchDAO;
 
 BeansFactory::BeansFactory(QObject *parent) : QObject(parent)
 {
+    m_progressOffset = 0;
 }
 
 BeansFactory::~BeansFactory()
@@ -174,34 +176,7 @@ bool BeansFactory::buildUIWidgets()
         {
             if ( object->type() == QStringLiteral("ui") && !BeansFactory::hasDependObject(object) )
             {
-                QString fileName = QString("%1/%2").
-                                   arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                                   arg(object->name());
-                QFile file (fileName);
-                if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
-                {
-                    QMessageBox::warning(NULL, qApp->applicationName(), trUtf8(MSG_NO_EXISTE_UI), QMessageBox::Ok);
-                    return false;
-                }
-                QTextStream out (&file);
-                //out.setCodec(configuracion.fileSystemCodec());
-                out.setCodec("UTF-8");
-                out << object->content();
-                file.flush();
-                file.close();
-                // Ahora comprobamos que el archivo se ha guardado correctamente
-                if ( file.open(QFile::ReadOnly) )
-                {
-                    BeansFactory::systemWidgets << object->name();
-                }
-                else
-                {
-                    QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::buildTableWidgets: No se ha creado el fichero: %1").arg(fileName));
-                    QString message = trUtf8("No se ha podido crear el fichero: %1").arg(fileName);
-                    QMessageBox::warning(NULL, qApp->applicationName(), message, QMessageBox::Ok);
-                    return false;
-                }
-                file.close();
+                BeansFactory::systemUi[object->objectName()] = object->content().toUtf8();
                 BeansFactory::instance()->emitProgressValue();
             }
         }
@@ -503,45 +478,6 @@ bool BeansFactory::unloadResources()
         QResource::unregisterResource(resource);
     }
     return true;
-}
-
-/**
-  Refresca el UI
-  */
-bool BeansFactory::refreshSystemObject(const QString &name, const QString &type, int idOrigin)
-{
-    bool result = false;
-
-    AERPSystemObject *object = SystemDAO::systemObject(name, type, idOrigin);
-    if ( object != NULL )
-    {
-        QString fileName = QString("%1/%2").
-                           arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                           arg(name);
-        QFile file (fileName);
-        if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
-        {
-            QMessageBox::warning(NULL, qApp->applicationName(), trUtf8(MSG_NO_EXISTE_UI),
-                                 QMessageBox::Ok);
-            return false;
-        }
-        QTextStream out (&file);
-        out.setCodec("UTF-8");
-        out << object->content();
-        file.flush();
-        file.close();
-        // Ahora comprobamos que el archivo se ha guardado correctamente
-        if ( !file.open(QFile::ReadOnly) )
-        {
-            QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::buildTableWidgets: No se ha creado el fichero: %1").arg(fileName));
-            QString message = trUtf8("No se ha podido crear el fichero: %1").arg(fileName);
-            QMessageBox::warning(NULL, qApp->applicationName(), message, QMessageBox::Ok);
-            return false;
-        }
-        file.close();
-        result = true;
-    }
-    return result;
 }
 
 void BeansFactory::cancelLoadBatch()
@@ -936,6 +872,7 @@ void BeansFactory::clearSystemObjects()
     qDeleteAll(BeansFactory::jobs);
     BeansFactory::jobs.clear();
 
+    BeansFactory::systemUi.clear();
     BeansFactory::systemWidgets.clear();
     BeansFactory::systemScripts.clear();
     BeansFactory::systemReports.clear();
@@ -1504,7 +1441,12 @@ void BeansFactory::processOrderMetadataTableNamesForInsertOrUpdate(BaseBeanMetad
   requieren de reinicialización del programa, salvo que se cambie un script, que
   será también actualizado por este objeto.
   */
-bool BeansFactory::updateSystemObject(const QString &type, const QString &objectName, const QString &content, int version, bool debugOnInit, bool debug, int idOrigin)
+bool BeansFactory::updateSystemObject(const QString &type,
+                                      const QString &objectName,
+                                      const QString &content,
+                                      int version,
+                                      bool debugOnInit,
+                                      bool debug, int idOrigin)
 {
     bool r = false;
     AERPSystemObject *object = SystemDAO::systemObject(objectName, type, idOrigin);
@@ -1515,18 +1457,17 @@ bool BeansFactory::updateSystemObject(const QString &type, const QString &object
         object->setOnInitDebug(debugOnInit);
         object->setVersion(version);
     }
+    if ( type == QStringLiteral("ui") )
+    {
+        BeansFactory::systemUi[objectName] = content.toUtf8();
+        r = true;
+    }
     if ( type == QStringLiteral("qs") )
     {
         BeansFactory::systemScripts[objectName] = content;
         BeansFactory::systemScriptsDebug[objectName] = debug;
         BeansFactory::systemScriptsDebugOnInit[objectName] = debugOnInit;
         r = true;
-    }
-    else if ( type == QStringLiteral("ui") )
-    {
-        CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-        BeansFactory::refreshSystemObject(objectName, "ui", idOrigin);
-        CommonsFunctions::restoreOverrideCursor();
     }
     return r;
 }

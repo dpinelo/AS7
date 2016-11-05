@@ -67,6 +67,8 @@
 #include "business/aerpspreadsheet.h"
 #include "forms/openedrecords.h"
 
+#define VALIDATION_ERROR "Validate Error"
+
 class DBFormDlgPrivate
 {
 public:
@@ -97,7 +99,7 @@ public:
      * Es muy importante su valor, para evitar Casques de la app */
     bool m_frozenModelByQs;
 
-    DBFormDlgPrivate(DBFormDlg *qq) : q_ptr(qq)
+    explicit DBFormDlgPrivate(DBFormDlg *qq) : q_ptr(qq)
     {
         m_metadata = NULL;
         m_signalMapper = NULL;
@@ -120,6 +122,7 @@ public:
     void setFilterFieldValuesOnNewBean(BaseBeanSharedPointer b);
     QModelIndex rowIndexSelected();
     BaseBeanPointer nextIndex(const QString &direction);
+    QString checkIfCanBeDeleted(const QModelIndex &idx, FilterBaseBeanModel *filterModel);
 };
 
 /**
@@ -216,7 +219,14 @@ bool DBFormDlgPrivate::isPrintButtonVisible()
 bool DBFormDlgPrivate::isEmailButtonVisible()
 {
 #ifdef ALEPHERP_SMTP_SUPPORT
-    return m_metadata->canSendEmail();
+    if ( m_metadata != NULL )
+    {
+        return m_metadata->canSendEmail();
+    }
+    else
+    {
+        return false;
+    }
 #else
     return false;
 #endif
@@ -508,6 +518,56 @@ BaseBeanPointer DBFormDlgPrivate::nextIndex(const QString &direction)
         selectionModel->setCurrentIndex(next, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
     }
     return b;
+}
+
+QString DBFormDlgPrivate::checkIfCanBeDeleted(const QModelIndex &idx,
+                                              FilterBaseBeanModel *filterModel)
+{
+    QString result;
+    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+    BaseBeanSharedPointer bean = filterModel->beanToBeEdited(idx);
+    CommonsFunctions::restoreOverrideCursor();
+    BaseBeanModel *sourceModel = qobject_cast<BaseBeanModel *>(filterModel->sourceModel());
+    if ( bean.isNull() )
+    {
+        result = QString::fromUtf8("Ha ocurrido un error inesperado. No se ha podido borrar el registro. "
+                                   "Es posible que otro usuario lo haya borrado o que no se haya refrescado el modelo. "
+                                   "Cierre el formulario, ábralo de nuevo y vuelva a intentarlo.");
+        sourceModel->rollback();
+        if ( !m_mainWindow->isVisibleRelatedWidget() &&
+             !OpenedRecords::instance()->dialogOpenedForRecord(m_tableName) &&
+             !m_frozenModelByQs )
+        {
+            m_itemView->defrostModel();
+        }
+        emit q_ptr->afterDelete(false);
+        return result;
+    }
+    else
+    {
+        if ( q_ptr->engine()->existQsFunction("beforeDelete") )
+        {
+            QScriptValue r;
+            QScriptValueList args;
+            args.append(q_ptr->engine()->createScriptValue(bean.data()));
+            if ( q_ptr->engine()->callQsObjectFunction(r, "beforeDelete", args) )
+            {
+                if (!r.toBool())
+                {
+                    sourceModel->rollback();
+                    if ( !m_mainWindow->isVisibleRelatedWidget() &&
+                         !OpenedRecords::instance()->dialogOpenedForRecord(m_tableName) &&
+                         !m_frozenModelByQs )
+                    {
+                        m_itemView->defrostModel();
+                    }
+                    emit q_ptr->afterDelete(false);
+                    return QString(VALIDATION_ERROR);
+                }
+            }
+        }
+    }
+    return result;
 }
 
 DBFormDlg::DBFormDlg(QWidget *parent, Qt::WindowFlags f)
@@ -928,7 +988,8 @@ void DBFormDlg::exposeAERPControlToQsEngine()
     QList<QWidget *> list = this->findChildren<QWidget *>();
     foreach ( QWidget *widget, list )
     {
-        if ( widget->property(AlephERP::stAerpControl).toBool() )
+        if ( widget->property(AlephERP::stAerpControl).toBool() ||
+             widget->property(AlephERP::stAddToThisForm).toBool() )
         {
             d->m_engine.addPropertyToThisForm(widget->objectName(), widget);
         }
@@ -1335,10 +1396,24 @@ void DBFormDlg::deleteRecord(void)
         return;
     }
 
-    QAbstractItemModel *mdl = const_cast<QAbstractItemModel *>(selModel->model());
-    FilterBaseBeanModel *filterModel = qobject_cast<FilterBaseBeanModel *>(mdl);
+    FilterBaseBeanModel *filterModel = qobject_cast<FilterBaseBeanModel *>(selModel->model());
 
-    if ( mdl == NULL )
+    if ( filterModel == NULL )
+    {
+        QMessageBox::warning(this, qApp->applicationName(),
+                             QString::fromUtf8("Ha ocurrido un error inesperado. Es posible que haya perdido la conexión a la base de datos."),
+                             QMessageBox::Ok);
+        if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
+             !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
+             !d->m_frozenModelByQs )
+        {
+            d->m_itemView->defrostModel();
+        }
+        return;
+    }
+
+    BaseBeanModel *sourceModel = qobject_cast<BaseBeanModel *>(filterModel->sourceModel());
+    if ( sourceModel == NULL )
     {
         QMessageBox::warning(this, qApp->applicationName(),
                              QString::fromUtf8("Ha ocurrido un error inesperado. Es posible que haya perdido la conexión a la base de datos."),
@@ -1387,85 +1462,50 @@ void DBFormDlg::deleteRecord(void)
     QString message = trUtf8("¿Está seguro de que desea borrar el(los) registro(s) actualmente seleccionado(s)?");
     int ret = QMessageBox::information(this, qApp->applicationName(), message, QMessageBox::Yes | QMessageBox::No);
 
-    if ( ret == QMessageBox::Yes && filterModel != NULL )
+    if ( ret == QMessageBox::Yes )
     {
         emit beforeDelete();
-        BaseBeanModel *sourceModel = qobject_cast<BaseBeanModel *>(filterModel->sourceModel());
         QModelIndexList rows = selModel->selectedRows();
-        while (rows.size() > 0)
+
+        foreach (const QModelIndex &idx, rows)
         {
-            QModelIndex idx = rows.takeLast();
-            CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-            BaseBeanSharedPointer bean;
-            if ( filterModel != NULL )
+            QString message = d->checkIfCanBeDeleted(idx, filterModel);
+            if ( !message.isEmpty() )
             {
-                bean = filterModel->beanToBeEdited(idx);
+                if ( message != QLatin1String(VALIDATION_ERROR) )
+                {
+                    QMessageBox::warning(this,
+                                         qApp->applicationName(),
+                                         message,
+                                         QMessageBox::Ok);
+                }
+                return;
             }
-            else if ( sourceModel != NULL )
-            {
-                bean = sourceModel->beanToBeEdited(idx);
-            }
-            CommonsFunctions::restoreOverrideCursor();
-            if ( bean.isNull() || sourceModel == NULL )
+        }
+
+        while (!rows.isEmpty())
+        {
+            QModelIndex row = rows.first();
+            if ( !filterModel->removeRow(row.row(), row.parent()) )
             {
                 QMessageBox::warning(this, qApp->applicationName(),
-                                     QString::fromUtf8("Ha ocurrido un error inesperado. No se ha podido borrar el registro. "
-                                                       "Es posible que otro usuario lo haya borrado o que no se haya refrescado el modelo. "
-                                                       "Cierre el formulario, ábralo de nuevo y vuelva a intentarlo."),
+                                     QString::fromUtf8("Ha ocurrido un error. No se ha podido borrar el registro. "
+                                                       "<br/><i>Error</i>: %1.").
+                                        arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
                                      QMessageBox::Ok);
-                if ( sourceModel != NULL )
-                {
-                    sourceModel->rollback();
-                }
+                sourceModel->rollback();
                 if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
                      !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
                      !d->m_frozenModelByQs )
                 {
                     d->m_itemView->defrostModel();
+                    d->m_itemView->refresh();
                 }
+                emit afterDelete(false);
                 return;
             }
-            else
-            {
-                if ( engine()->existQsFunction("beforeDelete") )
-                {
-                    QScriptValue result;
-                    QScriptValueList args;
-                    args.append(engine()->createScriptValue(bean.data()));
-                    if ( engine()->callQsObjectFunction(result, "beforeDelete", args) )
-                    {
-                        if (!result.toBool() && sourceModel)
-                        {
-                            sourceModel->rollback();
-                            if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-                                 !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
-                                 !d->m_frozenModelByQs )
-                            {
-                                d->m_itemView->defrostModel();
-                            }
-                            emit afterDelete(false);
-                            return;
-                        }
-                    }
-                }
-                if ( !mdl->removeRows(idx.row(), 1, idx.parent()) )
-                {
-                    QMessageBox::warning(this, qApp->applicationName(),
-                                         QString::fromUtf8("Ha ocurrido un error. No se ha podido borrar el registro. "
-                                                           "<br/><i>Error</i>: %1.").
-                                            arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
-                                         QMessageBox::Ok);
-                    sourceModel->rollback();
-                    if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
-                         !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
-                         !d->m_frozenModelByQs )
-                    {
-                        d->m_itemView->defrostModel();
-                    }
-                    emit afterDelete(false);
-                    return;
-                }
-            }
+
+            rows = selModel->selectedRows();
         }
         AERPTransactionContextProgressDlg::showDialog(AlephERP::stDeleteContext, this);
         if ( !sourceModel->commit() )
@@ -1476,6 +1516,7 @@ void DBFormDlg::deleteRecord(void)
                                     arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
                                  QMessageBox::Ok);
             sourceModel->rollback();
+            sourceModel->refresh(true);
             emit afterDelete(false);
         }
         else
@@ -1489,10 +1530,8 @@ void DBFormDlg::deleteRecord(void)
     {
         d->m_itemView->defrostModel();
     }
-    if ( filterModel != NULL )
-    {
-        filterModel->clearAcceptedRows();
-    }
+    filterModel->clearAcceptedRows();
+    filterModel->invalidate();
 }
 
 /*!
@@ -2247,7 +2286,7 @@ void DBFormDlg::view()
     }
 }
 
-void DBFormDlg::specialEdit(const QString code)
+void DBFormDlg::specialEdit(const QString &code)
 {
     QStringList list = code.split(';');
     edit(list.at(0), list.at(1), list.at(2));

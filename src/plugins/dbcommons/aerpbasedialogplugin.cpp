@@ -22,6 +22,8 @@
 
 AERPBaseDialogPlugin::AERPBaseDialogPlugin(QObject *parent) : QObject(parent)
 {
+    m_initialized = false;
+    m_dialog = NULL;
 }
 
 void AERPBaseDialogPlugin::initialize(QDesignerFormEditorInterface * /* core */)

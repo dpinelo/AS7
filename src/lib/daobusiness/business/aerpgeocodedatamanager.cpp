@@ -34,7 +34,7 @@ public:
     QString m_server;
     QHash<QString, bool> m_isWorking;
 
-    AERPGeocodeDataManagerPrivate(AERPGeocodeDataManager *qq) : q_ptr(qq)
+    explicit AERPGeocodeDataManagerPrivate(AERPGeocodeDataManager *qq) : q_ptr(qq)
     {
         m_googleApiKey = EnvVars::instance()->var(AlephERP::stGoogleMapsApiKey).toString();
     }
@@ -138,7 +138,7 @@ public:
     bool m_isWorking;
     AlephERP::GeoCodeOperation m_operation;
 
-    AERPGeocodeTaskPrivate(AERPGeocodeTask *qq) : q_ptr(qq)
+    explicit AERPGeocodeTaskPrivate(AERPGeocodeTask *qq) : q_ptr(qq)
     {
         m_isWorking = false;
         m_operation = AlephERP::SearchCoords;

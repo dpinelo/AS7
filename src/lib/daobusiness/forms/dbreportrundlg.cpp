@@ -59,7 +59,7 @@ public:
     /** Parametros desde Qs */
     QVariantMap m_qsParameters;
 
-    DBReportRunDlgPrivate(DBReportRunDlg *qq) : q_ptr(qq)
+    explicit DBReportRunDlgPrivate(DBReportRunDlg *qq) : q_ptr(qq)
     {
     }
 
@@ -372,70 +372,68 @@ void DBReportRunDlgPrivate::buildUIParameters()
     {
         QString fieldName = m_run->metadata()->fieldNameForParameter(paramInfo.name);
         // No mostramos los parámetros "binding" es decir, linkados al registro seleccionado.
-        if ( !fieldName.isEmpty() && !m_run->metadata()->parameterBinding().keys().contains(fieldName) )
+        if ( !fieldName.isEmpty() &&
+             !m_run->metadata()->parameterBinding().keys().contains(fieldName) )
         {
             DBFieldMetadata *fld = m->field(fieldName);
             QString text = paramInfo.description.isEmpty() ? fld->fieldName() : paramInfo.description;
-            if ( fld != NULL )
+            QLabel *lbl = NULL;
+            DBBaseWidget *edit = NULL;
+            if ( fld->type() == QVariant::String )
             {
-                QLabel *lbl = NULL;
-                DBBaseWidget *edit = NULL;
-                if ( fld->type() == QVariant::String )
+                edit = new DBLineEdit(q_ptr);
+                lbl = new QLabel(q_ptr);
+                lbl->setText(text);
+            }
+            else if ( fld->type() == QVariant::Int || fld->type() == QVariant::Double || fld->type() == QVariant::LongLong )
+            {
+                edit = new DBNumberEdit(q_ptr);
+                lbl = new QLabel(q_ptr);
+                lbl->setText(text);
+                if ( paramInfo.type == AlephERP::Double )
                 {
-                    edit = new DBLineEdit(q_ptr);
-                    lbl = new QLabel(q_ptr);
-                    lbl->setText(text);
+                    (dynamic_cast<DBNumberEdit *>(edit))->setDecimalPlaces(fld->partD());
                 }
-                else if ( fld->type() == QVariant::Int || fld->type() == QVariant::Double || fld->type() == QVariant::LongLong )
+                else
                 {
-                    edit = new DBNumberEdit(q_ptr);
-                    lbl = new QLabel(q_ptr);
-                    lbl->setText(text);
-                    if ( paramInfo.type == AlephERP::Double )
-                    {
-                        (dynamic_cast<DBNumberEdit *>(edit))->setDecimalPlaces(fld->partD());
-                    }
-                    else
-                    {
-                        (dynamic_cast<DBNumberEdit *>(edit))->setDecimalPlaces(0);
-                    }
+                    (dynamic_cast<DBNumberEdit *>(edit))->setDecimalPlaces(0);
                 }
-                else if ( fld->type() == QVariant::Bool )
+            }
+            else if ( fld->type() == QVariant::Bool )
+            {
+                edit = new DBCheckBox(q_ptr);
+                (dynamic_cast<DBCheckBox *>(edit))->setText(text);
+            }
+            else if ( fld->type() == QVariant::Date || fld->type() == QVariant::DateTime )
+            {
+                edit = new DBDateTimeEdit(q_ptr);
+                (dynamic_cast<DBDateTimeEdit *>(edit))->setCalendarPopup(true);
+                if ( fld->type() == QVariant::Date )
                 {
-                    edit = new DBCheckBox(q_ptr);
-                    (dynamic_cast<DBCheckBox *>(edit))->setText(text);
+                    (dynamic_cast<DBDateTimeEdit *>(edit))->setDisplayFormat(CommonsFunctions::dateFormat());
                 }
-                else if ( fld->type() == QVariant::Date || fld->type() == QVariant::DateTime )
+                else
                 {
-                    edit = new DBDateTimeEdit(q_ptr);
-                    (dynamic_cast<DBDateTimeEdit *>(edit))->setCalendarPopup(true);
-                    if ( fld->type() == QVariant::Date )
-                    {
-                        (dynamic_cast<DBDateTimeEdit *>(edit))->setDisplayFormat(CommonsFunctions::dateFormat());
-                    }
-                    else
-                    {
-                        (dynamic_cast<DBDateTimeEdit *>(edit))->setDisplayFormat(CommonsFunctions::dateTimeFormat());
-                    }
-                    lbl = new QLabel(q_ptr);
-                    lbl->setText(text);
+                    (dynamic_cast<DBDateTimeEdit *>(edit))->setDisplayFormat(CommonsFunctions::dateTimeFormat());
                 }
-                if ( edit != NULL )
+                lbl = new QLabel(q_ptr);
+                lbl->setText(text);
+            }
+            if ( edit != NULL )
+            {
+                count++;
+                QHBoxLayout *lineLayout = new QHBoxLayout();
+                edit->setReportParameterBinding(paramInfo.name);
+                if ( paramInfo.defaultValue.isValid() )
                 {
-                    count++;
-                    QHBoxLayout *lineLayout = new QHBoxLayout();
-                    edit->setReportParameterBinding(paramInfo.name);
-                    if ( paramInfo.defaultValue.isValid() )
-                    {
-                        edit->setValue(paramInfo.defaultValue);
-                    }
-                    if ( lbl != NULL )
-                    {
-                        lineLayout->addWidget(lbl);
-                    }
-                    lineLayout->addWidget(dynamic_cast<QWidget *>(edit));
-                    lay->addLayout(lineLayout);
+                    edit->setValue(paramInfo.defaultValue);
                 }
+                if ( lbl != NULL )
+                {
+                    lineLayout->addWidget(lbl);
+                }
+                lineLayout->addWidget(dynamic_cast<QWidget *>(edit));
+                lay->addLayout(lineLayout);
             }
         }
     }
@@ -667,10 +665,9 @@ bool DBReportRunDlgPrivate::setupMainWidget()
     }
 
     bool result;
-    QString fileName = QString("%1/%2.report.ui").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                       arg(m_run->metadata()->parameterForm());
+    QString fileName = QString("%1.report.ui").arg(m_run->metadata()->parameterForm());
 
-    if ( QFile::exists(fileName) )
+    if ( BeansFactory::systemUi.contains(fileName) )
     {
         if ( q_ptr->ui->gbParameters->layout() != NULL )
         {
@@ -680,10 +677,9 @@ bool DBReportRunDlgPrivate::setupMainWidget()
         {
             delete m_widget;
         }
-        QFile file (fileName);
-        file.open(QFile::ReadOnly);
+        QBuffer buffer(BeansFactory::systemUi[fileName]);
         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-        m_widget = AERPUiLoader::instance()->load(&file, 0);
+        m_widget = AERPUiLoader::instance()->load(&buffer, 0);
         CommonsFunctions::restoreOverrideCursor();
         if ( !m_widget.isNull() )
         {
@@ -700,7 +696,6 @@ bool DBReportRunDlgPrivate::setupMainWidget()
                                  QMessageBox::Ok);
             result = false;
         }
-        file.close();
     }
     else
     {

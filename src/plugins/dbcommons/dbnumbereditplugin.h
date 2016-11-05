@@ -17,7 +17,7 @@ class DBNumberEditPlugin: public DBBasePlugin
 private:
 
 public:
-    DBNumberEditPlugin(QObject *parent = 0);
+    explicit DBNumberEditPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     QIcon icon() const;

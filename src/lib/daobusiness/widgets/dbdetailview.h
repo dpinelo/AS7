@@ -73,6 +73,7 @@ class ALEPHERP_DLL_EXPORT DBDetailView : public QWidget, public DBAbstractViewIn
     Q_PROPERTY (QString relationFilter READ relationFilter WRITE setRelationFilter)
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     Q_PROPERTY (bool aerpControlRelation READ aerpControlRelation)
     Q_PROPERTY (QString order READ order WRITE setOrder)
     Q_PROPERTY (QAbstractItemView::EditTriggers editTriggers READ editTriggers WRITE setEditTriggers)
@@ -124,6 +125,8 @@ class ALEPHERP_DLL_EXPORT DBDetailView : public QWidget, public DBAbstractViewIn
     Q_PROPERTY (QStringList visibleForUsers READ visibleForUsers WRITE setVisibleForUsers)
     /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
     Q_PROPERTY (QStringList dataEditableForUsers READ dataEditableForUsers WRITE setDataEditableForUsers)
+    /** Permite especificar que se carguen en segundo plano los hijos */
+    Q_PROPERTY (bool loadOnBackground READ loadOnBackground WRITE setLoadOnBackground)
 
     friend class DBDetailViewPrivate;
 

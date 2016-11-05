@@ -8,6 +8,7 @@ Graph::Graph(int V)
 
 Graph::~Graph()
 {
+    delete[] adj;
 }
 
 void Graph::addEdge(int v, int w)
@@ -55,6 +56,7 @@ QList<int> Graph::topologicalSort()
         finalList.append(Stack.top());
         Stack.pop();
     }
+    delete[] visited;
 
     return finalList;
 }

@@ -103,7 +103,7 @@ public:
     QPointer<QPushButton> m_cancelProgressBatchButton;
 #endif
 
-    AERPMainWindowPrivate(AERPMainWindow *qq) : q_ptr(qq)
+    explicit AERPMainWindowPrivate(AERPMainWindow *qq) : q_ptr(qq)
     {
     }
 
@@ -111,6 +111,7 @@ public:
     void processActions();
     void processActionTable(QAction *action);
     void processActionReport(QAction *action);
+    bool connectActionToQsFunction(QAction *action);
     void processObjectVisibility(QObject *action);
     void processSpecialActions();
     void openChildForm(const QString &tableName, const QIcon &icon);
@@ -173,21 +174,31 @@ void AERPMainWindowPrivate::processActions()
 void AERPMainWindowPrivate::processActionTable(QAction *action)
 {
     // Comprobamos el nivel de acceso definido en los UI
+    QStringList enabledForRoles, visibleForRoles;
     if ( action->property(AlephERP::stEnabledForRoles).isValid() )
     {
-        action->setEnabled(AERPLoggedUser::instance()->hasAnyRole(action->property(AlephERP::stEnabledForRoles).toStringList()));
+        enabledForRoles = action->property(AlephERP::stEnabledForRoles).toStringList();
+        action->setEnabled(AERPLoggedUser::instance()->hasAnyRole(enabledForRoles));
     }
     if ( action->property(AlephERP::stVisibleForRoles).isValid() )
     {
-        action->setVisible(AERPLoggedUser::instance()->hasAnyRole(action->property(AlephERP::stVisibleForRoles).toStringList()));
+        visibleForRoles = action->property(AlephERP::stVisibleForRoles).toStringList();
+        action->setVisible(AERPLoggedUser::instance()->hasAnyRole(visibleForRoles));
     }
     if ( action->property(AlephERP::stVisibleForUsers).isValid() )
     {
-        action->setVisible(action->property(AlephERP::stVisibleForUsers).toStringList().contains(AERPLoggedUser::instance()->userName()));
+        // Si el usuario pertenece a un rol válido, esto no se tiene en cuenta
+        if ( !AERPLoggedUser::instance()->hasAnyRole(visibleForRoles) )
+        {
+            action->setVisible(action->property(AlephERP::stVisibleForUsers).toStringList().contains(AERPLoggedUser::instance()->userName()));
+        }
     }
     if ( action->property(AlephERP::stEnabledForUsers).isValid() )
     {
-        action->setEnabled(action->property(AlephERP::stEnabledForUsers).toStringList().contains(AERPLoggedUser::instance()->userName()));
+        if ( !AERPLoggedUser::instance()->hasAnyRole(enabledForRoles) )
+        {
+            action->setEnabled(action->property(AlephERP::stEnabledForUsers).toStringList().contains(AERPLoggedUser::instance()->userName()));
+        }
     }
 
     // Comprobamos el nivel de acceso definido en base de datos
@@ -242,6 +253,30 @@ void AERPMainWindowPrivate::processActionReport(QAction *action)
     }
     m_signalMapper->setMapping(action, action->objectName());
     q_ptr->connect(action, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
+}
+
+bool AERPMainWindowPrivate::connectActionToQsFunction(QAction *action)
+{
+    QString methodNameToInvokeOnClicked = action->property(AlephERP::stQsFunction).toString();
+    if ( methodNameToInvokeOnClicked.isEmpty() )
+    {
+        return false;
+    }
+    QScriptValue thisObject = m_engine.qsThisObject();
+    if ( thisObject.isValid() )
+    {
+        QScriptValue function = thisObject.property(methodNameToInvokeOnClicked);
+        QScriptValue functionOnProtoype = thisObject.prototype().property(methodNameToInvokeOnClicked);
+        if ( function.isValid() && function.isFunction() )
+        {
+            qScriptConnect(action, SIGNAL(triggered(bool)), thisObject, function);
+        }
+        else if ( functionOnProtoype.isValid() && functionOnProtoype.isFunction() )
+        {
+            qScriptConnect(action, SIGNAL(triggered(bool)), thisObject, functionOnProtoype);
+        }
+    }
+    return true;
 }
 
 void AERPMainWindowPrivate::processObjectVisibility(QObject *object)
@@ -832,7 +867,8 @@ bool AERPMainWindowPrivate::dropOnToolBar(QObject *target, QEvent *event)
 }
 
 AERPMainWindow::AERPMainWindow(QWidget* parent, Qt::WindowFlags fl)
-    : QMainWindow( parent, fl ), d(new AERPMainWindowPrivate(this))
+    : QMainWindow( parent, fl ),
+      d(new AERPMainWindowPrivate(this))
 {
     d->m_mdiArea = new AERPMdiArea(this);
     d->m_mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -888,24 +924,16 @@ AERPMainWindow *AERPMainWindow::loadUi()
         uiName = "main.qmaindlg";
     }
 
-    QString fileName;
-    if ( !fileName.endsWith(".ui") )
+    if ( !uiName.endsWith(".ui") )
     {
-        fileName = QString("%1/%2.ui").
-                       arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).arg(uiName);
+        uiName.append(".ui");
     }
-    else
-    {
-        fileName = QString("%1/%2").
-                       arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).arg(uiName);
-    }
-    QFile file (fileName);
 
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPMainWindow::loadUi: Se va a intentar cargar [%1]").arg(fileName));
-    if ( file.exists() )
+    if ( BeansFactory::systemUi.contains(uiName) )
     {
-        file.open( QFile::ReadOnly );
-        mainWindow = qobject_cast<AERPMainWindow *>(AERPUiLoader::instance()->load(&file));
+        QBuffer buffer(BeansFactory::systemUi[uiName]);
+        mainWindow = qobject_cast<AERPMainWindow *>(AERPUiLoader::instance()->load(&buffer));
         if ( mainWindow == NULL )
         {
             QString message = QObject::trUtf8("No se ha podido cargar la interfaz de usuario principal de la aplicación. Existe un problema en la carga del UI.");
@@ -1142,6 +1170,13 @@ void AERPMainWindow::createSystemTrayWidget()
 void AERPMainWindow::init()
 {
     execQs();
+
+    // Conectamos según las definiciones del UI
+    QList<QAction *> actions = findChildren<QAction *>();
+    foreach (QAction *action, actions)
+    {
+        d->connectActionToQsFunction(action);
+    }
 
     // Veamos si la ayuda está disponible
     QString collectionHelpFilePath = QString("%1/alepherp.qhc").arg(alephERPSettings->dataPath());

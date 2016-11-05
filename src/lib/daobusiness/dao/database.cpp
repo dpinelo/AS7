@@ -35,6 +35,9 @@
 #ifdef ALEPHERP_CLOUD_SUPPORT
 #include "aerphttpsqldriver.h"
 #endif
+#ifdef ALEPHERP_SQLCIPHER
+#include "dao/aerpgeneratekey.h"
+#endif
 
 #define MSG_DRIVER_NOT_AVAILABLE QT_TR_NOOP("El driver de conexión a la base de datos no está disponible. No se puede iniciar la aplicación.\r\nListado de drivers disponibles: %1")
 
@@ -377,7 +380,14 @@ bool Database::openODBC(const QString &connectionName)
 
 bool Database::openSQLite(const QString &connectionName, bool &emptyDatabase, const QString &dirPath, const QString &databaseFileName)
 {
-    if ( !QSqlDatabase::isDriverAvailable("QSQLITE") )
+#ifdef ALEPHERP_SQLCIPHER
+    QString driverName = "QSQLCIPHER";
+    QString dbName = QString("/%1.db.sqlcipher").arg(databaseFileName.isEmpty() ? connectionName : databaseFileName);
+#else
+    QString driverName = "QSQLITE";
+    QString dbName = QString("/%1.db.sqlite").arg(databaseFileName.isEmpty() ? connectionName : databaseFileName);
+#endif
+    if ( !QSqlDatabase::isDriverAvailable(driverName) )
     {
         QStringList list = QSqlDatabase::drivers();
         QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Lista de drivers BBDD disponible: [%1]").arg(list.join(", ")));
@@ -419,11 +429,11 @@ bool Database::openSQLite(const QString &connectionName, bool &emptyDatabase, co
 
 #else
     QSqlDatabase db;
-    dbPath.append(QString("/%1.db.sqlite").arg(databaseFileName.isEmpty() ? connectionName : databaseFileName));
+    dbPath.append(dbName);
     QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openSQLite: Realizando conexion a la BBDD con los siguientes parametros: "));
     QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openSQLite: Tipo de conexion, SQLITE"));
     QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openSQLite: File: [%1]").arg(dbPath));
-    db = QSqlDatabase::addDatabase("QSQLITE", connectionName);
+    db = QSqlDatabase::addDatabase(driverName, connectionName);
     db.setDatabaseName(dbPath);
     db.setConnectOptions(alephERPSettings->connectOptions());
 #endif
@@ -442,6 +452,15 @@ bool Database::openSQLite(const QString &connectionName, bool &emptyDatabase, co
     {
         QLogger::QLog_Debug(AlephERP::stLogDB, QString("Database::openSQLite: Base de datos [%1] abierta correctamente.").arg(dbPath));
     }
+#ifdef ALEPHERP_SQLCIPHER
+    QString sqlEncryptionKey = QString("PRAGMA key = '%1'").arg(AERPGenerateKey::key());
+    QScopedPointer<QSqlQuery> qry(new QSqlQuery(db));
+    if ( !qry->exec(sqlEncryptionKey) )
+    {
+        QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("Database::createSystemTablesSQLite: La base de datos no está abierta: [%1]").arg(db.lastError().text()));
+        return false;
+    }
+#endif
     emptyDatabase = db.driver()->tables(QSql::Tables).size() == 0;
     return true;
 }

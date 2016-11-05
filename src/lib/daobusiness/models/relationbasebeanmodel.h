@@ -52,6 +52,7 @@ class RelationBaseBeanModel : public BaseBeanModel
       podrá obtener, a través de la propiedad tableName, el bean base que editan los modelos */
     Q_PROPERTY (bool baseBeanModel READ baseBeanModel)
     Q_PROPERTY (QString tableName READ tableName)
+    Q_PROPERTY (bool loadOnBackground READ loadOnBackground WRITE setLoadOnBackground)
 
 private:
     Q_DISABLE_COPY(RelationBaseBeanModel)
@@ -59,7 +60,7 @@ private:
     Q_DECLARE_PRIVATE(RelationBaseBeanModel)
 
 public:
-    RelationBaseBeanModel(DBRelation *rel, bool readOnly, const QString &order, QObject *parent = 0);
+    RelationBaseBeanModel(DBRelation *rel, bool readOnly, const QString &order, bool loadOnBackground, QObject *parent = 0);
     ~RelationBaseBeanModel();
 
     bool baseBeanModel()
@@ -107,12 +108,16 @@ public:
     virtual void freezeModel();
     virtual void defrostModel();
 
+    bool loadOnBackground() const;
+    void setLoadOnBackground(bool value);
+
 private slots:
     void fieldBeanModified(BaseBean *, const QString &, const QVariant &);
     void dbStateBeanModified(BaseBean *, int);
     void childInserted(BaseBean *bean, int position);
     void childDeleted(BaseBean *bean, int position);
     void beanLoadedOnBackground(DBRelation *rel, int row, BaseBeanSharedPointer bean);
+    void clear();
 
 public slots:
     void refresh(bool force = false);

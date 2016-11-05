@@ -38,7 +38,7 @@ class DBComboBoxPlugin : public DBBasePlugin
 private:
 
 public:
-    DBComboBoxPlugin(QObject *parent = 0);
+    explicit DBComboBoxPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     QIcon icon() const;

@@ -32,7 +32,7 @@ public:
     /** Ruta de la que se ha obtenido este observador */
     QString m_path;
 
-    DBMultipleRelationObserverPrivate(DBMultipleRelationObserver *qq) : q_ptr(qq)
+    explicit DBMultipleRelationObserverPrivate(DBMultipleRelationObserver *qq) : q_ptr(qq)
     {
 
     }

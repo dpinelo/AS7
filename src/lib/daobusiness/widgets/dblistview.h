@@ -60,6 +60,7 @@ class ALEPHERP_DLL_EXPORT DBListView : public QListView, public DBAbstractViewIn
 
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     Q_PROPERTY (bool aerpControlRelation READ aerpControlRelation)
 
     /** Indica qué field del BaseBean (ya sea interno o externo) es visible */
@@ -114,6 +115,8 @@ class ALEPHERP_DLL_EXPORT DBListView : public QListView, public DBAbstractViewIn
     Q_PROPERTY (QStringList visibleForUsers READ visibleForUsers WRITE setVisibleForUsers)
     /** El widget estará habilitado, sólo si esta propiedad está vacía o para los usuarios aquí presentes */
     Q_PROPERTY (QStringList dataEditableForUsers READ dataEditableForUsers WRITE setDataEditableForUsers)
+    /** Permite especificar que se carguen en segundo plano los hijos */
+    Q_PROPERTY (bool loadOnBackground READ loadOnBackground WRITE setLoadOnBackground)
 
     friend class DBListViewPrivate;
 

@@ -47,7 +47,7 @@ public:
     QString m_moduleDirPath;
     QHash<QString, QString> m_actualDiffItem;
 
-    SystemItemsPrivate(SystemItemsDlg *qq) : q_ptr(qq)
+    explicit SystemItemsPrivate(SystemItemsDlg *qq) : q_ptr(qq)
     {
         m_cancel = false;
     }

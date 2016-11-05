@@ -43,7 +43,7 @@ private:
     AERPSystemModulePrivate *d;
 
 public:
-    AERPSystemModule(QObject *parent = NULL);
+    explicit AERPSystemModule(QObject *parent = NULL);
     virtual ~AERPSystemModule();
 
     QString id() const;

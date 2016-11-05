@@ -45,7 +45,7 @@ class StringExpression
 {
 private:
     QString applyFunctions(const QString &function, const QString &displayValue);
-    QString tokenWithoutFunctionsOrDisplay(const QString &token);
+    static QString tokenWithoutFunctionsOrDisplay(const QString &token);
 
 public:
     QString expression;

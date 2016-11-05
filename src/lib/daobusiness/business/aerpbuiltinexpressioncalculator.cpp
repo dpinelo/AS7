@@ -76,7 +76,7 @@ public:
     QVariant::Type m_type;
     QString m_id;
 
-    AERPBuiltInExpressionCalculatorPrivate(AERPBuiltInExpressionCalculator *qq) : q_ptr(qq)
+    explicit AERPBuiltInExpressionCalculatorPrivate(AERPBuiltInExpressionCalculator *qq) : q_ptr(qq)
     {
         m_id = QString("%1").arg(alephERPSettings->uniqueId());
         m_type = QVariant::Double;

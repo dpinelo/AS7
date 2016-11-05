@@ -150,7 +150,7 @@ public:
      * pertenecen a esa transacción o no*/
     bool m_initContext;
 
-    DBSearchDlgPrivate(DBSearchDlg *qq) : q_ptr(qq)
+    explicit DBSearchDlgPrivate(DBSearchDlg *qq) : q_ptr(qq)
     {
         m_userClickOk = false;
         m_userInsertNewRecord = false;
@@ -163,7 +163,7 @@ public:
     bool setupExternalWidget();
     void setCheckStateToPartially();
     void setCombosNotSelected();
-    void setupQs();
+    void execQs();
     void connectObjectsToSearch();
     void initTreeModel();
     void initTableModel();
@@ -437,7 +437,8 @@ bool DBSearchDlg::init()
             baseWidget->setDataEditable(true);
         }
     }
-    d->setupQs();
+    d->execQs();
+    connectPushButtonsToQsFunctions();
     if ( !d->m_defaultValues.isEmpty() )
     {
         search();
@@ -485,7 +486,7 @@ void DBSearchDlgPrivate::initTableModel()
         DBRelation *rel = m_masterBean->relation(q_ptr->tableName());
         if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
         {
-            m_model = new RelationBaseBeanModel(rel, true, "", q_ptr);
+            m_model = new RelationBaseBeanModel(rel, true, "", false, q_ptr);
         }
     }
     if ( m_model.isNull() )
@@ -686,29 +687,25 @@ bool DBSearchDlgPrivate::setupExternalWidget()
                         arg(q_ptr->tableName()).arg(m_metadata->uiDbSearch()));
     if ( m_metadata->uiDbSearch().isEmpty() )
     {
-        fileName = QString("%1/%2.search.ui").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                   arg(q_ptr->tableName());
+        fileName = QString("%1.search.ui").arg(q_ptr->tableName());
     }
     else
     {
         if ( !m_metadata->uiDbSearch().endsWith(".search.ui" ))
         {
-            fileName = QString("%1/%2.search.ui").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                       arg(m_metadata->uiDbSearch());
+            fileName = QString("%1.search.ui").arg(m_metadata->uiDbSearch());
         }
         else
         {
-            fileName = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                       arg(m_metadata->uiDbSearch());
+            fileName = QString("%1").arg(m_metadata->uiDbSearch());
         }
     }
-    QFile file (fileName);
     bool result;
 
-    if ( file.exists() )
+    if ( BeansFactory::systemUi.contains(fileName) )
     {
-        file.open( QFile::ReadOnly );
-        m_widget = AERPUiLoader::instance()->load(&file, 0);
+        QBuffer buffer(BeansFactory::systemUi[fileName]);
+        m_widget = AERPUiLoader::instance()->load(&buffer, 0);
         if ( m_widget != NULL )
         {
             m_widget->setParent(q_ptr);
@@ -732,7 +729,6 @@ bool DBSearchDlgPrivate::setupExternalWidget()
         QLogger::QLog_Error(AlephERP::stLogOther, QString("DBSearchDlgPrivate::setupExternalWidget: No existe el fichero %1").arg(fileName));
         result = false;
     }
-    file.close();
     return result;
 }
 
@@ -760,7 +756,7 @@ void DBSearchDlgPrivate::setCombosNotSelected()
  * @brief DBSearchDlg::setupQs
  * Ejecuta el código QScript asociado.
  */
-void DBSearchDlgPrivate::setupQs()
+void DBSearchDlgPrivate::execQs()
 {
     QString qsName;
     QString uiName;

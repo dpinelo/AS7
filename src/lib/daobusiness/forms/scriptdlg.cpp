@@ -85,6 +85,7 @@ bool ScriptDlg::init()
 
     // Código propio del formulario
     execQs();
+    connectPushButtonsToQsFunctions();
 
     return true;
 }
@@ -115,29 +116,25 @@ void ScriptDlg::closeEvent(QCloseEvent * event)
   */
 void ScriptDlg::setupMainWidget()
 {
-    QString fileName = QString("%1/%2").
-                       arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                       arg(d->m_ui);
-
-    if ( QFile::exists(fileName) )
+    if ( !BeansFactory::systemUi.contains(d->m_ui) )
     {
-        QFile file (fileName);
-        file.open( QFile::ReadOnly );
-        d->m_widget = AERPUiLoader::instance()->load(&file, 0);
-        if ( !d->m_widget.isNull() )
-        {
-            d->m_widget->setParent(this);
-            QVBoxLayout *lay = new QVBoxLayout(this);
-            lay->addWidget(d->m_widget);
-            this->setLayout(lay);
-        }
-        else
-        {
-            QMessageBox::warning(this,qApp->applicationName(), trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").arg(fileName),
-                                 QMessageBox::Ok);
-            close();
-        }
-        file.close();
+        return;
+    }
+    QBuffer buffer(BeansFactory::systemUi[d->m_ui]);
+    file.open( QFile::ReadOnly );
+    d->m_widget = AERPUiLoader::instance()->load(&buffer, 0);
+    if ( !d->m_widget.isNull() )
+    {
+        d->m_widget->setParent(this);
+        QVBoxLayout *lay = new QVBoxLayout(this);
+        lay->addWidget(d->m_widget);
+        this->setLayout(lay);
+    }
+    else
+    {
+        QMessageBox::warning(this,qApp->applicationName(), trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").arg(fileName),
+                             QMessageBox::Ok);
+        close();
     }
 }
 

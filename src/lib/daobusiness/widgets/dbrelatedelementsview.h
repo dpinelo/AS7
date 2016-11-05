@@ -56,6 +56,7 @@ class ALEPHERP_DLL_EXPORT DBRelatedElementsView : public QWidget, public DBAbstr
     Q_PROPERTY (DBRelatedElementsView::CategoriesRule categoriesRule READ categoriesRule WRITE setCategoriesRule)
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     Q_PROPERTY (bool userModified READ userModified WRITE setUserModified)
     Q_PROPERTY (DBRelatedElementsView::Buttons visibleButtons READ visibleButtons WRITE setVisibleButtons)
     Q_PROPERTY (QAbstractItemView::EditTriggers editTriggers READ editTriggers WRITE setEditTriggers)

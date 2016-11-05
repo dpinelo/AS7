@@ -49,7 +49,7 @@ private:
 
 protected:
     /** Constructor privado. Sólo la factoría puede crear observadores */
-    DBRelationObserver(DBObject *entity);
+    explicit DBRelationObserver(DBObject *entity);
 
     void appendWidget(QObject *wid);
 

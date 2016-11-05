@@ -32,6 +32,7 @@ class ALEPHERP_DLL_EXPORT DBGroupRelationMMHelper : public QGroupBox, public DBB
     /** Indica si el control está en modo readOnly o no */
     Q_PROPERTY (bool dataEditable READ dataEditable WRITE setDataEditable)
     Q_PROPERTY (bool aerpControl READ aerpControl)
+    Q_PROPERTY (bool addToThisForm READ addToThisForm)
     /** Útil desde Qs, para conocer si el usuario ha modificado el valor que contiene */
     Q_PROPERTY (bool userModified READ userModified WRITE setUserModified)
     /** Acceso al valor del field asociado (la columna de base de datos */

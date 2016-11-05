@@ -88,7 +88,7 @@ public:
     bool m_isSettingValue;
     bool m_connectedToObserver;
 
-    DBCodeEditPrivate(DBCodeEdit *qq) : q_ptr(qq)
+    explicit DBCodeEditPrivate(DBCodeEdit *qq) : q_ptr(qq)
     {
 #ifndef ALEPHERP_QSCISCINTILLA
         m_formats = NULL;

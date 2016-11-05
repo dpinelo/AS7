@@ -117,7 +117,8 @@ const char * AlephERP::stVisibleForUsers = "visibleForUsers";
 const char * AlephERP::stDataEditableForUsers = "dataEditableForUsers";
 const char * AlephERP::stInactive = "debaja";
 const char * AlephERP::stDatabaseErrorPrefix = "AERPERROR:";
-
+const char * AlephERP::stQsFunction = "qsFunction";
+const char * AlephERP::stAddToThisForm = "addToThisForm";
 
 #ifdef ALEPHERP_DEVTOOLS
 const char * AlephERP::stWebInspector = "aerpWebInspector";

@@ -24,6 +24,8 @@
 DBBasePlugin::DBBasePlugin(QObject *parent) :
     QObject(parent)
 {
+    m_widget = NULL;
+    m_initialized = false;
 }
 
 void DBBasePlugin::initialize(QDesignerFormEditorInterface *formEditor)

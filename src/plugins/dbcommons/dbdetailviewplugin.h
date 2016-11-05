@@ -36,7 +36,7 @@ class DBDetailViewPlugin : public DBBasePlugin
 private:
 
 public:
-    DBDetailViewPlugin(QObject *parent = 0);
+    explicit DBDetailViewPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     QIcon icon() const;

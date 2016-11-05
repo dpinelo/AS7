@@ -39,7 +39,7 @@ private:
     AERPStackedWidget *m_widget;
 
 public:
-    AERPStackedWidgetPlugin(QObject *parent = 0);
+    explicit AERPStackedWidgetPlugin(QObject *parent = 0);
 
     bool isContainer() const;
     bool isInitialized() const;
