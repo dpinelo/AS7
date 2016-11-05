@@ -177,7 +177,7 @@ public:
     BaseBeanPointer nextIndex(const QString &direction);
     bool isPrintButtonVisible();
     bool isEmailButtonVisible();
-    QBuffer widgetFileName();
+    QByteArray widgetFileName();
     void showNavigationBeanWidget();
     void addBeanToNavigationWidget(BaseBeanPointer bean, AlephERP::FormOpenType openType);
     BeansOnNavigation navigationWidgetSelectCurrentBean();
@@ -222,7 +222,7 @@ bool DBRecordDlgPrivate::isEmailButtonVisible()
 #endif
 }
 
-QBuffer DBRecordDlgPrivate::widgetFileName()
+QByteArray DBRecordDlgPrivate::widgetFileName()
 {
     QString fileUiNewRecord, fileQmlNewRecord;
     QString fileUiEditRecord, fileQmlEditRecord;
@@ -231,7 +231,7 @@ QBuffer DBRecordDlgPrivate::widgetFileName()
 
     if ( m_bean.isNull() )
     {
-        return QString();
+        return QByteArray();
     }
     if ( m_uiCode.isEmpty() )
     {
@@ -324,12 +324,11 @@ QBuffer DBRecordDlgPrivate::widgetFileName()
             q_ptr->setObjectName(QString("%1.dbrecord.ui").arg(m_bean->metadata()->tableName()));
         }
     }
-    QBuffer buffer;
     if ( BeansFactory::systemUi.contains(fileName) )
     {
-        buffer.setData(BeansFactory::systemUi[fileName]);
+        return BeansFactory::systemUi[fileName];
     }
-    return buffer;
+    return QByteArray();
 }
 
 void DBRecordDlgPrivate::showNavigationBeanWidget()
@@ -1440,30 +1439,11 @@ bool DBRecordDlg::eventFilter (QObject *target, QEvent *event)
   */
 void DBRecordDlg::setupMainWidget()
 {
-    QBuffer buffer = d->widgetFileName();
+    QByteArray ba = d->widgetFileName();
 
-    if ( buffer.isOpen() )
+    if ( ba.isEmpty() || ba.isNull() )
     {
-        d->m_widget = AERPUiLoader::instance()->load(&buffer, 0);
-        if ( d->m_widget != NULL )
-        {
-            d->m_widget->setParent(this);
-            ui->widgetLayout->addWidget(d->m_widget);
-            d->m_widget->setFocusProxy(CommonsFunctions::firstFocusWidget(d->m_widget));
-        }
-        else
-        {
-            QMessageBox::warning(this,
-                                 qApp->applicationName(),
-                                 trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").arg(fileName),
-                                 QMessageBox::Ok);
-            reject();
-        }
-        buffer.close();
-    }
-    else
-    {
-        QLogger::QLog_Info(AlephERP::stLogOther, trUtf8("DBRecordDlg::setupMainWidget: No existe un fichero UI asociado con el nombre: [%1]. Se creará uno por defecto.").arg(fileName));
+        QLogger::QLog_Info(AlephERP::stLogOther, trUtf8("DBRecordDlg::setupMainWidget: No existe un fichero UI asociado con el nombre: [%1]. Se creará uno por defecto.").arg(d->m_bean->metadata()->alias()));
         QGridLayout *lay = new QGridLayout;
         QGroupBox *gb = new QGroupBox(this);
         if ( !d->m_bean.isNull() )
@@ -1472,6 +1452,24 @@ void DBRecordDlg::setupMainWidget()
         }
         gb->setLayout(lay);
         ui->widgetLayout->addWidget(gb);
+        return;
+    }
+
+    QBuffer buffer(&ba);
+    d->m_widget = AERPUiLoader::instance()->load(&buffer, 0);
+    if ( d->m_widget != NULL )
+    {
+        d->m_widget->setParent(this);
+        ui->widgetLayout->addWidget(d->m_widget);
+        d->m_widget->setFocusProxy(CommonsFunctions::firstFocusWidget(d->m_widget));
+    }
+    else
+    {
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").arg(d->m_bean->metadata()->alias()),
+                             QMessageBox::Ok);
+        reject();
     }
 }
 

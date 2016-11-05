@@ -120,8 +120,7 @@ void ScriptDlg::setupMainWidget()
     {
         return;
     }
-    QBuffer buffer(BeansFactory::systemUi[d->m_ui]);
-    file.open( QFile::ReadOnly );
+    QBuffer buffer(&BeansFactory::systemUi[d->m_ui]);
     d->m_widget = AERPUiLoader::instance()->load(&buffer, 0);
     if ( !d->m_widget.isNull() )
     {
@@ -132,7 +131,10 @@ void ScriptDlg::setupMainWidget()
     }
     else
     {
-        QMessageBox::warning(this,qApp->applicationName(), trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").arg(fileName),
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").
+                                arg(d->m_ui),
                              QMessageBox::Ok);
         close();
     }

@@ -378,7 +378,7 @@ bool DBWizardDlg::setupMainWidget()
     {
         if ( BeansFactory::systemUi.contains(uiPage) )
         {
-            QBuffer buffer(BeansFactory::systemUi[uiPage]);
+            QBuffer buffer(&BeansFactory::systemUi[uiPage]);
             QWidget *widget = AERPUiLoader::instance()->load(&buffer, 0);
             if ( widget != NULL )
             {

@@ -677,7 +677,7 @@ bool DBReportRunDlgPrivate::setupMainWidget()
         {
             delete m_widget;
         }
-        QBuffer buffer(BeansFactory::systemUi[fileName]);
+        QBuffer buffer(&BeansFactory::systemUi[fileName]);
         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
         m_widget = AERPUiLoader::instance()->load(&buffer, 0);
         CommonsFunctions::restoreOverrideCursor();

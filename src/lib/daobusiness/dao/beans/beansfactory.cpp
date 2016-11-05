@@ -176,7 +176,7 @@ bool BeansFactory::buildUIWidgets()
         {
             if ( object->type() == QStringLiteral("ui") && !BeansFactory::hasDependObject(object) )
             {
-                BeansFactory::systemUi[object->objectName()] = object->content().toUtf8();
+                BeansFactory::systemUi[object->name()] = object->content().toUtf8();
                 BeansFactory::instance()->emitProgressValue();
             }
         }

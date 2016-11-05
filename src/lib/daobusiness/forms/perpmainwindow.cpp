@@ -929,10 +929,10 @@ AERPMainWindow *AERPMainWindow::loadUi()
         uiName.append(".ui");
     }
 
-    QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPMainWindow::loadUi: Se va a intentar cargar [%1]").arg(fileName));
+    QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPMainWindow::loadUi: Se va a intentar cargar [%1]").arg(uiName));
     if ( BeansFactory::systemUi.contains(uiName) )
     {
-        QBuffer buffer(BeansFactory::systemUi[uiName]);
+        QBuffer buffer(&BeansFactory::systemUi[uiName]);
         mainWindow = qobject_cast<AERPMainWindow *>(AERPUiLoader::instance()->load(&buffer));
         if ( mainWindow == NULL )
         {
@@ -941,7 +941,7 @@ AERPMainWindow *AERPMainWindow::loadUi()
         }
         else
         {
-            QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPMainWindow::loadUi: [%1] cargado correctamente.").arg(fileName));
+            QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPMainWindow::loadUi: [%1] cargado correctamente.").arg(uiName));
         }
     }
     else

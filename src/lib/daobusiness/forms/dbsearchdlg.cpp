@@ -704,7 +704,7 @@ bool DBSearchDlgPrivate::setupExternalWidget()
 
     if ( BeansFactory::systemUi.contains(fileName) )
     {
-        QBuffer buffer(BeansFactory::systemUi[fileName]);
+        QBuffer buffer(&BeansFactory::systemUi[fileName]);
         m_widget = AERPUiLoader::instance()->load(&buffer, 0);
         if ( m_widget != NULL )
         {

@@ -307,7 +307,7 @@ bool AERPScriptWidgetPrivate::setupWidget()
 
     if ( BeansFactory::systemUi.contains(fileName) )
     {
-        QBuffer buffer(BeansFactory::systemUi[fileName]);
+        QBuffer buffer(&BeansFactory::systemUi[fileName]);
         m_widget = AERPUiLoader::instance()->load(&buffer, q_ptr);
         if ( m_widget != NULL )
         {
