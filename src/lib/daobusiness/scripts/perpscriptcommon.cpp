@@ -2106,6 +2106,45 @@ void AERPScriptCommon::openRecordDialog(BaseBean *bean, AlephERP::FormOpenType o
     }
 }
 
+QScriptValue AERPScriptCommon::openRecordDialog(const QString &tableName, qlonglong oid, AlephERP::FormOpenType openType, bool modal, QWidget *parent)
+{
+    QScriptValue result = engine()->newObject();
+    BaseBeanSharedPointer bean = BeansFactory::instance()->newQBaseBean(tableName, false);
+    if ( bean.isNull() )
+    {
+        result.setProperty("error", "tableName is not valid.");
+        return result;
+    }
+    if ( !BaseDAO::selectByOid(oid, bean.data()) )
+    {
+        result.setProperty("error", BaseDAO::lastErrorMessage());
+        return result;
+    }
+    DBRecordDlg *dlg = new DBRecordDlg(bean, openType, true, parent);
+    if ( !dlg->openSuccess() || !dlg->init() )
+    {
+        result.setProperty("error", "Cannot open DBRecordDlg");
+        delete dlg;
+        return result;
+    }
+    if ( !modal )
+    {
+        dlg->setAttribute(Qt::WA_DeleteOnClose);
+    }
+    result.setProperty("result", true);
+    if ( modal )
+    {
+        dlg->setModal(true);
+        dlg->exec();
+        result.setProperty("userSaveData", dlg->userSaveData());
+    }
+    else
+    {
+        dlg->show();
+    }
+    return result;
+}
+
 QScriptValue AERPScriptCommon::openSpreadSheet(const QString &file, const QString &type, int rowInit, int rowCount)
 {
     AERPSpreadSheet *spread;

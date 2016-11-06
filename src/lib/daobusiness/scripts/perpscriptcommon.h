@@ -291,6 +291,11 @@ public:
                                       AlephERP::FormOpenType openType,
                                       bool useNewContext,
                                       QWidget* parent = 0);
+    Q_INVOKABLE QScriptValue openRecordDialog(const QString &tableName,
+                                      qlonglong oid,
+                                      AlephERP::FormOpenType openType,
+                                      bool modal = false,
+                                      QWidget *parent = 0);
 
     // ------------------------------------------------
     // TRABAJO CON HOJAS DE CÁLCULOS
