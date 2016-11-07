@@ -97,7 +97,7 @@ LoginDlg::LoginDlg(QWidget *parent) :
     }
     ui->lblImage->setPixmap(pixmap);
 
-    QString version = trUtf8("<html><head/><body><p align=\"right\"><span style=\"font-size:6pt;\">Versión: %1</span></p></body></html>").arg(QString(ALEPHERP_REVISION));
+    QString version = trUtf8("<html><head/><body><p align=\"right\"><span style=\"font-size:6pt;\">Versión: <strong>%1</strong></span></p></body></html>").arg(QString(ALEPHERP_REVISION));
     ui->lblVersion->setText(version);
 
     connect (ui->pbOk, SIGNAL(clicked()), this, SLOT(okClicked()));
