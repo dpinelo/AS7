@@ -13,10 +13,6 @@
   <property name="windowTitle">
    <string>Consistencia de Metadatos</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../resources/resources.qrc">
-    <normaloff>:/aplicacion/images/BolaAleph.png</normaloff>:/aplicacion/images/BolaAleph.png</iconset>
-  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0">
     <widget class="QPushButton" name="pbFix">

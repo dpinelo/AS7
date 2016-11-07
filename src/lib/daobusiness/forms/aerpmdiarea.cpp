@@ -51,25 +51,26 @@ void AERPMdiArea::paintEvent(QPaintEvent *paintEvent)
     font.setPointSize(30);
     painter.setFont(font);
     painter.setPen(Qt::darkGray);
-    QFontMetrics fm = painter.fontMetrics();
 
-    QPixmap img(":/aplicacion/images/asycom2.png");
     // Si en el directorio del ejecutable, hay una imagen con nombre icon.png, utilizamos esta
     QString mdiFilePath = qApp->applicationDirPath() + QDir::separator() + "mdiimage.png";
     QFile fiMdiFile(mdiFilePath);
     if ( fiMdiFile.exists() )
     {
-        img = QPixmap(mdiFilePath);
+        QPixmap img = QPixmap(mdiFilePath);
         QSize sz = img.size();
         QPoint pos = QPoint(sz.width() + 100, sz.height() + 30);
         QPoint posImg = viewport()->rect().bottomRight() - pos;
         painter.drawPixmap(QRect(posImg, sz), img);
     }
+    /*
     else
     {
+        QFontMetrics fm = painter.fontMetrics();
         QPoint posImg = viewport()->rect().bottomRight() - QPoint(100 + 20 + fm.width("alephERP")+ 20, 120);
         painter.drawPixmap(QRect(posImg, QSize(100, 100)), img);
 
         painter.drawText(QRect(posImg + QPoint(120,0), QSize(20 + fm.width("alephERP") + 20, 100)), Qt::AlignLeft | Qt::AlignVCenter, "alephERP");
     }
+    */
 }

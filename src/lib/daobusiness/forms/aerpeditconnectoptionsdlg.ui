@@ -13,10 +13,6 @@
   <property name="windowTitle">
    <string>Configuración de conexión</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../resources/resources.qrc">
-    <normaloff>:/aplicacion/images/alephLogoIcon.ico</normaloff>:/aplicacion/images/alephLogoIcon.ico</iconset>
-  </property>
   <layout class="QGridLayout" name="gridLayout_5">
    <item row="0" column="0" colspan="2">
     <widget class="QGroupBox" name="gbGeneral">
