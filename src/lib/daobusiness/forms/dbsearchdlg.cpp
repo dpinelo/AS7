@@ -1266,6 +1266,12 @@ void DBSearchDlg::search()
         d->m_searchHistory.append(searchPerformed);
         searchPerformed->m_results = d->m_model->rowCount();
     }
+    // Tras la búsqueda, ¿queda sólo un registro? De ser así, lo seleccionamos de forma automática para
+    // agilizar la interacción con la app
+    if ( !d->m_metadata->showOnTree() && d->m_filter->rowCount() == 1 )
+    {
+        ui->tvResults->selectRow(0);
+    }
 }
 
 /*!
