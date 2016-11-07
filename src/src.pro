@@ -102,9 +102,6 @@ QT += widgets \
 RESOURCES += translations.'$$QT_MAJOR_VERSION'.qrc \
              lib/daobusiness/resources/resources.qrc
 
-VERSTR = '\\"$${VERSION}\\"'
-DEFINES += VER=\"$${VERSTR}\"
-
 contains(TESTPARTS, Y) {
     QT += testlib
 }

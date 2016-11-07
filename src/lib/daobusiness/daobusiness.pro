@@ -98,9 +98,6 @@ QT +=   sql \
         script \
         printsupport
 
-VERSTR = '\\"$${VERSION}\\"'
-DEFINES += VER=\"$${VERSTR}\"
-
 TRANSLATIONS    = daobusiness_english.ts \
                   daobusiness_spanish.ts \
                   daobusiness_french.ts \

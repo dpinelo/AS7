@@ -163,14 +163,6 @@ contains (AERPDOCMNGSUPPORT, Y) {
     }
 }
 
-unix {
-    BUILDNUM=$$system("date '+%Y%m%d'")
-    DEFINES+=BUILDNUM=\\\"$${BUILDNUM}\\\"
-} else {
-    BUILDNUM=$$system('wingetdate.bat')
-    DEFINES+=BUILDNUM=\\\"$${BUILDNUM}\\\"
-}
-
 win32 {
     CONFIG += windows
     RC_FILE = win32info.rc

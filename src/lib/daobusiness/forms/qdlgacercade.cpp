@@ -32,6 +32,10 @@ QDlgAbout::QDlgAbout(QWidget* parent, Qt::WindowFlags fl)
     : QDialog( parent, fl ), ui(new Ui::AcercaDeDlg)
 {
     ui->setupUi(this);
+
+    QString version = trUtf8("<html><head/><body><p><span style=\"font-size:8pt;\">Versión: "
+                              "</span><span style=\"font-size:8pt; font-weight:600;\">%1</span></p></body></html>").arg(QString(ALEPHERP_REVISION));
+    ui->lblVersion->setText(version);
     connect (ui->pbOk, SIGNAL(clicked()), this, SLOT(close()));
 }
 

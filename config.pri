@@ -110,6 +110,10 @@ CONFIG += debug_and_release
 # Hasta aquí
 #-----------------------------------------------------------------------------------------------------
 
+BUILDNUM=$$system('git describe')
+DEFINES += ALEPHERP_REVISION=\\\"$${BUILDNUM}\\\"
+message("Construyendo version " $$BUILDNUM)
+
 CONFIG += c++11
 
 android {

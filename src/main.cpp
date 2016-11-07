@@ -184,6 +184,9 @@ int main(int argc, char *argv[])
     logger->addDestination(QString("alepherp-batch.log"), loggerModules, alephERPSettings->logLevel());
 #endif
 
+    QLogger::QLog_Info(AlephERP::stLogOther, QString("Iniciando la aplicación. Versión: [%1] - [%2]").
+                       arg(QString(ALEPHERP_REVISION)).arg(QDateTime::currentDateTime().toString()));
+
     // Cargamos el archivo con las traducciones
     QTranslator translator;
     QString translationFile = QString("qt_%1").arg(alephERPSettings->locale()->name());
