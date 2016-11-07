@@ -20,8 +20,8 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define APP_VERSION "1.3.$WCREV$"
-#define APP_MAIN_VERSION "1.3"
+#define APP_VERSION "3.0.$WCREV$"
+#define APP_MAIN_VERSION "3.0"
 #define APP_REVISION "$WCREV$"
 
 #endif // VERSION_H

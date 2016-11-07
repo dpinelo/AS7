@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>AlephERP - Consistencia de Metadatos</string>
+   <string>Consistencia de Metadatos</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../resources/resources.qrc">

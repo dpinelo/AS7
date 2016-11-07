@@ -147,6 +147,8 @@ LoginDlg::LoginDlg(QWidget *parent) :
             }
         }
     }
+
+    setWindowTitle(trUtf8("%1 - Acceso").arg(qApp->applicationName()));
 }
 
 LoginDlg::~LoginDlg()

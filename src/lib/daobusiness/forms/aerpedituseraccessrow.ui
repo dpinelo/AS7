@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>AlephERP - Edición de permisos de acceso por registro [*]</string>
+   <string>Edición de permisos de acceso por registro [*]</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../resources/resources.qrc">
@@ -119,6 +119,8 @@
   <tabstop>pbCancel</tabstop>
  </tabstops>
  <resources>
+  <include location="../resources/resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>

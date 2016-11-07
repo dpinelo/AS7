@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>AlephERP - Selección de módulos</string>
+   <string>Selección de módulos</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../resources/resources.qrc">

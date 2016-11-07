@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>AlephERP - Acerca de...</string>
+   <string>Acerca de...</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../resources/resources.qrc">

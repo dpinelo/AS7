@@ -128,9 +128,23 @@ int main(int argc, char *argv[])
 
     // Estas variables deben estar establecidas para poder acceder a la configuración
     Q_INIT_RESOURCE(resources);
-    app.setApplicationName(QString::fromUtf8("AlephERP"));
-    app.setOrganizationName(QString::fromUtf8("Aleph Sistemas de Información"));
-    app.setOrganizationDomain("alephsistemas.es");
+    QString appNames = QString("%1/names.lic").arg(qApp->applicationDirPath());
+    QFile fi(appNames);
+    if ( fi.exists() && fi.open(QIODevice::ReadOnly) )
+    {
+        QString content = fi.readAll();
+        QStringList parts = content.split(";");
+        Q_ASSERT(parts.size() == 3);
+        app.setApplicationName(parts.at(0));
+        app.setOrganizationName(parts.at(1));
+        app.setOrganizationDomain(parts.at(2));
+    }
+    else
+    {
+        app.setApplicationName(QString::fromUtf8("AlephERP"));
+        app.setOrganizationName(QString::fromUtf8("Aleph Sistemas de Información"));
+        app.setOrganizationDomain("alephsistemas.es");
+    }
 
 #ifdef Q_OS_WIN
 #ifdef ALEPHERP_DRMINGW
@@ -243,17 +257,19 @@ int main(int argc, char *argv[])
 
     // Necesitamos la conexión a las bases de datos auxiliares.
     splash->showMessage(QObject::trUtf8("Conectando con las bases de datos auxiliares..."));
-    if ( !connectToAuxiliarDatabases() )
+#ifndef ALEPHERP_STANDALONE
+    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+    bool r = Database::createServerConnection();
+    CommonsFunctions::restoreOverrideCursor();
+    if ( !r )
     {
+        QMessageBox::critical(0, qApp->applicationName(), Database::lastErrorMessage(), QMessageBox::Ok);
         splash->close();
         closeApp();
         return 0;
     }
-
-    // http://blogs.kde.org/node/3919
-#if !defined(ALEPHERP_STANDALONE) && !defined(ALEPHERP_FORCE_TO_USE_CLOUD)
-    int lastServer = alephERPSettings->lastServer();
 #endif
+
     splash->hide();
     if ( !loginProcess() )
     {
@@ -264,19 +280,16 @@ int main(int argc, char *argv[])
     splash->show();
 
     // El usuario ha cambiado de servidor: hay que limpiar todos los datos
-#if !defined(ALEPHERP_STANDALONE) && !defined(ALEPHERP_FORCE_TO_USE_CLOUD)
-    int newServer = alephERPSettings->lastServer();
-    if ( alephERPSettings->advancedUser() && lastServer != newServer )
+    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+    r = Database::createSystemConnection();
+    CommonsFunctions::restoreOverrideCursor();
+    if ( !r )
     {
-        // Se borran todos los datos locales
-        CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-        Database::getLocalSystemDatabase().close();
-        QSqlDatabase::removeDatabase(Database::localSystemDatabaseName());
-        BeansFactory::cleanTempPath();
-        Database::createSystemConnection();
-        CommonsFunctions::restoreOverrideCursor();
+        QMessageBox::critical(0, qApp->applicationName(), Database::lastErrorMessage(), QMessageBox::Ok);
+        splash->close();
+        closeApp();
+        return 0;
     }
-#endif
 
     // ¿La base de datos a la que nos conectamos tiene objetos de sistema definidos?
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
@@ -683,34 +696,6 @@ bool connectToMainDatabase()
     return true;
 }
 
-
-/**
- * @brief connectToAuxiliarDatabases
- * Realiza la conexión a las bases de datos auxiliares que dan soporte a la aplicación
- * @return
- */
-bool connectToAuxiliarDatabases()
-{
-    // Aquí conectamos a las bases de datos auxiliares
-    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-    if ( !Database::createSystemConnection() )
-    {
-        CommonsFunctions::restoreOverrideCursor();
-        QMessageBox::critical(0, qApp->applicationName(), Database::lastErrorMessage(), QMessageBox::Ok);
-        return false;
-    }
-#ifndef ALEPHERP_STANDALONE
-    if ( !Database::createServerConnection() )
-    {
-        CommonsFunctions::restoreOverrideCursor();
-        QMessageBox::critical(0, qApp->applicationName(), Database::lastErrorMessage(), QMessageBox::Ok);
-        return false;
-    }
-#endif
-    CommonsFunctions::restoreOverrideCursor();
-    return true;
-}
-
 /**
  * @brief attemptToLogin
  * Intenta el login contra la base de datos. Como el username puede ocurrir que se utilice en mayúsculas y minúsculas,
@@ -840,29 +825,18 @@ bool loginProcess()
                 }
                 else
                 {
-                    Database::closeDatabases();
-                    if ( !connectToAuxiliarDatabases() )
-                    {
-                        // ¿Se acaban de crear la estructura de base de datos?
-                        QMessageBox::information(0, qApp->applicationName(), QObject::trUtf8("Ha ocurrido un error. La aplicación se cerrará: [%1].").arg(Database::lastErrorMessage()), QMessageBox::Ok);
-                        return false;
-                    }
+                    Database::closeDatabases(false);
                     if ( loginDlg->exec() == QDialog::Rejected )
                     {
                         return false;
                     }
                 }
 #else
-                Database::closeDatabases();
-                if ( !connectToAuxiliarDatabases() )
-                {
-                    // ¿Se acaban de crear la estructura de base de datos?
-                    QMessageBox::information(0, qApp->applicationName(), QObject::trUtf8("Ha ocurrido un error. La aplicación se cerrará: [%1].").arg(Database::lastErrorMessage()), QMessageBox::Ok);
-                    return false;
-                }
+                Database::closeDatabases(false);
                 if ( loginDlg->exec() == QDialog::Rejected )
                 {
                     return false;
+                }
 #endif
             }
             if ( databaseOk && firstCreateStructure )
