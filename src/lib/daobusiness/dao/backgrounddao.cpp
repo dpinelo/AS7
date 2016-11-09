@@ -183,6 +183,7 @@ void BackgroundDAO::availableBeansExecuted(QString id, int offset, BaseBeanShare
 {
     d->removeRequest(id);
     emit availableBeans(id, offset, beans);
+    emit availableBeans(id, beans);
 }
 
 bool BackgroundDAO::isWorking()
