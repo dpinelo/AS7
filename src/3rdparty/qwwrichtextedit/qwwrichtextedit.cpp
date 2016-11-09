@@ -354,18 +354,21 @@ QAction * QwwRichTextEdit::toolBarAction(Action act) const
 void QwwRichTextEdit::contextMenuEvent(QContextMenuEvent * event)
 {
     QMenu *menu = createStandardContextMenu ( event->pos() );
-    QMenu *formatMenu = new QMenu(tr("Style"));
 
-    formatMenu->addAction(m_actions[BoldAction]);
-    formatMenu->addAction(m_actions[ItalicAction]);
-    formatMenu->addAction(m_actions[UnderlineAction]);
-    menu->insertMenu(menu->actions()[9], formatMenu);
-    QMenu *alignMenu = new QMenu(tr("Align"));
-    alignMenu->addAction(al);
-    alignMenu->addAction(ac);
-    alignMenu->addAction(ar);
-    alignMenu->addAction(aj);
-    menu->insertMenu(menu->actions()[10], alignMenu);
+    if ( menu->actions().size() > 9 ) {
+        QMenu *formatMenu = new QMenu(tr("Style"));
+
+        formatMenu->addAction(m_actions[BoldAction]);
+        formatMenu->addAction(m_actions[ItalicAction]);
+        formatMenu->addAction(m_actions[UnderlineAction]);
+        menu->insertMenu(menu->actions()[9], formatMenu);
+        QMenu *alignMenu = new QMenu(tr("Align"));
+        alignMenu->addAction(al);
+        alignMenu->addAction(ac);
+        alignMenu->addAction(ar);
+        alignMenu->addAction(aj);
+        menu->insertMenu(menu->actions()[10], alignMenu);
+    }
     menu->exec(event->pos());
     delete menu;
 }

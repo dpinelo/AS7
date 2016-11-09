@@ -122,7 +122,7 @@ void AERPConsistencyMetadataTableDlg::fix()
         BaseBeanMetadata *m = BeansFactory::metadataBean(ui->tableWidget->item(row, TV_IDX_TABLENAME)->text());
         if ( m != NULL )
         {
-            QString sFlag = ui->tableWidget->item(row, 2)->data(Qt::UserRole).toString();
+            QString sFlag = ui->tableWidget->item(row, TV_IDX_ERROR)->data(Qt::UserRole).toString();
             int iFlag = sFlag.toInt();
             AlephERP::ConsistencyTableErrors error(iFlag);
             if ( error.testFlag(AlephERP::ColumnOnMetadataNotOnTable) )
@@ -187,7 +187,7 @@ void AERPConsistencyMetadataTableDlg::fix()
             }
             else if ( error.testFlag(AlephERP::ForeignKeyNotExists) )
             {
-                QString relationName = ui->tableWidget->item(row, 2)->data(Qt::UserRole+1).toString();
+                QString relationName = ui->tableWidget->item(row, TV_IDX_ERROR)->data(Qt::UserRole+1).toString();
                 DBRelationMetadata *rel = m->relation(relationName);
                 if ( rel != NULL )
                 {

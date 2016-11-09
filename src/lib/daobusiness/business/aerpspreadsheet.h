@@ -227,6 +227,7 @@ class ALEPHERP_DLL_EXPORT AERPCell : public QObject
     Q_PROPERTY(AERPSpreadSheet::Type type READ type WRITE setType)
     Q_PROPERTY(int length READ length WRITE setLength)
     Q_PROPERTY(int decimalPlaces READ decimalPlaces WRITE setDecimalPlaces)
+    Q_PROPERTY(QFont font READ font WRITE setFont)
 
     friend class AERPSheet;
 
@@ -256,6 +257,8 @@ public:
     int decimalPlaces() const;
     void setDecimalPlaces(int value);
     QString columnName() const;
+    QFont font() const;
+    void setFont(const QFont &font);
 
     static QScriptValue toScriptValue(QScriptEngine *engine, AERPCell * const &in);
     static void fromScriptValue(const QScriptValue &object, AERPCell * &out);

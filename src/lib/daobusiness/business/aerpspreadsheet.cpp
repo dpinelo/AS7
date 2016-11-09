@@ -72,6 +72,7 @@ public:
     AERPSpreadSheet::Type m_type;
     int m_length;
     int m_decimalPlaces;
+    QFont m_font;
 
     AERPCellPrivate()
     {
@@ -1070,6 +1071,16 @@ QString AERPCell::columnName() const
         r = d->m_sheet->columnName(d->m_column);
     }
     return r;
+}
+
+QFont AERPCell::font() const
+{
+    return d->m_font;
+}
+
+void AERPCell::setFont(const QFont &font)
+{
+    d->m_font = font;
 }
 
 QScriptValue AERPCell::toScriptValue(QScriptEngine *engine, AERPCell * const &in)
