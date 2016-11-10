@@ -59,6 +59,7 @@ public:
     QPointer<AERPScriptQsObject> m_engine;
     bool m_forceToLoadBeans;
     bool m_dbFormHasFilterAcceptsRowFunction;
+    bool m_cancelExportToSpreadSheet;
 
     FilterBaseBeanModelPrivate(FilterBaseBeanModel *qq) : q_ptr(qq)
     {
@@ -69,6 +70,7 @@ public:
         m_acceptedRows[m_states] = QHash<qlonglong, bool>();
         m_forceToLoadBeans = false;
         m_dbFormHasFilterAcceptsRowFunction = false;
+        m_cancelExportToSpreadSheet = false;
     }
 
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent);
@@ -751,14 +753,20 @@ void FilterBaseBeanModel::clearAcceptedRows()
 
 bool FilterBaseBeanModel::exportToSpreadSheet(const QString &file, const QString &type)
 {
+    d->m_cancelExportToSpreadSheet = false;
     BaseBeanModel *source = qobject_cast<BaseBeanModel *>(sourceModel());
     if ( source != NULL )
     {
+
         // Primero: Nos aseguramos de cargar datos de los registros
         for (int i = 0 ; i < rowCount() ; i++)
         {
             bean(i);
             emit rowProcessed(i);
+            if ( d->m_cancelExportToSpreadSheet )
+            {
+                return false;
+            }
         }
         connect(source, SIGNAL(rowProcessed(int)), this, SIGNAL(rowProcessed(int)));
         bool r = source->exportToSpreadSheet(this, source->metadata(), file, type);
@@ -766,6 +774,16 @@ bool FilterBaseBeanModel::exportToSpreadSheet(const QString &file, const QString
         return r;
     }
     return false;
+}
+
+void FilterBaseBeanModel::cancelExportToSpreadSheet()
+{
+    BaseBeanModel *source = qobject_cast<BaseBeanModel *>(sourceModel());
+    d->m_cancelExportToSpreadSheet = true;
+    if ( source != NULL )
+    {
+        source->cancelExportToSpreadSheet();
+    }
 }
 
 bool FilterBaseBeanModel::commit()

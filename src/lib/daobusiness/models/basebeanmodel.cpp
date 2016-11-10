@@ -53,6 +53,7 @@ public:
     bool m_visibleFieldsFromMetadata;
     QList<DBFieldMetadata *> m_visibleFieldsMetadata;
     bool m_canEmitDataChanged;
+    bool m_cancelExportToSpreadSheet;
 
     explicit BaseBeanModelPrivate(BaseBeanModel *qq) : q_ptr(qq)
     {
@@ -62,6 +63,7 @@ public:
         m_loadingData = false;
         m_visibleFieldsFromMetadata = true;
         m_canEmitDataChanged = true;
+        m_cancelExportToSpreadSheet = false;
     }
 
     bool isFunction(int column);
@@ -1277,6 +1279,7 @@ bool BaseBeanModel::exportToSpreadSheet(QAbstractItemModel *model, BaseBeanMetad
         model->setProperty("lastErrorMessage", trUtf8("Los metadatos están vacíos."));
         return false;
     }
+    d->m_cancelExportToSpreadSheet = false;
     QScopedPointer<AERPSpreadSheet> spread (new AERPSpreadSheet);
     AERPSheet *sheet = spread->createSheet(m->alias(), 0);
     for (int column = 0 ; column < model->columnCount() ; ++column)
@@ -1297,6 +1300,10 @@ bool BaseBeanModel::exportToSpreadSheet(QAbstractItemModel *model, BaseBeanMetad
                 sheet->setColumnDecimalPlaces(column, 0);
             }
         }
+        if ( d->m_cancelExportToSpreadSheet )
+        {
+            return false;
+        }
     }
     int rowCount = model->rowCount();
     int columnCount = model->columnCount();
@@ -1309,6 +1316,10 @@ bool BaseBeanModel::exportToSpreadSheet(QAbstractItemModel *model, BaseBeanMetad
             {
                 AERPCell *cell = sheet->createCell(row, column);
                 cell->setValue(idx.data(AlephERP::RawValueRole));
+            }
+            if ( d->m_cancelExportToSpreadSheet )
+            {
+                return false;
             }
         }
         emit rowProcessed(row);
@@ -1414,6 +1425,10 @@ bool BaseBeanModel::exportToSpreadSheet(const QString &file, const QString &type
     return BaseBeanModel::exportToSpreadSheet(this, metadata(), file, type);
 }
 
+void BaseBeanModel::cancelExportToSpreadSheet()
+{
+    d->m_cancelExportToSpreadSheet = true;
+}
 
 bool BaseBeanModelPrivate::isFunction(int column)
 {

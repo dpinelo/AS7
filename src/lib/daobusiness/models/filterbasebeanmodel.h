@@ -147,6 +147,7 @@ public slots:
     void setFilter (const QString &field);
     void clearAcceptedRows();
     bool exportToSpreadSheet(const QString &file, const QString &type);
+    void cancelExportToSpreadSheet();
     virtual bool commit();
     virtual void rollback();
     virtual void refresh(bool force = false);

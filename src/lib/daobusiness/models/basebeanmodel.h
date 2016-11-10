@@ -167,6 +167,7 @@ public slots:
     /** Misma explicación para el método revert */
     virtual void rollback();
     virtual bool exportToSpreadSheet(const QString &file, const QString &type);
+    virtual void cancelExportToSpreadSheet();
 
 protected slots:
     virtual void stopReloading();

@@ -39,7 +39,6 @@ class ALEPHERP_DLL_EXPORT AERPSpreadSheetUtil : public QObject
 
 private:
     explicit AERPSpreadSheetUtil(QObject *parent);
-    bool m_operationCanceled;
 
 public:
     virtual ~AERPSpreadSheetUtil();
@@ -48,7 +47,6 @@ public:
 
 public slots:
     void exportSpreadSheet(FilterBaseBeanModel *filterModel, QWidget *uiParent);
-    void operationCanceled();
 };
 
 /**
