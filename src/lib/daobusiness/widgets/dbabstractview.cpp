@@ -139,11 +139,28 @@ QString DBAbstractViewInterface::tableName()
 
 void DBAbstractViewInterface::setTableName(const QString &value)
 {
+    bool hasToRefresh = !m_tableName.isEmpty() && value != m_tableName;
     m_tableName = value;
     BaseBeanMetadata *m = BeansFactory::metadataBean(m_tableName);
     if ( m != NULL )
     {
         m_order = m->initOrderSort();
+    }
+    if ( hasToRefresh )
+    {
+        clearModels();
+        refresh();
+    }
+}
+
+void DBAbstractViewInterface::setRelationName(const QString &value)
+{
+    bool hasToRefresh = !m_tableName.isEmpty() && value != m_tableName;
+    DBBaseWidget::setRelationName(value);
+    if ( hasToRefresh )
+    {
+        clearModels();
+        refresh();
     }
 }
 

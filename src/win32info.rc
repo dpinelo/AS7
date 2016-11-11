@@ -1,21 +1,21 @@
-IDI_ICON1 ICON DISCARDABLE "alephLogoIcon.ico"
+IDI_ICON1 ICON DISCARDABLE "as7.ico"
  
 1 VERSIONINFO
-FILEVERSION     2,0,0,0
-PRODUCTVERSION  2,0,0,0
+FILEVERSION     3,0,0,0
+PRODUCTVERSION  3,0,0,0
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
     BLOCK "040A04E4"
     BEGIN
-      VALUE "CompanyName", "Asycom Global Service / Aleph Sistemas de Información"
-      VALUE "FileDescription", "AlephERP"
-      VALUE "FileVersion", "2.0"
+      VALUE "CompanyName", "Asycom Global Service"
+      VALUE "FileDescription", "AS7"
+      VALUE "FileVersion", "3.0"
       VALUE "InternalName", "alepherp.exe"
       VALUE "LegalCopyright", "(c) Aleph Sistemas de Información, 2013. (c) Asycom Global Service, 2016"
       VALUE "OriginalFilename", "alepherp.exe"
       VALUE "ProductName", "AlephERP"
-      VALUE "ProductVersion", "1.1"
+      VALUE "ProductVersion", "3.0"
     END
   END
 

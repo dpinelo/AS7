@@ -49,7 +49,11 @@ class DBFieldMetadata;
   @see DBDetailView
   @author David Pinelo <alepherp@alephsistemas.es>
 */
-class ALEPHERP_DLL_EXPORT DBTableView : public QTableView, public DBAbstractViewInterface, public AERPBackgroundAnimation, public QScriptable
+class ALEPHERP_DLL_EXPORT DBTableView :
+        public QTableView,
+        public DBAbstractViewInterface,
+        public AERPBackgroundAnimation,
+        public QScriptable
 {
     Q_OBJECT
     Q_DISABLE_COPY(DBTableView)

@@ -58,7 +58,10 @@ class DBDetailView;
   @see DBRelation
   @author David Pinelo <alepherp@alephsistemas.es>
   */
-class ALEPHERP_DLL_EXPORT DBDetailView : public QWidget, public DBAbstractViewInterface, public QScriptable
+class ALEPHERP_DLL_EXPORT DBDetailView :
+        public QWidget,
+        public DBAbstractViewInterface,
+        public QScriptable
 {
     Q_OBJECT
     Q_FLAGS(Buttons)
