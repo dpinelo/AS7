@@ -111,7 +111,7 @@ CONFIG += debug_and_release
 #-----------------------------------------------------------------------------------------------------
 
 unix {
-    BUILDNUM=$$system('git describe')
+    BUILDNUM=$$system('git describe --tags')
 }
 win32 {
     message('git --git-dir=$$ALEPHERPPATH\.git --work-tree=$$ALEPHERPPATH describe --tags')
