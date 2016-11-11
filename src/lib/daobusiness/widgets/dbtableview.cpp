@@ -131,7 +131,7 @@ void DBTableView::setRelationName(const QString &name)
     m_relationName = name;
     if ( automaticName() )
     {
-        setObjectName (configurationName());
+        setObjectName(configurationName());
     }
 }
 
@@ -140,7 +140,7 @@ void DBTableView::setTableName(const QString &name)
     m_tableName = name;
     if ( automaticName() )
     {
-        setObjectName (configurationName());
+        setObjectName(configurationName());
     }
 }
 

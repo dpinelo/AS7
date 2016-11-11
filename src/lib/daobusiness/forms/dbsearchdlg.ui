@@ -13,10 +13,6 @@
   <property name="windowTitle">
    <string/>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../resources/resources.qrc">
-    <normaloff>:/aplicacion/images/alephLogoIcon.ico</normaloff>:/aplicacion/images/alephLogoIcon.ico</iconset>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
     <widget class="QGroupBox" name="gbSearchFields">

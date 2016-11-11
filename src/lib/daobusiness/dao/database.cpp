@@ -35,7 +35,7 @@
 #ifdef ALEPHERP_CLOUD_SUPPORT
 #include "aerphttpsqldriver.h"
 #endif
-#ifdef ALEPHERP_SQLCIPHER
+#if defined(ALEPHERP_SQLCIPHER) || defined(ALEPHERP_BUILTINSQLCIPHER)
 #include "dao/aerpgeneratekey.h"
 #endif
 
@@ -96,15 +96,18 @@ Database::Database()
 {
 }
 
-void Database::closeDatabases()
+void Database::closeDatabases(bool serverConnection)
 {
     AERPScriptEngine::destroyEngineSingleton();
     QStringList connectionNames = QSqlDatabase::connectionNames();
-    foreach ( QString connectionName, connectionNames )
+    foreach (const QString &connectionName, connectionNames)
     {
-        QSqlDatabase db = QSqlDatabase::database(connectionName);
-        db.commit();
-        db.close();
+        if ( connectionName != Database::serversDatabaseName() )
+        {
+            QSqlDatabase db = QSqlDatabase::database(connectionName);
+            db.commit();
+            db.close();
+        }
     }
 }
 
@@ -314,6 +317,7 @@ bool Database::openPostgreSQL(const QString &connectionName)
     QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openPostgreSQL: Nombre de la base de datos: [%1]").arg(alephERPSettings->dbName()));
     QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openPostgreSQL: Usuario: [%1]").arg(alephERPSettings->dbUser()));
     QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openPostgreSQL: Nombre interno de la conexion: [%1]").arg(connectionName));
+    QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openPostgreSQL: Opciones de conexión: [%1]").arg(alephERPSettings->connectOptions()));
     db = QSqlDatabase::addDatabase("QPSQL", connectionName);
     db.setHostName(alephERPSettings->dbServer());
     db.setDatabaseName(alephERPSettings->dbName());
@@ -383,6 +387,9 @@ bool Database::openSQLite(const QString &connectionName, bool &emptyDatabase, co
 #ifdef ALEPHERP_SQLCIPHER
     QString driverName = "QSQLCIPHER";
     QString dbName = QString("/%1.db.sqlcipher").arg(databaseFileName.isEmpty() ? connectionName : databaseFileName);
+#elif ALEPHERP_BUILTINSQLCIPHER
+    QString driverName = "SQLITECIPHER";
+    QString dbName = QString("/%1.db.sqlcipher").arg(databaseFileName.isEmpty() ? connectionName : databaseFileName);
 #else
     QString driverName = "QSQLITE";
     QString dbName = QString("/%1.db.sqlite").arg(databaseFileName.isEmpty() ? connectionName : databaseFileName);
@@ -431,11 +438,14 @@ bool Database::openSQLite(const QString &connectionName, bool &emptyDatabase, co
     QSqlDatabase db;
     dbPath.append(dbName);
     QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openSQLite: Realizando conexion a la BBDD con los siguientes parametros: "));
-    QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openSQLite: Tipo de conexion, SQLITE"));
+    QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openSQLite: Tipo de conexion: %1").arg(driverName));
     QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Database:openSQLite: File: [%1]").arg(dbPath));
     db = QSqlDatabase::addDatabase(driverName, connectionName);
     db.setDatabaseName(dbPath);
     db.setConnectOptions(alephERPSettings->connectOptions());
+#ifdef ALEPHERP_BUILTINSQLCIPHER
+    db.setPassword(AERPGenerateKey::key());
+#endif
 #endif
 
     if ( !db.open() )

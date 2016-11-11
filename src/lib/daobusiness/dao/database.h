@@ -57,7 +57,7 @@ public:
     static bool openCloud(const QString &name);
     static bool openFirebird(const QString &connectionName, const QString &databaseFile);
 
-    static void closeDatabases();
+    static void closeDatabases(bool serverConnection = true);
     static int countSystemObjects();
     static bool isSystemStructureCreated();
 

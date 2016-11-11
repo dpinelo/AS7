@@ -112,6 +112,7 @@ public:
     virtual void setExternalModel(bool value);
     virtual QString tableName();
     virtual void setTableName(const QString &value);
+    virtual void setRelationName(const QString &value);
     virtual QString filter();
     virtual void setFilter(const QString &value);
     virtual QString order();

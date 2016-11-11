@@ -91,6 +91,7 @@ DBASELIBRARY=dbase-code
 LINUX32BITS=N
 XLSSUPPORT=Y
 ODSSUPPORT=Y
+BUILTINSQLCIPHER=Y
 SQLCIPHER=N
 
 DRMINGW=N
@@ -108,6 +109,16 @@ CONFIG += debug_and_release
 #-----------------------------------------------------------------------------------------------------
 # Hasta aquí
 #-----------------------------------------------------------------------------------------------------
+
+unix {
+    BUILDNUM=$$system('git describe')
+}
+win32 {
+    message('git --git-dir=$$ALEPHERPPATH\.git --work-tree=$$ALEPHERPPATH describe --tags')
+    BUILDNUM=$$system('git --git-dir=$$ALEPHERPPATH\.git --work-tree=$$ALEPHERPPATH describe --tags')
+}
+DEFINES += ALEPHERP_REVISION=\\\"$${BUILDNUM}\\\"
+message("Construyendo version " $$BUILDNUM)
 
 CONFIG += c++11
 
@@ -469,6 +480,12 @@ contains (AERPDOCMNGSUPPORT, Y) {
     }
 }
 
+contains (BUILTINSQLCIPHER, Y) {
+    SQLCIPHER = N
+    DEFINES += ALEPHERP_BUILTINSQLCIPHER
+}
+
 contains (SQLCIPHER, Y) {
     DEFINES += ALEPHERP_SQLCIPHER
 }
+

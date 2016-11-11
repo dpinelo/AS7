@@ -84,11 +84,21 @@ LoginDlg::LoginDlg(QWidget *parent) :
     // Si en el directorio del ejecutable, hay una imagen con nombre icon.png, utilizamos esta
     QString imageFilePath = qApp->applicationDirPath() + QDir::separator() + "loginimage.png";
     QFile fiIco(imageFilePath);
+    QPixmap pixmap;
     if ( !fiIco.exists() )
     {
         imageFilePath = ":/aplicacion/images/BolaAleph.png";
+        pixmap = QPixmap(imageFilePath);
+        pixmap = pixmap.scaledToHeight(90);
     }
-    ui->lblImage->setPixmap(QPixmap(imageFilePath));
+    else
+    {
+        pixmap = QPixmap(imageFilePath);
+    }
+    ui->lblImage->setPixmap(pixmap);
+
+    QString version = trUtf8("<html><head/><body><p align=\"right\"><span style=\"font-size:6pt;\">Versión: <strong>%1</strong></span></p></body></html>").arg(QString(ALEPHERP_REVISION));
+    ui->lblVersion->setText(version);
 
     connect (ui->pbOk, SIGNAL(clicked()), this, SLOT(okClicked()));
     connect (ui->pbCancel, SIGNAL(clicked()), this, SLOT(reject()));
@@ -147,6 +157,8 @@ LoginDlg::LoginDlg(QWidget *parent) :
             }
         }
     }
+
+    setWindowTitle(trUtf8("%1 - Acceso").arg(qApp->applicationName()));
 }
 
 LoginDlg::~LoginDlg()

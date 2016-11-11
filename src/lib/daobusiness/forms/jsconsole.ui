@@ -13,10 +13,6 @@
   <property name="windowTitle">
    <string>Consola JS</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../resources/resources.qrc">
-    <normaloff>:/aplicacion/images/alephLogoIcon.ico</normaloff>:/aplicacion/images/alephLogoIcon.ico</iconset>
-  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="0" colspan="3">
     <widget class="QSplitter" name="splitter">

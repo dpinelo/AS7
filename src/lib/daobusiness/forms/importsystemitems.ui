@@ -13,10 +13,6 @@
   <property name="windowTitle">
    <string>Opciones de importación de módulo</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../resources/resources.qrc">
-    <normaloff>:/aplicacion/images/BolaAleph.png</normaloff>:/aplicacion/images/BolaAleph.png</iconset>
-  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="3">
     <widget class="QGroupBox" name="groupBox">

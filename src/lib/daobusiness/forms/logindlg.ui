@@ -7,30 +7,20 @@
     <x>0</x>
     <y>0</y>
     <width>561</width>
-    <height>196</height>
+    <height>292</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>AlehpERP - Login</string>
-  </property>
-  <property name="windowIcon">
-   <iconset resource="../resources/resources.qrc">
-    <normaloff>:/aplicacion/images/BolaAleph.png</normaloff>:/aplicacion/images/BolaAleph.png</iconset>
+   <string>Login</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout_2">
    <item>
     <widget class="QLabel" name="lblImage">
-     <property name="minimumSize">
-      <size>
-       <width>90</width>
-       <height>90</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>90</width>
-       <height>90</height>
-      </size>
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
      <property name="toolTip">
       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -42,11 +32,8 @@ p, li { white-space: pre-wrap; }
      <property name="text">
       <string/>
      </property>
-     <property name="pixmap">
-      <pixmap resource="../resources/resources.qrc">:/aplicacion/images/BolaAleph.png</pixmap>
-     </property>
      <property name="scaledContents">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -83,6 +70,28 @@ p, li { white-space: pre-wrap; }
          </widget>
         </item>
        </layout>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QPushButton" name="pbOk">
+       <property name="text">
+        <string>Ok</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/aplicacion/images/ok.png</normaloff>:/aplicacion/images/ok.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QPushButton" name="pbCancel">
+       <property name="text">
+        <string>Cancelar</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../resources/resources.qrc">
+         <normaloff>:/generales/images/delete.png</normaloff>:/generales/images/delete.png</iconset>
+       </property>
       </widget>
      </item>
      <item row="1" column="0" colspan="2">
@@ -187,25 +196,15 @@ p, li { white-space: pre-wrap; }
        </layout>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QPushButton" name="pbOk">
+     <item row="3" column="1">
+      <widget class="QLabel" name="lblVersion">
+       <property name="font">
+        <font>
+         <pointsize>6</pointsize>
+        </font>
+       </property>
        <property name="text">
-        <string>Ok</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../resources/resources.qrc">
-         <normaloff>:/aplicacion/images/ok.png</normaloff>:/aplicacion/images/ok.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QPushButton" name="pbCancel">
-       <property name="text">
-        <string>Cancelar</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../resources/resources.qrc">
-         <normaloff>:/generales/images/delete.png</normaloff>:/generales/images/delete.png</iconset>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:6pt;&quot;&gt;Versión: &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>

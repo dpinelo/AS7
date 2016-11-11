@@ -7,15 +7,11 @@
     <x>0</x>
     <y>0</y>
     <width>591</width>
-    <height>771</height>
+    <height>794</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>AlephERP - Configuración de conexión</string>
-  </property>
-  <property name="windowIcon">
-   <iconset resource="../resources/resources.qrc">
-    <normaloff>:/aplicacion/images/alephLogoIcon.ico</normaloff>:/aplicacion/images/alephLogoIcon.ico</iconset>
+   <string>Configuración de conexión</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_5">
    <item row="0" column="0" colspan="2">

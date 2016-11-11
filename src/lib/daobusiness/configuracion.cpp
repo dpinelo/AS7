@@ -447,7 +447,7 @@ void AlephERPSettings::init (void)
     m_internalPDFViewer = m_settings->value(KEY_VISOR_PDF_INTERNO, true).toBool();
     m_externalPDFViewer = m_settings->value(KEY_VISOR_PDF_EXTERNO, "").toString();
 
-    m_mdiTabView = m_settings->value(KEY_MDI_TAB_VIEW, false).toBool();
+    m_mdiTabView = m_settings->value(KEY_MDI_TAB_VIEW, true).toBool();
 
     m_lookAndFeel = m_settings->value(KEY_LOOK_AND_FEEL).toString();
     m_lookAndFeelDark = m_settings->value(KEY_LOOK_AND_FEEL_DARK, false).toBool();

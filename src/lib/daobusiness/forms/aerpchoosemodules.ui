@@ -11,11 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>AlephERP - Selección de módulos</string>
-  </property>
-  <property name="windowIcon">
-   <iconset resource="../resources/resources.qrc">
-    <normaloff>:/aplicacion/images/BolaAleph.png</normaloff>:/aplicacion/images/BolaAleph.png</iconset>
+   <string>Selección de módulos</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="2">

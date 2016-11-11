@@ -1000,8 +1000,8 @@ void AERPMainWindow::closeEvent(QCloseEvent * event)
         {
             hide();
             event->ignore();
-            d->m_trayIcon->showMessage(qApp->applicationName(), trUtf8("AlephERP ha sido minimizado. Para restaurarlo pinche con el botón "
-                                       "derecho en este icono, y escoja la opción 'Restaurar AlephERP'"));
+            d->m_trayIcon->showMessage(qApp->applicationName(), trUtf8("%1 ha sido minimizado. Para restaurarlo pinche con el botón "
+                                       "derecho en este icono, y escoja la opción 'Restaurar %1'").arg(qApp->applicationName()));
             return;
         }
     }

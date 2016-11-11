@@ -23,6 +23,7 @@ win32 {
             }
         }
     }
+}
 # ATENCIÓN: libbfd está presente en la distribución de MinGW-W64 en un directorio diferente al que contienen todas las librerías.
 # En la estructura de directorios de MinGW que incluye Qt se tiene
 # C:\Qt\Tools\mingw492_32\lib  -> Esta contiene libbfd.a
@@ -53,7 +54,6 @@ win32 {
 # https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/4.8.4/threads-posix/dwarf/i686-4.8.4-release-posix-dwarf-rt_v3-rev0.7z/download
 # y copiar manualmente el fichero libiberty.a desde ese fichero en C:\Qt\Tools\mingw492_32\lib, y compila.
 # Toda la rama 4.9.X no lleva esa librería.
-}
 
 # Una utilidad para memory leaks, sólo en debug
 contains(CHECKLEAKS, Y) {
@@ -101,9 +101,6 @@ QT += widgets \
 
 RESOURCES += translations.'$$QT_MAJOR_VERSION'.qrc \
              lib/daobusiness/resources/resources.qrc
-
-VERSTR = '\\"$${VERSION}\\"'
-DEFINES += VER=\"$${VERSTR}\"
 
 contains(TESTPARTS, Y) {
     QT += testlib

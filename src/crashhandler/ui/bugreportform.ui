@@ -34,10 +34,6 @@
   <property name="windowTitle">
    <string>Informe de Error</string>
   </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>:/icones/icones/pgsqlModeler48x48.png</normaloff>:/icones/icones/pgsqlModeler48x48.png</iconset>
-  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="title_lbl">

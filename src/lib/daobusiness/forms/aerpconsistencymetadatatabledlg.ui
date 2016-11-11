@@ -11,11 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>AlephERP - Consistencia de Metadatos</string>
-  </property>
-  <property name="windowIcon">
-   <iconset resource="../resources/resources.qrc">
-    <normaloff>:/aplicacion/images/BolaAleph.png</normaloff>:/aplicacion/images/BolaAleph.png</iconset>
+   <string>Consistencia de Metadatos</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0">

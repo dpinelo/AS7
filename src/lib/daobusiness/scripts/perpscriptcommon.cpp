@@ -35,7 +35,6 @@
 #include "configuracion.h"
 #include "qlogger.h"
 #include "perpscriptcommon.h"
-#include "version.h"
 #include "globales.h"
 #include "business/aerploggeduser.h"
 #include "business/smtp/aerpsmtpinterface.h"
@@ -1821,17 +1820,24 @@ QString AERPScriptCommon::lastError() const
  */
 QString AERPScriptCommon::appVersion()
 {
-    return QString(APP_VERSION);
+    // Tenemos formato 3.0-1-g2879982
+    QStringList parts = QString(ALEPHERP_REVISION).split("-");
+    Q_ASSERT(parts.size() > 0);
+    return QString(parts.first());
 }
 
 QString AERPScriptCommon::appMainVersion()
 {
-    return QString(APP_MAIN_VERSION);
+    QStringList parts = QString(ALEPHERP_REVISION).split("-");
+    Q_ASSERT(parts.size() > 0);
+    return QString(parts.first());
 }
 
 QString AERPScriptCommon::appRevision()
 {
-    return QString(APP_REVISION);
+    QStringList parts = QString(ALEPHERP_REVISION).split("-");
+    Q_ASSERT(parts.size() > 1);
+    return QString(parts.at(1));
 }
 
 QString AERPScriptCommon::sqlDriver()

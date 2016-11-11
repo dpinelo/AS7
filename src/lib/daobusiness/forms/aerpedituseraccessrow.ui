@@ -11,11 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>AlephERP - Edición de permisos de acceso por registro [*]</string>
-  </property>
-  <property name="windowIcon">
-   <iconset resource="../resources/resources.qrc">
-    <normaloff>:/aplicacion/images/BolaAleph.png</normaloff>:/aplicacion/images/BolaAleph.png</iconset>
+   <string>Edición de permisos de acceso por registro [*]</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0" colspan="2">
@@ -119,6 +115,8 @@
   <tabstop>pbCancel</tabstop>
  </tabstops>
  <resources>
+  <include location="../resources/resources.qrc"/>
+  <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>

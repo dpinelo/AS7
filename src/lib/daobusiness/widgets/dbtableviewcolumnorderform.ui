@@ -13,10 +13,6 @@
   <property name="windowTitle">
    <string>Selección de orden</string>
   </property>
-  <property name="windowIcon">
-   <iconset resource="../resources/resources.qrc">
-    <normaloff>:/aplicacion/images/alephLogoIcon.ico</normaloff>:/aplicacion/images/alephLogoIcon.ico</iconset>
-  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="4">
     <widget class="QPushButton" name="pbOk">
@@ -186,6 +182,7 @@ p, li { white-space: pre-wrap; }
   </layout>
  </widget>
  <resources>
+  <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>

@@ -98,9 +98,6 @@ QT +=   sql \
         script \
         printsupport
 
-VERSTR = '\\"$${VERSION}\\"'
-DEFINES += VER=\"$${VERSTR}\"
-
 TRANSLATIONS    = daobusiness_english.ts \
                   daobusiness_spanish.ts \
                   daobusiness_french.ts \
@@ -176,13 +173,6 @@ contains(DEVTOOLS, Y) {
                forms/aerpchoosemodules.h \
                forms/aerpconsistencymetadatatabledlg.h \
                forms/perpscripteditdlg.h
-
-    contains (QTDESIGNERBUILTIN, Y) {
-        contains(QT_VERSION, ^4\\.[0-8]\\..*) {
-            include($$ALEPHERPPATH/src/3rdparty/qtdesigner-4/qtdesigner.pri)
-            LIBS += -ldesigner
-        }
-    }
 }
 
 contains(AERPDOCMNGSUPPORT, Y) {
@@ -247,7 +237,7 @@ contains (USELIBMAGIC, Y) {
     RESOURCES += business/mime/freedesktopmime.qrc
 }
 
-contains (SQLCIPHER, Y) {
+contains (SQLCIPHER, Y)|contains (BUILTINSQLCIPHER, Y) {
     SOURCES += dao/aerpgeneratekey.cpp
     HEADERS += dao/aerpgeneratekey.h
 }
@@ -660,19 +650,6 @@ win32-msvc*:unix:macx {
     #SOURCES += widgets/dbmapposition.cpp
     #HEADERS += widgets/dbmapposition.h
     #FORMS += widgets/dbmapposition.ui
-}
-
-!contains(QT_VERSION, ^4\\.[0-8]\\..*) {
-#    SOURCES += scripts/bindings/qtscript_Qt.cpp \
-#               scripts/bindings/qtscript_QFont.cpp \
-#               scripts/bindings/qtscriptshell_QMessageBox.cpp \
-#               scripts/bindings/qtscriptshell_QTabWidget.cpp \
-#               scripts/bindings/qtscript_QMessageBox.cpp \
-#               scripts/bindings/qtscript_QTabWidget.cpp \
-#               scripts/bindings/qtscript_QSize.cpp \
-#               scripts/bindings/qtscript_QSizeF.cpp
-#    HEADERS += scripts/bindings/qtscriptshell_QMessageBox.h \
-#               scripts/bindings/qtscriptshell_QTabWidget.h \
 }
 
 RESOURCES += resources/resources.qrc

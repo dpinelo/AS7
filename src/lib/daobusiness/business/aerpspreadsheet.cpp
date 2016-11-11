@@ -72,6 +72,7 @@ public:
     AERPSpreadSheet::Type m_type;
     int m_length;
     int m_decimalPlaces;
+    QFont m_font;
 
     AERPCellPrivate()
     {
@@ -1072,6 +1073,16 @@ QString AERPCell::columnName() const
     return r;
 }
 
+QFont AERPCell::font() const
+{
+    return d->m_font;
+}
+
+void AERPCell::setFont(const QFont &font)
+{
+    d->m_font = font;
+}
+
 QScriptValue AERPCell::toScriptValue(QScriptEngine *engine, AERPCell * const &in)
 {
     QScriptValue qsBean = engine->newQObject(in, QScriptEngine::QtOwnership, QScriptEngine::PreferExistingWrapperObject);
@@ -1086,7 +1097,6 @@ void AERPCell::fromScriptValue(const QScriptValue &object, AERPCell *&out)
 AERPSpreadSheetUtil::AERPSpreadSheetUtil(QObject *parent) :
     QObject(parent)
 {
-    m_operationCanceled = false;
 }
 
 AERPSpreadSheetUtil::~AERPSpreadSheetUtil()
@@ -1102,11 +1112,6 @@ AERPSpreadSheetUtil *AERPSpreadSheetUtil::instance()
         singleton = new AERPSpreadSheetUtil(qApp);
     }
     return singleton;
-}
-
-void AERPSpreadSheetUtil::operationCanceled()
-{
-    m_operationCanceled = true;
 }
 
 void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QWidget *uiParent)
@@ -1174,13 +1179,12 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
             append(iface->type());
 
     QProgressDialog dlg;
-    m_operationCanceled = false;
     dlg.setMaximum(filterModel->rowCount());
     dlg.setMinimum(0);
     dlg.setLabelText(trUtf8("Exportando información... Por favor, espere."));
     dlg.setWindowTitle(trUtf8("%1 - Exportando datos").arg(qApp->applicationName()));
     dlg.setWindowModality(Qt::WindowModal);
-    connect(&dlg, SIGNAL(canceled()), this, SLOT(operationCanceled()));
+    connect(&dlg, SIGNAL(canceled()), filterModel, SLOT(cancelExportToSpreadSheet()));
     connect(filterModel, SIGNAL(rowProcessed(int)), &dlg, SLOT(setValue(int)));
     dlg.show();
     qApp->processEvents();
