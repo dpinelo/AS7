@@ -1998,6 +1998,40 @@ QScriptValue AERPScriptCommon::chooseRecordsFromTable(const QString &tableName,
     return list;
 }
 
+QScriptValue AERPScriptCommon::chooseRecordsFromDBSearch(const QString &tableName, const QString &where)
+{
+    QScriptValue result = QScriptValue::NullValue;
+    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName, false));
+    if ( dlg->openSuccess() )
+    {
+        if ( !where.isEmpty() )
+        {
+            dlg->setFilterData(where);
+        }
+        dlg->setModal(true);
+        dlg->setCanSelectSeveral(true);
+        dlg->setCanInsertRecords(false);
+        dlg->setCanEditRecords(false);
+        dlg->init();
+        dlg->exec();
+
+        result = engine()->newArray(list.size());
+        BaseBeanSharedPointerList list = dlg->checkedBeans();
+        if ( list.size() > 0 )
+        {
+            int idx = 0;
+            foreach (BaseBeanSharedPointer bean, list)
+            {
+                QScriptValue objBean = engine()->newQObject(bean->clone(NULL),
+                                                            QScriptEngine::ScriptOwnership,
+                                                            QScriptEngine::PreferExistingWrapperObject);
+                result.setProperty(idx, objBean);
+            }
+        }
+    }
+    return result;
+}
+
 QScriptValue AERPScriptCommon::chooseRecordFromTable(const QString &tableName,
                                                      const QString &where,
                                                      const QString &order,
@@ -2014,7 +2048,9 @@ QScriptValue AERPScriptCommon::chooseRecordFromTable(const QString &tableName,
     {
         return QScriptValue(QScriptValue::NullValue);
     }
-    QScriptValue scriptBean = engine()->newQObject(bean->clone(NULL), QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject);
+    QScriptValue scriptBean = engine()->newQObject(bean->clone(NULL),
+                                                   QScriptEngine::ScriptOwnership,
+                                                   QScriptEngine::PreferExistingWrapperObject);
     return scriptBean;
 }
 

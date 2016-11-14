@@ -276,6 +276,8 @@ public:
                                                     const QString &order = "",
                                                     const QString &label = "",
                                                     bool userEnvVars = true);
+    Q_INVOKABLE QScriptValue chooseRecordsFromDBSearch(const QString &tableName,
+                                                       const QString &where = "");
     Q_INVOKABLE QScriptValue chooseRecordFromTable(const QString &tableName,
                                                    const QString &where = "",
                                                    const QString &order = "",
