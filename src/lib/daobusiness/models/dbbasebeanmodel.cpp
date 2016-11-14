@@ -1122,7 +1122,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
     return BaseBeanModel::data(item, role);
 }
 
-bool DBBaseBeanModel::setData ( const QModelIndex & index, const QVariant & value, int role )
+bool DBBaseBeanModel::setData(const QModelIndex &index, const QVariant & value, int role)
 {
     if ( !index.isValid() || d->m_metadata == NULL || isLoadingData() )
     {
@@ -1152,6 +1152,7 @@ bool DBBaseBeanModel::setData ( const QModelIndex & index, const QVariant & valu
         {
             emit dataChanged(index, index);
         }
+        emit itemChecked(index, (v == Qt::Checked));
     }
     else if ( (role == Qxt::ItemStartTimeRole || role == Qxt::ItemDurationRole) && !bean.isNull() )
     {

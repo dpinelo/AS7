@@ -185,6 +185,7 @@ void FilterBaseBeanModel::setSourceModel(QAbstractItemModel *model)
         connect(mdl, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(clearAcceptedRows()));
         connect(mdl, SIGNAL(modelReset()), this, SLOT(clearAcceptedRows()));
         connect(mdl, SIGNAL(modelReset()), this, SLOT(clearColumnCount()));
+        connect(mdl, SIGNAL(itemChecked(QModelIndex,bool)), this, SIGNAL(itemChecked(QModelIndex,bool)));
     }
     QSortFilterProxyModel::setSourceModel(model);
 }

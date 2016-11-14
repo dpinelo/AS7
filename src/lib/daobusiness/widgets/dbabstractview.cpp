@@ -881,6 +881,35 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
     }
 }
 
+void DBAbstractViewInterface::itemChecked(const QModelIndex &idx, bool value)
+{
+    QAbstractItemView *view = qobject_cast<QAbstractItemView *>(m_thisWidget);
+    if ( !view || !idx.isValid() )
+    {
+        return;
+    }
+    if ( view->model() != idx.model() )
+    {
+        qWarning() << "DBAbstractViewInterface::itemChecked: Índice y modelo no coinciden.";
+        return;
+    }
+    if ( !filterModel() )
+    {
+        return;
+    }
+    QWidget *widget = dynamic_cast<QWidget *>(this);
+    AERPBaseDialog *containerDlg = CommonsFunctions::aerpParentDialog(widget);
+    if ( containerDlg != NULL )
+    {
+        QScriptValueList args;
+        args.append(QScriptValue(idx.row()));
+        args.append(QScriptValue(idx.column()));
+        args.append(QScriptValue(value));
+        containerDlg->callQSMethod(QString("%1ItemChecked").arg(widget->objectName()), args);
+        containerDlg->callQSMethod(QString("%1ItemChecked").arg(m_relationName), args);
+    }
+}
+
 BaseBeanPointer DBAbstractViewInterface::beanToEditFromRelation(DBRelation *rel)
 {
     BaseBeanPointer b;

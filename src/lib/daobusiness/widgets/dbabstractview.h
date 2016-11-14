@@ -190,6 +190,7 @@ public:
     virtual QString configurationName();
 
     virtual void itemClicked(const QModelIndex &idx);
+    virtual void itemChecked(const QModelIndex &idx, bool value);
 
     virtual void resetCursor();
 

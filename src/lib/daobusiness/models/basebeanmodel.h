@@ -157,6 +157,7 @@ signals:
     void rowProcessed(int row);
     void initRefresh();
     void endRefresh();
+    void itemChecked(QModelIndex,bool);
 
 public slots:
     virtual void refresh(bool force = false) = 0;

@@ -250,6 +250,7 @@ signals:
     void destroyed(QWidget *widget);
     void enterPressedOnValidIndex(const QModelIndex &index);
     void doubleClickOnValidIndex(const QModelIndex &index);
+    void itemChecked(const QModelIndex &index);
     void fieldNameChanged();
 
 };

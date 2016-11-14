@@ -137,6 +137,7 @@ signals:
     void rowProcessed(int row);
     void initRefresh();
     void endRefresh();
+    void itemChecked(QModelIndex, bool);
 
 public slots:
     void removeFilterKeyColumn (const QString &dbFieldName, int level = -1, bool hasToInvalidateFilter = true);
