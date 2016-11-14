@@ -66,6 +66,7 @@
 #include "forms/changepassworddlg.h"
 #include "forms/perpmainwindow.h"
 #include "forms/dbrecorddlg.h"
+#include "forms/dbsearchdlg.h"
 #include "scripts/perpscriptengine.h"
 #include "reports/reportrun.h"
 #include "widgets/dbtableview.h"
@@ -2015,8 +2016,8 @@ QScriptValue AERPScriptCommon::chooseRecordsFromDBSearch(const QString &tableNam
         dlg->init();
         dlg->exec();
 
-        result = engine()->newArray(list.size());
         BaseBeanSharedPointerList list = dlg->checkedBeans();
+        result = engine()->newArray(list.size());
         if ( list.size() > 0 )
         {
             int idx = 0;
