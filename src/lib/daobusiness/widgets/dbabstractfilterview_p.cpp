@@ -228,6 +228,7 @@ QString DBAbstractFilterViewPrivate::initOrderedColumnSort()
   */
 void DBAbstractFilterViewPrivate::createStrongFilter()
 {
+    q_ptr->ui->gbCustomFilter->setVisible(false);
     if ( m_metadata == NULL )
     {
         return;
@@ -291,10 +292,11 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
 {
     QComboBox *cb = new QComboBox(q_ptr);
     QLabel *lbl = new QLabel(q_ptr);
-    QVBoxLayout *lay = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbFilter->layout());
+    QVBoxLayout *lay = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbCustomFilter->layout());
     if ( lay == NULL )
     {
-        return;
+        lay = new QVBoxLayout;
+        q_ptr->ui->gbCustomFilter->setLayout(lay);
     }
     QHBoxLayout *layout;
     if ( m_layouts.contains(row) )
@@ -403,10 +405,11 @@ void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fl
 {
     DBLineEdit *le = new DBLineEdit(q_ptr);
     QLabel *lbl = new QLabel(q_ptr);
-    QVBoxLayout *lay = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbFilter->layout());
+    QVBoxLayout *lay = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbCustomFilter->layout());
     if ( lay == NULL )
     {
-        return;
+        lay = new QVBoxLayout;
+        q_ptr->ui->gbCustomFilter->setLayout(lay);
     }
     QHBoxLayout *layout;
     if ( m_layouts.contains(row) )
