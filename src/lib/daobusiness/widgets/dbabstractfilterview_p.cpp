@@ -304,6 +304,8 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
 {
     QComboBox *cb = new QComboBox(q_ptr);
     QLabel *lbl = new QLabel(q_ptr);
+    lbl->setBuddy(cb);
+
     QVBoxLayout *fatherCustomFiltersLayout = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbCustomFilter->layout());
     QHBoxLayout *itemFilterLayout;
     if ( m_layouts.contains(row) )
@@ -413,6 +415,8 @@ void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fl
 {
     DBLineEdit *le = new DBLineEdit(q_ptr);
     QLabel *lbl = new QLabel(q_ptr);
+    lbl->setBuddy(le);
+
     QVBoxLayout *lay = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbCustomFilter->layout());
     QHBoxLayout *layout;
     if ( m_layouts.contains(row) )
