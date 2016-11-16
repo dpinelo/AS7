@@ -19,11 +19,7 @@
  ***************************************************************************/
 #include <QtCore>
 #include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include <QtSql>
 
 #include <globales.h>
@@ -122,39 +118,32 @@ LoginDlg::LoginDlg(QWidget *parent) :
         ui->txtUserName->setText(alephERPSettings->lastLoggedUser());
         ui->txtPassword->setFocus();
     }
-    if ( !alephERPSettings->advancedUser() )
+    d->m_model = new QSqlTableModel(this, d->m_db);
+    d->m_model->setTable("alepherp_servers");
+    d->m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    d->m_model->setSort(1, Qt::AscendingOrder);
+    d->m_model->select();
+    ui->cbServers->setModel(d->m_model);
+    ui->cbServers->setModelColumn(1);
+    d->m_initialServer = alephERPSettings->lastServer();
+    for ( int row = 0 ; row < d->m_model->rowCount() ; row++ )
     {
-        ui->gbServer->setVisible(false);
-    }
-    else
-    {
-        d->m_model = new QSqlTableModel(this, d->m_db);
-        d->m_model->setTable("alepherp_servers");
-        d->m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-        d->m_model->setSort(1, Qt::AscendingOrder);
-        d->m_model->select();
-        ui->cbServers->setModel(d->m_model);
-        ui->cbServers->setModelColumn(1);
-        d->m_initialServer = alephERPSettings->lastServer();
-        for ( int row = 0 ; row < d->m_model->rowCount() ; row++ )
+        if ( d->m_model->record(row).value("id").toInt() == d->m_initialServer )
         {
-            if ( d->m_model->record(row).value("id").toInt() == d->m_initialServer )
-            {
-                ui->cbServers->setCurrentIndex(row);
-            }
+            ui->cbServers->setCurrentIndex(row);
         }
-        connect (ui->pbAdd, SIGNAL(clicked()), this, SLOT(addServer()));
-        connect (ui->pbEdit, SIGNAL(clicked()), this, SLOT(editServer()));
-        connect (ui->pbRemove, SIGNAL(clicked()), this, SLOT(removeServer()));
-        if ( d->m_model->rowCount() == 0 )
+    }
+    connect (ui->pbAdd, SIGNAL(clicked()), this, SLOT(addServer()));
+    connect (ui->pbEdit, SIGNAL(clicked()), this, SLOT(editServer()));
+    connect (ui->pbRemove, SIGNAL(clicked()), this, SLOT(removeServer()));
+    if ( d->m_model->rowCount() == 0 )
+    {
+        QMessageBox::warning(this, qApp->applicationName(),
+                             trUtf8("Debe crear un nuevo servidor al que conectarse"), QMessageBox::Ok);
+        addServer();
+        if ( d->m_model->rowCount() > 0 )
         {
-            QMessageBox::warning(this, qApp->applicationName(),
-                                 trUtf8("Debe crear un nuevo servidor al que conectarse"), QMessageBox::Ok);
-            addServer();
-            if ( d->m_model->rowCount() > 0 )
-            {
-                ui->cbServers->setCurrentIndex(0);
-            }
+            ui->cbServers->setCurrentIndex(0);
         }
     }
 
@@ -175,15 +164,12 @@ void LoginDlg::okClicked()
         return;
     }
 
-    if ( alephERPSettings->advancedUser() )
+    if ( ui->cbServers->currentIndex() == -1 )
     {
-        if ( ui->cbServers->currentIndex() == -1 )
-        {
-            QMessageBox::warning(this, qApp->applicationName(), trUtf8("Debe seleccionar un servidor al que conectarse"), QMessageBox::Ok);
-            return;
-        }
-        setConnectOptions(ui->cbServers->currentIndex());
+        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Debe seleccionar un servidor al que conectarse"), QMessageBox::Ok);
+        return;
     }
+    setConnectOptions(ui->cbServers->currentIndex());
 
     d->m_userName = ui->txtUserName->text();
     d->m_password = ui->txtPassword->text();
@@ -252,19 +238,8 @@ void LoginDlg::removeServer()
 
 void LoginDlg::setConnectOptions(int idx)
 {
+    alephERPSettings->loadServerOptions(d->m_model->record(idx).value("id").toInt());
     alephERPSettings->setLastServer(d->m_model->record(idx).value("id").toInt());
-    alephERPSettings->setCloudProtocol(d->m_model->record(idx).value("cloud_protocol").toString());
-    alephERPSettings->setConnectionType(d->m_model->record(idx).value("type").toString());
-    alephERPSettings->setConnectOptions(d->m_model->record(idx).value("options").toString());
-    alephERPSettings->setDbName(d->m_model->record(idx).value("database").toString());
-    alephERPSettings->setDbSchema(d->m_model->record(idx).value("scheme").toString());
-    alephERPSettings->setDbServer(d->m_model->record(idx).value("server").toString());
-    alephERPSettings->setDsnODBC(d->m_model->record(idx).value("dsn").toString());
-    alephERPSettings->setDbPassword(d->m_model->record(idx).value("password").toString());
-    alephERPSettings->setDbPort(d->m_model->record(idx).value("port").toInt());
-    alephERPSettings->setDbUser(d->m_model->record(idx).value("user").toString());
-    alephERPSettings->setSystemTablePrefix(d->m_model->record(idx).value("table_prefix").toString());
-    alephERPSettings->setLicenseKey(d->m_model->record(idx).value("license_key").toString());
     alephERPSettings->save();
 }
 
@@ -292,15 +267,6 @@ QString LoginDlg::password() const
 QString LoginDlg::selectedServer() const
 {
     return d->m_server;
-}
-
-void LoginDlg::showEvent(QShowEvent *event)
-{
-    if ( !alephERPSettings->advancedUser() )
-    {
-        resize(width(), 50);
-        event->accept();
-    }
 }
 
 /*!

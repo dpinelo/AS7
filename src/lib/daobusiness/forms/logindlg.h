@@ -55,7 +55,6 @@ public:
     QList<QVariant> roles();
 
 protected:
-    virtual void showEvent(QShowEvent *event);
     virtual bool eventFilter (QObject *target, QEvent *event);
 
 protected slots:

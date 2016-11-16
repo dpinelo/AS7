@@ -507,6 +507,7 @@ void closeApp()
 {
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("Liberando recursos"));
 
+    QSqlDatabase::database(Database::serversDatabaseName()).close();
     Database::closeDatabases();
     BaseDAO::clearAllCache();
     BeansFactory::end();
@@ -691,7 +692,6 @@ bool connectToMainDatabase()
         QMessageBox::critical(0, qApp->applicationName(), errorMessage);
         if ( Database::lastErrorMessage().contains("00001") )
         {
-            alephERPSettings->setLicenseKey(QString());
             alephERPSettings->save();
         }
         return false;
@@ -828,14 +828,14 @@ bool loginProcess()
                 }
                 else
                 {
-                    Database::closeDatabases(false);
+                    Database::closeDatabases();
                     if ( loginDlg->exec() == QDialog::Rejected )
                     {
                         return false;
                     }
                 }
 #else
-                Database::closeDatabases(false);
+                Database::closeDatabases();
                 if ( loginDlg->exec() == QDialog::Rejected )
                 {
                     return false;

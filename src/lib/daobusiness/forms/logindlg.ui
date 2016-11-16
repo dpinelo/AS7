@@ -111,7 +111,7 @@ p, li { white-space: pre-wrap; }
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Servido</string>
+             <string>Servidor</string>
             </property>
            </widget>
           </item>

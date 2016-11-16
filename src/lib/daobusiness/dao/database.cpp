@@ -96,7 +96,7 @@ Database::Database()
 {
 }
 
-void Database::closeDatabases(bool serverConnection)
+void Database::closeDatabases()
 {
     AERPScriptEngine::destroyEngineSingleton();
     QStringList connectionNames = QSqlDatabase::connectionNames();
