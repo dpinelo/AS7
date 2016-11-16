@@ -25,6 +25,8 @@
 #include <QtWidgets>
 #endif
 
+#define NOT_EDITABLE_PASSWORD "No editable password"
+
 #include "aerpeditconnectoptionsdlg.h"
 #include "dao/database.h"
 #include "ui_aerpeditconnectoptionsdlg.h"
@@ -33,9 +35,9 @@
 class AERPEditConnectOptionsDlgPrivate
 {
 public:
-    QSqlTableModel *m_model;
+    QPointer<QSqlTableModel> m_model;
     QModelIndex m_idx;
-    QDataWidgetMapper *m_mapper;
+    QPointer<QDataWidgetMapper> m_mapper;
     bool m_userClickOk;
 #ifdef ALEPHERP_FORCE_TO_USE_CLOUD
     AERPCloudConnect m_cloudOpts;
@@ -43,9 +45,7 @@ public:
 
     AERPEditConnectOptionsDlgPrivate()
     {
-        m_model = NULL;
         m_userClickOk = false;
-        m_mapper = NULL;
     }
 };
 
@@ -67,7 +67,6 @@ AERPEditConnectOptionsDlg::AERPEditConnectOptionsDlg(QSqlTableModel *model, QWid
     d->m_mapper->addMapping(ui->leDatabase, d->m_model->fieldIndex("database"));
     d->m_mapper->addMapping(ui->leSchema, d->m_model->fieldIndex("scheme"));
     d->m_mapper->addMapping(ui->leUser, d->m_model->fieldIndex("user"));
-    d->m_mapper->addMapping(ui->lePassword, d->m_model->fieldIndex("password"));
     d->m_mapper->addMapping(ui->leConnectionOptions, d->m_model->fieldIndex("options"));
     d->m_mapper->addMapping(ui->leODBC, d->m_model->fieldIndex("dsn"));
     d->m_mapper->addMapping(ui->leCloudProtocol, d->m_model->fieldIndex("cloud_protocol"));
@@ -108,10 +107,14 @@ AERPCloudConnect AERPEditConnectOptionsDlg::cloudOpts()
 }
 #endif
 
-void AERPEditConnectOptionsDlg::setCurrentIndex(const QModelIndex &idx)
+void AERPEditConnectOptionsDlg::setCurrentIndex(const QModelIndex &idx, bool insert)
 {
     d->m_idx = idx;
     // En esta llamada es cuando se le da valor a los controles.
+    if ( !insert )
+    {
+        ui->lePassword->setText(NOT_EDITABLE_PASSWORD);
+    }
     d->m_mapper->setCurrentModelIndex(idx);
     if ( ui->cbType->property(AlephERP::stTypeName).isNull() || ui->cbType->property(AlephERP::stTypeName).toString().isEmpty() )
     {
@@ -169,6 +172,10 @@ void AERPEditConnectOptionsDlg::save()
     d->m_cloudOpts.password = ui->leCloudPassword->text();
     d->m_cloudOpts.user = ui->leCloudUser->text();
 #else
+    if ( ui->lePassword->text() != QLatin1String(NOT_EDITABLE_PASSWORD) )
+    {
+        d->m_model->setData(d->m_idx, ui->lePassword->text());
+    }
     if ( ui->cbType->currentIndex() == -1 )
     {
         QMessageBox::warning(this,qApp->applicationName(), trUtf8("Debe seleccionar un tipo de servidor."), QMessageBox::Ok);

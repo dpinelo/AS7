@@ -57,7 +57,7 @@ public:
     AERPCloudConnect cloudOpts();
 #endif
 
-    void setCurrentIndex(const QModelIndex &idx);
+    void setCurrentIndex(const QModelIndex &idx, bool insert);
 
     bool userClickOk();
 

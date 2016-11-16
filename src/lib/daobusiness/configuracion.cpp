@@ -34,13 +34,9 @@
 #endif
 
 #define KEY_FIRST_USE                   "firstUse"
-
 #define KEY_SERVER_ID                   "db/serverId"
-
 #define KEY_FILESYSTEM_ENCODING         "db/filesystem_encoding"
-
 #define KEY_COMPUTER_UUID               "db/cloud/computerUUID"
-
 #define KEY_LAST_SERVER_ID              "db/lastServerId"
 #define KEY_LOG_LEVEL                   "generales/logLevel"
 

@@ -186,7 +186,7 @@ void LoginDlg::addServer()
     d->m_model->setData(idx, "alepherp");
     idx = d->m_model->index(rowCount, d->m_model->record().indexOf("scheme"));
     d->m_model->setData(idx, "public");
-    dlg->setCurrentIndex(d->m_model->index(rowCount, 0));
+    dlg->setCurrentIndex(d->m_model->index(rowCount, 0), true);
     dlg->setWindowModality(Qt::WindowModal);
     dlg->exec();
     if ( dlg->userClickOk() )
@@ -211,7 +211,7 @@ void LoginDlg::editServer()
 {
     int row = ui->cbServers->currentIndex();
     QScopedPointer<AERPEditConnectOptionsDlg> dlg (new AERPEditConnectOptionsDlg(d->m_model, this));
-    dlg->setCurrentIndex(d->m_model->index(row, 0));
+    dlg->setCurrentIndex(d->m_model->index(row, 0), false);
     dlg->setWindowModality(Qt::WindowModal);
     dlg->exec();
     if ( dlg->userClickOk() )
