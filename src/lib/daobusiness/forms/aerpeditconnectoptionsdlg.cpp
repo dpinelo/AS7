@@ -75,6 +75,8 @@ AERPEditConnectOptionsDlg::AERPEditConnectOptionsDlg(QSqlTableModel *model, QWid
     d->m_mapper->addMapping(ui->leCloudUser, d->m_model->fieldIndex("cloud_user"));
     d->m_mapper->addMapping(ui->leCloudPassword, d->m_model->fieldIndex("cloud_password"));
     d->m_mapper->addMapping(ui->leLicenseKey, d->m_model->fieldIndex("license_key"));
+    d->m_mapper->addMapping(ui->lePasswordLinked, d->m_model->fieldIndex("password"));
+    ui->lePasswordLinked->setVisible(false);
     connect(ui->pbSave, SIGNAL(clicked()), this, SLOT(save()));
     connect(ui->pbCancel, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui->cbType, SIGNAL(currentIndexChanged(int)), this, SLOT(setView(int)));
@@ -174,7 +176,7 @@ void AERPEditConnectOptionsDlg::save()
 #else
     if ( ui->lePassword->text() != QLatin1String(NOT_EDITABLE_PASSWORD) )
     {
-        d->m_model->setData(d->m_idx, ui->lePassword->text());
+        ui->lePasswordLinked->setText(ui->lePassword->text());
     }
     if ( ui->cbType->currentIndex() == -1 )
     {
