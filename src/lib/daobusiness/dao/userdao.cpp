@@ -31,16 +31,16 @@
 
 QString UserDAO::m_lastMessage;
 
-#define SQL_SELECT_USER "SELECT username, password FROM %1_users WHERE username=:username"
+#define SQL_SELECT_USER "SELECT username, hash FROM %1_users WHERE username=:username"
 #define SQL_SELECT_USER_ROLES "SELECT t2.id, t2.nombre, t2.superadmin, t2.dbamode FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND username=:username"
 #define SQL_SELECT_PERMISSIONS_BY_USER "SELECT tablename, permissions FROM %1_permissions WHERE username=:username"
 #define SQL_SELECT_PERMISSIONS_BY_ROL "SELECT tablename, permissions FROM %1_permissions WHERE id_rol=:id_rol"
-#define SQL_CHANGE_PASSWORD "UPDATE %1_users SET password=:password WHERE username=:username"
+#define SQL_CHANGE_PASSWORD "UPDATE %1_users SET hash=:hash WHERE username=:username"
 
-#define SQL_SELECT_USER_CI "SELECT username, password FROM %1_users WHERE upper(username)=upper(:username)"
+#define SQL_SELECT_USER_CI "SELECT username, hash FROM %1_users WHERE upper(username)=upper(:username)"
 #define SQL_SELECT_USER_ROLES_CI "SELECT t2.id, t2.nombre, t2.superadmin, t2.dbamode FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND upper(username)=upper(:username)"
 #define SQL_SELECT_PERMISSIONS_BY_USER_CI "SELECT tablename, permissions FROM %1_permissions WHERE upper(username)=upper(:username)"
-#define SQL_CHANGE_PASSWORD_CI "UPDATE %1_users SET password=:password WHERE upper(username)=upper(:username)"
+#define SQL_CHANGE_PASSWORD_CI "UPDATE %1_users SET hash=:hash WHERE upper(username)=upper(:username)"
 
 UserDAO::UserDAO(QObject *parent) :
     QObject(parent)
@@ -50,7 +50,7 @@ UserDAO::UserDAO(QObject *parent) :
 /*!
   Realiza un login a base de datos. Devuelve true o false si el usuario existe en base de datos
  */
-UserDAO::LoginMessages UserDAO::login (QString &userName, const QString &password)
+UserDAO::LoginMessages UserDAO::login(QString &userName, const QString &userPassword)
 {
     bool result = false;
     QString sql;
@@ -85,9 +85,9 @@ UserDAO::LoginMessages UserDAO::login (QString &userName, const QString &passwor
         }
         else
         {
-            QString passwordMd5 = qry->value(1).toString();
-            QByteArray hashMd5 = QCryptographicHash::hash(password.toLatin1(), QCryptographicHash::Md5).toHex();
-            if ( hashMd5 == passwordMd5 )
+            QString dbHash = qry->value(1).toString();
+            QByteArray hash = QCryptographicHash::hash(userPassword.toLatin1(), QCryptographicHash::Sha3_512).toHex();
+            if ( hash == dbHash )
             {
                 // Corregimos (por si viene en mayúsculas) el nombre del usuario para que coincida plenamente
                 // con el de la base de datos. De no hacerlo así tendríamos problemas con las variables de entorno.
@@ -227,11 +227,11 @@ bool UserDAO::changePassword (QString &userName, const QString &oldPassword, con
     UserDAO::LoginMessages loginResult = UserDAO::login(userName, oldPassword);
     if ( !userName.isEmpty() && ( loginResult == UserDAO::LOGIN_OK || loginResult == UserDAO::EMPTY_PASSWORD ) )
     {
-        QByteArray hashMd5 = QCryptographicHash::hash(newPassword.toLatin1(), QCryptographicHash::Md5).toHex();
+        QByteArray hash = QCryptographicHash::hash(newPassword.toLatin1(), QCryptographicHash::Sha3_512).toHex();
         QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase()));
         qry->prepare(sql);
         qry->bindValue(":username", userName, QSql::In);
-        qry->bindValue(":password", QString(hashMd5));
+        qry->bindValue(":hash", QString(hash));
 
         if ( qry->exec() )
         {
@@ -308,8 +308,11 @@ bool UserDAO::createUser(const QString &userName, const QString &password)
     }
     else
     {
-        sql = QString("INSERT INTO %1_users (username, password) VALUES ('%2', md5('%3'))").
-              arg(alephERPSettings->systemTablePrefix()).arg(userName).arg(password);
+        QString hash = QCryptographicHash::hash(password.toLatin1(), QCryptographicHash::Sha3_512).toHex();
+        sql = QString("INSERT INTO %1_users (username, password) VALUES ('%2', '%3')").
+                  arg(alephERPSettings->systemTablePrefix()).
+                  arg(userName).
+                  arg(hash);
     }
     UserDAO::clearLastDbMessage();
 

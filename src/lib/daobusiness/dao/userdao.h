@@ -50,7 +50,7 @@ public:
         LOGIN_ERROR = 0x08
     };
 
-    static LoginMessages login (QString &userName, const QString &password);
+    static LoginMessages login(QString &userName, const QString &userPassword);
     static QList<AlephERP::RoleInfo> userRoles(const QString &userName);
     static QHash<QString, QVariant> metadataAccess(const QString &userName, const QList<AlephERP::RoleInfo> &roles);
     static bool changePassword (QString &userName, const QString &oldPassword, const QString &newPassword);

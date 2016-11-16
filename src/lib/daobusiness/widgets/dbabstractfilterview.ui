@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1259</width>
-    <height>74</height>
+    <height>56</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -41,6 +41,18 @@
       <enum>QFrame::Plain</enum>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item row="1" column="11">
        <spacer name="horizontalSpacer">
         <property name="orientation">

@@ -1983,10 +1983,10 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
                     qry->bindValue(i, ba.toBase64(), QSql::In);
                     QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::insert: bindValue: [%1]: [%2]").arg(field->metadata()->dbFieldName()).arg(field->value().toString()));
                 }
-                else if ( field->metadata()->metadataTypeName() == QLatin1Literal("password") )
+                else if ( field->metadata()->metadataTypeName() == QLatin1Literal("hash") )
                 {
                     QString data = field->value().toString();
-                    QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Md5).toHex();
+                    QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Sha3_512).toHex();
                     qry->bindValue(i, hashValue, QSql::In);
                 }
                 else if ( field->hasM1Relation() || field->hasBrotherRelation() )
@@ -2103,10 +2103,10 @@ bool BaseDAO::update(BaseBean *bean, const QString &idTransaction, const QString
                             QByteArray ba = field->value().toByteArray();
                             qry->bindValue(i, ba.toBase64(), QSql::In);
                         }
-                        else if ( field->metadata()->metadataTypeName() == QLatin1Literal("password") )
+                        else if ( field->metadata()->metadataTypeName() == QLatin1Literal("hash") )
                         {
                             QString data = field->value().toString();
-                            QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Md5).toHex();
+                            QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Sha3_512).toHex();
                             qry->bindValue(i, hashValue, QSql::In);
                         }
                         else if ( field->hasM1Relation() || field->hasBrotherRelation() )
@@ -2186,10 +2186,10 @@ bool BaseDAO::update(DBField *field, const QString &idTransaction, const QString
                 QByteArray ba = field->value().toByteArray();
                 qry->bindValue(":value", ba.toBase64(), QSql::In);
             }
-            else if ( field->metadata()->metadataTypeName() == QLatin1Literal("password") )
+            else if ( field->metadata()->metadataTypeName() == QLatin1Literal("hash") )
             {
                 QString data = field->value().toString();
-                QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Md5).toHex();
+                QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Sha3_512).toHex();
                 qry->bindValue(":value", hashValue, QSql::In);
             }
             else if ( field->hasM1Relation() || field->hasBrotherRelation() )

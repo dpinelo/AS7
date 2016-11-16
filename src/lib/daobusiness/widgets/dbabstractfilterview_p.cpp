@@ -236,6 +236,18 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
     QList<QHash<QString, QString> > filters = m_metadata->itemsFilterColumn();
     int i = 0;
 
+    if ( filters.size() > 0 )
+    {
+        QVBoxLayout *lay = new QVBoxLayout;
+        lay->setContentsMargins(0, 0, 0, 0);
+        q_ptr->ui->gbCustomFilter->setVisible(filters.size() > 0);
+        q_ptr->ui->gbCustomFilter->setLayout(lay);
+    }
+    else
+    {
+        q_ptr->ui->gbCustomFilter->setVisible(false);
+    }
+
     foreach ( HashString filter, filters )
     {
         if ( !m_removedStrongFilter.contains(filter["idFilter"]) )
@@ -292,39 +304,35 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
 {
     QComboBox *cb = new QComboBox(q_ptr);
     QLabel *lbl = new QLabel(q_ptr);
-    QVBoxLayout *lay = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbCustomFilter->layout());
-    if ( lay == NULL )
-    {
-        lay = new QVBoxLayout;
-        q_ptr->ui->gbCustomFilter->setLayout(lay);
-    }
-    QHBoxLayout *layout;
+    QVBoxLayout *fatherCustomFiltersLayout = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbCustomFilter->layout());
+    QHBoxLayout *itemFilterLayout;
     if ( m_layouts.contains(row) )
     {
-        layout = m_layouts[row];
+        itemFilterLayout = m_layouts[row];
     }
     else
     {
         if ( row == 0 )
         {
-            layout = lay->findChild<QHBoxLayout *>();
-            if ( layout == NULL )
+            itemFilterLayout = fatherCustomFiltersLayout->findChild<QHBoxLayout *>();
+            if ( itemFilterLayout == NULL )
             {
-                layout = new QHBoxLayout;
+                itemFilterLayout = new QHBoxLayout;
+                fatherCustomFiltersLayout->addLayout(itemFilterLayout);
             }
         }
         else
         {
-            layout = new QHBoxLayout;
-            lay->addLayout(layout);
+            itemFilterLayout = new QHBoxLayout;
+            fatherCustomFiltersLayout->addLayout(itemFilterLayout);
         }
-        m_layouts[row] = layout;
+        m_layouts[row] = itemFilterLayout;
     }
     cb->setObjectName(QString("cbStrongFilter%1").arg(fld->dbFieldName()));
     lbl->setObjectName(QString("lblStrongFilter%1").arg(fld->dbFieldName()));
     lbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
-    layout->insertWidget(i*2, lbl);
-    layout->insertWidget(i*2 + 1, cb);
+    itemFilterLayout->insertWidget(i*2, lbl);
+    itemFilterLayout->insertWidget(i*2 + 1, cb);
     lbl->setText(fld->fieldName());
     if ( fld->type() == QVariant::Bool )
     {
@@ -406,11 +414,6 @@ void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fl
     DBLineEdit *le = new DBLineEdit(q_ptr);
     QLabel *lbl = new QLabel(q_ptr);
     QVBoxLayout *lay = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbCustomFilter->layout());
-    if ( lay == NULL )
-    {
-        lay = new QVBoxLayout;
-        q_ptr->ui->gbCustomFilter->setLayout(lay);
-    }
     QHBoxLayout *layout;
     if ( m_layouts.contains(row) )
     {
