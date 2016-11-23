@@ -68,7 +68,10 @@ TreeBaseBeanModel::TreeBaseBeanModel(const QStringList &tableNames, bool init, Q
         info.metadata = BeansFactory::metadataBean(info.tableName);
         d->m_levelInfo.append(info);
     }
-    setVisibleFields(d->m_levelInfo.last().metadata->dbFieldNames());
+    if ( d->m_levelInfo.last().metadata )
+    {
+        setVisibleFields(d->m_levelInfo.last().metadata->dbFieldNames());
+    }
 
     connect(EnvVars::instance(), SIGNAL(varChanged(QString,QVariant)), this, SLOT(resetModel()));
     connect(BackgroundDAO::instance(), SIGNAL(availableBeans(QString,BaseBeanSharedPointerList)), this, SLOT(beansHasBeenLoaded(QString,BaseBeanSharedPointerList)), Qt::QueuedConnection);
