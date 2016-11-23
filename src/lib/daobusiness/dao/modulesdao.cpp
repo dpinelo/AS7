@@ -29,7 +29,7 @@
 #include "modulesdao.h"
 #include "systemdao.h"
 #include "basedao.h"
-#include "database.h"
+#include "dao/database.h"
 #include "globales.h"
 #include "dao/beans/basebeanmetadata.h"
 #include "dao/beans/beansfactory.h"

@@ -428,6 +428,10 @@ QString TreeBaseBeanModelPrivate::upperLevelUnderlyingSql()
         {
             filters << QString("(%1)").arg(filter);
         }
+        else
+        {
+            filters << QString("");
+        }
     }
     for (int i = 1 ; i < tables.size() ; i++)
     {
