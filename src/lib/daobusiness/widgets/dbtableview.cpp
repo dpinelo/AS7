@@ -925,6 +925,6 @@ void DBTableView::editCurrentCell()
     {
         return;
     }
-    setEditTriggers(QAbstractItemView::EditKeyPressed);
+    setEditTriggers(QAbstractItemView::SelectedClicked);
     edit(current);
 }

@@ -950,6 +950,10 @@ Qt::ItemFlags DBBaseBeanModel::flags(const QModelIndex & index) const
     {
         flags = Qt::ItemIsEnabled;
     }
+    if ( field->editOnDbForm() )
+    {
+        flags = Qt::ItemIsEditable;
+    }
     if ( field->type() == QVariant::Bool || BaseBeanModel::checkColumns().contains(field->dbFieldName()))
     {
         flags = flags | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
