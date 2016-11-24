@@ -998,6 +998,18 @@ void BaseBeanMetadata::setReadOnlyScript(const QString &value)
     d->m_readOnlyScript = value;
 }
 
+bool BaseBeanMetadata::editOnDbForm() const
+{
+    foreach (DBFieldMetadata *fld, d->m_fields)
+    {
+        if ( fld->editOnDbForm() )
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
  * @brief BaseBeanMetadata::showRelatedElementsModel
  * Analiza la estructura de datos de relaciones subyecente, para así determinar si debe presentarse los elementos relacionados
@@ -1940,6 +1952,10 @@ void BaseBeanMetadataPrivate::setConfig()
                 else if ( e.tagName() == QLatin1String("unique") )
                 {
                     field->setUnique((elementText == QLatin1String("true") ? true : false));
+                }
+                else if ( e.tagName() == QLatin1String("editOnDbForm") )
+                {
+                    field->setEditOnDbForm((elementText == QLatin1String("true") ? true : false));
                 }
                 else if ( e.tagName() == QLatin1String("uniqueCompound") )
                 {

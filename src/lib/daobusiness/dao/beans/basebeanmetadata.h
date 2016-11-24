@@ -465,6 +465,8 @@ class ALEPHERP_DLL_EXPORT BaseBeanMetadata : public QObject, public QScriptable
      * los datos en segundo plano... Esto podría incrementar mucho la carga en base de datos. Es posible que el modelo
      * permanezca estático (no produzca la recarga). Se debe poner esta variable a true */
     Q_PROPERTY(bool staticModel READ staticModel WRITE setStaticModel)
+    /** Indica si algún campo es editable en los DBFormDlg */
+    Q_PROPERTY(bool editOnDbForm READ editOnDbForm)
 
 private:
     Q_DISABLE_COPY(BaseBeanMetadata)
@@ -587,6 +589,7 @@ public:
     void setModuleToolBarEntryPath(const QString &value);
     QString readOnlyScript() const;
     void setReadOnlyScript(const QString &value);
+    bool editOnDbForm() const;
 
     bool showSomeRelationOnRelatedElementsModel();
 

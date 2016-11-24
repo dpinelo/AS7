@@ -239,6 +239,7 @@ public:
     bool m_lowerCase;
     bool m_upperCase;
     bool m_noSpaces;
+    bool m_editOnDbForm;
 
     QStringList m_dependOnFieldsToCalc;
 
@@ -286,6 +287,7 @@ public:
         m_upperCase = false;
         m_noSpaces = false;
         m_calculatedOrder = 0;
+        m_editOnDbForm = false;
     }
 
     QString fieldName();
@@ -1311,6 +1313,16 @@ bool DBFieldMetadata::noSpaces() const
 void DBFieldMetadata::setNoSpaces(bool value)
 {
     d->m_noSpaces = value;
+}
+
+bool DBFieldMetadata::editOnDbForm() const
+{
+    return d->m_editOnDbForm;
+}
+
+void DBFieldMetadata::setEditOnDbForm(bool value)
+{
+    d->m_editOnDbForm = value;
 }
 
 void DBFieldMetadata::setXmlDefinition(const QString &value)

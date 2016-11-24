@@ -352,6 +352,8 @@ class ALEPHERP_DLL_EXPORT DBFieldMetadata : public QObject, public QScriptable
     Q_PROPERTY(bool lowerCase READ lowerCase WRITE setLowerCase)
     Q_PROPERTY(bool upperCase READ upperCase WRITE setUpperCase)
     Q_PROPERTY(bool noSpaces READ noSpaces WRITE setNoSpaces)
+    /** Permitirá editar campos directamente en el DBForm */
+    Q_PROPERTY(bool editOnDbForm READ editOnDbForm WRITE setEditOnDbForm)
 
 private:
     Q_DISABLE_COPY(DBFieldMetadata)
@@ -508,6 +510,8 @@ public:
     void setUpperCase(bool value);
     bool noSpaces() const;
     void setNoSpaces(bool value);
+    bool editOnDbForm() const;
+    void setEditOnDbForm(bool value);
 
     QString ddlCreationTable(const AlephERP::CreationTableSqlOptions &options, const QString &dialect);
 
