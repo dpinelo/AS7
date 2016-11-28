@@ -20,11 +20,7 @@
 #include <QtCore>
 #include <QtGlobal>
 #include <QtSql>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include <QtUiTools>
 #include "configuracion.h"
 #include <globales.h>
@@ -226,6 +222,7 @@ bool DBReportRunDlg::init()
     connect (d->m_run, SIGNAL(canExecuteReport(bool)), this, SLOT(enableButtons()));
 
     ui->gbPreview->setVisible(!d->m_run->metadata()->exportSql().isEmpty());
+    ui->pbPreviewData->setVisible(!d->m_run->metadata()->exportSql().isEmpty());
 
     installEventFilters();
 
@@ -877,6 +874,8 @@ void DBReportRunDlgPrivate::showAvailableButtons()
         q_ptr->ui->pbPDF->setVisible(false);
         q_ptr->ui->pbPrint->setVisible(false);
         q_ptr->ui->pbSpreadSheet->setVisible(false);
+        q_ptr->ui->pbPreviewData->setVisible(false);
+        q_ptr->ui->gbPreview->setVisible(false);
     }
     else
     {
@@ -906,6 +905,8 @@ void DBReportRunDlgPrivate::showAvailableButtons()
         if (!m_run.isNull())
         {
             q_ptr->ui->pbSpreadSheet->setVisible(m_run->canExportSpreadSheet());
+            q_ptr->ui->pbPreviewData->setVisible(!m_run->metadata()->exportSql().isEmpty());
+            q_ptr->ui->gbPreview->setVisible(!m_run->metadata()->exportSql().isEmpty());
         }
     }
 }
