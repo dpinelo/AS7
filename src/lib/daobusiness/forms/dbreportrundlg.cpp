@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include <QtCore>
 #include <QtGlobal>
+#include <QtSql>
 #if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
 #include <QtGui>
 #else
@@ -221,7 +222,10 @@ bool DBReportRunDlg::init()
     connect (ui->pbEdit, SIGNAL(clicked()), d->m_run, SLOT(editReport()));
     connect (ui->pbPreview, SIGNAL(clicked()), this, SLOT(preview()));
     connect (ui->pbSpreadSheet, SIGNAL(clicked()), this, SLOT(exportToSpreadSheet()));
+    connect( ui->pbPreviewData, SIGNAL(clicked()), this, SLOT(previewData()));
     connect (d->m_run, SIGNAL(canExecuteReport(bool)), this, SLOT(enableButtons()));
+
+    ui->gbPreview->setVisible(!d->m_run->metadata()->exportSql().isEmpty());
 
     installEventFilters();
 
@@ -649,6 +653,29 @@ bool DBReportRunDlg::exportToSpreadSheet()
         }
     }
     return execute;
+}
+
+void DBReportRunDlg::previewData()
+{
+    if ( d->m_run.isNull() )
+    {
+        return;
+    }
+    d->m_run->setParameters(d->constructParameterMap());
+    QSqlQuery qry = d->m_run->query();
+    if ( qry.isActive() )
+    {
+        QAbstractItemModel *oldQueryModel = ui->tableView->model();
+        QSqlQueryModel *queryModel = new QSqlQueryModel(this);
+        queryModel->setQuery(qry);
+        CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+        ui->tableView->setModel(queryModel);
+        CommonsFunctions::restoreOverrideCursor();
+        if ( oldQueryModel != NULL )
+        {
+            delete oldQueryModel;
+        }
+    }
 }
 
 /*!

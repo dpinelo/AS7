@@ -912,3 +912,63 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
     }
     return execute;
 }
+
+QSqlQuery ReportRun::query()
+{
+    QSqlQuery qry(Database::getQDatabase());
+    QString sql = d->m_metadata->exportSql();
+    if ( sql.isEmpty())
+    {
+        d->m_lastErrorMessage = trUtf8("No existe ninguna query de previsualización de datos.");
+        return qry;
+    }
+
+    // Construimos los parámetros de entorno
+    QVariantMap parameters;
+    if ( !d->m_beans.isEmpty() )
+    {
+        // TODO: Hay que ver esto.
+        // parameters = d->buildParameterBindingForBean();
+    }
+    else if ( !d->m_metadata.isNull() )
+    {
+        parameters = d->m_parameters;
+    }
+    QVariantMap param = d->buildEnvVarParameterBinding();
+    QMapIterator<QString, QVariant> it(parameters);
+    while (it.hasNext())
+    {
+        it.next();
+        param[it.key()] = it.value();
+    }
+    QLogger::QLog_Debug(AlephERP::stLogDB, QString("ReportRun::query: [%1]").arg(sql));
+    if ( !qry.prepare(sql) )
+    {
+        d->m_lastErrorMessage = trUtf8("Ocurrió un error al preparar la consulta de previsualización de datos. \nEl error es: [%1][%2]").
+                arg(qry.lastError().databaseText()).arg(qry.lastError().driverText());
+        QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
+        return qry;
+    }
+    QMapIterator<QString, QVariant> itQuery(param);
+    while (itQuery.hasNext())
+    {
+        itQuery.next();
+        QString placeHolder = itQuery.key();
+        if ( !placeHolder.startsWith(":") )
+        {
+            placeHolder.prepend(":");
+        }
+        qry.bindValue(placeHolder, itQuery.value());
+    }
+
+    qDebug() << qry.boundValues();;
+
+    if ( !qry.exec() )
+    {
+        d->m_lastErrorMessage = trUtf8("Ocurrió un error ejecutando la consulta de previsualización de datos. \nEl error es: [%1][%2]").
+                arg(qry.lastError().databaseText()).arg(qry.lastError().driverText());
+        QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
+        return qry;
+    }
+    return qry;
+}
