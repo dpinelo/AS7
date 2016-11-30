@@ -639,6 +639,8 @@ bool DBReportRunDlg::exportToSpreadSheet()
     connect(d->m_run.data(), SIGNAL(progressExportToSpreadSheet(int)), dlg.data(), SLOT(setValue(int)));
     connect(d->m_run.data(), SIGNAL(finishExportToSpreadSheet()), dlg.data(), SLOT(close()));
     connect(d->m_run.data(), SIGNAL(labelExportToSpreadSheet(QString)), dlg.data(), SLOT(setLabelText(QString)));
+    connect(dlg.data(), SIGNAL(canceled()), d->m_run.data(), SLOT(cancelExportToSpreadSheet()));
+
     dlg->setLabelText(tr("Exportando datos..."));
     dlg->show();
     qApp->processEvents();

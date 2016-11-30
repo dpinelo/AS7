@@ -567,7 +567,7 @@ AERPCell *AERPSheet::createCell(const QString &row, const QString &column, const
 {
     AERPCell *actualCell = cell(row, column);
     if ( actualCell == NULL )
-   {
+    {
         AERPCell *c = new AERPCell(this);
         // Este orden es muy importante.
         if ( !d->m_columns.contains(column) )
@@ -585,6 +585,25 @@ AERPCell *AERPSheet::createCell(const QString &row, const QString &column, const
         return c;
     }
     return actualCell;
+}
+
+AERPCell *AERPSheet::createCellWithoutCheck(const QString &row, const QString &column, const QVariant value)
+{
+    AERPCell *c = new AERPCell(this);
+    // Este orden es muy importante.
+    if ( !d->m_columns.contains(column) )
+    {
+        d->m_columns.append(column);
+    }
+    if ( !d->m_rows.contains(row) )
+    {
+        d->m_rows.append(row);
+    }
+    c->setRow(row);
+    c->setColumn(column);
+    d->m_cells.append(c);
+    c->setValue(value);
+    return c;
 }
 
 QVariant AERPSheet::cellValue(int rowId, int columnId)

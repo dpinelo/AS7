@@ -97,6 +97,7 @@ public slots:
     void setParameterValue(const QString &parameterName, const QVariant &value);
     bool exportToSpreadSheet(const QString &type, const QString &file);
     QSqlQuery query();
+    void cancelExportToSpreadSheet();
 };
 
 Q_DECLARE_METATYPE(ReportRun*)

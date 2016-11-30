@@ -643,6 +643,10 @@ void DBDetailView::addExisting()
         {
             rel->addChildren(list);
 
+            if ( filterModel() )
+            {
+                filterModel()->invalidate();
+            }
             emit addedExistingRecords(list);
             emit addedExistingRecords();
 

@@ -49,11 +49,13 @@ public:
     QString m_pdfGeneratedFilePath;
     bool m_dialogIsShowedNow;
     QString m_linkedTo;
+    bool m_cancelExportToSpreadSheet;
 
     explicit ReportRunPrivate(ReportRun *qq) : q_ptr(qq)
     {
         m_parentWidget = NULL;
         m_dialogIsShowedNow = false;
+        m_cancelExportToSpreadSheet = false;
     }
 
     QVariantMap buildEnvVarParameterBinding();
@@ -807,6 +809,7 @@ void ReportRun::setParameterValue(const QString &parameterName, const QVariant &
 bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
 {
     // Vamos a generar la hoja de cálculo a partir de la consulta
+    d->m_cancelExportToSpreadSheet = false;
     QScopedPointer<AERPSpreadSheet> spread(new AERPSpreadSheet());
     AERPSpreadSheetIface *iface = NULL;
     foreach (AERPSpreadSheetIface *i, AERPSpreadSheet::ifaces())
@@ -823,6 +826,7 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
         d->m_lastErrorMessage = trUtf8("No existe ningún plugin disponible que pueda escribir un fichero de tipo: %1").arg(type);
         return false;
     }
+    QString sqlCount = QString("SELECT count(*) FROM (%1) AS foo").arg(sql);
 
     // Construimos los parámetros de entorno
     QVariantMap parameters;
@@ -843,8 +847,10 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
         param[it.key()] = it.value();
     }
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("ReportRun::exportToSpreadSheet: [%1]").arg(sql));
+
     QScopedPointer<QSqlQuery> qry(new QSqlQuery(Database::getQDatabase()));
-    if ( !qry->prepare(sql) )
+    QScopedPointer<QSqlQuery> qryCount(new QSqlQuery(Database::getQDatabase()));
+    if ( !qry->prepare(sql) || ! qryCount->prepare(sqlCount) )
     {
         d->m_lastErrorMessage = trUtf8("Ocurrió un error al preparar la consulta de exportación. \nEl error es: [%1][%2]").
                 arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
@@ -861,14 +867,15 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
             placeHolder.prepend(":");
         }
         qry->bindValue(placeHolder, itQuery.value());
+        qryCount->bindValue(placeHolder, itQuery.value());
     }
 
     emit initExportToSpreadSheet(2);
     emit labelExportToSpreadSheet(tr("Realizando consulta en base de datos..."));
     qApp->processEvents();
+    bool rCount = qryCount->exec();
     bool r = qry->exec();
-    emit finishExportToSpreadSheet();
-    if ( !r )
+    if ( !rCount || !r )
     {
         d->m_lastErrorMessage = trUtf8("Ocurrió un error ejecutando la consulta de exportación. \nEl error es: [%1][%2]").
                 arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
@@ -879,20 +886,32 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
     int rowNumber = 1;
     char column = 'A';
 
-    emit initExportToSpreadSheet(qry->record().count());
+    qryCount->first();
+    int rowCount = qryCount->value(0).toInt();
+    emit initExportToSpreadSheet(rowCount);
     emit labelExportToSpreadSheet(tr("Exportando datos (%1 registros)...").
-                                  arg(alephERPSettings->locale()->toString(qry->record().count())));
+                                  arg(alephERPSettings->locale()->toString(rowCount)));
     qApp->processEvents();
 
     for (int i = 0 ; i < qry->record().count() ; i++)
     {
+        if ( d->m_cancelExportToSpreadSheet )
+        {
+            d->m_lastErrorMessage = trUtf8("Cancelado por el usuario");
+            return false;
+        }
         sheet->addColumn(qry->record().fieldName(i));
     }
     while (qry->next())
     {
         for (int idx = 0 ; idx < qry->record().count() ; ++idx)
         {
-            AERPCell *cell = sheet->createCell(QString("%1").arg(rowNumber), QString("%2").arg(QChar(column + idx)));
+            if ( d->m_cancelExportToSpreadSheet )
+            {
+                d->m_lastErrorMessage = trUtf8("Cancelado por el usuario");
+                return false;
+            }
+            AERPCell *cell = sheet->createCellWithoutCheck(QString("%1").arg(rowNumber), QString("%2").arg(QChar(column + idx)));
             cell->setValue(qry->record().value(idx));
         }
         rowNumber++;
@@ -966,4 +985,9 @@ QSqlQuery ReportRun::query()
         return qry;
     }
     return qry;
+}
+
+void ReportRun::cancelExportToSpreadSheet()
+{
+    d->m_cancelExportToSpreadSheet = true;
 }
