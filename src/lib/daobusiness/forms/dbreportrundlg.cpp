@@ -634,9 +634,19 @@ bool DBReportRunDlg::exportToSpreadSheet()
     {
         return false;
     }
+    QScopedPointer<QProgressDialog> dlg (new QProgressDialog(this));
+    connect(d->m_run.data(), SIGNAL(initExportToSpreadSheet(int)), dlg.data(), SLOT(setMaximum(int)));
+    connect(d->m_run.data(), SIGNAL(progressExportToSpreadSheet(int)), dlg.data(), SLOT(setValue(int)));
+    connect(d->m_run.data(), SIGNAL(finishExportToSpreadSheet()), dlg.data(), SLOT(close()));
+    connect(d->m_run.data(), SIGNAL(labelExportToSpreadSheet(QString)), dlg.data(), SLOT(setLabelText(QString)));
+    dlg->setLabelText(tr("Exportando datos..."));
+    dlg->show();
+    qApp->processEvents();
+
     d->m_run->setParameters(d->constructParameterMap());
     QString filePath = QString("%1/%2").arg(dir).arg(fileName);
     bool execute = d->m_run->exportToSpreadSheet(type, filePath);
+    dlg->close();
     if ( !execute )
     {
         QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error al tratar de generar el archivo de hoja de cálculo. \nEl error es: [%1]").arg(d->m_run->lastErrorMessage()), QMessageBox::Ok);

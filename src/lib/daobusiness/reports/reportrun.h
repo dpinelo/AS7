@@ -83,6 +83,10 @@ public:
 
 signals:
     void canExecuteReport(bool value);
+    void initExportToSpreadSheet(int recordCount);
+    void labelExportToSpreadSheet(QString label);
+    void progressExportToSpreadSheet(int value);
+    void finishExportToSpreadSheet();
 
 public slots:
     bool print(int numCopies = 1);

@@ -863,19 +863,27 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
         qry->bindValue(placeHolder, itQuery.value());
     }
 
-    qDebug() << qry->boundValues();;
-
-    if ( !qry->exec() )
+    emit initExportToSpreadSheet(2);
+    emit labelExportToSpreadSheet(tr("Realizando consulta en base de datos..."));
+    qApp->processEvents();
+    bool r = qry->exec();
+    emit finishExportToSpreadSheet();
+    if ( !r )
     {
         d->m_lastErrorMessage = trUtf8("Ocurrió un error ejecutando la consulta de exportación. \nEl error es: [%1][%2]").
                 arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
         return false;
     }
-    QStringList metadataFields = d->m_metadata->exportMetadataFields();
     AERPSheet *sheet = spread->createSheet(d->m_reportName, 0);
     int rowNumber = 1;
     char column = 'A';
+
+    emit initExportToSpreadSheet(qry->record().count());
+    emit labelExportToSpreadSheet(tr("Exportando datos (%1 registros)...").
+                                  arg(alephERPSettings->locale()->toString(qry->record().count())));
+    qApp->processEvents();
+
     for (int i = 0 ; i < qry->record().count() ; i++)
     {
         sheet->addColumn(qry->record().fieldName(i));
@@ -886,26 +894,13 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
         {
             AERPCell *cell = sheet->createCell(QString("%1").arg(rowNumber), QString("%2").arg(QChar(column + idx)));
             cell->setValue(qry->record().value(idx));
-            if ( AERP_CHECK_INDEX_OK(idx, metadataFields) )
-            {
-                QString dbFieldName = d->m_metadata->exportMetadataFields().at(idx);
-                QStringList parts = dbFieldName.split(".");
-                if ( parts.size() == 2 )
-                {
-                    BaseBeanMetadata *m = BeansFactory::metadataBean(parts.at(0));
-                    if ( m != NULL )
-                    {
-                        DBFieldMetadata *f = m->field(parts.at(1));
-                        if ( f != NULL )
-                        {
-                        }
-                    }
-                }
-            }
         }
         rowNumber++;
+        emit progressExportToSpreadSheet(rowNumber);
+        qApp->processEvents();
     }
     bool execute = iface->writeFile(spread.data(), file);
+    emit finishExportToSpreadSheet();
     if ( !execute )
     {
         d->m_lastErrorMessage = iface->lastMessage();

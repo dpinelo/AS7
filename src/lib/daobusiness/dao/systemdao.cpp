@@ -1319,34 +1319,46 @@ bool SystemDAO::deleteSystemObject(const QString &name, const QString &type, con
 
 int SystemDAO::versionSystemObject(const QString &name, const QString &type, const QString &device, int idOrigin, const QString &connectionName)
 {
-    SystemDAO::clearLastDbMessage();
-    QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
-    QString sql = QString("SELECT max(version) as column1 FROM %1_system "
-                          "WHERE nombre = :nombre AND type = :type AND device = :device AND idorigin = :idorigin").arg(alephERPSettings->systemTablePrefix());
-    int result = -1;
+    static QHash<QString, int> versionObjectHash;
 
-    qry->prepare(sql);
-    qry->bindValue(":nombre", name);
-    qry->bindValue(":type", type);
-    qry->bindValue(":device", device);
-    qry->bindValue(":idorigin", idOrigin);
-    if ( qry->exec() )
+    QString hash = QString("%1:%2:%3:%4").
+            arg(name).
+            arg(type).
+            arg(device).
+            arg(idOrigin);
+    QString md5Hash = QCryptographicHash::hash(hash.toLatin1(), QCryptographicHash::Md5).toHex();
+
+    if ( versionObjectHash.isEmpty() )
     {
-        if ( qry->first() )
+        SystemDAO::clearLastDbMessage();
+        QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
+        QString sql = QString("SELECT max(version) as maxversion, nombre, type, device, idorigin "
+                              "FROM %1_system "
+                              "GROUP BY nombre, type, device, idorigin").arg(alephERPSettings->systemTablePrefix());
+        if ( qry->exec(sql) )
         {
-            result = qry->value(0).toInt();
+            while ( qry->next() )
+            {
+                QString dbHash = QString("%1:%2:%3:%4").
+                        arg(qry->value("nombre").toString()).
+                        arg(qry->value("type").toString()).
+                        arg(qry->value("device").toString()).
+                        arg(qry->value("idorigin").toInt());
+                QString md5DbHash = QCryptographicHash::hash(dbHash.toLatin1(), QCryptographicHash::Md5).toHex();
+                versionObjectHash[md5DbHash] = qry->value("maxversion").toInt();
+            }
         }
         else
         {
-            result = 0;
+            SystemDAO::writeDbMessages(qry.data());
         }
+        qDebug() << "SystemDAO::versionSystemObject: [ " << qry->lastQuery() << " ]";
     }
-    else
+    if ( versionObjectHash.contains(md5Hash) )
     {
-        SystemDAO::writeDbMessages(qry.data());
+         return versionObjectHash.value(md5Hash);
     }
-    qDebug() << "SystemDAO::versionSystemObject: [ " << qry->lastQuery() << " ]. OBJETO: [" << name << "] VERSION: [" << result << "]";
-    return result;
+    return 0;
 }
 
 AERPSystemObject *SystemDAO::systemObject(const QString &name, const QString &type, const QString &device, int idOrigin, const QString &connection, bool forceToSearch)
