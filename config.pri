@@ -110,6 +110,11 @@ CONFIG += debug_and_release
 # Hasta aquí
 #-----------------------------------------------------------------------------------------------------
 
+linux-clang {
+    message("Añade información adicional de Clang")
+    QMAKE_CXXFLAGS="-Xclang -load -Xclang ClangLazy.so -Xclang -add-plugin -Xclang clang-lazy"
+}
+
 unix {
     BUILDNUM=$$system('git describe --tags')
 }

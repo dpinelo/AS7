@@ -85,7 +85,8 @@ DBRelationMetadata * DBRelation::metadata() const
 
 BaseBeanPointer DBRelation::childByObjectName(const QString &objectName)
 {
-    foreach (BaseBeanPointer child, children())
+    BaseBeanPointerList items = children();
+    for (BaseBeanPointer child : items)
     {
         if ( child && child->objectName() == objectName )
         {
@@ -149,7 +150,8 @@ void DBRelation::updateChildrens()
                 QString where = QString("%1 = %2").arg(d->m->childFieldName()).arg(rootField->sqlValue(true, "", true));
                 // Como vamos a obtener el nuevo padre, habrá que limpiarlo (por ejemplo, si tiene
                 // hijos de una relación)
-                foreach (DBRelation *rel, d->m_father->relations())
+                QList<DBRelation *> rels = d->m_father->relations();
+                for (DBRelation *rel : rels)
                 {
                     rel->unloadChildren();
                 }
@@ -186,7 +188,8 @@ void DBRelation::updateChildrens()
     }
     else if ( d->m->type() == DBRelationMetadata::ONE_TO_ONE || d->m->type() == DBRelationMetadata::ONE_TO_MANY )
     {
-        foreach ( BaseBeanSharedPointer bean, d->children() )
+        BaseBeanSharedPointerList items = d->children();
+        for ( BaseBeanSharedPointer bean : items )
         {
             if ( bean )
             {
@@ -197,7 +200,8 @@ void DBRelation::updateChildrens()
                 }
             }
         }
-        foreach ( BaseBeanPointer bean, d->otherChildren() )
+        BaseBeanPointerList otherItems = d->otherChildren();
+        for ( BaseBeanPointer bean : otherItems )
         {
             if ( !bean.isNull() )
             {
@@ -219,7 +223,8 @@ void DBRelation::updateChildrens()
 BaseBeanPointer DBRelation::childByField(const QString &dbField, const QVariant &value, bool includeToBeDeleted)
 {
     BaseBeanPointer result;
-    foreach ( BaseBeanPointer child, children() )
+    BaseBeanPointerList items = children();
+    for ( BaseBeanPointer child : items )
     {
         if ( !child.isNull() )
         {
@@ -263,10 +268,11 @@ BaseBeanPointer DBRelation::childByFilter(const QString &filter, bool includeToB
     else
     {
         // Iteramos por cada bean hijo, y por cada condición de filtrado.
-        foreach ( BaseBeanPointer bean, children() )
+        BaseBeanPointerList items = children();
+        for ( BaseBeanPointer bean : items )
         {
             bool result = true;
-            foreach ( QString condition, conditions )
+            for ( const QString &condition : conditions )
             {
                 result = bean.data()->checkFilter(condition);
             }
@@ -311,7 +317,8 @@ BaseBeanPointerList DBRelation::childrenByFilter(const QString &filter, const QS
 
     // Iteramos por cada bean hijo, y por cada condición de filtrado.
     BaseBeanPointerList list;
-    foreach ( BaseBeanPointer bean, children() )
+    BaseBeanPointerList items = children();
+    for ( BaseBeanPointer bean : items )
     {
         if ( !bean.isNull() )
         {
@@ -393,14 +400,16 @@ bool DBRelation::blockAllSignals(bool value)
         blockSignals(value);
         if ( d->m_childrenLoaded )
         {
-            foreach (BaseBeanSharedPointer child, d->children())
+            BaseBeanSharedPointerList items = d->children();
+            for (BaseBeanSharedPointer child : items)
             {
                 if ( child )
                 {
                     child->blockAllSignals(value);
                 }
             }
-            foreach (BaseBeanPointer child, d->otherChildren())
+            BaseBeanPointerList otherItems = d->otherChildren();
+            for (BaseBeanPointer child : otherItems)
             {
                 if ( child )
                 {
@@ -450,14 +459,16 @@ int DBRelation::childrenCount(bool includeToBeDeleted)
     }
     if ( !includeToBeDeleted )
     {
-        foreach (BaseBeanSharedPointer bean, d->children())
+        BaseBeanSharedPointerList items = d->children();
+        for (BaseBeanSharedPointer bean : items )
         {
             if ( bean && bean->dbState() == BaseBean::TO_BE_DELETED && bean->dbState() != BaseBean::DELETED )
             {
                 count--;
             }
         }
-        foreach (BaseBeanPointer bean, d->otherChildren())
+        BaseBeanPointerList otherItems = d->otherChildren();
+        for (BaseBeanPointer bean : otherItems)
         {
             if ( bean && bean->dbState() == BaseBean::TO_BE_DELETED && bean->dbState() != BaseBean::DELETED )
             {
@@ -489,14 +500,16 @@ int DBRelation::childrenCountByState(BaseBean::DbBeanStates state)
     else
     {
         count = 0 ;
-        foreach (BaseBeanSharedPointer bean, d->children())
+        BaseBeanSharedPointerList items = d->children();
+        for (BaseBeanSharedPointer bean : items)
         {
             if ( bean && bean->dbState() == state)
             {
                 count++;
             }
         }
-        foreach (BaseBeanPointer bean, d->otherChildren())
+        BaseBeanPointerList otherItems = d->otherChildren();
+        for (BaseBeanPointer bean : otherItems)
         {
             if ( bean && bean->dbState() == state)
             {
@@ -615,14 +628,16 @@ BaseBeanPointerList DBRelation::internalChildren()
     }
     else
     {
-        foreach (BaseBeanSharedPointer b, d->children())
+        BaseBeanSharedPointerList items = d->children();
+        for (BaseBeanSharedPointer b : items)
         {
             if ( b )
             {
                 list.append(b.data());
             }
         }
-        foreach (BaseBeanPointer b, d->otherChildren())
+        BaseBeanPointerList otherItems = d->otherChildren();
+        for (BaseBeanPointer b : otherItems)
         {
             if ( b )
             {
@@ -696,7 +711,7 @@ void DBRelation::connections(const BaseBeanPointer &child)
     if ( !ownerBean().isNull() )
     {
         QList<DBField *> fields = ownerBean()->fields();
-        foreach ( DBField *fld, fields )
+        for ( DBField *fld : fields )
         {
             if ( fld->metadata()->calculated() && fld->metadata()->calculatedConnectToChildModifications() )
             {
@@ -821,7 +836,8 @@ BaseBeanSharedPointer DBRelation::newChild(int pos)
 BaseBeanPointer DBRelation::childByOid(qlonglong oid, bool includeToBeDeleted)
 {
     BaseBeanPointer result;
-    foreach ( BaseBeanPointer child, children() )
+    BaseBeanPointerList items = children();
+    for ( BaseBeanPointer child : items )
     {
         if ( !child.isNull() )
         {
@@ -850,12 +866,12 @@ BaseBeanPointer DBRelation::childByOid(qlonglong oid, bool includeToBeDeleted)
  * hijos agregados o existentes por alguna razón interna de código.
  * @param list
  */
-void DBRelation::addChildren(BaseBeanSharedPointerList list)
+void DBRelation::addChildren(const BaseBeanSharedPointerList &list)
 {
     QMutexLocker lock(&d->m_mutex);
     bool added = false;
     int countChildren = 0;
-    foreach (BaseBeanSharedPointer b, list)
+    for (BaseBeanSharedPointer b : list)
     {
         if ( !b.isNull() )
         {
@@ -935,7 +951,8 @@ void DBRelation::childFieldBeanModified(const QString &fieldName, const QVariant
     {
         d->emitFieldChildModified(sender, fieldName, value);
     }
-    foreach ( DBField *fld, ownerBean()->fields() )
+    QList<DBField *> list = ownerBean()->fields();
+    for ( DBField *fld : list )
     {
         AggregateCalc aggregateCalc = fld->metadata()->aggregateCalc();
         for ( int i = 0 ; i < aggregateCalc.relation.size() ; i++ )
@@ -1223,14 +1240,16 @@ BaseBeanPointerList DBRelation::modifiedChildren()
     {
         return list;
     }
-    foreach ( BaseBeanSharedPointer bean, d->children() )
+    BaseBeanSharedPointerList items = d->children();
+    for ( BaseBeanSharedPointer bean : items )
     {
         if ( bean && bean->modified() )
         {
             list.append(bean.data());
         }
     }
-    foreach ( BaseBeanPointer bean, d->otherChildren() )
+    BaseBeanPointerList otherItems = d->otherChildren();
+    for ( BaseBeanPointer bean : otherItems )
     {
         if ( bean && bean.data()->modified() )
         {
@@ -1298,11 +1317,13 @@ BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeD
             if ( !possibleChild.isNull() && ancestorRel->metadata()->tableName() == d->m->tableName() )
             {
                 bool found = false;
-                foreach (BaseBeanPointer childBean, d->otherChildren())
+                BaseBeanPointerList otherItems = d->otherChildren();
+                for (BaseBeanPointer childBean : otherItems)
                 {
                     if (childBean && childBean->objectName() == possibleChild->objectName())
                     {
                         found = true;
+                        break;
                     }
                 }
                 if ( !found )
@@ -1322,7 +1343,8 @@ BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeD
     }
     if ( !includeToBeDeleted )
     {
-        foreach ( BaseBeanSharedPointer bean, d->children() )
+        BaseBeanSharedPointerList items = d->children();
+        for ( BaseBeanSharedPointer bean : items )
         {
             if ( bean && (bean->dbState() != BaseBean::TO_BE_DELETED && bean->dbState() != BaseBean::DELETED) )
             {
@@ -1331,7 +1353,8 @@ BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeD
         }
         if ( includeOtherChildren )
         {
-            foreach ( BaseBeanPointer bean, d->otherChildren() )
+            BaseBeanPointerList otherItems = d->otherChildren();
+            for ( BaseBeanPointer bean : otherItems )
             {
                 if ( bean && (bean->dbState() != BaseBean::TO_BE_DELETED && bean->dbState() != BaseBean::DELETED) )
                 {
@@ -1760,7 +1783,8 @@ void DBRelation::setBrother(BaseBeanPointer bro)
         if ( !d->m_settingOtherSideBrother )
         {
             d->m_settingOtherSideBrother = true;
-            foreach (DBRelation *rel, bro->relations(AlephERP::OneToOne))
+            QList<DBRelation *> rels = bro->relations(AlephERP::OneToOne);
+            for (DBRelation *rel : rels)
             {
                 if ( rel->metadata()->tableName() == ownerBean()->metadata()->tableName() )
                 {

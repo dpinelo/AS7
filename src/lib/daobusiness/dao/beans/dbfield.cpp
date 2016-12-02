@@ -270,7 +270,7 @@ bool DBFieldPrivate::checkNull()
             // Si el campo apunta a una relación, no podra tener valor cero... o, si es cero, pero
             // apunta a un padre que va a ser guardado, entonces pasa la validación.
             QList<DBRelation *> relations = q_ptr->relations();
-            foreach (DBRelation *rel, relations)
+            for (DBRelation *rel : relations)
             {
                 if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE && rel->father() )
                 {
@@ -350,7 +350,7 @@ bool DBFieldPrivate::checkUniqueOnFilterField()
     BaseBean *bean = q_ptr->bean();
     QStringList filterFields = q_ptr->metadata()->uniqueOnFilterField().split(QRegExp(";|,"));
     QString sqlFilterField;
-    foreach (const QString &filterField, filterFields)
+    for (const QString &filterField : filterFields)
     {
         DBField *dbField = bean->field(filterField.trimmed());
         if ( dbField != NULL )
@@ -556,7 +556,7 @@ QList<DBRelation *> DBField::relations(const AlephERP::RelationTypes &type)
         return d->m_relations;
     }
     QList<DBRelation *> rels;
-    foreach ( DBRelation *rel, d->m_relations )
+    for ( DBRelation *rel : d->m_relations )
     {
         if ( type.testFlag(AlephERP::OneToMany) && rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
         {
@@ -577,7 +577,7 @@ QList<DBRelation *> DBField::relations(const AlephERP::RelationTypes &type)
 
 DBRelation * DBField::relation(const QString &relationName)
 {
-    foreach ( DBRelation *rel, d->m_relations )
+    for ( DBRelation *rel : d->m_relations )
     {
         if ( rel->metadata()->name() == relationName)
         {
@@ -603,7 +603,7 @@ void DBField::setRelations(const QList<DBRelation *> rels)
     QMutexLocker lock(&d->m_mutex);
 
     d->m_relations = rels;
-    foreach (DBRelation *rel, rels)
+    for (DBRelation *rel : rels)
     {
         /** Aquí exponemos las relaciones al motor Qs */
         QVariant pointer = QVariant::fromValue(rel);
@@ -615,7 +615,7 @@ void DBField::setRelations(const QList<DBRelation *> rels)
 bool DBField::hasM1Relation() const
 {
     // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
-    foreach (DBRelation *rel, d->m_relations)
+    for (DBRelation *rel : d->m_relations)
     {
         if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
         {
@@ -628,7 +628,7 @@ bool DBField::hasM1Relation() const
 bool DBField::hasBrotherRelation() const
 {
     // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
-    foreach (DBRelation *rel, d->m_relations)
+    for (DBRelation *rel : d->m_relations)
     {
         if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
         {
@@ -1024,7 +1024,7 @@ QVariant DBField::value()
     if ( hasM1Relation() || hasBrotherRelation() )
     {
         // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
-        foreach (DBRelation *rel, d->m_relations)
+        for (DBRelation *rel : d->m_relations)
         {
             if ( rel != NULL && (rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE || rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE) )
             {
@@ -1079,7 +1079,7 @@ QString DBFieldPrivate::filterForUniqueOnFilterField(const QString where)
     {
         bool first = true;
         tempSql.append("(");
-        foreach (const QString &part, parts)
+        for (const QString &part : parts)
         {
             if ( !first )
             {
@@ -1361,14 +1361,14 @@ void DBField::setInternalValue(const QVariant &newValue, bool overwriteOnReadOnl
         // a relaciones 1->M, donde se ha establecido el valor de la parte 1 en esta función
         // y se debe poner los valores en los hijos de la parte M.
         QList<DBRelation *> rels = relations();
-        foreach (DBRelation *rel, rels)
+        for (DBRelation *rel : rels)
         {
             if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
             {
                 // Al llamar a la función internalChildren, sólo nos traemos los beans en memoria y no los que están
                 // en base de datos (estos ya vendrían con este campo relleno).
                 BaseBeanPointerList otherChildren = rel->internalChildren();
-                foreach (BaseBeanPointer child, otherChildren)
+                for (BaseBeanPointer child : otherChildren)
                 {
                     if ( !child.isNull() )
                     {
@@ -1479,7 +1479,7 @@ QString DBField::dbFieldName() const
 QVariantMap DBField::relationsMap()
 {
     QVariantMap map;
-    foreach (DBRelation *rel, d->m_relations)
+    for (DBRelation *rel : d->m_relations)
     {
         map[rel->metadata()->name()] = QVariant::fromValue(rel);
     }
@@ -1986,7 +1986,7 @@ QVariant DBFieldPrivate::calculateAggregateValue()
             if ( rel != NULL )
             {
                 BaseBeanPointerList beans = rel->childrenByFilter(calc.filter.at(i));
-                foreach ( BaseBeanPointer bean, beans )
+                for ( BaseBeanPointer bean : beans )
                 {
                     if ( !bean.isNull() )
                     {
@@ -2060,7 +2060,7 @@ void DBFieldPrivate::calculateAggregateScriptItem(const QString &relation, const
         if ( rel != NULL )
         {
             BaseBeanPointerList beans = rel->childrenByFilter(filter);
-            foreach ( BaseBeanPointer bean, beans )
+            for ( BaseBeanPointer bean : beans )
             {
                 if ( !bean.isNull() )
                 {
@@ -2111,7 +2111,7 @@ void DBFieldPrivate::calculateAggregateExpressionItem(int indexAggregate, const 
     if ( rel != NULL )
     {
         BaseBeanPointerList beans = rel->childrenByFilter(filter);
-        foreach ( BaseBeanPointer bean, beans )
+        for ( BaseBeanPointer bean : beans )
         {
             if ( !bean.isNull() )
             {
@@ -2331,7 +2331,7 @@ QVariant DBFieldPrivate::calculateCounterOldMethod(const QString &connection, bo
             if ( prefixs.size() > i && !prefixs.at(i).isEmpty() )
             {
                 QList<DBRelation *> rels = otherField->relations(AlephERP::ManyToOne);
-                foreach ( DBRelation *rel, rels )
+                for ( DBRelation *rel : rels )
                 {
                     BaseBean *father = rel->father();
                     if ( father != NULL )
@@ -2929,7 +2929,7 @@ bool DBField::isEmpty()
     else if ( hasM1Relation() )
     {
         // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
-        foreach (DBRelation *rel, d->m_relations)
+        for (DBRelation *rel : d->m_relations)
         {
             if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
             {
@@ -2940,7 +2940,7 @@ bool DBField::isEmpty()
     else if ( hasBrotherRelation() )
     {
         // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
-        foreach (DBRelation *rel, d->m_relations)
+        for (DBRelation *rel : d->m_relations)
         {
             if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
             {

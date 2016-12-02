@@ -229,7 +229,7 @@ void AERPSpreadSheet::loadPlugins()
     QStringList plugins = pluginDir.entryList(QStringList() << QString("*.so"), QDir::Files);
 #endif
 
-    foreach (const QString &pluginFile, plugins)
+    for (const QString &pluginFile : plugins)
     {
         AERPSpreadSheetIface *iface = NULL;
         QString pathPluginFile = QString("%1/%2").arg(pluginDirPath).arg(pluginFile);
@@ -291,7 +291,7 @@ AERPSpreadSheet *AERPSpreadSheet::openSpreadSheet(const QString &file, const QSt
     {
         AERPSpreadSheet::loadPlugins();
     }
-    foreach (AERPSpreadSheetIface *iface, AERPSpreadSheet::m_ifaces)
+    for (AERPSpreadSheetIface *iface : AERPSpreadSheet::m_ifaces)
     {
         if ( iface->type() == fileType )
         {
@@ -335,7 +335,7 @@ bool AERPSpreadSheet::appCanWriteToSomeFile()
     {
         AERPSpreadSheet::loadPlugins();
     }
-    foreach (AERPSpreadSheetIface *iface, AERPSpreadSheet::m_ifaces)
+    for (AERPSpreadSheetIface *iface : AERPSpreadSheet::m_ifaces)
     {
         if ( iface->canWriteFiles() )
         {
@@ -376,7 +376,8 @@ AERPSheet *AERPSpreadSheet::sheet(const QString &value)
 
 AERPSheet *AERPSpreadSheet::sheet(int index)
 {
-    foreach (AERPSheet *sheet, d->m_sheets.values())
+    QList<AERPSheet *> list = d->m_sheets.values();
+    for (AERPSheet *sheet : list)
     {
         if ( sheet->index() == index )
         {
@@ -403,7 +404,8 @@ bool AERPSpreadSheet::saveAs(const QString &path, const QString &typeToSave)
     }
     QScopedPointer<AERPSpreadSheet> spread(new AERPSpreadSheet());
     AERPSpreadSheetIface *iface = NULL;
-    foreach (AERPSpreadSheetIface *i, AERPSpreadSheet::ifaces())
+    QList<AERPSpreadSheetIface *> list = AERPSpreadSheet::ifaces();
+    for (AERPSpreadSheetIface *i : list)
     {
         if ( i->type() == type )
         {
@@ -477,7 +479,7 @@ QStringList AERPSheet::columnNames() const
         return d->m_columns;
     }
     QStringList temp;
-    foreach (const QString &col, d->m_columns)
+    for (const QString &col : d->m_columns)
     {
         temp.append(d->m_columnNames[col]);
     }
@@ -524,7 +526,7 @@ QString AERPSpreadSheet::columnStringName(int column)
 
 AERPCell *AERPSheet::cell(int rowId, int columnId)
 {
-    foreach (AERPCell *cell, d->m_cells)
+    for (AERPCell *cell : d->m_cells)
     {
         if ( cell->rowIndex() == rowId && cell->columnIndex() == columnId )
         {
@@ -536,7 +538,7 @@ AERPCell *AERPSheet::cell(int rowId, int columnId)
 
 AERPCell *AERPSheet::cell(const QString &row, const QString &column)
 {
-    foreach (AERPCell *cell, d->m_cells)
+    for (AERPCell *cell : d->m_cells)
     {
         if ( cell->column() == column && cell->row() == row )
         return cell;
@@ -546,7 +548,7 @@ AERPCell *AERPSheet::cell(const QString &row, const QString &column)
 
 AERPCell *AERPSheet::cell(int rowId, const QString &column)
 {
-    foreach (AERPCell *cell, d->m_cells)
+    for (AERPCell *cell : d->m_cells)
     {
         if ( cell->column() == column && cell->rowIndex() == rowId )
         {
@@ -1146,7 +1148,8 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
     }
     QStringList displayTypes;
 
-    foreach (AERPSpreadSheetIface *iface, AERPSpreadSheet::ifaces())
+    QList<AERPSpreadSheetIface *> list = AERPSpreadSheet::ifaces();
+    for (AERPSpreadSheetIface *iface : list)
     {
         if ( iface->canWriteFiles() )
         {
@@ -1175,7 +1178,8 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
         return;
     }
     AERPSpreadSheetIface *iface = NULL;
-    foreach (AERPSpreadSheetIface *i, AERPSpreadSheet::ifaces())
+    QList<AERPSpreadSheetIface *> listIfaces = AERPSpreadSheet::ifaces();
+    for (AERPSpreadSheetIface *i : listIfaces)
     {
         if ( i->displayType() == displayType )
         {

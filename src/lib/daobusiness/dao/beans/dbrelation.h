@@ -97,7 +97,7 @@ public:
     Q_INVOKABLE BaseBeanPointerList children(const QString &order = "", bool includeToBeDeleted = true, bool includeOtherChildren = true);
     Q_INVOKABLE int childrenCountByState(BaseBean::DbBeanStates state);
     Q_INVOKABLE BaseBeanPointerList modifiedChildren();
-    Q_INVOKABLE void addChildren(BaseBeanSharedPointerList list);
+    Q_INVOKABLE void addChildren(const BaseBeanSharedPointerList &list);
     Q_INVOKABLE void addChild(BaseBeanSharedPointer child);
     Q_INVOKABLE void deleteAllChildren();
     Q_INVOKABLE void deleteChildByObjectName(const QString &objectName);

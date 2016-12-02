@@ -316,12 +316,13 @@ void BaseDAO::appendToCachedQuerys(const QString &tableName, const QString &sql,
     // Ojo: Guardamos un clon del bean creado, ya que si no, éste podría destruirse previamente
     BaseBeanSharedPointerList temp;
     BaseDAO::preloadMemoFields(list, connection);
-    foreach (BaseBeanSharedPointer bean, list)
+    for (BaseBeanSharedPointer bean : list)
     {
         BaseBeanSharedPointer tmpBean = bean->clone();
         // Clone no hace la copia de campos memos que no se hayan obtenido. Pero para cachear nos interesa
         // guardarlos, por lo que forzamos aquí su valor. Para un mejor rendimiento, los campos memos, los leemos en batch
-        foreach ( DBField *fld, tmpBean->fields() )
+        QList<DBField *> list = tmpBean->fields();
+        for ( DBField *fld : list )
         {
             if ( fld->metadata()->calculated() || fld->metadata()->memo() )
             {
@@ -397,7 +398,8 @@ void BaseDAO::appendToCachedBeans(const QString &tableName, const QString &sql, 
     QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::appendToCachedBeans: Cacheando beans de [%1]  por la consulta: [%2]").arg(tableName).arg(sql));
     // Clone no hace la copia de campos memos que no se hayan obtenido. Pero para cachear nos interesa
     // guardarlos, por lo que forzamos aquí su valor
-    foreach ( DBField *fld, tmpBean->fields() )
+    QList<DBField *> list = tmpBean->fields();
+    for ( DBField *fld : list )
     {
         if ( fld->metadata()->calculated() || fld->metadata()->memo() )
         {
@@ -421,7 +423,8 @@ BaseBeanSharedPointerList BaseDAO::getContentCachedQuery(const QString &tableNam
             BaseBeanSharedPointerList temp;
             if ( getCopies )
             {
-                foreach (BaseBeanSharedPointer bean, content->hashCachedBeans[sql])
+                BaseBeanSharedPointerList list = content->hashCachedBeans[sql];
+                for (BaseBeanSharedPointer bean : list)
                 {
                     temp.append(bean->clone());
                 }
@@ -652,7 +655,8 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
         return;
     }
     QList<DBFieldMetadata *> fldMemos;
-    foreach ( DBField * fld, firstBean->fields() )
+    QList<DBField *> listFields = firstBean->fields();
+    for ( DBField * fld : listFields )
     {
         if ( fld->metadata()->memo() )
         {
@@ -665,7 +669,7 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
         return;
     }
     // Empezamos a construir la consulta
-    foreach ( DBFieldMetadata *fld, fldMemos )
+    for ( DBFieldMetadata *fld : fldMemos )
     {
         if ( !sqlFields.isEmpty() )
         {
@@ -673,7 +677,8 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
         }
         sqlFields = QString("%1%2").arg(sqlFields).arg(fld->dbFieldName());
     }
-    foreach ( DBField *fld, firstBean->pkFields() )
+    QList<DBField *> pkFields = firstBean->pkFields();
+    for ( DBField *fld : pkFields )
     {
         if ( !sqlFields.isEmpty() )
         {
@@ -681,12 +686,12 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
         }
         sqlFields = QString("%1%2").arg(sqlFields).arg(fld->metadata()->dbFieldName());
     }
-    foreach ( BaseBeanSharedPointer bean, list )
+    for ( BaseBeanSharedPointer bean : list )
     {
         QList<DBField *> pkFields = bean->pkFields();
         QString temp;
         temp = QString("(");
-        foreach ( DBField *fld, pkFields )
+        for ( DBField *fld : pkFields )
         {
             if ( temp != "(" )
             {
@@ -715,18 +720,18 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
         while ( qry->next() )
         {
             int i = 0;
-            foreach ( BaseBeanSharedPointer bean, list )
+            for ( BaseBeanSharedPointer bean : list )
             {
                 bool equal = true;
                 QList<DBField *> pkFields = bean->pkFields();
-                foreach ( DBField *fld, pkFields )
+                for ( DBField *fld : pkFields )
                 {
                     equal = equal & ( fld->value() == qry->value(memoIndex.size() + i));
                 }
                 if ( equal )
                 {
                     int qryIndex = 0;
-                    foreach ( int memoIdx, memoIndex )
+                    for ( int memoIdx : memoIndex )
                     {
                         DBField *fld = bean->field(memoIdx);
                         if ( fld != NULL )
@@ -791,7 +796,7 @@ bool BaseDAO::loadUserEnvVars(const QString &connection)
     QList<AlephERP::RoleInfo> userRoles = AERPLoggedUser::instance()->roles();
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
-    foreach ( const AlephERP::RoleInfo &userRole, userRoles )
+    for ( const AlephERP::RoleInfo &userRole : userRoles )
     {
         if ( !idRoles.isEmpty() )
         {
@@ -863,7 +868,7 @@ QVariant BaseDAO::loadUserEnvVar(const QString &userName, const QString &envVar,
     QList<AlephERP::RoleInfo> userRoles = UserDAO::userRoles(userName);
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
-    foreach ( const AlephERP::RoleInfo &userRole, userRoles )
+    for ( const AlephERP::RoleInfo &userRole : userRoles )
     {
         if ( !idRoles.isEmpty() )
         {
@@ -1250,7 +1255,7 @@ bool BaseDAO::selectFirst(BaseBean *bean, const QString &where, const QString &o
         BaseBeanSharedPointer bCached = BaseDAO::getContentCachedBean(bean->metadata()->tableName(), sql, false);
         QList<DBField *> fields = bCached->fields();
         bean->setAccess(bCached->access());
-        foreach ( DBField * fld, fields )
+        for ( DBField * fld : fields )
         {
             bean->setInternalFieldValue(fld->metadata()->dbFieldName(), fld->rawValue(), true);
             bean->setOldValue(fld->metadata()->dbFieldName(), fld->rawValue());
@@ -1346,7 +1351,7 @@ bool BaseDAO::selectSeveralByPk(BaseBeanSharedPointerList &beans, const QVariant
     {
         return false;
     }
-    foreach ( QVariant id, list )
+    for ( QVariant id : list )
     {
         QVariantMap pkValues = id.toMap();
         if ( !whereSql.isEmpty() )
@@ -1360,7 +1365,7 @@ bool BaseDAO::selectSeveralByPk(BaseBeanSharedPointerList &beans, const QVariant
         else
         {
             QString temp;
-            foreach ( DBFieldMetadata *field, pk )
+            for ( DBFieldMetadata *field : pk )
             {
                 if ( pkValues.contains(field->dbFieldName()))
                 {
@@ -1467,7 +1472,7 @@ bool BaseDAO::selectByPk(const QVariant &id, BaseBean *bean, const QString &conn
     if ( pk.size() > 1 )
     {
         QVariantMap pkValues = id.toMap();
-        foreach ( DBField *fld, pk )
+        for ( DBField *fld : pk )
         {
             if ( pkValues.contains(fld->metadata()->dbFieldName()))
             {
@@ -1515,7 +1520,7 @@ bool BaseDAO::selectByPk(const QVariant &id, BaseBean *bean, const QString &conn
         BaseBeanSharedPointer bCached = BaseDAO::getContentCachedBean(bean->metadata()->tableName(), sql, false);
         QList<DBField *> fields = bCached->fields();
         bean->setAccess(bCached->access());
-        foreach ( DBField * fld, fields )
+        for ( DBField * fld : fields )
         {
             bean->setInternalFieldValue(fld->metadata()->dbFieldName(), fld->rawValue(), true);
             bean->setOldValue(fld->metadata()->dbFieldName(), fld->rawValue());
@@ -1612,7 +1617,7 @@ bool BaseDAO::selectByOid(qlonglong oid, BaseBean *bean, const QString &connecti
         BaseBeanSharedPointer bCached = BaseDAO::getContentCachedBean(bean->metadata()->tableName(), sql, false);
         QList<DBField *> fields = bCached->fields();
         bean->setAccess(bCached->access());
-        foreach ( DBField * fld, fields )
+        for ( DBField * fld : fields )
         {
             bean->setInternalFieldValue(fld->metadata()->dbFieldName(), fld->rawValue(), true);
             bean->setOldValue(fld->metadata()->dbFieldName(), fld->rawValue());
@@ -1704,7 +1709,7 @@ QString BaseDAO::sqlSelectFieldsClausule(const QList<DBFieldMetadata *> &fields,
     QString sqlFields;
 
     // Construimos ahora la zona del select, a partir de los fields pasados
-    foreach ( DBFieldMetadata *field, fields )
+    for ( DBFieldMetadata *field : fields )
     {
         if ( field->isOnDb() && !field->memo() )
         {
@@ -1933,7 +1938,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
     // INSERT INTO tabla (field1, field2, field3) VALUES(?, ?,?);
 
     QList<DBField *> fields = bean->fields();
-    foreach ( DBField *field, fields )
+    for ( DBField *field : fields )
     {
         if ( field->insertFieldOnUpdateSql(BaseBean::INSERT) )
         {
@@ -1962,7 +1967,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
         // Vamos a utilizar una opción muy ventajosa de PostgreSQL
         QStringList pkFieldNames;
         pkFieldNames << "oid";
-        foreach (DBField *fld, pkFields)
+        for (DBField *fld : pkFields)
         {
             pkFieldNames.append(fld->metadata()->dbFieldName());
         }
@@ -1973,7 +1978,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
     if ( result )
     {
         int i = 0;
-        foreach ( DBField *field, fields )
+        for ( DBField *field : fields )
         {
             if ( field->insertFieldOnUpdateSql(BaseBean::INSERT) )
             {
@@ -2024,7 +2029,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
         if ( Database::getQDatabase(connectionName).driverName() == QStringLiteral("QPSQL") )
         {
             qry->first();
-            foreach (DBField *fld, pkFields)
+            for (DBField *fld : pkFields)
             {
                 fld->setInternalValue(qry->record().value(fld->metadata()->dbFieldName()), true, false);
             }
@@ -2067,7 +2072,7 @@ bool BaseDAO::update(BaseBean *bean, const QString &idTransaction, const QString
     if ( bean->modified() )
     {
         QList<DBField *> fields = bean->fields();
-        foreach ( DBField *field, fields )
+        for ( DBField *field : fields )
         {
             // Los campos serial no se incluyen en los updates, asi como los que estan marcados como no modificados
             if ( field->insertFieldOnUpdateSql(BaseBean::UPDATE) )
@@ -2094,7 +2099,7 @@ bool BaseDAO::update(BaseBean *bean, const QString &idTransaction, const QString
             if ( result )
             {
                 int i = 0;
-                foreach ( DBField *field, fields )
+                for ( DBField *field : fields )
                 {
                     if ( field->insertFieldOnUpdateSql(BaseBean::UPDATE) )
                     {
@@ -2247,7 +2252,7 @@ bool BaseDAO::remove(BaseBean *bean, const QString &idTransaction, const QString
 
     // Vamos a eliminar todas las referencias a hijos con relaciones en cascada.
     QList<DBRelation *> rels = bean->relations(AlephERP::OneToMany | AlephERP::OneToOne);
-    foreach ( DBRelation *rel, rels )
+    for ( DBRelation *rel : rels )
     {
         if ( rel->metadata()->avoidDeleteIfIsReferenced() && rel->childrenCount() > 0 )
         {
@@ -2265,7 +2270,7 @@ bool BaseDAO::remove(BaseBean *bean, const QString &idTransaction, const QString
         if ( rel->metadata()->deleteCascade() && !rel->metadata()->dbReferentialIntegrity() )
         {
             BaseBeanPointerList children = rel->children();
-            foreach ( BaseBeanPointer child, children )
+            for ( BaseBeanPointer child : children )
             {
                 if ( !child.isNull() && !BaseDAO::remove(child.data(), idTransaction) )
                 {
@@ -2388,7 +2393,7 @@ bool BaseDAO::removeReference(BaseBean *bean, DBRelation *relation, const QStrin
 bool BaseDAO::updateBrothersFieldKey(BaseBean *bean, const QString &idTransaction, const QString &connectionName)
 {
     QList<DBRelation *> rels = bean->relations(AlephERP::OneToOne);
-    foreach (DBRelation *rel, rels)
+    for (DBRelation *rel : rels)
     {
         DBField *fld = bean->field(rel->metadata()->rootFieldName());
         if ( fld != NULL && (fld->metadata()->serial() || fld->metadata()->unique()) )
@@ -2770,7 +2775,7 @@ QString BaseDAO::serializePk(const QVariant &pk)
 QString BaseDAO::serializedPkToSqlWhere(const QString &pkey)
 {
     QString sql;
-    foreach ( QString pkeyPart, pkey.split(';') )
+    for ( const QString &pkeyPart : pkey.split(';') )
     {
         if ( !sql.isEmpty() )
         {
@@ -2828,7 +2833,7 @@ bool BaseDAO::copyBaseBean(const BaseBeanPointer &orig, const BaseBeanPointer &d
         return false;
     }
     QList<DBRelation *> rels = orig->relations();
-    foreach ( DBRelation *rel, rels )
+    for ( DBRelation *rel : rels )
     {
         if ( rel->metadata()->includeOnCopy() )
         {
@@ -2850,7 +2855,7 @@ bool BaseDAO::copyBaseBean(const BaseBeanPointer &orig, const BaseBeanPointer &d
     dest->setAccess(orig->access());
     QList<DBField *> flds = orig->fields();
     bool blockSignalState = dest->blockSignals(true);
-    foreach ( DBField *fld, flds )
+    for ( DBField *fld : flds )
     {
         if ( !fld->metadata()->calculated() && !fld->metadata()->serial() && !fld->metadata()->primaryKey() && !fld->metadata()->hasCounterDefinition() )
         {
@@ -2869,14 +2874,14 @@ bool BaseDAO::copyBaseBean(const BaseBeanPointer &orig, const BaseBeanPointer &d
     {
         return false;
     }
-    foreach ( QString relation, relationsChildrenToCopy )
+    for ( QString relation : relationsChildrenToCopy )
     {
         DBRelation *rel = orig->relation(relation);
         DBRelation *relDest = dest->relation(rel->metadata()->tableName());
         if ( relDest != NULL && rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
         {
             BaseBeanPointerList children = rel->children();
-            foreach ( BaseBeanPointer child, children )
+            for ( BaseBeanPointer child : children )
             {
                 BaseBeanSharedPointer childDest = relDest->newChild();
                 if ( !copyBaseBean(child.data(), childDest.data()) )
@@ -2902,7 +2907,7 @@ void BaseDAO::readSerialValuesAfterInsert(BaseBean *bean, qlonglong oid, const Q
     // Consulta general para obtener serial (sin tener en cuenta oid)
     if ( oid == -1 )
     {
-        foreach ( DBField *field, fields )
+        for ( DBField *field : fields )
         {
             if ( field->insertFieldOnUpdateSql(BaseBean::INSERT) )
             {
@@ -2917,7 +2922,7 @@ void BaseDAO::readSerialValuesAfterInsert(BaseBean *bean, qlonglong oid, const Q
                 }
             }
         }
-        foreach ( DBField *field, fields )
+        for ( DBField *field : fields )
         {
             if ( field->metadata()->serial() )
             {
@@ -2942,7 +2947,7 @@ void BaseDAO::readSerialValuesAfterInsert(BaseBean *bean, qlonglong oid, const Q
         // Tenemos OID, lo asignamos a registro
         bean->setDbOid(oid);
         whereWithOid = QString("oid = %1").arg(oid);
-        foreach ( DBField *field, fields )
+        for ( DBField *field : fields )
         {
             if ( field->metadata()->serial() )
             {
@@ -2990,7 +2995,7 @@ bool BaseDAO::reloadBeanFromDB(const BaseBeanPointer &bean, const QString &conne
             }
         }
     }
-    foreach ( DBRelation *rel, bean->relations() )
+    for ( DBRelation *rel : bean->relations() )
     {
         rel->unloadChildren();
     }
@@ -3013,7 +3018,7 @@ bool BaseDAO::reloadBeansFromDB(const BaseBeanPointerList &list, const QString &
         return true;
     }
 
-    foreach ( BaseBeanPointer bean, list )
+    for ( BaseBeanPointer bean : list )
     {
         if ( !bean.isNull() )
         {
@@ -3024,7 +3029,7 @@ bool BaseDAO::reloadBeansFromDB(const BaseBeanPointerList &list, const QString &
             ids[bean->metadata()->tableName()].append(bean->pkValue());
         }
     }
-    foreach (const QString &tableName, ids.keys())
+    for (const QString &tableName : ids.keys())
     {
         BaseBeanSharedPointerList copies;
         if ( !BaseDAO::selectSeveralByPk(copies,
@@ -3034,13 +3039,14 @@ bool BaseDAO::reloadBeansFromDB(const BaseBeanPointerList &list, const QString &
         {
             return false;
         }
-        foreach ( BaseBeanSharedPointer beanCopy, copies )
+        for ( BaseBeanSharedPointer beanCopy : copies )
         {
-            foreach ( BaseBeanPointer beanOrig, list )
+            for ( BaseBeanPointer beanOrig : list )
             {
                 if ( !beanOrig.isNull() && beanOrig->pkEqual(beanCopy->pkValue()) )
                 {
-                    foreach (DBField *fldOrig, beanOrig->fields())
+                    QList<DBField *> fldOrigs = beanOrig->fields();
+                    for (DBField *fldOrig : fldOrigs)
                     {
                         if ( !fldOrig->metadata()->memo() )
                         {
@@ -3071,7 +3077,8 @@ bool BaseDAO::reloadFieldChangedAfterSave(BaseBean *bean, const QString &connect
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
     QList<DBFieldMetadata *> fieldsMetadata;
     QList<DBField *> fields;
-    foreach ( DBField *fld, bean->fields() )
+    QList<DBField *> beanFields = bean->fields();
+    for ( DBField *fld : beanFields )
     {
         if ( fld->metadata()->reloadFromDBAfterSave() )
         {
@@ -3112,7 +3119,7 @@ bool BaseDAO::reloadFieldChangedAfterSave(BaseBean *bean, const QString &connect
         int i = 0;
         result = true;
         bool blockSignalState = bean->blockSignals(true);
-        foreach ( DBField *fld, fields )
+        for ( DBField *fld : fields )
         {
             fld->setInternalValue(qry->value(i), true, false);
             fld->sync();
@@ -3130,7 +3137,8 @@ bool BaseDAO::reloadRelationsChangedAfterSave(BaseBean *bean)
     {
         return false;
     }
-    foreach (DBRelation *relation, bean->relations())
+    QList<DBRelation *> relations = bean->relations();
+    for (DBRelation *relation : relations)
     {
         if ( relation->metadata()->reloadFromDBAfterSave() )
         {
@@ -3198,7 +3206,7 @@ QString BaseDAO::filterRowWhere(BaseBeanMetadata *metadata, const QString &alias
 {
     QString idRoleSql;
     QList<AlephERP::RoleInfo> userRoles = AERPLoggedUser::instance()->roles();
-    foreach (const AlephERP::RoleInfo &rol, userRoles)
+    for (const AlephERP::RoleInfo &rol : userRoles)
     {
         if ( !idRoleSql.isEmpty() )
         {
@@ -3223,7 +3231,7 @@ QString BaseDAO::proccessSqlToAddAlias(const QString &sql, BaseBeanMetadata *met
     QString result = sql;
     QString uniqueString = QUuid::createUuid().toString();
     // Procesamos la claúsula where para añadir el alias
-    foreach (DBFieldMetadata *fld, fields)
+    for (DBFieldMetadata *fld : fields)
     {
         QRegExp regExp(QString("%1[^a-zA-Z]").arg(fld->dbFieldName()));
         int idx = regExp.indexIn(result);
@@ -3258,12 +3266,13 @@ bool BaseDAO::alterTableForForeignKeys(const QString &connectionName)
     {
         qry.prepare("SELECT 1 FROM RDB$TRIGGERS WHERE RDB$TRIGGER_NAME = :foreign_key_name");
     }
-    foreach ( BaseBeanMetadata *metadata, BeansFactory::metadataBeans )
+    for ( BaseBeanMetadata *metadata : BeansFactory::metadataBeans )
     {
         if ( metadata->dbObjectType() == AlephERP::Table )
         {
             BaseDAO::transaction(connectionName);
-            foreach (DBRelationMetadata *rel, metadata->relations(AlephERP::All))
+            QList<DBRelationMetadata *> relations = metadata->relations(AlephERP::All);
+            for (DBRelationMetadata *rel : relations)
             {
                 bool exists = false;
                 // Vamos a ver si la regla de integridad referencial existe ya o no. Si existe no la creamos.

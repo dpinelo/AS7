@@ -256,7 +256,7 @@ void AERPGeocodeTaskPrivate::replyFinishedGoogle(QNetworkReply *reply)
 
     if (m_operation == AlephERP::SearchCoords)
     {
-        foreach (const QVariant &v, results)
+        for (const QVariant &v : results)
         {
             AlephERP::AERPMapPosition pos;
             pos.formattedAddress = v.toMap()["formatted_address"].toString();

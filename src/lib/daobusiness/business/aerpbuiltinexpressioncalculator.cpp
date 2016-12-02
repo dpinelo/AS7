@@ -218,7 +218,7 @@ void AERPBuiltInExpressionCalculatorPrivate::updateVarValues()
         return;
     }
     anidado++;
-    foreach(Variable *v, m_variables)
+    for(Variable *v : m_variables)
     {
         if (v->field != NULL)
         {
@@ -257,7 +257,7 @@ AERPBuiltInExpressionCalculator::AERPBuiltInExpressionCalculator(const AERPBuilt
     this->d->m_expression = other.d->m_expression;
     this->d->m_fld = other.d->m_fld;
     this->d->m_type = other.d->m_type;
-    foreach (Variable *var, other.d->m_variables)
+    for (Variable *var : other.d->m_variables)
     {
         Variable *thisVar = new Variable;
         thisVar->name = var->name;
@@ -361,7 +361,7 @@ double * AERPBuiltInExpressionCalculator::searchForVariable(const char *aVarName
     }
     else
     {
-        foreach (Variable *v, calc->d->m_variables)
+        for (Variable *v : calc->d->m_variables)
         {
             if ( v->path == path )
             {

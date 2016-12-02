@@ -124,7 +124,7 @@ bool AERPLoggedUser::hasRole(const QString &roleName) const
     {
         return true;
     }
-    foreach (const AlephERP::RoleInfo &info, d->m_roles)
+    for (const AlephERP::RoleInfo &info : d->m_roles)
     {
         if ( roleName == info.roleName )
         {
@@ -137,7 +137,7 @@ bool AERPLoggedUser::hasRole(const QString &roleName) const
 bool AERPLoggedUser::hasRole(int idRole) const
 {
     QMutexLocker lock(&mutex);
-    foreach (const AlephERP::RoleInfo &info, d->m_roles)
+    for (const AlephERP::RoleInfo &info : d->m_roles)
     {
         if ( idRole == info.idRole )
         {
@@ -178,7 +178,7 @@ bool AERPLoggedUser::hasOnlyRole(int idRole) const
 bool AERPLoggedUser::hasAnyRole(const QStringList &roles) const
 {
     bool hasRole = false;
-    foreach (const QString &rol, roles)
+    for (const QString &rol : roles)
     {
         if ( AERPLoggedUser::instance()->hasRole(rol) )
         {
@@ -192,7 +192,7 @@ bool AERPLoggedUser::hasAnyRole(const QStringList &roles) const
 bool AERPLoggedUser::isSuperAdmin() const
 {
     QMutexLocker lock(&mutex);
-    foreach(const AlephERP::RoleInfo &info, d->m_roles)
+    for (const AlephERP::RoleInfo &info : d->m_roles)
     {
         if ( info.superAdmin )
         {
@@ -205,7 +205,7 @@ bool AERPLoggedUser::isSuperAdmin() const
 bool AERPLoggedUser::dbaMode() const
 {
     QMutexLocker lock(&mutex);
-    foreach(const AlephERP::RoleInfo &info, d->m_roles)
+    for (const AlephERP::RoleInfo &info : d->m_roles)
     {
         if ( info.dbaMode )
         {
