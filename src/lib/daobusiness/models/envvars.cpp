@@ -62,7 +62,6 @@ void EnvVars::setVar(const QString &var, const QVariant &v)
     if ( !var.isEmpty() )
     {
         m_vars[var] = v;
-        QLogger::QLog_Debug(AlephERP::stLogOther, QString("EnvVars::setVar: [%1]:[%2]").arg(var).arg(v.toString()));
         emit varChanged(var, v);
     }
 }
@@ -85,7 +84,6 @@ void EnvVars::clear()
 bool EnvVars::setDbVar(const QString &var, const QVariant &v)
 {
     QMutexLocker lock(&m_mutex);
-    QLogger::QLog_Debug(AlephERP::stLogOther, QString("EnvVars::setDbVar: [%1]:[%2]").arg(var).arg(v.toString()));
     if ( !var.isEmpty() )
     {
         if ( SystemDAO::insertOrEditEnvVar(var, v) )
@@ -102,7 +100,6 @@ bool EnvVars::setDbVar(const QString &var, const QVariant &v)
 bool EnvVars::setDbVar(const QString &userName, const QString &var, const QVariant &v)
 {
     QMutexLocker lock(&m_mutex);
-    QLogger::QLog_Debug(AlephERP::stLogOther, QString("EnvVars::setDbVar: [%1]:[%2]").arg(var).arg(v.toString()));
     return SystemDAO::insertOrEditEnvVar(userName, var, v);
 }
 

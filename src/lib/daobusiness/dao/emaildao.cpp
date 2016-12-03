@@ -140,7 +140,7 @@ bool EmailDAO::loadAttachmentData(EmailAttachment *object)
         if ( !dir.mkpath(dirPath) )
         {
             QLogger::QLog_Error(AlephERP::stLogOther, QString("EmailDAO::loadAttachmentData: No se puede crear el directorio: [%1]").arg(dirPath));
-            m_lastErrorMessage = trUtf8("No se puede crear el directorio: %1").arg(dirPath);
+            m_lastErrorMessage = tr("No se puede crear el directorio: %1").arg(dirPath);
             return false;
         }
         QString path = QString("%1/%2.%3").
@@ -151,7 +151,7 @@ bool EmailDAO::loadAttachmentData(EmailAttachment *object)
         if ( !file.open(QIODevice::WriteOnly | QIODevice::Truncate) )
         {
             QLogger::QLog_Debug(AlephERP::stLogOther, QString("EmailDAO::loadAttachmentData: No se pudo abrir el fichero: [%1]").arg(path));
-            m_lastErrorMessage = trUtf8("No se pudo abrir el fichero: %1").arg(path);
+            m_lastErrorMessage = tr("No se pudo abrir el fichero: %1").arg(path);
             return false;
         }
         QDataStream out(&file);

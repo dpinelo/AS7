@@ -2257,7 +2257,7 @@ bool BaseDAO::remove(BaseBean *bean, const QString &idTransaction, const QString
         if ( rel->metadata()->avoidDeleteIfIsReferenced() && rel->childrenCount() > 0 )
         {
             BaseBeanMetadata *relatedTable = BeansFactory::metadataBean(rel->metadata()->tableName());
-            m_threadLastMessage.setLocalData(trUtf8("El registro de la tabla <b>%1</b> (<i>%2</i>) no puede ser borrado ya que se encuentra "
+            m_threadLastMessage.setLocalData(tr("El registro de la tabla <b>%1</b> (<i>%2</i>) no puede ser borrado ya que se encuentra "
                                                     "relacionado con la tabla: <b>%3</b> (<i>%4</i>) y en esta tabla aún existen registros "
                                                     "que pertenecen a la tabla <b>%1</b>.").
                                              arg(bean->metadata()->alias()).
@@ -2303,7 +2303,7 @@ bool BaseDAO::remove(BaseBean *bean, const QString &idTransaction, const QString
     {
         if ( bean->metadata()->field("is_deleted") == NULL )
         {
-            m_threadLastMessage.setLocalData(trUtf8("El registro de la tabla %1 está marcado para tener un borrado lógico. "
+            m_threadLastMessage.setLocalData(tr("El registro de la tabla %1 está marcado para tener un borrado lógico. "
                                                     "Sin embargo no se ha definido una columna is_deleted en la definición de la tabla.").
                                              arg(bean->metadata()->sqlTableName()));
             QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::remove: [%1]").arg(m_threadLastMessage.localData()));

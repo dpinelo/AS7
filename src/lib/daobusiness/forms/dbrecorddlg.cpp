@@ -337,7 +337,7 @@ void DBRecordDlgPrivate::showNavigationBeanWidget()
     {
         m_advancedNavigationWidget = new QListWidget(q_ptr);
         m_advancedNavigationWidget->setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint);
-        m_advancedNavigationWidget->setWindowTitle(QObject::trUtf8("Historial de navegación"));
+        m_advancedNavigationWidget->setWindowTitle(QObject::tr("Historial de navegación"));
         m_advancedNavigationWidget->setObjectName(QString("%1NavigationWidget").arg(q_ptr->objectName()));
         alephERPSettings->applyDimensionForm(m_advancedNavigationWidget);
         alephERPSettings->applyPosForm(m_advancedNavigationWidget);
@@ -413,7 +413,7 @@ void DBRecordDlgPrivate::checkModifiedToSave()
             {
                 int ret = QMessageBox::information(q_ptr,
                                                    qApp->applicationName(),
-                                                   QObject::trUtf8("Se han producido cambios. ¿Desea guardarlos?"),
+                                                   QObject::tr("Se han producido cambios. ¿Desea guardarlos?"),
                                                    QMessageBox::Yes | QMessageBox::No);
                 if ( ret == QMessageBox::Yes )
                 {
@@ -647,14 +647,14 @@ bool DBRecordDlg::init()
 
     if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', tableName()) )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("No tiene permisos para acceder a estos datos."), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("No tiene permisos para acceder a estos datos."), QMessageBox::Ok);
         return false;
     }
     if ( d->m_openType == AlephERP::Insert || d->m_openType == AlephERP::Update )
     {
         if ( !AERPLoggedUser::instance()->checkMetadataAccess('w', tableName()) )
         {
-            QMessageBox::warning(this, qApp->applicationName(), trUtf8("No tiene permisos para editar estos datos. El formulario se abrirá en modo sólo lectura."), QMessageBox::Ok);
+            QMessageBox::warning(this, qApp->applicationName(), tr("No tiene permisos para editar estos datos. El formulario se abrirá en modo sólo lectura."), QMessageBox::Ok);
             d->m_openType = AlephERP::ReadOnly;
         }
     }
@@ -689,19 +689,19 @@ bool DBRecordDlg::init()
     }
     if ( d->m_openType == AlephERP::Insert )
     {
-        setWindowTitle(trUtf8("Inserción de %1 [*]").arg(d->m_bean->metadata()->alias()));
+        setWindowTitle(tr("Inserción de %1 [*]").arg(d->m_bean->metadata()->alias()));
     }
     else
     {
         if ( !d->m_bean->metadata()->toStringScript().isEmpty() )
         {
-            setWindowTitle(trUtf8("Edición de %1 [*] - %2").
+            setWindowTitle(tr("Edición de %1 [*] - %2").
                                     arg(d->m_bean->metadata()->alias()).
                                     arg(d->m_bean->toString()));
         }
         else
         {
-            setWindowTitle(trUtf8("Edición de %1 [*]").
+            setWindowTitle(tr("Edición de %1 [*]").
                                     arg(d->m_bean->metadata()->alias()));
         }
     }
@@ -733,7 +733,7 @@ bool DBRecordDlg::init()
     QStringList tmp = db.driver()->subscribedToNotifications();
     foreach (const QString &a, tmp)
     {
-        QLogger::QLog_Debug(AlephERP::stLogOther, trUtf8("DBRecordDlg::init: Notificaciones suscritas: %1").arg(a));
+        QLogger::QLog_Debug(AlephERP::stLogOther, tr("DBRecordDlg::init: Notificaciones suscritas: %1").arg(a));
     }
 
     // Hacemos una copia de seguridad de los datos, por si hay cancelación
@@ -743,7 +743,7 @@ bool DBRecordDlg::init()
     {
         if ( !lock() )
         {
-            QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("DBRecordDlg::init: No se pudo obtener el bloqueo del registro."));
+            QLogger::QLog_Error(AlephERP::stLogOther, tr("DBRecordDlg::init: No se pudo obtener el bloqueo del registro."));
             return false;
         }
     }
@@ -878,7 +878,7 @@ void DBRecordDlg::emailRecord()
         if ( d->isPrintButtonVisible() )
         {
             int ret = QMessageBox::question(this, qApp->applicationName(),
-                                            trUtf8("¿Desea enviar con el correo electrónico el impreso asociado a este registro?"), QMessageBox::Yes | QMessageBox::No);
+                                            tr("¿Desea enviar con el correo electrónico el impreso asociado a este registro?"), QMessageBox::Yes | QMessageBox::No);
             if ( ret == QMessageBox::Yes )
             {
                 // Ejecutamos el informe asociado, a este bean.
@@ -890,7 +890,7 @@ void DBRecordDlg::emailRecord()
                 if ( !reportRun.pdf(1, false) )
                 {
                     QMessageBox::information(this, qApp->applicationName(),
-                                             trUtf8("Se ha producido un error al ejecutar el informe. El error es: %1").arg(reportRun.message()), QMessageBox::Ok);
+                                             tr("Se ha producido un error al ejecutar el informe. El error es: %1").arg(reportRun.message()), QMessageBox::Ok);
                 }
                 else
                 {
@@ -905,7 +905,7 @@ void DBRecordDlg::emailRecord()
             EmailObject email = dlg->sentEmail();
             if (!EmailDAO::saveEmail(email))
             {
-                QMessageBox::warning(this, qApp->applicationName(), trUtf8("No se ha podido guardar el correo electrónico en los históricos, aunque se envió correctamente."), QMessageBox::Ok);
+                QMessageBox::warning(this, qApp->applicationName(), tr("No se ha podido guardar el correo electrónico en los históricos, aunque se envió correctamente."), QMessageBox::Ok);
             }
             RelatedElementPointer element = d->m_bean->newRelatedElement(email);
             if ( d->m_bean->dbState() != BaseBean::INSERT )
@@ -1051,7 +1051,7 @@ void DBRecordDlg::setUserAccess()
     }
     if ( d->m_bean->dbState() != BaseBean::UPDATE )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Sólo se pueden editar permisos para usuarios para registros ya guardados."), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("Sólo se pueden editar permisos para usuarios para registros ya guardados."), QMessageBox::Ok);
         return;
     }
     QScopedPointer<AERPUserAccessRow> dlg(new AERPUserAccessRow(d->m_bean, this));
@@ -1079,7 +1079,7 @@ bool DBRecordDlg::lock()
             CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
             QMessageBox::warning(this,
                                  qApp->applicationName(),
-                                 trUtf8("Ocurrió un error generando el bloqueo del registro. <br/>El error es: %1.").
+                                 tr("Ocurrió un error generando el bloqueo del registro. <br/>El error es: %1.").
                                     arg(CommonsFunctions::processToHtml(BaseDAO::lastErrorMessage())),
                                  QMessageBox::Ok);
             CommonsFunctions::restoreOverrideCursor();
@@ -1099,7 +1099,7 @@ bool DBRecordDlg::lock()
                 else
                 {
                     QDateTime blockDate = info.value("ts").toDateTime();
-                    QString message = trUtf8("El registro actual se encuentra bloqueado por el usuario: <b>%1</b>. "
+                    QString message = tr("El registro actual se encuentra bloqueado por el usuario: <b>%1</b>. "
                                              "Fue bloqueado: </i>%2</i>. "
                                              "¿Desea desbloquearlo? Si lo desbloquea, el usuario %3 perderá "
                                              "todos sus datos.").
@@ -1131,7 +1131,7 @@ bool DBRecordDlg::lock()
                             CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
                             QMessageBox::warning(this,
                                                  qApp->applicationName(),
-                                                 trUtf8("Ocurrió un error generando el bloqueo del registro. <br/>El error es: %1.").
+                                                 tr("Ocurrió un error generando el bloqueo del registro. <br/>El error es: %1.").
                                                     arg(CommonsFunctions::processToHtml(BaseDAO::lastErrorMessage())),
                                                  QMessageBox::Ok);
                             CommonsFunctions::restoreOverrideCursor();
@@ -1145,7 +1145,7 @@ bool DBRecordDlg::lock()
                 CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
                 QMessageBox::warning(this,
                                      qApp->applicationName(),
-                                     trUtf8("Ocurrió un error generando el bloqueo del registro. <br/>El error es: %1.").
+                                     tr("Ocurrió un error generando el bloqueo del registro. <br/>El error es: %1.").
                                         arg(CommonsFunctions::processToHtml(BaseDAO::lastErrorMessage())),
                                      QMessageBox::Ok);
                 CommonsFunctions::restoreOverrideCursor();
@@ -1188,7 +1188,7 @@ void DBRecordDlg::lockBreaked(const QString &notification)
             {
                 d->m_lockId = -1;
                 setReadOnly(true);
-                QString message = trUtf8("El usuario <b>%1</b> se ha apropiado de este registro. Los cambios que realice puede que no estén sincronizados con la última versión de base de datos, y ambos pierdan sus datos.<br/>&nbsp;").
+                QString message = tr("El usuario <b>%1</b> se ha apropiado de este registro. Los cambios que realice puede que no estén sincronizados con la última versión de base de datos, y ambos pierdan sus datos.<br/>&nbsp;").
                                   arg(info[AlephERP::stUserName].toString());
                 AERPFadeMessage *msg = new AERPFadeMessage(message, this);
                 msg->move(rect().center());
@@ -1213,7 +1213,7 @@ void DBRecordDlg::lockBreaked(const QString &notification)
                     if ( d->m_lockId > -1 )
                     {
                         setReadOnly(false);
-                        QString message = trUtf8("El registro ha sido desbloqueado por el anterior usuario. Recupera usted la posibilidad de editar este recurso, sin embargo, "
+                        QString message = tr("El registro ha sido desbloqueado por el anterior usuario. Recupera usted la posibilidad de editar este recurso, sin embargo, "
                                                  "hay nuevos datos o cambios en la base de datos que usted no está viendo, y le podrían hacer perder datos.<br/>&nbsp;");
                         AERPFadeMessage *msg = new AERPFadeMessage(message, this);
                         msg->move(rect().center());
@@ -1302,7 +1302,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
     {
         int ret = QMessageBox::information(this,
                                            qApp->applicationName(),
-                                           trUtf8("Se han producido cambios. ¿Desea guardarlos?"),
+                                           tr("Se han producido cambios. ¿Desea guardarlos?"),
                                            QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
         if ( ret == QMessageBox::Yes )
         {
@@ -1312,7 +1312,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
                 {
                     int ret = QMessageBox::warning(this,
                                                    qApp->applicationName(),
-                                                   trUtf8("Se ha producido un error guardando los datos. ¿Desea aún así cerrar el formulario?"),
+                                                   tr("Se ha producido un error guardando los datos. ¿Desea aún así cerrar el formulario?"),
                                                    QMessageBox::Yes | QMessageBox::No);
                     if ( ret == QMessageBox::No )
                     {
@@ -1345,7 +1345,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
                     {
                         int ret = QMessageBox::information(this,
                                                            qApp->applicationName(),
-                                                           trUtf8("Ha insertado documentos asociados a este registro, que no va a ser guardado. ¿Desea borrar esos documentos del gestor documental?"),
+                                                           tr("Ha insertado documentos asociados a este registro, que no va a ser guardado. ¿Desea borrar esos documentos del gestor documental?"),
                                                            QMessageBox::Yes | QMessageBox::No);
                         if ( ret == QMessageBox::Yes )
                         {
@@ -1355,7 +1355,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
                                 {
                                     QMessageBox::warning(this,
                                                          qApp->applicationName(),
-                                                         trUtf8("Se ha producido un error en el acceso al gestor documental. No se ha podido borrar el documento %1. El error es: %2").
+                                                         tr("Se ha producido un error en el acceso al gestor documental. No se ha podido borrar el documento %1. El error es: %2").
                                                             arg(doc->name()).
                                                             arg(AERPDocumentDAOWrapper::instance()->lastMessage()));
                                 }
@@ -1443,7 +1443,7 @@ void DBRecordDlg::setupMainWidget()
 
     if ( ba.isEmpty() || ba.isNull() )
     {
-        QLogger::QLog_Info(AlephERP::stLogOther, trUtf8("DBRecordDlg::setupMainWidget: No existe un fichero UI asociado con el nombre: [%1]. Se creará uno por defecto.").arg(d->m_bean->metadata()->alias()));
+        QLogger::QLog_Info(AlephERP::stLogOther, tr("DBRecordDlg::setupMainWidget: No existe un fichero UI asociado con el nombre: [%1]. Se creará uno por defecto.").arg(d->m_bean->metadata()->alias()));
         QGridLayout *lay = new QGridLayout;
         QGroupBox *gb = new QGroupBox(this);
         if ( !d->m_bean.isNull() )
@@ -1467,7 +1467,7 @@ void DBRecordDlg::setupMainWidget()
     {
         QMessageBox::warning(this,
                              qApp->applicationName(),
-                             trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").arg(d->m_bean->metadata()->alias()),
+                             tr("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").arg(d->m_bean->metadata()->alias()),
                              QMessageBox::Ok);
         reject();
     }
@@ -1564,7 +1564,7 @@ void DBRecordDlg::execQs()
             CommonsFunctions::setOverrideCursor(QCursor(Qt::ArrowCursor));
             QMessageBox::warning(this,
                                  qApp->applicationName(),
-                                 trUtf8("Ha ocurrido un error al cargar el script asociado a este "
+                                 tr("Ha ocurrido un error al cargar el script asociado a este "
                                  "formulario. Es posible que algunas funciones no estén disponibles."),
                                  QMessageBox::Ok);
 #ifdef ALEPHERP_DEVTOOLS
@@ -1572,7 +1572,7 @@ void DBRecordDlg::execQs()
             {
                 int ret = QMessageBox::information(this,
                                                    qApp->applicationName(),
-                                                   trUtf8("El script ejecutado contiene errores. ¿Desea editarlo?"),
+                                                   tr("El script ejecutado contiene errores. ¿Desea editarlo?"),
                                                    QMessageBox::Yes | QMessageBox::No);
                 if ( ret == QMessageBox::Yes )
                 {
@@ -1616,7 +1616,7 @@ bool DBRecordDlg::validate()
     // Primero validamos
     if ( d->m_observer && !d->m_observer->validate() )
     {
-        QString message = trUtf8("<p>No se han cumplido los requisitos necesarios para guardar este registro: </p>%1").arg(d->m_observer->validateHtmlMessages());
+        QString message = tr("<p>No se han cumplido los requisitos necesarios para guardar este registro: </p>%1").arg(d->m_observer->validateHtmlMessages());
         QMessageBox::information(this, qApp->applicationName(), message, QMessageBox::Ok);
         QWidget *obj = d->m_observer->focusWidgetOnBadValidate();
         if ( obj != NULL )
@@ -1655,7 +1655,7 @@ bool DBRecordDlg::save()
         {
             QMessageBox::warning(this,
                                  qApp->applicationName(),
-                                 trUtf8("Ha ocurrido un error en el acceso a la base de datos. ERROR: %1")
+                                 tr("Ha ocurrido un error en el acceso a la base de datos. ERROR: %1")
                                     .arg(CommonsFunctions::processToHtml(BaseDAO::lastErrorMessage())),
                                  QMessageBox::Ok);
             return false;
@@ -1664,7 +1664,7 @@ bool DBRecordDlg::save()
         {
             int ret = QMessageBox::warning(this,
                                            qApp->applicationName(),
-                                           trUtf8("Otro usuario está también trabajando en este registro. "
+                                           tr("Otro usuario está también trabajando en este registro. "
                                            "Si guarda los datos, ese otro usuario no tendrá conocimiento de los datos "
                                            "que usted guarda, y podría sobreescribirlos. ¿Desea continuar?"),
                                            QMessageBox::Yes | QMessageBox::No);
@@ -1729,7 +1729,7 @@ bool DBRecordDlg::save()
             {
                 QMessageBox::warning(this,
                                      qApp->applicationName(),
-                                     trUtf8("Se ha producido un error guardando los datos. <br/>El error es: %1").
+                                     tr("Se ha producido un error guardando los datos. <br/>El error es: %1").
                                         arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
                                      QMessageBox::Ok);
                 d->m_canClose = false;
@@ -2203,13 +2203,13 @@ void DBRecordDlg::saveRecord()
   */
 void DBRecordDlg::saveAndNew()
 {
-    /*
     if ( save() )
     {
         if ( !d->m_bean.isNull() )
         {
             d->m_bean->observer()->uninstallWidget(this);
             aerpQsEngine()->disconnectFieldsFromScriptMembers(d->m_bean.data());
+
             if ( !d->m_sourceModel.isNull() && !d->m_selectionModel.isNull() && d->insertRow(d->m_selectionModel) )
             {
                 if ( !d->m_bean.isNull() )
@@ -2226,20 +2226,19 @@ void DBRecordDlg::saveAndNew()
                 }
                 else
                 {
-                    QMessageBox::information(this, qApp->applicationName(), trUtf8("No se ha podido establecer el formulario en modo inserción "
+                    QMessageBox::information(this, qApp->applicationName(), tr("No se ha podido establecer el formulario en modo inserción "
                                              "de un nuevo registro. Se cerrará."), QMessageBox::No);
                     reject();
                 }
             }
             else
             {
-                QMessageBox::information(this, qApp->applicationName(), trUtf8("No se ha podido establecer el formulario en modo inserción "
+                QMessageBox::information(this, qApp->applicationName(), tr("No se ha podido establecer el formulario en modo inserción "
                                          "de un nuevo registro. Se cerrará."), QMessageBox::No);
                 reject();
             }
         }
     }
-    */
 }
 
 /**
@@ -2424,7 +2423,7 @@ void DBRecordDlg::showOrHideDocuments()
             {
                 d->m_documentWidget = QPointer<DBDocumentView> (new DBDocumentView(this));
                 d->m_documentWidget->setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint);
-                d->m_documentWidget->setWindowTitle(trUtf8("Documentos anexados"));
+                d->m_documentWidget->setWindowTitle(tr("Documentos anexados"));
                 d->m_documentWidget->setAttribute(Qt::WA_DeleteOnClose);
                 d->m_documentWidget->setCanMinimizeApp(d->m_canChangeModality);
                 d->m_documentWidget->show();

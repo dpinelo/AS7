@@ -63,12 +63,12 @@ QIcon AERPScriptWidgetPlugin::icon() const
 
 QString AERPScriptWidgetPlugin::toolTip() const
 {
-    return trUtf8("Widget que adquiere su funcionalidad de un script asociado");
+    return tr("Widget que adquiere su funcionalidad de un script asociado");
 }
 
 QString AERPScriptWidgetPlugin::whatsThis() const
 {
-    return trUtf8("Widget que adquiere su funcionalidad de un script asociado");
+    return tr("Widget que adquiere su funcionalidad de un script asociado");
 }
 
 bool AERPScriptWidgetPlugin::isContainer() const

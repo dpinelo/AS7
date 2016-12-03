@@ -64,12 +64,12 @@ QIcon DBFilterTreeViewPlugin::icon() const
 
 QString DBFilterTreeViewPlugin::toolTip() const
 {
-    return trUtf8("TreeView que presenta los registros de una tabla, con opciones de filtrado");
+    return tr("TreeView que presenta los registros de una tabla, con opciones de filtrado");
 }
 
 QString DBFilterTreeViewPlugin::whatsThis() const
 {
-    return trUtf8("TreeView que presenta los registros de una tabla, con opciones de filtrado");
+    return tr("TreeView que presenta los registros de una tabla, con opciones de filtrado");
 }
 
 bool DBFilterTreeViewPlugin::isContainer() const

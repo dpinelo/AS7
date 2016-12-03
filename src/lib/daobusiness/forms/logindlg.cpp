@@ -50,7 +50,7 @@ public:
     {
         m_initialServer = -1;
         m_model = NULL;
-        m_capsOnMessage = QObject::trUtf8("La tecla de bloqueo de mayúsculas se encuentra activada.");
+        m_capsOnMessage = QObject::tr("La tecla de bloqueo de mayúsculas se encuentra activada.");
         openServerDatabase();
     }
 
@@ -93,7 +93,7 @@ LoginDlg::LoginDlg(QWidget *parent) :
     }
     ui->lblImage->setPixmap(pixmap);
 
-    QString version = trUtf8("<html><head/><body><p align=\"right\"><span style=\"font-size:6pt;\">Versión: <strong>%1</strong></span></p></body></html>").arg(QString(ALEPHERP_REVISION));
+    QString version = tr("<html><head/><body><p align=\"right\"><span style=\"font-size:6pt;\">Versión: <strong>%1</strong></span></p></body></html>").arg(QString(ALEPHERP_REVISION));
     ui->lblVersion->setText(version);
 
     connect (ui->pbOk, SIGNAL(clicked()), this, SLOT(okClicked()));
@@ -106,7 +106,7 @@ LoginDlg::LoginDlg(QWidget *parent) :
     if ( !d->m_db.isOpen() || !d->m_db.isValid() )
     {
         QMessageBox::warning(this, qApp->applicationName(),
-                             trUtf8("Ha ocurrido un error en el acceso a la base de datos de servidores. No es posible iniciar la aplicación."), QMessageBox::Ok);
+                             tr("Ha ocurrido un error en el acceso a la base de datos de servidores. No es posible iniciar la aplicación."), QMessageBox::Ok);
         close();
         return;
     }
@@ -139,7 +139,7 @@ LoginDlg::LoginDlg(QWidget *parent) :
     if ( d->m_model->rowCount() == 0 )
     {
         QMessageBox::warning(this, qApp->applicationName(),
-                             trUtf8("Debe crear un nuevo servidor al que conectarse"), QMessageBox::Ok);
+                             tr("Debe crear un nuevo servidor al que conectarse"), QMessageBox::Ok);
         addServer();
         if ( d->m_model->rowCount() > 0 )
         {
@@ -147,7 +147,7 @@ LoginDlg::LoginDlg(QWidget *parent) :
         }
     }
 
-    setWindowTitle(trUtf8("%1 - Acceso").arg(qApp->applicationName()));
+    setWindowTitle(tr("%1 - Acceso").arg(qApp->applicationName()));
 }
 
 LoginDlg::~LoginDlg()
@@ -160,13 +160,13 @@ void LoginDlg::okClicked()
 {
     if ( ui->txtUserName->text().isEmpty() )
     {
-        QMessageBox::information(this, qApp->applicationName(), QObject::trUtf8("Debe introducir un nombre de usuario."), QMessageBox::Ok);
+        QMessageBox::information(this, qApp->applicationName(), QObject::tr("Debe introducir un nombre de usuario."), QMessageBox::Ok);
         return;
     }
 
     if ( ui->cbServers->currentIndex() == -1 )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Debe seleccionar un servidor al que conectarse"), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("Debe seleccionar un servidor al que conectarse"), QMessageBox::Ok);
         return;
     }
     setConnectOptions(ui->cbServers->currentIndex());
@@ -193,7 +193,7 @@ void LoginDlg::addServer()
     {
         if ( !d->m_model->submitAll() )
         {
-            QMessageBox::warning(this,qApp->applicationName(), trUtf8("Se ha producido un error guardando el nuevo servidor.\nERROR: ").arg(d->m_model->lastError().text()), QMessageBox::Ok);
+            QMessageBox::warning(this,qApp->applicationName(), tr("Se ha producido un error guardando el nuevo servidor.\nERROR: ").arg(d->m_model->lastError().text()), QMessageBox::Ok);
         }
         else
         {
@@ -227,7 +227,7 @@ void LoginDlg::editServer()
 
 void LoginDlg::removeServer()
 {
-    int ret = QMessageBox::question(this,qApp->applicationName(), trUtf8("¿Está seguro de querer borrar el servidor?"), QMessageBox::Yes | QMessageBox::No);
+    int ret = QMessageBox::question(this,qApp->applicationName(), tr("¿Está seguro de querer borrar el servidor?"), QMessageBox::Yes | QMessageBox::No);
     if ( ret == QMessageBox::Yes )
     {
         d->m_model->removeRow(ui->cbServers->currentIndex());

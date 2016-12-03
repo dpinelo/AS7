@@ -160,7 +160,7 @@ void DBLabel::openLink(const QString &link)
         if ( m == NULL || !ok )
         {
             QLogger::QLog_Debug(AlephERP::stLogOther,
-                                trUtf8("El link [%] no corresponde a formato válido de apertura."));
+                                tr("El link [%] no corresponde a formato válido de apertura."));
             return;
         }
         BaseBeanSharedPointer bean = BeansFactory::instance()->newQBaseBean(m->tableName(), false);
@@ -173,7 +173,7 @@ void DBLabel::openLink(const QString &link)
             if ( !BaseDAO::selectFirst(bean.data(), stOidOrWhere, QString("")) )
             {
                 QLogger::QLog_Debug(AlephERP::stLogOther,
-                                    trUtf8("El link [%] no corresponde a formato válido de apertura."));
+                                    tr("El link [%] no corresponde a formato válido de apertura."));
                 return;
             }
         }

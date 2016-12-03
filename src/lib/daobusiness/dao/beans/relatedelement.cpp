@@ -457,12 +457,12 @@ void RelatedElement::setXml(const QString &xml)
         QDomNode n = root.firstChildElement("user");
         if ( !n.isNull() )
         {
-            d->m_user = QObject::trUtf8(n.toElement().text().toUtf8());
+            d->m_user = QObject::tr(n.toElement().text().toUtf8());
         }
         n = root.firstChildElement("timestamp");
         if ( !n.isNull() )
         {
-            d->m_timeStamp = QDateTime::fromString(QObject::trUtf8(n.toElement().text().toUtf8()));
+            d->m_timeStamp = QDateTime::fromString(QObject::tr(n.toElement().text().toUtf8()));
         }
         n = root.firstChildElement("additionalInfo");
         if ( !n.isNull() )
@@ -719,7 +719,7 @@ void RelatedElement::beanUnloaded()
 QString RelatedElementPrivate::emailDisplayText() const
 {
 #ifdef ALEPHERP_SMTP_SUPPORT
-    QString content = QObject::trUtf8("Para: %1 con fecha: %2 y Asunto: %3").
+    QString content = QObject::tr("Para: %1 con fecha: %2 y Asunto: %3").
                       arg(m_email.to().join(", ")).
                       arg(alephERPSettings->locale()->toString(m_email.dateTime(), "dd/MM/yyyy HH:mm:ss")).
                       arg(m_email.subject());
@@ -769,7 +769,7 @@ QString RelatedElementPrivate::documentDisplayText() const
 QString RelatedElementPrivate::emailTooltipText() const
 {
 #ifdef ALEPHERP_SMTP_SUPPORT
-    QString content = QObject::trUtf8("<i>Correo electrónico</i><br/>");
+    QString content = QObject::tr("<i>Correo electrónico</i><br/>");
     content = QString("%1<b>Para</b>: %2<br/>").arg(content).arg(m_email.to().join(", "));
     content = QString("%1<b>Copia</b>: %2<br/>").arg(content).arg(m_email.copy().join(", "));
     content = QString("%1<b>Asunto</b>: %2<br/>").arg(content).arg(m_email.subject());
@@ -787,7 +787,7 @@ QString RelatedElementPrivate::beanTooltipText() const
 
 QString RelatedElementPrivate::documentTooltipText() const
 {
-    QString content = QObject::trUtf8("<i>Documento</i><br/>");
+    QString content = QObject::tr("<i>Documento</i><br/>");
 #ifdef ALEPHERP_DOC_MANAGEMENT
     if ( !m_document.isNull() )
     {

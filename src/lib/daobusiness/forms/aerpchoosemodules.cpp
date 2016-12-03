@@ -76,7 +76,7 @@ void AERPChooseModules::init()
     QStringList list = SystemDAO::availableModules();
     if ( list.isEmpty() && !SystemDAO::lastErrorMessage().isEmpty() )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Se ha producido un error tratando de obtener el listado de módulos. El error es: %1").arg(SystemDAO::lastErrorMessage()));
+        QMessageBox::warning(this, qApp->applicationName(), tr("Se ha producido un error tratando de obtener el listado de módulos. El error es: %1").arg(SystemDAO::lastErrorMessage()));
         return;
     }
     foreach (const QString &module, list)

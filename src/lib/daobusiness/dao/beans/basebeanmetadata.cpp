@@ -1488,7 +1488,7 @@ void BaseBeanMetadataPrivate::setConfig()
                     }
                     else
                     {
-                        QMessageBox::critical(0, qApp->applicationName(), QObject::trUtf8("El archivo XML de sistema <b>%1</b> no es correcto. "
+                        QMessageBox::critical(0, qApp->applicationName(), QObject::tr("El archivo XML de sistema <b>%1</b> no es correcto. "
                                               "El programa no funcionará. Consulte con <i>Asycom Technological Solutions</i>.").
                                               arg(systemObject->name()),
                                               QMessageBox::Ok);
@@ -1519,7 +1519,7 @@ void BaseBeanMetadataPrivate::setConfig()
         n = root.firstChildElement("alias");
         if ( !n.isNull() )
         {
-            m_alias = QObject::trUtf8(checkWildCards(n).toUtf8());
+            m_alias = QObject::tr(checkWildCards(n).toUtf8());
         }
         n = root.firstChildElement("canNavigate");
         if ( !n.isNull() )
@@ -1529,7 +1529,7 @@ void BaseBeanMetadataPrivate::setConfig()
         n = root.firstChildElement("schema");
         if ( !n.isNull() )
         {
-            m_schema = QObject::trUtf8(checkWildCards(n).toUtf8());
+            m_schema = QObject::tr(checkWildCards(n).toUtf8());
         }
         n = root.firstChildElement("viewForTable");
         if ( !n.isNull() )
@@ -2208,31 +2208,31 @@ void BaseBeanMetadataPrivate::setConfig()
                 else if ( e.tagName() == QLatin1String("scheduleTimeUnit") )
                 {
                     AlephERP::DateTimeParts timeUnit;
-                    if ( elementText.toLower().contains(QStringLiteral("second")) )
+                    if ( elementText.contains(QStringLiteral("second"), Qt::CaseInsensitive) )
                     {
                         timeUnit = AlephERP::Second;
                     }
-                    else if ( elementText.toLower().contains(QStringLiteral("minute")) )
+                    else if ( elementText.contains(QStringLiteral("minute"), Qt::CaseInsensitive) )
                     {
                         timeUnit = AlephERP::Minute;
                     }
-                    else if ( elementText.toLower().contains(QStringLiteral("hour")) )
+                    else if ( elementText.contains(QStringLiteral("hour"), Qt::CaseInsensitive) )
                     {
                         timeUnit = AlephERP::Hour;
                     }
-                    else if ( elementText.toLower().contains(QStringLiteral("day")) )
+                    else if ( elementText.contains(QStringLiteral("day"), Qt::CaseInsensitive) )
                     {
                         timeUnit = AlephERP::DayOfMonth;
                     }
-                    else if ( elementText.toLower().contains(QStringLiteral("week")) )
+                    else if ( elementText.contains(QStringLiteral("week"), Qt::CaseInsensitive) )
                     {
                         timeUnit = AlephERP::Week;
                     }
-                    else if ( elementText.toLower().contains(QStringLiteral("month")) )
+                    else if ( elementText.contains(QStringLiteral("month"), Qt::CaseInsensitive) )
                     {
                         timeUnit = AlephERP::Month;
                     }
-                    else if ( elementText.toLower().contains(QStringLiteral("year")) )
+                    else if ( elementText.contains(QStringLiteral("year"), Qt::CaseInsensitive) )
                     {
                         timeUnit = AlephERP::Year;
                     }
@@ -2399,7 +2399,7 @@ void BaseBeanMetadataPrivate::setConfig()
         QLogger::QLog_Error(AlephERP::stLogOther, QString::fromUtf8("-------------------------------------------------------------------------------------------------------"));
         QLogger::QLog_Error(AlephERP::stLogOther, QString::fromUtf8("BaseBeanMetadata: setConfig(): FILE: [%1]. ERROR: Line: [%2] Column: [%3]. ERROR [%4] ").arg(m_tableName).arg(errorLine).arg(errorColumn).arg(errorString));
         QLogger::QLog_Error(AlephERP::stLogOther, QString::fromUtf8("-------------------------------------------------------------------------------------------------------"));
-        QMessageBox::critical(0, qApp->applicationName(), QObject::trUtf8("El archivo XML de sistema <b>%1</b> no es correcto. "
+        QMessageBox::critical(0, qApp->applicationName(), QObject::tr("El archivo XML de sistema <b>%1</b> no es correcto. "
                               "El programa no funcionará. Consulte con <i>Asycom Technological Solutions</i>.").arg(m_tableName),
                               QMessageBox::Ok);
     }
@@ -3320,7 +3320,7 @@ QString BaseBeanMetadata::processWhereSqlToIncludeEnvVars(const QString &initial
                 bool found = false;
                 foreach (const QString &initialWherePart, initialWhereParts)
                 {
-                    if ( initialWherePart.toLower().contains(fld->dbFieldName()) )
+                    if ( initialWherePart.contains(fld->dbFieldName(), Qt::CaseInsensitive) )
                     {
                         found = true;
                     }
@@ -3407,7 +3407,7 @@ QStringList BaseBeanMetadata::fieldsOnSqlClausule(const QString &clausule)
     foreach (DBFieldMetadata *fld, fields())
     {
         QString exp = QString("%1[\\s=)]").arg(fld->dbFieldName());
-        if ( clausule.toLower().contains(QRegExp(exp)) )
+        if ( clausule.contains(QRegExp(exp, Qt::CaseInsensitive)) )
         {
             result.append(fld->dbFieldName());
         }
@@ -3679,7 +3679,7 @@ QString BaseBeanMetadata::toStringExecute(BaseBean *b)
         }
         if ( result.isEmpty() )
         {
-            result = trUtf8("Registro de tipo: %1").arg(d->m_alias.isEmpty() ? d->m_tableName : d->m_alias);
+            result = tr("Registro de tipo: %1").arg(d->m_alias.isEmpty() ? d->m_tableName : d->m_alias);
         }
     }
     return result;
@@ -3757,7 +3757,7 @@ QString BaseBeanMetadata::validateScriptExecute(BaseBean *bean)
         QVariant r = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("validate")));
         if ( !r.isValid() )
         {
-            return QString(trUtf8("Undefined error"));
+            return QString(tr("Undefined error"));
         }
         return r.toString();
     }

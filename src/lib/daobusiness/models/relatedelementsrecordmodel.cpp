@@ -333,19 +333,19 @@ QVariant RelatedElementsRecordModel::headerData(int section, Qt::Orientation ori
         {
             if ( section == 0 )
             {
-                return trUtf8("Categoría");
+                return tr("Categoría");
             }
             else if ( section == 1 )
             {
-                return trUtf8("Tabla");
+                return tr("Tabla");
             }
             else if ( section == 2 )
             {
-                return trUtf8("Registros");
+                return tr("Registros");
             }
             else if ( section == 3 )
             {
-                return trUtf8("Información adicional");
+                return tr("Información adicional");
             }
         }
         else
@@ -354,23 +354,23 @@ QVariant RelatedElementsRecordModel::headerData(int section, Qt::Orientation ori
             {
                 if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("tablename") )
                 {
-                    return trUtf8("Tabla");
+                    return tr("Tabla");
                 }
                 else if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("categoria") )
                 {
-                    return trUtf8("Categoria");
+                    return tr("Categoria");
                 }
                 else if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("tabla") )
                 {
-                    return trUtf8("Tabla");
+                    return tr("Tabla");
                 }
                 else if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("registros") )
                 {
-                    return trUtf8("Registros");
+                    return tr("Registros");
                 }
                 else if ( d->m_visibleFields.at(section).toLower() == QStringLiteral("informacionadicional") )
                 {
-                    return trUtf8("Información adicional");
+                    return tr("Información adicional");
                 }
             }
             if ( fld != NULL )
@@ -472,7 +472,7 @@ QVariant RelatedElementsRecordModel::data(const QModelIndex &item, int role) con
             {
                 if ( !element->found() )
                 {
-                    return trUtf8("Elemento relacionado no encontrado");
+                    return tr("Elemento relacionado no encontrado");
                 }
                 else
                 {
@@ -483,7 +483,7 @@ QVariant RelatedElementsRecordModel::data(const QModelIndex &item, int role) con
             {
                 if ( !element->found() )
                 {
-                    return trUtf8("Elemento relacionado no encontrado");
+                    return tr("Elemento relacionado no encontrado");
                 }
                 else
                 {
@@ -494,7 +494,7 @@ QVariant RelatedElementsRecordModel::data(const QModelIndex &item, int role) con
             {
                 if ( !element->found() )
                 {
-                    return trUtf8("Elemento relacionado no encontrado");
+                    return tr("Elemento relacionado no encontrado");
                 }
                 else
                 {
@@ -506,7 +506,7 @@ QVariant RelatedElementsRecordModel::data(const QModelIndex &item, int role) con
         {
             if ( !element->found() )
             {
-                return trUtf8("Elemento relacionado no encontrado");
+                return tr("Elemento relacionado no encontrado");
             }
             else
             {
@@ -622,7 +622,7 @@ RelatedElement *RelatedElementsRecordModel::insertRow(const QString &tableName, 
     }
     if ( !d->m_allowedMetadatas.contains(tableName) )
     {
-        setProperty(AlephERP::stLastErrorMessage, trUtf8("RelatedElementsRecordModel::insertRow: La tabla [%1] no esta permitida").arg(tableName));
+        setProperty(AlephERP::stLastErrorMessage, tr("RelatedElementsRecordModel::insertRow: La tabla [%1] no esta permitida").arg(tableName));
         return NULL;
     }
     if ( d->m_elements.size() > 1 )
@@ -647,7 +647,7 @@ RelatedElement *RelatedElementsRecordModel::insertRow(const QString &tableName, 
     }
     if ( el == NULL )
     {
-        setProperty(AlephERP::stLastErrorMessage, trUtf8("RelatedElementsRecordModel::insertRow: La tabla [%1] no puede tener elementos relacionados").arg(item->bean->metadata()->tableName()));
+        setProperty(AlephERP::stLastErrorMessage, tr("RelatedElementsRecordModel::insertRow: La tabla [%1] no puede tener elementos relacionados").arg(item->bean->metadata()->tableName()));
         return NULL;
     }
     beginInsertRows(QModelIndex(), rowCount(), rowCount());

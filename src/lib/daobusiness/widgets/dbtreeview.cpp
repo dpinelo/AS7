@@ -1053,7 +1053,7 @@ void DBTreeView::populateAllModel()
              sourceModel->metadata() &&
              sourceModel->metadata()->showOnTreePreloadRecords() )
         {
-            d->m_progressDialog->setLabelText(trUtf8("Carga de '%1'").arg(sourceModel->metadata()->alias()));
+            d->m_progressDialog->setLabelText(tr("Carga de '%1'").arg(sourceModel->metadata()->alias()));
             QObject::connect(sourceModel, SIGNAL(populateAllModel(int)), d->m_progressDialog.data(), SLOT(setMaximum(int)));
             QObject::connect(sourceModel, SIGNAL(populateAllModelProgress(int)), d->m_progressDialog.data(), SLOT(setValue(int)));
         }

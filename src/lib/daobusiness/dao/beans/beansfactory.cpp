@@ -225,7 +225,7 @@ bool BeansFactory::buildScripts()
                         initDir.setPath(QDir::fromNativeSeparators(alephERPSettings->dataPath()));
                         if ( !initDir.mkpath(dir) )
                         {
-                            QMessageBox::warning(NULL, qApp->applicationName(), trUtf8("No se pudo crear el subdirectorio: ").arg(fullDir), QMessageBox::Ok);
+                            QMessageBox::warning(NULL, qApp->applicationName(), tr("No se pudo crear el subdirectorio: ").arg(fullDir), QMessageBox::Ok);
                             return false;
                         }
                     }
@@ -233,7 +233,7 @@ bool BeansFactory::buildScripts()
                     QFile file (fullFileName);
                     if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
                     {
-                        QMessageBox::warning(NULL, qApp->applicationName(), trUtf8("No se pudo crear el archivo: ").arg(fullDir),
+                        QMessageBox::warning(NULL, qApp->applicationName(), tr("No se pudo crear el archivo: ").arg(fullDir),
                                              QMessageBox::Ok);
                         return false;
                     }
@@ -275,7 +275,7 @@ bool BeansFactory::buildTableReports()
                 QFile file (fileName);
                 if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
                 {
-                    QMessageBox::warning(NULL, qApp->applicationName(), trUtf8(MSG_NO_EXISTE_UI),
+                    QMessageBox::warning(NULL, qApp->applicationName(), tr(MSG_NO_EXISTE_UI),
                                          QMessageBox::Ok);
                     return false;
                 }
@@ -292,7 +292,7 @@ bool BeansFactory::buildTableReports()
                 else
                 {
                     QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::buildTableWidgets: No se ha creado el fichero: %1").arg(fileName));
-                    QString message = trUtf8("No se ha podido crear el fichero: %1").arg(fileName);
+                    QString message = tr("No se ha podido crear el fichero: %1").arg(fileName);
                     QMessageBox::warning(NULL, qApp->applicationName(), message, QMessageBox::Ok);
                     return false;
                 }
@@ -889,7 +889,7 @@ bool BeansFactory::initSystemsBeans(QString &failedBean)
     bool result = SystemDAO::checkModules();
     if ( !result )
     {
-        failedBean = trUtf8("Ha ocurrido un error obteniendo los módulos disponibles");
+        failedBean = tr("Ha ocurrido un error obteniendo los módulos disponibles");
         return false;
     }
     result = SystemDAO::checkSystemObjectsOnLocal(failedBean);
@@ -997,7 +997,7 @@ void checkFieldConsistency(DBFieldMetadata *fld, QVariantList &log, const stData
 
     if ( !qry->prepare(SQL_CONSISTENCY_PSQL_SEARCH_INDEX) )
     {
-        QLogger::QLog_Error(AlephERP::stLogDB, QObject::trUtf8("checkFieldConsistency: %1").arg(qry->lastError().text()));
+        QLogger::QLog_Error(AlephERP::stLogDB, QObject::tr("checkFieldConsistency: %1").arg(qry->lastError().text()));
     }
 
     // ¿Alguno duplicado?
@@ -1005,7 +1005,7 @@ void checkFieldConsistency(DBFieldMetadata *fld, QVariantList &log, const stData
     {
         if ( tmpFld->dbFieldName() == fld->dbFieldName() && tmpFld != fld )
         {
-            errors["error"] = QObject::trUtf8("Columna duplicada en los metadatos.");
+            errors["error"] = QObject::tr("Columna duplicada en los metadatos.");
             flagErrors = AlephERP::DbFieldNameDuplicate;
         }
     }
@@ -1013,7 +1013,7 @@ void checkFieldConsistency(DBFieldMetadata *fld, QVariantList &log, const stData
     {
         if ( !databaseInformation.columnTypes.contains(fld->dbFieldName()) )
         {
-            errors["error"] = QObject::trUtf8("Columna presente en metadatos, pero no definida en la tabla.");
+            errors["error"] = QObject::tr("Columna presente en metadatos, pero no definida en la tabla.");
             flagErrors = AlephERP::ColumnOnMetadataNotOnTable;
         }
         else
@@ -1028,7 +1028,7 @@ void checkFieldConsistency(DBFieldMetadata *fld, QVariantList &log, const stData
                     {
                         err = err + " - ";
                     }
-                    err = QObject::trUtf8("Columna definida en metadatos con longitud (%1) excede a la disponible en base de datos (%2).").
+                    err = QObject::tr("Columna definida en metadatos con longitud (%1) excede a la disponible en base de datos (%2).").
                             arg(fld->length()).
                             arg(databaseInformation.maxChars[fld->dbFieldName()]);
                     flagErrors = flagErrors | AlephERP::ColumnOnMetadataWithLengthOverDatabaseLength;
@@ -1041,7 +1041,7 @@ void checkFieldConsistency(DBFieldMetadata *fld, QVariantList &log, const stData
                 {
                     err = err + " - ";
                 }
-                err = QObject::trUtf8("Columna definida en metadatos como nullable, pero en base de datos no puede ser nula.");
+                err = QObject::tr("Columna definida en metadatos como nullable, pero en base de datos no puede ser nula.");
                 flagErrors = flagErrors | AlephERP::ColumnOnMetadataIsNullableButNotOnDatabase;
             }
             if ( !fld->canBeNull() && databaseInformation.nullable.value(fld->dbFieldName()) )
@@ -1050,7 +1050,7 @@ void checkFieldConsistency(DBFieldMetadata *fld, QVariantList &log, const stData
                 {
                     err = err + " - ";
                 }
-                err = QObject::trUtf8("Columna definida en metadatos como no nullable, pero en base de datos puede ser nula.");
+                err = QObject::tr("Columna definida en metadatos como no nullable, pero en base de datos puede ser nula.");
                 flagErrors = flagErrors | AlephERP::ColumnOnMetadataNotNullButCanBeOnDatabase;
             }
             // Si el campo tiene relaciones de tipo 11 o M1, debería haber un índice de base de datos para rendimiento...
@@ -1067,7 +1067,7 @@ void checkFieldConsistency(DBFieldMetadata *fld, QVariantList &log, const stData
                         {
                             err = err + " - ";
                         }
-                        err = QObject::trUtf8("Columna índice de una relación 11 o M1 que no tiene un índice de base de datos definido.");
+                        err = QObject::tr("Columna índice de una relación 11 o M1 que no tiene un índice de base de datos definido.");
                         flagErrors = flagErrors | AlephERP::IndexNotExists;
                     }
                 }
@@ -1096,7 +1096,7 @@ void checkTableConsistency(BaseBeanMetadata *m, QVariantList &log)
         AlephERP::ConsistencyTableErrors flagErrors;
         tableErrors["tablename"] = m->tableName();
         tableErrors["column"] = "";
-        tableErrors["error"] = QObject::trUtf8("El nombre de la tabla excede de 30 caracteres, lo que en bases de datos como Firebird darán errores.");
+        tableErrors["error"] = QObject::tr("El nombre de la tabla excede de 30 caracteres, lo que en bases de datos como Firebird darán errores.");
         flagErrors = AlephERP::TableNameLengthTooLong;
         tableErrors["code"] = QString("%1").arg(flagErrors);
         log.append(tableErrors);
@@ -1142,12 +1142,12 @@ void checkTableConsistency(BaseBeanMetadata *m, QVariantList &log)
                 if ( nullable )
                 {
                     flagErrors = AlephERP::ColumnNotOnMetadataButOnDatabase;
-                    errors["error"] = QObject::trUtf8("Columna presente en base de datos y no presente en metadatos");
+                    errors["error"] = QObject::tr("Columna presente en base de datos y no presente en metadatos");
                 }
                 else
                 {
                     flagErrors = AlephERP::ColumnNotOnMetadataButOnDatabaseNotNull;
-                    errors["error"] = QObject::trUtf8("Columna presente en base de datos NO NULLABLE y no presente en metadatos");
+                    errors["error"] = QObject::tr("Columna presente en base de datos NO NULLABLE y no presente en metadatos");
                 }
                 errors["code"] = QString("%1").arg(flagErrors);
                 log.append(errors);
@@ -1161,7 +1161,7 @@ void checkTableConsistency(BaseBeanMetadata *m, QVariantList &log)
         AlephERP::ConsistencyTableErrors flagErrors;
         tableErrors["tablename"] = m->tableName();
         tableErrors["column"] = "";
-        tableErrors["error"] = QObject::trUtf8("La tabla %1 contiene columnas o una definición diferente a la de los metadatos.").arg(m->tableName());
+        tableErrors["error"] = QObject::tr("La tabla %1 contiene columnas o una definición diferente a la de los metadatos.").arg(m->tableName());
         flagErrors = AlephERP::TableNotMatchMetadata;
         tableErrors["code"] = QString("%1").arg(flagErrors);
         log.append(tableErrors);
@@ -1188,7 +1188,7 @@ bool BeansFactory::checkConsistencyMetadataDatabase(QVariantList &log)
                 AlephERP::ConsistencyTableErrors flagErrors;
                 tableErrors["tablename"] = m->tableName();
                 tableErrors["column"] = "";
-                tableErrors["error"] = trUtf8("La tabla %1 no existe en base de datos.").arg(m->tableName());
+                tableErrors["error"] = tr("La tabla %1 no existe en base de datos.").arg(m->tableName());
                 flagErrors = AlephERP::TableNotExists;
                 tableErrors["code"] = QString("%1").arg(flagErrors);
                 log.append(tableErrors);
@@ -1234,7 +1234,7 @@ bool BeansFactory::checkConsistencyMetadata(QVariantList &log)
                                     arg(rel->rootFieldName()).
                                     arg(rel->tableName()).
                                     arg(rel->childFieldName());
-                            tableErrors["error"] = trUtf8("La foreign key en la tabla %1 (%2) que apunta a %3 (%4) no existe.").
+                            tableErrors["error"] = tr("La foreign key en la tabla %1 (%2) que apunta a %3 (%4) no existe.").
                                     arg(m->tableName()).
                                     arg(rel->rootFieldName()).
                                     arg(rel->tableName()).
@@ -1253,7 +1253,7 @@ bool BeansFactory::checkConsistencyMetadata(QVariantList &log)
                             AlephERP::ConsistencyTableErrors flagErrors;
                             tableErrors["tablename"] = m->tableName();
                             tableErrors["column"] = "Relations";
-                            tableErrors["error"] = trUtf8("La columna %1 en la tabla relacionada %2 no existe.").
+                            tableErrors["error"] = tr("La columna %1 en la tabla relacionada %2 no existe.").
                                                    arg(rel->childFieldName()).
                                                    arg(rel->tableName());
                             flagErrors = AlephERP::RelatedColumnNotExists;
@@ -1267,7 +1267,7 @@ bool BeansFactory::checkConsistencyMetadata(QVariantList &log)
                         AlephERP::ConsistencyTableErrors flagErrors;
                         tableErrors["tablename"] = m->tableName();
                         tableErrors["column"] = "Relations";
-                        tableErrors["error"] = trUtf8("La tabla relacionada %1 no existe.").arg(rel->tableName());
+                        tableErrors["error"] = tr("La tabla relacionada %1 no existe.").arg(rel->tableName());
                         flagErrors = AlephERP::RelatedTableNotExists;
                         tableErrors["code"] = QString("%1").arg(flagErrors);
                         log.append(tableErrors);

@@ -879,7 +879,7 @@ void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
                     d->m_checkedUpdateBeans.clear();
                     d->m_lastReload.first = QDateTime::currentDateTime();
                     d->m_lastReload.second = true;
-                    QLogger::QLog_Debug(AlephERP::stLogOther, trUtf8("DBBaseBeanModel::backgroundQueryExecuted: Finalizó el refresco en background."));
+                    QLogger::QLog_Debug(AlephERP::stLogOther, tr("DBBaseBeanModel::backgroundQueryExecuted: Finalizó el refresco en background."));
                 }
                 d->m_beansPetitions.removeAt(i);
             }
@@ -983,15 +983,15 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
     }
     if ( role == AlephERP::InsertRowTextRole )
     {
-        return trUtf8("Insertar registro '%1").arg(d->m_metadata->alias());
+        return tr("Insertar registro '%1").arg(d->m_metadata->alias());
     }
     if ( role == AlephERP::EditRowTextRole )
     {
-        return trUtf8("Editar registro '%1'").arg(d->m_metadata->alias());
+        return tr("Editar registro '%1'").arg(d->m_metadata->alias());
     }
     if ( role == AlephERP::DeleteRowTextRole )
     {
-        return trUtf8("Eliminar registro '%1'").arg(d->m_metadata->alias());
+        return tr("Eliminar registro '%1'").arg(d->m_metadata->alias());
     }
     if ( !item.isValid() )
     {

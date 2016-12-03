@@ -256,18 +256,18 @@ bool DBFormDlgPrivate::checkConditionsForRemoteOnTree(const QModelIndex &idx)
     FilterBaseBeanModel *model = qobject_cast<FilterBaseBeanModel *> (m_itemView->filterModel());
     if ( model == NULL )
     {
-        m_lastMessage = QObject::trUtf8("Se ha producido un error general.");
+        m_lastMessage = QObject::tr("Se ha producido un error general.");
         return false;
     }
     if ( m_metadata == NULL )
     {
-        m_lastMessage = QObject::trUtf8("Se ha producido un error general. No existen los metadatos.");
+        m_lastMessage = QObject::tr("Se ha producido un error general. No existen los metadatos.");
         return false;
     }
     BaseBeanSharedPointer beanSelected = model->bean(idx);
     if ( beanSelected.isNull() )
     {
-        m_lastMessage = QObject::trUtf8("Se ha producido un error general. No se puede obtener el registro seleccionado.");
+        m_lastMessage = QObject::tr("Se ha producido un error general. No se puede obtener el registro seleccionado.");
         return false;
     }
     if ( beanSelected->metadata()->tableName() == m_metadata->tableName() )
@@ -280,7 +280,7 @@ bool DBFormDlgPrivate::checkConditionsForRemoteOnTree(const QModelIndex &idx)
     TreeBaseBeanModel *sourceModel = qobject_cast<TreeBaseBeanModel *> (model->sourceModel());
     if ( sourceModel == NULL )
     {
-        m_lastMessage = QObject::trUtf8("Se ha producido un error general. No se puede obtener el registro seleccionado.");
+        m_lastMessage = QObject::tr("Se ha producido un error general. No se puede obtener el registro seleccionado.");
         return false;
     }
     QStringList tableNames = sourceModel->tableNames();
@@ -288,7 +288,7 @@ bool DBFormDlgPrivate::checkConditionsForRemoteOnTree(const QModelIndex &idx)
     int init = tableNames.indexOf(beanSelected->metadata()->tableName());
     if ( init == -1 )
     {
-        m_lastMessage = QObject::trUtf8("Aplicación mal configurada.");
+        m_lastMessage = QObject::tr("Aplicación mal configurada.");
         return false;
     }
     for ( int i = init ; i < tableNames.size() - 1 ; i++ )
@@ -296,7 +296,7 @@ bool DBFormDlgPrivate::checkConditionsForRemoteOnTree(const QModelIndex &idx)
         BaseBeanMetadata *m = BeansFactory::instance()->metadataBean(tableNames.at(i+1));
         if ( m == NULL )
         {
-            m_lastMessage = QObject::trUtf8("Aplicación mal configurada. No existe la tabla %1").arg(tableNames.at(i+1));
+            m_lastMessage = QObject::tr("Aplicación mal configurada. No existe la tabla %1").arg(tableNames.at(i+1));
             return false;
         }
         DBRelationMetadata *rel = m->relation(tableNames.at(i));
@@ -314,7 +314,7 @@ bool DBFormDlgPrivate::checkConditionsForRemoteOnTree(const QModelIndex &idx)
     if ( deleteCascade )
     {
         // Preguntemos al usuario si está seguro de lo que va a hacer
-        int ret = QMessageBox::question(q_ptr, qApp->applicationName(), QObject::trUtf8("Si borra este registro, se borrarán automáticamente "
+        int ret = QMessageBox::question(q_ptr, qApp->applicationName(), QObject::tr("Si borra este registro, se borrarán automáticamente "
                                         "todos los registros que dependen de este, produciéndose un "
                                         "borrado en cascada. ¿Está usted seguro de continuar?"), QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::No )
@@ -327,7 +327,7 @@ bool DBFormDlgPrivate::checkConditionsForRemoteOnTree(const QModelIndex &idx)
             return true;
         }
     }
-    m_lastMessage = QObject::trUtf8("No se permite el borrado en cascada de registros. Es decir, debe usted seleccionar un elemento final del árbol (una hoja) para borrar.");
+    m_lastMessage = QObject::tr("No se permite el borrado en cascada de registros. Es decir, debe usted seleccionar un elemento final del árbol (una hoja) para borrar.");
     return false;
 }
 
@@ -373,7 +373,7 @@ BaseBeanSharedPointer DBFormDlgPrivate::insertRow()
             CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
             QMessageBox::warning(q_ptr,
                                  qApp->applicationName(),
-                                 QObject::trUtf8("Debe seleccionar un registro del que colgará el que desea insertar."),
+                                 QObject::tr("Debe seleccionar un registro del que colgará el que desea insertar."),
                                  QMessageBox::Ok);
             CommonsFunctions::restoreOverrideCursor();
             return b;
@@ -382,7 +382,7 @@ BaseBeanSharedPointer DBFormDlgPrivate::insertRow()
     }
     if ( newSourceRow > -1 && !sourceModel->insertRow(newSourceRow, sourceParent) )
     {
-        QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.\nEl error es: %1.").arg(sourceModel->property(AlephERP::stLastErrorMessage).toString());
+        QString message = QObject::tr("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.\nEl error es: %1.").arg(sourceModel->property(AlephERP::stLastErrorMessage).toString());
         sourceModel->setProperty(AlephERP::stLastErrorMessage, "");
         CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
         QMessageBox::warning(q_ptr,
@@ -398,7 +398,7 @@ BaseBeanSharedPointer DBFormDlgPrivate::insertRow()
     b = sourceModel->beanToBeEdited(m_recentInsertSourceIndex);
     if ( b.isNull() )
     {
-        QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.");
+        QString message = QObject::tr("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.");
         CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
         QMessageBox::warning(q_ptr,
                              qApp->applicationName(),
@@ -597,7 +597,7 @@ bool DBFormDlg::construct(const QString &tableName)
     else
     {
         qDebug() << "No existe la tabla: " << tableName;
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("No existe la tabla %1.").arg(tableName), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("No existe la tabla %1.").arg(tableName), QMessageBox::Ok);
         close();
         return false;
     }
@@ -722,9 +722,9 @@ void DBFormDlg::init(const QString &value)
     {
         if ( d->m_metadata )
         {
-            ui->actionCreate->setText(trUtf8("Insertar registro '%1'").arg(d->m_metadata->alias()));
-            ui->actionEdit->setText(trUtf8("Editar registro '%1'").arg(d->m_metadata->alias()));
-            ui->actionDelete->setText(trUtf8("Borrar registro '%1'").arg(d->m_metadata->alias()));
+            ui->actionCreate->setText(tr("Insertar registro '%1'").arg(d->m_metadata->alias()));
+            ui->actionEdit->setText(tr("Editar registro '%1'").arg(d->m_metadata->alias()));
+            ui->actionDelete->setText(tr("Borrar registro '%1'").arg(d->m_metadata->alias()));
         }
         ui->pbPrint->setVisible(d->isPrintButtonVisible());
         ui->pbSendEmail->setVisible(d->isEmailButtonVisible());
@@ -973,7 +973,7 @@ void DBFormDlg::execQs()
     CommonsFunctions::restoreOverrideCursor();
     if ( !result )
     {
-        QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ha ocurrido un error al cargar el script asociado a este "
+        QMessageBox::warning(this,qApp->applicationName(), tr("Ha ocurrido un error al cargar el script asociado a este "
                              "formulario. Es posible que algunas funciones no estén disponibles."),
                              QMessageBox::Ok);
     }
@@ -1432,7 +1432,7 @@ void DBFormDlg::deleteRecord(void)
     if ( indexes.isEmpty() )
     {
         QMessageBox::warning(this, qApp->applicationName(),
-                             trUtf8("Debe seleccionar algún registro para borrar."),
+                             tr("Debe seleccionar algún registro para borrar."),
                              QMessageBox::Ok);
         if ( !!d->m_mainWindow->isVisibleRelatedWidget() &&
              !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
@@ -1459,7 +1459,7 @@ void DBFormDlg::deleteRecord(void)
     }
 
     // Buscamos confirmación
-    QString message = trUtf8("¿Está seguro de que desea borrar el(los) registro(s) actualmente seleccionado(s)?");
+    QString message = tr("¿Está seguro de que desea borrar el(los) registro(s) actualmente seleccionado(s)?");
     int ret = QMessageBox::information(this, qApp->applicationName(), message, QMessageBox::Yes | QMessageBox::No);
 
     if ( ret == QMessageBox::Yes )
@@ -1579,7 +1579,7 @@ void DBFormDlg::copy()
 
     if ( indexes.size() > 0 )
     {
-        QString message = trUtf8("¿Desea realizar una copia de los registros actualmente seleccionados?");
+        QString message = tr("¿Desea realizar una copia de los registros actualmente seleccionados?");
         int ret = QMessageBox::information(this, qApp->applicationName(), message, QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::Yes )
         {
@@ -1595,7 +1595,7 @@ void DBFormDlg::copy()
                         {
                             if ( !mdl->lastErrorMessage().isEmpty() )
                             {
-                                QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error al intentar agregar copiar el registro. \nEl error es: %1.").arg(mdl->lastErrorMessage()));
+                                QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error al intentar agregar copiar el registro. \nEl error es: %1.").arg(mdl->lastErrorMessage()));
                                 mdl->setProperty(AlephERP::stLastErrorMessage, "");
                             }
                             return;
@@ -1628,7 +1628,7 @@ void DBFormDlg::copy()
             AERPTransactionContext::instance()->waitCommitToEnd(dbContext);
             if ( !commitResult )
             {
-                QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ha ocurrido un error generando la copia."), QMessageBox::Ok);
+                QMessageBox::warning(this,qApp->applicationName(), tr("Ha ocurrido un error generando la copia."), QMessageBox::Ok);
                 QHashIterator<int, QModelIndex> it(addedRows);
                 while (it.hasNext())
                 {
@@ -1647,7 +1647,7 @@ void DBFormDlg::copy()
                 selModel->setCurrentIndex(newIdx, QItemSelectionModel::Rows);
                 selModel->select(newIdx, QItemSelectionModel::ClearAndSelect |QItemSelectionModel::Rows);
                 int ret = QMessageBox::information(this,qApp->applicationName(),
-                                                   trUtf8("¿Desea editar el nuevo registro copiado?"), QMessageBox::Yes | QMessageBox::No);
+                                                   tr("¿Desea editar el nuevo registro copiado?"), QMessageBox::Yes | QMessageBox::No);
                 if ( ret == QMessageBox::Yes )
                 {
                     edit("false");
@@ -1658,7 +1658,7 @@ void DBFormDlg::copy()
     else
     {
         QMessageBox::warning(this, qApp->applicationName(),
-                             trUtf8("Debe seleccionar algún registro para copiar."), QMessageBox::Ok);
+                             tr("Debe seleccionar algún registro para copiar."), QMessageBox::Ok);
     }
     if ( !d->m_mainWindow->isVisibleRelatedWidget() &&
          !OpenedRecords::instance()->dialogOpenedForRecord(d->m_tableName) &&
@@ -1966,12 +1966,12 @@ void DBFormDlg::reloadBean(const QModelIndex &idx)
     FilterBaseBeanModel *model = qobject_cast<FilterBaseBeanModel *> (d->m_itemView->filterModel());
     if ( model == NULL )
     {
-        d->m_lastMessage = QObject::trUtf8("Se ha producido un error general.");
+        d->m_lastMessage = QObject::tr("Se ha producido un error general.");
         return;
     }
     if ( d->m_metadata == NULL )
     {
-        d->m_lastMessage = QObject::trUtf8("Se ha producido un error general. No existen los metadatos.");
+        d->m_lastMessage = QObject::tr("Se ha producido un error general. No existen los metadatos.");
         return;
     }
     BaseBeanSharedPointer beanSelected = model->bean(idx);
@@ -2012,7 +2012,7 @@ bool DBFormDlg::checkPermissionsToOpen()
     }
     if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', d->m_tableName) )
     {
-        QMessageBox::warning(this,qApp->applicationName(), trUtf8("No tiene permisos para acceder a estos datos."), QMessageBox::Ok);
+        QMessageBox::warning(this,qApp->applicationName(), tr("No tiene permisos para acceder a estos datos."), QMessageBox::Ok);
         return false;
     }
     return true;
@@ -2131,7 +2131,7 @@ void DBFormDlg::emailRecord()
     BaseBeanPointer bean = selectedBean();
     if ( bean.isNull() )
     {
-        QMessageBox::information(this, qApp->applicationName(), trUtf8("Debe seleccionar un registro desde el que enviar el correo electrónico."));
+        QMessageBox::information(this, qApp->applicationName(), tr("Debe seleccionar un registro desde el que enviar el correo electrónico."));
         return;
     }
     QScopedPointer<SendEmailDlg> dlg (new SendEmailDlg(bean.data(), this));
@@ -2142,7 +2142,7 @@ void DBFormDlg::emailRecord()
         if ( d->isPrintButtonVisible() )
         {
             int ret = QMessageBox::question(this, qApp->applicationName(),
-                                            trUtf8("¿Desea enviar con el correo electrónico el impreso asociado a este registro?"), QMessageBox::Yes | QMessageBox::No);
+                                            tr("¿Desea enviar con el correo electrónico el impreso asociado a este registro?"), QMessageBox::Yes | QMessageBox::No);
             if ( ret == QMessageBox::Yes )
             {
                 // Ejecutamos el informe asociado, a este bean.
@@ -2154,7 +2154,7 @@ void DBFormDlg::emailRecord()
                 if ( !reportRun.pdf(1, false) )
                 {
                     QMessageBox::information(this, qApp->applicationName(),
-                                             trUtf8("Se ha producido un error al ejecutar el informe. El error es: %1").arg(reportRun.message()), QMessageBox::Ok);
+                                             tr("Se ha producido un error al ejecutar el informe. El error es: %1").arg(reportRun.message()), QMessageBox::Ok);
                 }
                 else
                 {
@@ -2169,7 +2169,7 @@ void DBFormDlg::emailRecord()
             EmailObject email = dlg->sentEmail();
             if (!EmailDAO::saveEmail(email))
             {
-                QMessageBox::warning(this, qApp->applicationName(), trUtf8("No se ha podido guardar el correo electrónico en los históricos, aunque se envió correctamente."), QMessageBox::Ok);
+                QMessageBox::warning(this, qApp->applicationName(), tr("No se ha podido guardar el correo electrónico en los históricos, aunque se envió correctamente."), QMessageBox::Ok);
             }
             RelatedElementPointer element = bean.data()->newRelatedElement(email);
             RelatedDAO::saveRelatedElement(element);
@@ -2322,7 +2322,7 @@ void DBFormDlg::showContextMenu(const QPoint &point)
     QModelIndex idx = d->m_itemView->itemView()->indexAt(point);
     QMenu contextMenu;
     QPoint globalPos = d->m_itemView->itemView()->viewport()->mapToGlobal(point);
-    QAction *addIntermediateAction = new QAction(QIcon(":/generales/images/edit_add.png"), trUtf8(""), this);
+    QAction *addIntermediateAction = new QAction(QIcon(":/generales/images/edit_add.png"), tr(""), this);
 
     connect(addIntermediateAction, SIGNAL(triggered()), SLOT(insertChild()));
 

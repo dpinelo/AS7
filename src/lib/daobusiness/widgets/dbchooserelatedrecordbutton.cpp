@@ -227,7 +227,7 @@ void DBChooseRelatedRecordButton::chooseMasterBean()
     if ( !d->m_masterBean.isNull() )
     {
         int ret = QMessageBox::question(this, qApp->applicationName(),
-                                        trUtf8("Este registro se ha asociado anteriormente a un registro de la tabla %1. "
+                                        tr("Este registro se ha asociado anteriormente a un registro de la tabla %1. "
                                                "Si continúa, esta relación se eliminará. ¿Está seguro de quere continuar?").arg(d->m_masterBean->metadata()->alias()),
                                         QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::No )
@@ -244,7 +244,7 @@ void DBChooseRelatedRecordButton::chooseMasterBean()
 
     bool ok;
     QString selectedMetadata = QInputDialog::getItem(this, qApp->applicationName(),
-                               trUtf8("Seleccione la tabla en la que se encuentra el registro que desea asociar"),
+                               tr("Seleccione la tabla en la que se encuentra el registro que desea asociar"),
                                prettyAllowedMetadatas, 0, false, &ok);
     if ( !ok )
     {

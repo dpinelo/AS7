@@ -167,7 +167,7 @@ bool Database::createSystemConnection()
         result = Database::createSystemTablesSQLite();
         if ( !result )
         {
-            Database::m_lastErrorMessage = QObject::trUtf8("Se ha producido un error creando los archivos de sistema. No es posible abrir la aplicación.");
+            Database::m_lastErrorMessage = QObject::tr("Se ha producido un error creando los archivos de sistema. No es posible abrir la aplicación.");
         }
     }
     return result;
@@ -186,7 +186,7 @@ bool Database::createServerConnection()
         result = Database::createServerTablesSQLite();
         if ( !result )
         {
-            Database::m_lastErrorMessage = QObject::trUtf8("Se ha producido un error creando los archivos de sistema. No es posible abrir la aplicación.");
+            Database::m_lastErrorMessage = QObject::tr("Se ha producido un error creando los archivos de sistema. No es posible abrir la aplicación.");
         }
     }
     return result;
@@ -201,7 +201,7 @@ bool Database::createCacheConnection(const QString &connName)
         result = Database::createServerTablesSQLite();
         if ( !result )
         {
-            Database::m_lastErrorMessage = QObject::trUtf8("Se ha producido un error creando los archivos de sistema. No es posible abrir la aplicación.");
+            Database::m_lastErrorMessage = QObject::tr("Se ha producido un error creando los archivos de sistema. No es posible abrir la aplicación.");
         }
     }
     return result;
@@ -247,7 +247,7 @@ bool Database::createConnection(const QString &name, const QString &path, const 
         {
             QStringList list = QSqlDatabase::drivers();
             QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Lista de drivers BBDD disponible: [%1]").arg(list.join(", ")));
-            QString errorDriverNotAvailable = QObject::trUtf8(MSG_DRIVER_NOT_AVAILABLE).arg(list.join(" - "));
+            QString errorDriverNotAvailable = QObject::tr(MSG_DRIVER_NOT_AVAILABLE).arg(list.join(" - "));
             Database::m_lastErrorMessage = errorDriverNotAvailable;
         }
         QString fileName;
@@ -301,7 +301,7 @@ bool Database::openPostgreSQL(const QString &connectionName)
     {
         QStringList list = QSqlDatabase::drivers();
         QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Lista de drivers BBDD disponible: [%1]").arg(list.join(", ")));
-        QString errorDriverNotAvailable = QObject::trUtf8(MSG_DRIVER_NOT_AVAILABLE).arg(list.join(" - "));
+        QString errorDriverNotAvailable = QObject::tr(MSG_DRIVER_NOT_AVAILABLE).arg(list.join(" - "));
         Database::m_lastErrorMessage = errorDriverNotAvailable;
         return false;
     }
@@ -360,7 +360,7 @@ bool Database::openODBC(const QString &connectionName)
     {
         QStringList list = QSqlDatabase::drivers();
         QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Lista de drivers BBDD disponible: [%1]").arg(list.join(", ")));
-        QString errorDriverNotAvailable = QObject::trUtf8(MSG_DRIVER_NOT_AVAILABLE).arg(list.join(" - "));
+        QString errorDriverNotAvailable = QObject::tr(MSG_DRIVER_NOT_AVAILABLE).arg(list.join(" - "));
         Database::m_lastErrorMessage = errorDriverNotAvailable;
         return false;
     }
@@ -398,7 +398,7 @@ bool Database::openSQLite(const QString &connectionName, bool &emptyDatabase, co
     {
         QStringList list = QSqlDatabase::drivers();
         QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Lista de drivers BBDD disponible: [%1]").arg(list.join(", ")));
-        QString errorDriverNotAvailable = QObject::trUtf8(MSG_DRIVER_NOT_AVAILABLE).arg(list.join(" - "));
+        QString errorDriverNotAvailable = QObject::tr(MSG_DRIVER_NOT_AVAILABLE).arg(list.join(" - "));
         Database::m_lastErrorMessage = errorDriverNotAvailable;
         return false;
     }
@@ -484,7 +484,7 @@ bool Database::openCloud(const QString &connectionName)
     {
         QStringList list = QSqlDatabase::drivers();
         QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Lista de drivers BBDD disponible: [%1]").arg(list.join(", ")));
-        QString errorDriverNotAvailable = QObject::trUtf8(MSG_DRIVER_NOT_AVAILABLE).arg(list.join(" - "));
+        QString errorDriverNotAvailable = QObject::tr(MSG_DRIVER_NOT_AVAILABLE).arg(list.join(" - "));
         Database::m_lastErrorMessage = errorDriverNotAvailable;
         return false;
     }
@@ -579,7 +579,7 @@ bool Database::createSystemTablesSQLite()
             QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("Database::createSystemTablesSQLite: [%1]").arg(sql));
             if ( !qry->exec(sql) )
             {
-                QLogger::QLog_Error(AlephERP::stLogDB, QObject::trUtf8("Database::createSystemTablesSQLite: [%1] [%2] [%2]").
+                QLogger::QLog_Error(AlephERP::stLogDB, QObject::tr("Database::createSystemTablesSQLite: [%1] [%2] [%2]").
                                     arg(sql).arg(qry->lastError().databaseText()).arg(qry->lastError().driverText()));
                 return false;
             }
@@ -631,7 +631,7 @@ void Database::buildError(const QSqlError &error)
         }
         else
         {
-            Database::m_lastErrorMessage = QObject::trUtf8("Driver message: %1\nDatabase message: %2").arg(error.driverText()).arg(error.databaseText());
+            Database::m_lastErrorMessage = QObject::tr("Driver message: %1\nDatabase message: %2").arg(error.driverText()).arg(error.databaseText());
         }
     }
 }
@@ -799,7 +799,7 @@ bool Database::createBatchConnection(const QString &connectionName)
     {
         QStringList list = QSqlDatabase::drivers();
         QLogger::QLog_Info(AlephERP::stLogDB, QString::fromUtf8("Lista de drivers BBDD disponible: [%1]").arg(list.join(", ")));
-        QString errorDriverNotAvailable = QObject::trUtf8(MSG_DRIVER_NOT_AVAILABLE).arg(list.join(" - "));
+        QString errorDriverNotAvailable = QObject::tr(MSG_DRIVER_NOT_AVAILABLE).arg(list.join(" - "));
         Database::m_lastErrorMessage = errorDriverNotAvailable;
         return false;
     }

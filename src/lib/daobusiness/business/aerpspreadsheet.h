@@ -57,7 +57,6 @@ public slots:
 class ALEPHERP_DLL_EXPORT AERPSpreadSheet : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Type)
 
     Q_PROPERTY(QString name READ name WRITE setName)
     Q_PROPERTY(QList<AERPSheet *> sheets READ sheets)
@@ -87,6 +86,8 @@ public:
         Date = QMetaType::QDate,
         DateTime = QMetaType::QDateTime,
     };
+    Q_ENUM(Type)
+
     static QVariant::Type qtypeForAERPVariantType(Type type);
     static Type aerptypeQVariantType(QVariant::Type type);
     static QString columnStringName(int column);

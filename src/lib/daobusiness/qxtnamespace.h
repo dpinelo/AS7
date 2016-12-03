@@ -33,9 +33,6 @@
 class ALEPHERP_DLL_EXPORT Qxt : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Rotation)
-    Q_ENUMS(DecorationStyle)
-    Q_ENUMS(ErrorCode)
 
 public:
 
@@ -97,6 +94,10 @@ public:
         Month,
         Year
     };
+
+    Q_ENUM(Rotation)
+    Q_ENUM(DecorationStyle)
+    Q_ENUM(ErrorCode)
 };
 
 #endif // QXTNAMESPACE_H

@@ -92,10 +92,10 @@ JSSystemScripts::JSSystemScripts(QWidget *parent) :
     d->m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
     d->m_model->setSort(1, Qt::AscendingOrder);
     d->m_model->select();
-    d->m_model->setHeaderData(0, Qt::Horizontal, trUtf8("ID"));
-    d->m_model->setHeaderData(1, Qt::Horizontal, trUtf8("Name"));
-    d->m_model->setHeaderData(2, Qt::Horizontal, trUtf8("Script"));
-    d->m_model->setHeaderData(3, Qt::Horizontal, trUtf8("Fecha de creación"));
+    d->m_model->setHeaderData(0, Qt::Horizontal, tr("ID"));
+    d->m_model->setHeaderData(1, Qt::Horizontal, tr("Name"));
+    d->m_model->setHeaderData(2, Qt::Horizontal, tr("Script"));
+    d->m_model->setHeaderData(3, Qt::Horizontal, tr("Fecha de creación"));
     ui->tableView->setModel(d->m_model);
     ui->tableView->setSelectionModel(d->m_selection);
     ui->tableView->hideColumn(0);
@@ -142,7 +142,7 @@ void JSSystemScripts::add()
     if ( !d->m_model->insertRow(d->m_editRow) )
     {
         d->m_editRow = -1;
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error insertando un nuevo registro."), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error insertando un nuevo registro."), QMessageBox::Ok);
         return;
     }
 
@@ -165,7 +165,7 @@ void JSSystemScripts::edit()
     QModelIndexList selectedIndex = d->m_selection->selectedIndexes();
     if ( selectedIndex.size() == 0 )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Debe seleccionar un registro a editar."), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("Debe seleccionar un registro a editar."), QMessageBox::Ok);
         return;
     }
     d->m_editRow = selectedIndex.at(0).row();
@@ -186,12 +186,12 @@ void JSSystemScripts::run()
     QModelIndexList selectedIndex = d->m_selection->selectedIndexes();
     if ( selectedIndex.size() == 0 )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Debe seleccionar un registro a ejecutar."), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("Debe seleccionar un registro a ejecutar."), QMessageBox::Ok);
         return;
     }
 
     ui->textEdit->clear();
-    ui->textEdit->setText(trUtf8("Iniciando la ejecución del script...."));
+    ui->textEdit->setText(tr("Iniciando la ejecución del script...."));
     ui->textEdit->show();
     CommonsFunctions::processEvents();
 
@@ -203,10 +203,10 @@ void JSSystemScripts::run()
     QVariant result = d->m_engine->toVariant(d->m_engine->executeScript());
     if ( d->m_engine->lastMessage().isEmpty() )
     {
-        QString message = trUtf8("El script se ha ejecutado con ÉXITO.");
+        QString message = tr("El script se ha ejecutado con ÉXITO.");
         if (!result.isNull() && !result.toString().isEmpty())
         {
-            message.append(trUtf8("\n. El resultado es: %1").arg(result.toString()));
+            message.append(tr("\n. El resultado es: %1").arg(result.toString()));
         }
         ui->textEdit->append(message);
     }
@@ -222,22 +222,22 @@ void JSSystemScripts::remove()
     QModelIndexList selectedIndex = d->m_selection->selectedIndexes();
     if ( selectedIndex.size() == 0 )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Debe seleccionar un registro para eliminar."), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("Debe seleccionar un registro para eliminar."), QMessageBox::Ok);
         return;
     }
-    int ret = QMessageBox::question(this, qApp->applicationName(), trUtf8("¿Está seguro de querer borrar el registro actual?"), QMessageBox::Yes | QMessageBox::No);
+    int ret = QMessageBox::question(this, qApp->applicationName(), tr("¿Está seguro de querer borrar el registro actual?"), QMessageBox::Yes | QMessageBox::No);
     if ( ret == QMessageBox::No )
     {
         return;
     }
     if ( !d->m_model->removeRow(selectedIndex.at(0).row()) )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("No se ha podido borrar el registro. Error [%1]").arg(d->m_model->lastError().text()), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("No se ha podido borrar el registro. Error [%1]").arg(d->m_model->lastError().text()), QMessageBox::Ok);
         return;
     }
     if ( !d->m_model->submitAll() )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("No se ha podido borrar el registro. Error [%1]").arg(d->m_model->lastError().text()), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("No se ha podido borrar el registro. Error [%1]").arg(d->m_model->lastError().text()), QMessageBox::Ok);
         return;
     }
 }
@@ -252,11 +252,11 @@ bool JSSystemScripts::saveData(const QString &name, const QString &script)
         d->m_model->setData(idxScript, script);
         if (!d->m_model->submitAll())
         {
-            QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error guardando el nuevo registro. El error es [%1]").arg(d->m_model->lastError().text()), QMessageBox::Ok);
+            QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error guardando el nuevo registro. El error es [%1]").arg(d->m_model->lastError().text()), QMessageBox::Ok);
             return false;
         }
         return true;
     }
-    QMessageBox::warning(this, qApp->applicationName(), trUtf8("No se está editando ninguna fila."), QMessageBox::Ok);
+    QMessageBox::warning(this, qApp->applicationName(), tr("No se está editando ninguna fila."), QMessageBox::Ok);
     return false;
 }

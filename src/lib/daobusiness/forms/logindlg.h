@@ -43,7 +43,6 @@ class LoginDlgPrivate;
 class ALEPHERP_DLL_EXPORT LoginDlg : public QDialog
 {
     Q_OBJECT
-    Q_ENUMS(CloseTypes)
 
 public:
     explicit LoginDlg(QWidget *parent = 0);

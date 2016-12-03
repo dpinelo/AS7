@@ -49,12 +49,12 @@ QIcon DBTreeViewPlugin::icon() const
 
 QString DBTreeViewPlugin::toolTip() const
 {
-    return trUtf8("Visualiza datos en forma de árbol desde base de datos");
+    return tr("Visualiza datos en forma de árbol desde base de datos");
 }
 
 QString DBTreeViewPlugin::whatsThis() const
 {
-    return trUtf8("Visualiza datos en forma de árbol desde base de datos");
+    return tr("Visualiza datos en forma de árbol desde base de datos");
 }
 
 bool DBTreeViewPlugin::isContainer() const

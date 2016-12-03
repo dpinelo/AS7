@@ -62,12 +62,12 @@ QIcon MenuTreeWidgetPlugin::icon() const
 
 QString MenuTreeWidgetPlugin::toolTip() const
 {
-    return trUtf8("TreeWidget que lee las acciones de la barra de menú del diálogo principal");
+    return tr("TreeWidget que lee las acciones de la barra de menú del diálogo principal");
 }
 
 QString MenuTreeWidgetPlugin::whatsThis() const
 {
-    return trUtf8("TreeWidget que lee las acciones de la barra de menú del diálogo principal");
+    return tr("TreeWidget que lee las acciones de la barra de menú del diálogo principal");
 }
 
 bool MenuTreeWidgetPlugin::isContainer() const

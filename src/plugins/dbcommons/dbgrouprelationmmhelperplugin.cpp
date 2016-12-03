@@ -49,12 +49,12 @@ QIcon DBGroupRelationMMHelperPlugin::icon() const
 
 QString DBGroupRelationMMHelperPlugin::toolTip() const
 {
-    return trUtf8("Permite crear automáticamente registros de relaciones MM");
+    return tr("Permite crear automáticamente registros de relaciones MM");
 }
 
 QString DBGroupRelationMMHelperPlugin::whatsThis() const
 {
-    return trUtf8("Permite crear automáticamente registros de relaciones MM");
+    return tr("Permite crear automáticamente registros de relaciones MM");
 }
 
 bool DBGroupRelationMMHelperPlugin::isContainer() const

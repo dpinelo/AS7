@@ -626,7 +626,7 @@ QString DBFieldMetadata::fieldName() const
 
 void DBFieldMetadata::setFieldName(const QString &name)
 {
-    d->m_fieldName = trUtf8(name.toUtf8());
+    d->m_fieldName = tr(name.toUtf8());
 }
 
 QString DBFieldMetadata::fieldNameScript() const
@@ -1063,14 +1063,14 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( memo() && databaseColumnType != "text" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo memo en los metadatos pero en la base de datos es de tipo %3 ").
+            err = tr("%1: La columna %2 es de tipo memo en los metadatos pero en la base de datos es de tipo %3 ").
                   arg(beanMetadata()->tableName()).
                   arg(dbFieldName()).arg(databaseColumnType);
             return false;
         }
         if ( !memo() && databaseColumnType != "character varying" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo string en los metadatos pero en la base de datos es de tipo %3 ").
+            err = tr("%1: La columna %2 es de tipo string en los metadatos pero en la base de datos es de tipo %3 ").
                   arg(beanMetadata()->tableName()).
                   arg(dbFieldName()).arg(databaseColumnType);
             return false;
@@ -1080,7 +1080,7 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( databaseColumnType != "double precision" && databaseColumnType != "numeric" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo double en los metadatos pero en la base de datos es de tipo %3 ").
+            err = tr("%1: La columna %2 es de tipo double en los metadatos pero en la base de datos es de tipo %3 ").
                   arg(beanMetadata()->tableName()).
                   arg(dbFieldName()).arg(databaseColumnType);
             return false;
@@ -1090,7 +1090,7 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( databaseColumnType != "integer" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo int en los metadatos pero en la base de datos es de tipo %3 ").
+            err = tr("%1: La columna %2 es de tipo int en los metadatos pero en la base de datos es de tipo %3 ").
                   arg(beanMetadata()->tableName()).
                   arg(dbFieldName()).arg(databaseColumnType);
             return false;
@@ -1100,7 +1100,7 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( databaseColumnType != "bigint" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo bigint en los metadatos pero en la base de datos es de tipo %3 ").
+            err = tr("%1: La columna %2 es de tipo bigint en los metadatos pero en la base de datos es de tipo %3 ").
                   arg(beanMetadata()->tableName()).
                   arg(dbFieldName()).arg(databaseColumnType);
             return false;
@@ -1110,7 +1110,7 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( databaseColumnType != "date"  && !databaseColumnType.contains("timestamp") )
         {
-            err = trUtf8("%1: La columna %2 es de tipo date en los metadatos pero en la base de datos es de tipo %3 ").
+            err = tr("%1: La columna %2 es de tipo date en los metadatos pero en la base de datos es de tipo %3 ").
                   arg(beanMetadata()->tableName()).
                   arg(dbFieldName()).arg(databaseColumnType);
             return false;
@@ -1120,7 +1120,7 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( !databaseColumnType.contains("timestamp") )
         {
-            err = trUtf8("%1: La columna %2 es de tipo date en los metadatos pero en la base de datos es de tipo %3 ").
+            err = tr("%1: La columna %2 es de tipo date en los metadatos pero en la base de datos es de tipo %3 ").
                   arg(beanMetadata()->tableName()).
                   arg(dbFieldName()).arg(databaseColumnType);
             return false;
@@ -1130,7 +1130,7 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( databaseColumnType != "boolean" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo bool en los metadatos pero en la base de datos es de tipo %3 ").
+            err = tr("%1: La columna %2 es de tipo bool en los metadatos pero en la base de datos es de tipo %3 ").
                   arg(beanMetadata()->tableName()).
                   arg(dbFieldName()).arg(databaseColumnType);
             return false;
@@ -1140,7 +1140,7 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( databaseColumnType != "bytea" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo image en los metadatos pero en la base de datos es de tipo %3 ").
+            err = tr("%1: La columna %2 es de tipo image en los metadatos pero en la base de datos es de tipo %3 ").
                   arg(beanMetadata()->tableName()).
                   arg(dbFieldName()).arg(databaseColumnType);
             return false;

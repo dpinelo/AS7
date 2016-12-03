@@ -137,7 +137,7 @@ AERPHistoryViewTreeModel::AERPHistoryViewTreeModel(BaseBeanPointer bean, QObject
             HistoryTreeItemRow *transactionItem = new HistoryTreeItemRow(d->m_rootItem, HistoryTreeItemRow::Root);
             transactionItem->setData(0, Qt::DecorationRole, QPixmap(":/generales/images/edit_edit.png").scaled(16, 16, Qt::KeepAspectRatio));
 
-            QString text = QObject::trUtf8("Transacción realizada por %1 con fecha %2").
+            QString text = QObject::tr("Transacción realizada por %1 con fecha %2").
                     arg(transaction.userName).
                     arg(alephERPSettings->locale()->toString(transaction.timeStamp));
             transactionItem->setData(0, Qt::DisplayRole, text);
@@ -151,15 +151,15 @@ AERPHistoryViewTreeModel::AERPHistoryViewTreeModel(BaseBeanPointer bean, QObject
                 QString tableItemText;
                 if ( historyItem.action == QStringLiteral("INSERT") )
                 {
-                    tableItemText = trUtf8("Creación: %1").arg(metadata->alias());
+                    tableItemText = tr("Creación: %1").arg(metadata->alias());
                 }
                 else if ( historyItem.action == QStringLiteral("UPDATE") )
                 {
-                    tableItemText = trUtf8("Edición/Modificación: %1").arg(metadata->alias());
+                    tableItemText = tr("Edición/Modificación: %1").arg(metadata->alias());
                 }
                 else if ( historyItem.action == QStringLiteral("DELETE") )
                 {
-                    tableItemText = trUtf8("Borrado: %1").arg(metadata->alias());
+                    tableItemText = tr("Borrado: %1").arg(metadata->alias());
                 }
                 tableItem->setData(0, Qt::DisplayRole, tableItemText);
                 tableItem->setData(0, Qt::DecorationRole, metadata->pixmap().scaled(16, 16, Qt::KeepAspectRatio));
@@ -193,7 +193,7 @@ AERPHistoryViewTreeModel::AERPHistoryViewTreeModel(BaseBeanPointer bean, QObject
                                     else
                                     {
                                         itemField->setData(2, Qt::DecorationRole, newValue == QStringLiteral("true") ? QPixmap(":/aplicacion/images/ok.png").scaled(16, 16, Qt::KeepAspectRatio) : QPixmap(":/generales/images/delete.png").scaled(16, 16, Qt::KeepAspectRatio));
-                                        itemField->setData(2, Qt::DisplayRole, newValue == QStringLiteral("true") ? trUtf8("Verdadero") : trUtf8("Falso"));
+                                        itemField->setData(2, Qt::DisplayRole, newValue == QStringLiteral("true") ? tr("Verdadero") : tr("Falso"));
                                     }
 
                                     bool modified = false;
@@ -231,7 +231,7 @@ AERPHistoryViewTreeModel::AERPHistoryViewTreeModel(BaseBeanPointer bean, QObject
                                         if ( fld->type() == QVariant::Bool )
                                         {
                                             itemField->setData(1, Qt::DecorationRole, newValue == QStringLiteral("true") ? QPixmap(":/aplicacion/images/ok.png").scaled(16, 16, Qt::KeepAspectRatio) : QPixmap(":/generales/images/delete.png").scaled(16, 16, Qt::KeepAspectRatio));
-                                            itemField->setData(1, Qt::DisplayRole, newValue == QStringLiteral("true") ? trUtf8("Verdadero") : trUtf8("Falso"));
+                                            itemField->setData(1, Qt::DisplayRole, newValue == QStringLiteral("true") ? tr("Verdadero") : tr("Falso"));
                                         }
                                         else
                                         {
@@ -245,7 +245,7 @@ AERPHistoryViewTreeModel::AERPHistoryViewTreeModel(BaseBeanPointer bean, QObject
                                         if ( fld->type() == QVariant::Bool )
                                         {
                                             itemField->setData(1, Qt::DecorationRole, newValue == QStringLiteral("true") ? QPixmap(":/aplicacion/images/ok.png").scaled(16, 16, Qt::KeepAspectRatio) : QPixmap(":/generales/images/delete.png").scaled(16, 16, Qt::KeepAspectRatio));
-                                            itemField->setData(1, Qt::DisplayRole, newValue == QStringLiteral("true") ? trUtf8("Verdadero") : trUtf8("Falso"));
+                                            itemField->setData(1, Qt::DisplayRole, newValue == QStringLiteral("true") ? tr("Verdadero") : tr("Falso"));
                                         }
                                         else
                                         {
@@ -356,15 +356,15 @@ QVariant AERPHistoryViewTreeModel::headerData(int section, Qt::Orientation orien
         {
             if ( section == 0 )
             {
-                return trUtf8("Campo");
+                return tr("Campo");
             }
             else if ( section == 1 )
             {
-                return trUtf8("Valor previo");
+                return tr("Valor previo");
             }
             else if ( section == 2 )
             {
-                return trUtf8("Nuevo valor");
+                return tr("Nuevo valor");
             }
         }
     }

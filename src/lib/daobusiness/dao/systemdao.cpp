@@ -1468,8 +1468,8 @@ bool SystemDAO::checkModules()
         {
             BeansFactory::instance()->newModule(AlephERP::stSystemModule,
                                                 AlephERP::stSystemModule,
-                                                trUtf8("Módulo de sistema"),
-                                                trUtf8("Módulo de sistema"),
+                                                tr("Módulo de sistema"),
+                                                tr("Módulo de sistema"),
                                                 "",
                                                 true,
                                                 "AlephERP::WithoutForeignKeys | AlephERP::WithSimulateOID");
@@ -1625,7 +1625,7 @@ bool SystemDAO::checkSystemObjectsOnLocal(QString &failTable)
                     {
                         QLogger::QLog_Error(AlephERP::stLogDB, qryObjects->lastError().text());
                         failTable = qryObjects->record().value("nombre").toString();
-                        SystemDAO::m_lastMessage = trUtf8("No existe el registro remoto con valores: Nombre: [%1], Tipo: [%2], Versión: [%3], Dispositivo: [%4], IdOrigin: [%5]").
+                        SystemDAO::m_lastMessage = tr("No existe el registro remoto con valores: Nombre: [%1], Tipo: [%2], Versión: [%3], Dispositivo: [%4], IdOrigin: [%5]").
                                 arg(qryObjects->record().value("nombre").toString()).
                                 arg(qryObjects->record().value("type").toString()).
                                 arg(qryObjects->record().value("max_version").toInt()).

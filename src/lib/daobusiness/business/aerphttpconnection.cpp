@@ -198,95 +198,95 @@ QString AERPHttpConnectionPrivate::errorToString(const QNetworkReply *err)
     QString errorMessage;
     if ( err->error() == QNetworkReply::ConnectionRefusedError )
     {
-        errorMessage = QObject::trUtf8("The remote server refused the connection (the server is not accepting requests)");
+        errorMessage = QObject::tr("The remote server refused the connection (the server is not accepting requests)");
     }
     else if ( err->error() == QNetworkReply::RemoteHostClosedError )
     {
-        errorMessage = QObject::trUtf8("The remote server closed the connection prematurely, before the entire reply was received and processed");
+        errorMessage = QObject::tr("The remote server closed the connection prematurely, before the entire reply was received and processed");
     }
     else if ( err->error() == QNetworkReply::HostNotFoundError )
     {
-        errorMessage = QObject::trUtf8("The remote host name was not found (invalid hostname)");
+        errorMessage = QObject::tr("The remote host name was not found (invalid hostname)");
     }
     else if ( err->error() == QNetworkReply::TimeoutError )
     {
-        errorMessage = QObject::trUtf8("The connection to the remote server timed out");
+        errorMessage = QObject::tr("The connection to the remote server timed out");
     }
     else if ( err->error() == QNetworkReply::OperationCanceledError )
     {
-        errorMessage = QObject::trUtf8("The operation was canceled via calls to abort() or close() before it was finished.");
+        errorMessage = QObject::tr("The operation was canceled via calls to abort() or close() before it was finished.");
     }
     else if ( err->error() == QNetworkReply::SslHandshakeFailedError )
     {
-        errorMessage = QObject::trUtf8("The SSL/TLS handshake failed and the encrypted channel could not be established. The sslErrors() signal should have been emitted.");
+        errorMessage = QObject::tr("The SSL/TLS handshake failed and the encrypted channel could not be established. The sslErrors() signal should have been emitted.");
     }
     else if ( err->error() == QNetworkReply::TemporaryNetworkFailureError )
     {
-        errorMessage = QObject::trUtf8("The connection was broken due to disconnection from the network, however the system has initiated roaming to another access point. The request should be resubmitted and will be processed as soon as the connection is re-established.");
+        errorMessage = QObject::tr("The connection was broken due to disconnection from the network, however the system has initiated roaming to another access point. The request should be resubmitted and will be processed as soon as the connection is re-established.");
     }
     else if ( err->error() == QNetworkReply::ProxyConnectionRefusedError )
     {
-        errorMessage = QObject::trUtf8("The connection to the proxy server was refused (the proxy server is not accepting requests)");
+        errorMessage = QObject::tr("The connection to the proxy server was refused (the proxy server is not accepting requests)");
     }
     else if ( err->error() == QNetworkReply::ProxyConnectionClosedError )
     {
-        errorMessage = QObject::trUtf8("The proxy server closed the connection prematurely, before the entire reply was received and processed");
+        errorMessage = QObject::tr("The proxy server closed the connection prematurely, before the entire reply was received and processed");
     }
     else if ( err->error() == QNetworkReply::ProxyNotFoundError )
     {
-        errorMessage = QObject::trUtf8("The proxy host name was not found (invalid proxy hostname)");
+        errorMessage = QObject::tr("The proxy host name was not found (invalid proxy hostname)");
     }
     else if ( err->error() == QNetworkReply::ProxyTimeoutError )
     {
-        errorMessage = QObject::trUtf8("The connection to the proxy timed out or the proxy did not reply in time to the request sent");
+        errorMessage = QObject::tr("The connection to the proxy timed out or the proxy did not reply in time to the request sent");
     }
     else if ( err->error() == QNetworkReply::ProxyAuthenticationRequiredError )
     {
-        errorMessage = QObject::trUtf8("The proxy requires authentication in order to honour the request but did not accept any credentials offered (if any)");
+        errorMessage = QObject::tr("The proxy requires authentication in order to honour the request but did not accept any credentials offered (if any)");
     }
     else if ( err->error() == QNetworkReply::ContentAccessDenied )
     {
-        errorMessage = QObject::trUtf8("The access to the remote content was denied (similar to HTTP error 401)");
+        errorMessage = QObject::tr("The access to the remote content was denied (similar to HTTP error 401)");
     }
     else if ( err->error() == QNetworkReply::ContentOperationNotPermittedError )
     {
-        errorMessage = QObject::trUtf8("The operation requested on the remote content is not permitted");
+        errorMessage = QObject::tr("The operation requested on the remote content is not permitted");
     }
     else if ( err->error() == QNetworkReply::ContentNotFoundError )
     {
-        errorMessage = QObject::trUtf8("The remote content was not found at the server (similar to HTTP error 404)");
+        errorMessage = QObject::tr("The remote content was not found at the server (similar to HTTP error 404)");
     }
     else if ( err->error() == QNetworkReply::AuthenticationRequiredError )
     {
-        errorMessage = QObject::trUtf8("The remote server requires authentication to serve the content but the credentials provided were not accepted (if any)");
+        errorMessage = QObject::tr("The remote server requires authentication to serve the content but the credentials provided were not accepted (if any)");
     }
     else if ( err->error() == QNetworkReply::ContentReSendError )
     {
-        errorMessage = QObject::trUtf8("The request needed to be sent again, but this failed for example because the upload data could not be read a second time.");
+        errorMessage = QObject::tr("The request needed to be sent again, but this failed for example because the upload data could not be read a second time.");
     }
     else if ( err->error() == QNetworkReply::ProtocolUnknownError )
     {
-        errorMessage = QObject::trUtf8("The Network Access API cannot honor the request because the protocol is not known");
+        errorMessage = QObject::tr("The Network Access API cannot honor the request because the protocol is not known");
     }
     else if ( err->error() == QNetworkReply::ProtocolInvalidOperationError )
     {
-        errorMessage = QObject::trUtf8("The requested operation is invalid for this protocol");
+        errorMessage = QObject::tr("The requested operation is invalid for this protocol");
     }
     else if ( err->error() == QNetworkReply::UnknownNetworkError )
     {
-        errorMessage = QObject::trUtf8("An unknown network-related error was detected");
+        errorMessage = QObject::tr("An unknown network-related error was detected");
     }
     else if ( err->error() == QNetworkReply::UnknownProxyError )
     {
-        errorMessage = QObject::trUtf8("An unknown proxy-related error was detected");
+        errorMessage = QObject::tr("An unknown proxy-related error was detected");
     }
     else if ( err->error() == QNetworkReply::UnknownContentError )
     {
-        errorMessage = QObject::trUtf8("An unknown error related to the remote content was detected");
+        errorMessage = QObject::tr("An unknown error related to the remote content was detected");
     }
     else if ( err->error() == QNetworkReply::ProtocolFailure )
     {
-        errorMessage = QObject::trUtf8("A breakdown in protocol was detected (parsing error, invalid or unexpected responses, etc.)");
+        errorMessage = QObject::tr("A breakdown in protocol was detected (parsing error, invalid or unexpected responses, etc.)");
     }
     errorMessage = QString("%1\n%2").arg(errorMessage).arg(err->errorString());
     return errorMessage;

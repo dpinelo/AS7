@@ -375,7 +375,7 @@ void ReportMetadataPrivate::setConfig()
         n = root.firstChildElement("alias");
         if ( !n.isNull() )
         {
-            m_alias = QObject::trUtf8(n.toElement().text().toUtf8());
+            m_alias = QObject::tr(n.toElement().text().toUtf8());
         }
         n = root.firstChildElement("linkedTo");
         if ( !n.isNull() )

@@ -50,12 +50,12 @@ QIcon DBRecordDocumentsPlugin::icon() const
 
 QString DBRecordDocumentsPlugin::toolTip() const
 {
-    return trUtf8("Para editar los documentos asociados a un registro.");
+    return tr("Para editar los documentos asociados a un registro.");
 }
 
 QString DBRecordDocumentsPlugin::whatsThis() const
 {
-    return trUtf8("Para editar los documentos asociados a un registro.");
+    return tr("Para editar los documentos asociados a un registro.");
 }
 
 bool DBRecordDocumentsPlugin::isContainer() const

@@ -99,7 +99,7 @@ bool ModulesDAO::importModules(const QString &xmlOrigin, const QString &moduleId
     d->m_cancelProcess = false;
     if ( !xmlOriginFile.open(QIODevice::ReadOnly) )
     {
-        d->m_lastErrorMessage = trUtf8("File %1 not exists").arg(xmlOrigin);
+        d->m_lastErrorMessage = tr("File %1 not exists").arg(xmlOrigin);
         return false;
     }
     QTextStream in(&xmlOriginFile);
@@ -232,7 +232,7 @@ bool ModulesDAO::importModulesData(const QString &xmlOrigin, const QString &modu
     d->m_cancelProcess = false;
     if ( !xmlOriginFile.open(QIODevice::ReadOnly) )
     {
-        d->m_lastErrorMessage = trUtf8("File %1 not exists.").arg(xmlOrigin);
+        d->m_lastErrorMessage = tr("File %1 not exists.").arg(xmlOrigin);
         return false;
     }
     QTextStream in(&xmlOriginFile);
@@ -267,7 +267,7 @@ bool ModulesDAO::importModulesData(const QString &xmlOrigin, const QString &modu
             {
                 QDomElement module = listModules.at(i).toElement();
                 d->m_cancelProcess = false;
-                dlg.setLabelText(trUtf8("Importando datos desde %1").arg(module.text()));
+                dlg.setLabelText(tr("Importando datos desde %1").arg(module.text()));
                 dlg.setValue(0);
                 dlg.show();
                 CommonsFunctions::processEvents();
@@ -286,7 +286,7 @@ bool ModulesDAO::importModulesData(const QString &xmlOrigin, const QString &modu
         else
         {
             d->m_cancelProcess = false;
-            dlg.setLabelText(trUtf8("Importando datos desde %1").arg(moduleId));
+            dlg.setLabelText(tr("Importando datos desde %1").arg(moduleId));
             dlg.show();
             CommonsFunctions::processEvents();
             if ( !d->importModuleData(xmlOrigin, moduleId) )
@@ -310,12 +310,12 @@ bool ModulesDAOPrivate::importModuleFiles(const QString &xmlOrigin, const QStrin
 {
     QList<QHash<QString, QString> > itemsToImport;
     QFileInfo xmlOriginFileInfo(xmlOrigin);
-    QString moduleDirPath = QString("%1/%2").arg(xmlOriginFileInfo.absolutePath()).arg(moduleId);
-    QString moduleInfoFilePath = QString("%1/%2").arg(moduleDirPath).arg("moduleMetadata.xml");
+    QString moduleDirPath = QString("%1/%2").arg(xmlOriginFileInfo.absolutePath(), moduleId);
+    QString moduleInfoFilePath = QString("%1/%2").arg(moduleDirPath, "moduleMetadata.xml");
     QFile moduleInfoFile (moduleInfoFilePath);
     if ( !moduleInfoFile.open(QIODevice::ReadOnly) )
     {
-        m_lastErrorMessage = QObject::trUtf8("File %1 not exists.").arg(xmlOrigin);
+        m_lastErrorMessage = QObject::tr("File %1 not exists.").arg(xmlOrigin);
         return false;
     }
     QTextStream in(&moduleInfoFile);
@@ -330,13 +330,13 @@ bool ModulesDAOPrivate::importModuleFiles(const QString &xmlOrigin, const QStrin
         QDomElement root = domDocument.documentElement();
         if ( root.isNull() )
         {
-            m_lastErrorMessage = QObject::trUtf8("File %1 is not valid.").arg(xmlOrigin);
+            m_lastErrorMessage = QObject::tr("File %1 is not valid.").arg(xmlOrigin);
             return false;
         }
         AERPSystemModule *module = importModuleMetaData(root);
         if ( module == NULL )
         {
-            m_lastErrorMessage = QObject::trUtf8("Cannot create module defined on %1.").arg(xmlOrigin);
+            m_lastErrorMessage = QObject::tr("Cannot create module defined on %1.").arg(xmlOrigin);
             return false;
         }
         QDomNodeList listFiles = root.elementsByTagName("file");
@@ -517,12 +517,12 @@ bool ModulesDAOPrivate::importModuleFiles(const QString &xmlOrigin, const QStrin
 bool ModulesDAOPrivate::importModuleData(const QString &xmlOrigin, const QString &moduleId)
 {
     QFileInfo xmlOriginFileInfo(xmlOrigin);
-    QString moduleDirPath = QString("%1/%2").arg(xmlOriginFileInfo.absolutePath()).arg(moduleId);
-    QString moduleInfoFilePath = QString("%1/%2").arg(moduleDirPath).arg("moduleMetadata.xml");
+    QString moduleDirPath = QString("%1/%2").arg(xmlOriginFileInfo.absolutePath(), moduleId);
+    QString moduleInfoFilePath = QString("%1/%2").arg(moduleDirPath, "moduleMetadata.xml");
     QFile moduleInfoFile (moduleInfoFilePath);
     if ( !moduleInfoFile.open(QIODevice::ReadOnly) )
     {
-        m_lastErrorMessage = QObject::trUtf8("File %1 not exists.").arg(xmlOrigin);
+        m_lastErrorMessage = QObject::tr("File %1 not exists.").arg(xmlOrigin);
         return false;
     }
     QTextStream in(&moduleInfoFile);
@@ -547,7 +547,7 @@ bool ModulesDAOPrivate::importModuleData(const QString &xmlOrigin, const QString
                 return false;
             }
             QString dataFile = dataFiles.at(i).toElement().text();
-            QString dataFilePath = QString("%1/%2").arg(moduleDirPath).arg(dataFile);
+            QString dataFilePath = QString("%1/%2").arg(moduleDirPath, dataFile);
             QFile file(dataFilePath);
             if ( file.exists() && file.open(QIODevice::ReadOnly))
             {
@@ -714,7 +714,7 @@ void ModulesDAO::cancelProcess()
 bool ModulesDAOPrivate::executeSQLAfterImport(const QString &path, const QString &fileName)
 {
     bool result = true;
-    QString absoluteFileName = QString("%1/%2").arg(path).arg(fileName);
+    QString absoluteFileName = QString("%1/%2").arg(path, fileName);
     QFile file(absoluteFileName);
     QString content;
     if ( !file.open(QIODevice::ReadOnly) )
@@ -772,7 +772,7 @@ bool ModulesDAOPrivate::createDatabaseStructures(QList<AERPSystemObject *> syste
                     QString sqlCreate = m->sqlCreateTable(module->tableCreationOptions(), Database::driverConnection());
                     if ( !BaseDAO::executeWithoutPrepare(sqlCreate, BASE_CONNECTION) )
                     {
-                        m_lastErrorMessage = QObject::trUtf8("No se pudo crear la tabla %1 en base de datos. Error: %2").arg(m->tableName()).arg(BaseDAO::lastErrorMessage());
+                        m_lastErrorMessage = QObject::tr("No se pudo crear la tabla %1 en base de datos. Error: %2").arg(m->tableName(), BaseDAO::lastErrorMessage());
                         return false;
                     }
                     QString sqlIndex = m->sqlCreateIndexes(module->tableCreationOptions(), Database::driverConnection());
@@ -783,7 +783,7 @@ bool ModulesDAOPrivate::createDatabaseStructures(QList<AERPSystemObject *> syste
                         {
                             if ( !BaseDAO::executeWithoutPrepare(sqlOneIndex, BASE_CONNECTION) )
                             {
-                                m_lastErrorMessage = QObject::trUtf8("No se pudieron crear los índices %1 en base de datos. Error: %2").arg(m->tableName()).arg(BaseDAO::lastErrorMessage());
+                                m_lastErrorMessage = QObject::tr("No se pudieron crear los índices %1 en base de datos. Error: %2").arg(m->tableName(), BaseDAO::lastErrorMessage());
                                 return false;
                             }
                         }
@@ -794,7 +794,7 @@ bool ModulesDAOPrivate::createDatabaseStructures(QList<AERPSystemObject *> syste
                         {
                             if ( !BaseDAO::executeWithoutPrepare(sqlAditional, BASE_CONNECTION) )
                             {
-                                m_lastErrorMessage = QObject::trUtf8("ModulesDAO::createDatabaseStructures: %1").arg(BaseDAO::lastErrorMessage());
+                                m_lastErrorMessage = QObject::tr("ModulesDAO::createDatabaseStructures: %1").arg(BaseDAO::lastErrorMessage());
                                 return false;
                             }
                         }
@@ -805,7 +805,7 @@ bool ModulesDAOPrivate::createDatabaseStructures(QList<AERPSystemObject *> syste
                     QString sqlCreate = m->creationSqlView(Database::driverConnection());
                     if ( !BaseDAO::executeWithoutPrepare(sqlCreate, BASE_CONNECTION) )
                     {
-                        m_lastErrorMessage = QObject::trUtf8("No se pudo crear la vista %1 en base de datos. Error: %2").arg(m->tableName()).arg(BaseDAO::lastErrorMessage());
+                        m_lastErrorMessage = QObject::tr("No se pudo crear la vista %1 en base de datos. Error: %2").arg(m->tableName(), BaseDAO::lastErrorMessage());
                         return false;
                     }
                 }
@@ -880,7 +880,7 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
             {
                 if ( !destinyPath.mkdir(path) )
                 {
-                    d->m_lastErrorMessage = trUtf8("No se pudo crear el directorio: %1").arg(path);
+                    d->m_lastErrorMessage = tr("No se pudo crear el directorio: %1").arg(path);
                     return false;
                 }
             }
@@ -890,7 +890,7 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
                 QString fileName;
                 if ( systemObject->type() == QStringLiteral("table") || systemObject->type() == QStringLiteral("tableTemp") || systemObject->type() == QStringLiteral("report") || systemObject->type() == QStringLiteral("reportDef") || systemObject->type() == QStringLiteral("job") )
                 {
-                    fileName = QString ("%1.%2").arg(systemObject->name()).arg(systemObject->type());
+                    fileName = QString ("%1.%2").arg(systemObject->name(), systemObject->type());
                 }
                 else
                 {
@@ -902,19 +902,19 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
                 {
                     for ( int i = 0 ; i < fileNameWithPath.size() - 1 ; i++ )
                     {
-                        internalPath = QString("%1/%2").arg(internalPath).arg(fileNameWithPath.at(i));
+                        internalPath = QString("%1/%2").arg(internalPath, fileNameWithPath.at(i));
                         QDir internalDir(internalPath);
                         if ( !internalDir.exists() )
                         {
                             if ( !internalDir.mkdir(internalPath) )
                             {
-                                d->m_lastErrorMessage = trUtf8("No se pudo crear el directorio: %1").arg(path);
+                                d->m_lastErrorMessage = tr("No se pudo crear el directorio: %1").arg(path);
                                 return false;
                             }
                         }
                     }
                 }
-                QString absoluteFileName = QString ("%1/%2").arg(path).arg(fileName);
+                QString absoluteFileName = QString ("%1/%2").arg(path, fileName);
                 file.setFileName(absoluteFileName);
                 QString lineModuleMetadata = QString("\n<file>\n"
                                                      "  <objectName>%1</objectName>\n"
@@ -936,7 +936,7 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
                                              arg(systemObject->idOrigin());
                 if ( moduleMetadatas.contains(systemObject->module()->id()) )
                 {
-                    moduleMetadatas[systemObject->module()->id()] = QString("%1%2").arg(moduleMetadatas[systemObject->module()->id()]).arg(lineModuleMetadata);
+                    moduleMetadatas[systemObject->module()->id()] = QString("%1%2").arg(moduleMetadatas[systemObject->module()->id()], lineModuleMetadata);
                 }
                 else
                 {
@@ -944,7 +944,7 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
                 }
                 if ( !file.open(QIODevice::WriteOnly | QIODevice::Truncate) )
                 {
-                    d->m_lastErrorMessage = trUtf8("No se pudo abrir el fichero: %1").arg(absoluteFileName);
+                    d->m_lastErrorMessage = tr("No se pudo abrir el fichero: %1").arg(absoluteFileName);
                     return false;
                 }
                 QTextStream out(&file);
@@ -977,7 +977,7 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
             file.setFileName(fileName);
             if ( !file.open(QIODevice::WriteOnly | QIODevice::Truncate) )
             {
-                d->m_lastErrorMessage = trUtf8("No se pudo abrir el fichero: %1").arg(fileName);
+                d->m_lastErrorMessage = tr("No se pudo abrir el fichero: %1").arg(fileName);
                 return false;
             }
             QString lineModuleMetadata = QString("\n<id><![CDATA[%1]]></id>\n<description><![CDATA[%2]]></description>\n<name><![CDATA[%3]]></name>\n"
@@ -1020,11 +1020,11 @@ void ModulesDAO::updateModuleMetadata(const QString &moduleId, const QString &pa
         return;
     }
 
-    QString moduleFile = QString("%1/%2/moduleMetadata.xml").arg(path).arg(moduleId);
+    QString moduleFile = QString("%1/%2/moduleMetadata.xml").arg(path, moduleId);
     QFile file(moduleFile);
     if ( !file.open(QIODevice::Truncate | QIODevice::WriteOnly) )
     {
-        QMessageBox::warning(0, qApp->applicationName(), trUtf8("No se pudo abrir el archivo."), QMessageBox::Ok);
+        QMessageBox::warning(0, qApp->applicationName(), tr("No se pudo abrir el archivo."), QMessageBox::Ok);
         return;
     }
     QTextStream out(&file);
@@ -1157,7 +1157,7 @@ bool ModulesDAO::exportModulesList(const QDir &directory)
     file.setFileName(fileNameDefinition);
     if ( !file.open(QIODevice::WriteOnly | QIODevice::Truncate) )
     {
-        d->m_lastErrorMessage = trUtf8("No se pudo abrir el fichero: %1").arg(fileNameDefinition);
+        d->m_lastErrorMessage = tr("No se pudo abrir el fichero: %1").arg(fileNameDefinition);
         return false;
     }
     QTextStream out(&file);
@@ -1198,11 +1198,11 @@ bool ModulesDAO::exportData(const QList<BaseBeanMetadata *> metadatasToExport, c
     d->m_cancelProcess = false;
     if ( !file.open(QIODevice::WriteOnly | QIODevice::Truncate) )
     {
-        d->m_lastErrorMessage = trUtf8("No se pudo abrir el fichero: %1").arg(fileName);
+        d->m_lastErrorMessage = tr("No se pudo abrir el fichero: %1").arg(fileName);
         return false;
     }
     QScopedPointer<QProgressDialog> dlg (new QProgressDialog());
-    dlg->setLabelText(trUtf8("Exportando datos..."));
+    dlg->setLabelText(tr("Exportando datos..."));
     dlg->setWindowTitle(qApp->applicationName());
     dlg->setWindowModality(Qt::WindowModal);
     dlg->show();

@@ -1169,7 +1169,7 @@ void FilterBaseBeanModel::sort (int column, Qt::SortOrder order)
             {
                 if ( model->rowCount() > alephERPSettings->strongFilterRowCountLimit() )
                 {
-                    int ret = QMessageBox::question(0, qApp->applicationName(), trUtf8("ATENCIÓN: La ordenación por este campo no está optimizada y puede emplear cierto tiempo (dependiendo de su conexión a la base de datos). ¿Está seguro de querer ordenar por este campo?"),
+                    int ret = QMessageBox::question(0, qApp->applicationName(), tr("ATENCIÓN: La ordenación por este campo no está optimizada y puede emplear cierto tiempo (dependiendo de su conexión a la base de datos). ¿Está seguro de querer ordenar por este campo?"),
                                                     QMessageBox::Yes | QMessageBox::No);
                     if ( ret == QMessageBox::No )
                     {
@@ -1192,8 +1192,8 @@ void FilterBaseBeanModel::sort (int column, Qt::SortOrder order)
                 }
                 else
                 {
-                    orderClausule = QString("%1 %2").arg(visibleFlds.at(column)->dbFieldName()).
-                                    arg(order == Qt::AscendingOrder ? "ASC" : "DESC");
+                    orderClausule = QString("%1 %2").
+                            arg(visibleFlds.at(column)->dbFieldName(), order == Qt::AscendingOrder ? "ASC" : "DESC");
                     if ( orderClausule != model->internalOrderClausule() )
                     {
                         model->setInternalOrderClausule(orderClausule, true);
@@ -1216,9 +1216,8 @@ QVariant FilterBaseBeanModel::data(const QModelIndex &proxyIndex, int role) cons
 {
     if ( role == Qt::StatusTipRole )
     {
-        return trUtf8("Mostrando %1 registros de %2 registros disponibles.").
-               arg(alephERPSettings->locale()->toString(rowCount())).
-               arg(alephERPSettings->locale()->toString(sourceModel()->rowCount()));
+        return tr("Mostrando %1 registros de %2 registros disponibles.").
+               arg(alephERPSettings->locale()->toString(rowCount()), alephERPSettings->locale()->toString(sourceModel()->rowCount()));
     }
     // Debemos evitar que al solicitar un dato, se produzca un evento "dataChanged" ya que ese evento
     // hará que este filtro se invalide, y que el subsiguiente data que viene abajo haga que la aplicación

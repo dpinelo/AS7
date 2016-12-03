@@ -133,7 +133,7 @@ bool DBWizardDlgPrivate::insertRow(QItemSelectionModel *selectionModel)
             if ( sourceModel == NULL )
             {
                 CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
-                QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::trUtf8("Ocurrió un error inesperado."), QMessageBox::Ok);
+                QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::tr("Ocurrió un error inesperado."), QMessageBox::Ok);
                 CommonsFunctions::restoreOverrideCursor();
                 return false;
             }
@@ -141,7 +141,7 @@ bool DBWizardDlgPrivate::insertRow(QItemSelectionModel *selectionModel)
             if ( !m_parent.isValid() )
             {
                 CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
-                QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::trUtf8("Debe seleccionar un registro del que colgará el que desea insertar."), QMessageBox::Ok);
+                QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::tr("Debe seleccionar un registro del que colgará el que desea insertar."), QMessageBox::Ok);
                 CommonsFunctions::restoreOverrideCursor();
                 return false;
             }
@@ -164,7 +164,7 @@ bool DBWizardDlgPrivate::insertRow(QItemSelectionModel *selectionModel)
     }
     if ( newRow > -1 && !mdl->insertRow(newRow, m_parent) )
     {
-        QString message = QObject::trUtf8("No se puede insertar un nuevo registro. Ha ocurrido un error inesperado. %1").arg(mdl->property(AlephERP::stLastErrorMessage).toString());
+        QString message = QObject::tr("No se puede insertar un nuevo registro. Ha ocurrido un error inesperado. %1").arg(mdl->property(AlephERP::stLastErrorMessage).toString());
         mdl->setProperty(AlephERP::stLastErrorMessage, "");
         if ( m_model->sourceModel()->metaObject()->className() == QString("TreeBaseBeanModel") )
         {
@@ -173,7 +173,7 @@ bool DBWizardDlgPrivate::insertRow(QItemSelectionModel *selectionModel)
             {
                 if ( treeModel->tableNames().size() == 0 )
                 {
-                    message = QObject::trUtf8("No existe un modelo en árbol definido. Existe un error en las definiciones del sistema.");
+                    message = QObject::tr("No existe un modelo en árbol definido. Existe un error en las definiciones del sistema.");
                 }
                 else
                 {
@@ -184,7 +184,7 @@ bool DBWizardDlgPrivate::insertRow(QItemSelectionModel *selectionModel)
                     {
                         if  ( ancestor != item->bean()->metadata()->tableName() )
                         {
-                            message = QObject::trUtf8("Para agregar un registro de tipo <i>%1</i> debe escoger el elemento del que colgará en el árbol"
+                            message = QObject::tr("Para agregar un registro de tipo <i>%1</i> debe escoger el elemento del que colgará en el árbol"
                                                       ", es decir, el registro de tipo <i>%2</i> al que pertenecera").arg(mChild->alias()).
                                       arg(mAncestor->alias());
                         }
@@ -232,7 +232,7 @@ bool DBWizardDlg::init()
     }
     if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', tableName()) || !AERPLoggedUser::instance()->checkMetadataAccess('w', tableName()) )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("No tiene permisos para acceder a estos datos."), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("No tiene permisos para acceder a estos datos."), QMessageBox::Ok);
         return false;
     }
 
@@ -258,7 +258,7 @@ bool DBWizardDlg::init()
     {
         return false;
     }
-    setWindowTitle(trUtf8("Asistente para la creación de %1 [*]").arg(d->m_bean->metadata()->alias()));
+    setWindowTitle(tr("Asistente para la creación de %1 [*]").arg(d->m_bean->metadata()->alias()));
 
     d->m_bean->observer()->installWidget(this);
 
@@ -301,13 +301,13 @@ void DBWizardDlg::execQs()
         if ( !executeOk )
         {
             CommonsFunctions::setOverrideCursor(QCursor(Qt::ArrowCursor));
-            QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ha ocurrido un error al cargar el script asociado a este "
+            QMessageBox::warning(this,qApp->applicationName(), tr("Ha ocurrido un error al cargar el script asociado a este "
                                  "formulario. Es posible que algunas funciones no estén disponibles."),
                                  QMessageBox::Ok);
 #ifdef ALEPHERP_DEVTOOLS
             if ( alephERPSettings->advancedUser() && alephERPSettings->debuggerEnabled() )
             {
-                int ret = QMessageBox::information(this,qApp->applicationName(), trUtf8("El script ejecutado contiene errores. ¿Desea editarlo?"),
+                int ret = QMessageBox::information(this,qApp->applicationName(), tr("El script ejecutado contiene errores. ¿Desea editarlo?"),
                                                    QMessageBox::Yes | QMessageBox::No);
                 if ( ret == QMessageBox::Yes )
                 {
@@ -423,14 +423,14 @@ bool DBWizardDlg::setupMainWidget()
             }
             else
             {
-                QMessageBox::warning(this,qApp->applicationName(), trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").arg(uiPage),
+                QMessageBox::warning(this,qApp->applicationName(), tr("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").arg(uiPage),
                                      QMessageBox::Ok);
                 return false;
             }
         }
         else
         {
-            QLogger::QLog_Info(AlephERP::stLogOther, trUtf8("DBWizardDlg::setupMainWidget: No existe un fichero UI asociado con el nombre: [%1]. Se creará uno por defecto.").arg(uiPage));
+            QLogger::QLog_Info(AlephERP::stLogOther, tr("DBWizardDlg::setupMainWidget: No existe un fichero UI asociado con el nombre: [%1]. Se creará uno por defecto.").arg(uiPage));
             return false;
         }
     }
@@ -446,7 +446,7 @@ bool DBWizardDlg::validate()
     // Primero validamos
     if ( !d->m_bean->validate() )
     {
-        QString message = trUtf8("<p>No se han cumplido los requisitos necesarios para guardar este registro: </p>%1").arg(d->m_bean->validateHtmlMessages());
+        QString message = tr("<p>No se han cumplido los requisitos necesarios para guardar este registro: </p>%1").arg(d->m_bean->validateHtmlMessages());
         QMessageBox::information(this, qApp->applicationName(), message, QMessageBox::Ok);
         QWidget *obj = d->m_bean->focusWidgetOnBadValidate();
         if ( obj != NULL )
@@ -491,7 +491,7 @@ void DBWizardDlg::accept()
         if ( !result )
         {
             QMessageBox::warning(this, qApp->applicationName(),
-                                 trUtf8("Se ha producido un error guardando los datos. \nEl error es: %1").
+                                 tr("Se ha producido un error guardando los datos. \nEl error es: %1").
                                     arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())),
                                  QMessageBox::Ok);
         }
@@ -578,7 +578,7 @@ bool DBWizardPage::validatePage ()
                 {
                     if ( !fld->validate() )
                     {
-                        QString message = trUtf8("<p>Debe introducir valores para los siguientes campos: </p>%1").arg(fld->validateHtmlMessages());
+                        QString message = tr("<p>Debe introducir valores para los siguientes campos: </p>%1").arg(fld->validateHtmlMessages());
                         QMessageBox::information(this, qApp->applicationName(), message, QMessageBox::Ok);
                         QWidget *obj = fld->widgetOnBadValidate();
                         if ( obj != NULL )

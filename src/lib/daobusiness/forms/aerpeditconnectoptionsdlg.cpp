@@ -180,14 +180,14 @@ void AERPEditConnectOptionsDlg::save()
     }
     if ( ui->cbType->currentIndex() == -1 )
     {
-        QMessageBox::warning(this,qApp->applicationName(), trUtf8("Debe seleccionar un tipo de servidor."), QMessageBox::Ok);
+        QMessageBox::warning(this,qApp->applicationName(), tr("Debe seleccionar un tipo de servidor."), QMessageBox::Ok);
         ui->cbType->setFocus();
         return;
     }
     if ( !d->m_mapper->submit() )
     {
         QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPEditConnectOptionsDlg::save: [%1]").arg(d->m_model->lastError().text()));
-        QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ha ocurrido algún error consolidando los datos. Por favor, compruebe que son correctos."), QMessageBox::Ok);
+        QMessageBox::warning(this,qApp->applicationName(), tr("Ha ocurrido algún error consolidando los datos. Por favor, compruebe que son correctos."), QMessageBox::Ok);
         return;
     }
 #endif

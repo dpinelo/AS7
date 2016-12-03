@@ -183,13 +183,13 @@ bool BatchDAO::prepareSystemToLocalWork(const QString &messageTemplate)
     CommonsFunctions::processEvents();
     // El primer paso para entrar en modo local, es ver si la estructura local está creada, es correcta y en caso contrario,
     // prepararla.
-    emit loadProgress(d->m_messageTemplate.arg(trUtf8("Comprobando la estructura de datos locales...")));
+    emit loadProgress(d->m_messageTemplate.arg(tr("Comprobando la estructura de datos locales...")));
     CommonsFunctions::processEvents();
     if ( !d->verifySystemBatchTable() )
     {
         // Creamos la tabla básica de sistema: alepherp_history
         BaseDAO::transaction(d->m_batchDatabase);
-        emit loadProgress(d->m_messageTemplate.arg(trUtf8("Creando la estructura de datos locales...")));
+        emit loadProgress(d->m_messageTemplate.arg(tr("Creando la estructura de datos locales...")));
         CommonsFunctions::processEvents();
         if ( !d->createSystemBatchTable() )
         {
@@ -206,7 +206,7 @@ bool BatchDAO::prepareSystemToLocalWork(const QString &messageTemplate)
     }
 
     // Ahora se comprueba y/o crea la réplica de las tablas en remoto en local.
-    emit loadProgress(d->m_messageTemplate.arg(trUtf8("Comprobando la base de datos local...")));
+    emit loadProgress(d->m_messageTemplate.arg(tr("Comprobando la base de datos local...")));
     CommonsFunctions::processEvents();
     if ( !d->prepareBatchStructure() )
     {
@@ -232,7 +232,7 @@ bool BatchDAO::prepareSystemToLocalWork(const QString &messageTemplate)
                 return false;
             }
             BaseDAO::transaction(d->m_batchDatabase);
-            emit loadProgress(d->m_messageTemplate.arg(trUtf8("Sincronizando %1...").arg(d->m_localWorkMetadata.at(i)->alias())));
+            emit loadProgress(d->m_messageTemplate.arg(tr("Sincronizando %1...").arg(d->m_localWorkMetadata.at(i)->alias())));
             CommonsFunctions::processEvents();
 
             if ( !d->synchronizeBatchData(d->m_localWorkMetadata.at(i)->tableName()) )
@@ -244,7 +244,7 @@ bool BatchDAO::prepareSystemToLocalWork(const QString &messageTemplate)
             if ( !BaseDAO::commit(d->m_batchDatabase) )
             {
                 emit finishLoad();
-                d->m_lastError = trUtf8("BatchDAO::prepareSystemToLocalWork: Commit: %1").arg(BaseDAO::lastErrorMessage());
+                d->m_lastError = tr("BatchDAO::prepareSystemToLocalWork: Commit: %1").arg(BaseDAO::lastErrorMessage());
                 BaseDAO::rollback(d->m_batchDatabase);
                 return false;
             }
@@ -270,7 +270,7 @@ bool BatchDAO::prepareSystemToLocalWork(const QString &messageTemplate)
     if ( !BaseDAO::commit(d->m_batchDatabase) )
     {
         emit finishLoad();
-        d->m_lastError = trUtf8("BatchDAO::prepareSystemToLocalWork: Commit: %1").arg(BaseDAO::lastErrorMessage());
+        d->m_lastError = tr("BatchDAO::prepareSystemToLocalWork: Commit: %1").arg(BaseDAO::lastErrorMessage());
         BaseDAO::rollback(d->m_batchDatabase);
         return false;
     }
@@ -292,13 +292,13 @@ bool BatchDAOPrivate::enableLocalTriggers(BaseBeanMetadata *metadata, bool enabl
     // A la hora de insertar registros, desactivamos todos los posibles triggers que tuviese la tabla.
     if ( !AERPFirebirdDatabase::setTriggersEnabledForTable(metadata->sqlTableName(BATCH_DATABASE_DRIVER), enable, m_batchDatabase) )
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::enableLocalTriggers: %1").arg(AERPFirebirdDatabase::lastErrorMessage());
+        m_lastError = QObject::tr("BatchDAOPrivate::enableLocalTriggers: %1").arg(AERPFirebirdDatabase::lastErrorMessage());
         BaseDAO::rollback(m_batchDatabase);
         return false;
     }
     if ( !BaseDAO::commit(m_batchDatabase) )
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::enableLocalTriggers: Commit: %1").arg(BaseDAO::lastErrorMessage());
+        m_lastError = QObject::tr("BatchDAOPrivate::enableLocalTriggers: Commit: %1").arg(BaseDAO::lastErrorMessage());
         BaseDAO::rollback(m_batchDatabase);
         return false;
     }
@@ -390,7 +390,7 @@ bool BatchDAOPrivate::prepareBatchStructure()
                     if ( !BaseDAO::executeWithoutPrepare(creationSql, m_batchDatabase) )
                     {
                         BaseDAO::rollback(m_batchDatabase);
-                        m_lastError = QObject::trUtf8("BatchDAOPrivate::prepareBatchStructure: %1").arg(BaseDAO::lastErrorMessage());
+                        m_lastError = QObject::tr("BatchDAOPrivate::prepareBatchStructure: %1").arg(BaseDAO::lastErrorMessage());
                         QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
                         return false;
                     }
@@ -403,7 +403,7 @@ bool BatchDAOPrivate::prepareBatchStructure()
                             if ( !BaseDAO::executeWithoutPrepare(sqlIdx, m_batchDatabase) )
                             {
                                 BaseDAO::rollback(m_batchDatabase);
-                                m_lastError = QObject::trUtf8("BatchDAOPrivate::prepareBatchStructure: %1").arg(BaseDAO::lastErrorMessage());
+                                m_lastError = QObject::tr("BatchDAOPrivate::prepareBatchStructure: %1").arg(BaseDAO::lastErrorMessage());
                                 QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
                                 return false;
                             }
@@ -416,7 +416,7 @@ bool BatchDAOPrivate::prepareBatchStructure()
                             if ( !BaseDAO::executeWithoutPrepare(sqlAditional, m_batchDatabase) )
                             {
                                 BaseDAO::rollback(m_batchDatabase);
-                                m_lastError = QObject::trUtf8("BatchDAOPrivate::prepareBatchStructure: %1").arg(BaseDAO::lastErrorMessage());
+                                m_lastError = QObject::tr("BatchDAOPrivate::prepareBatchStructure: %1").arg(BaseDAO::lastErrorMessage());
                                 QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
                                 return false;
                             }
@@ -430,7 +430,7 @@ bool BatchDAOPrivate::prepareBatchStructure()
                     if ( !BaseDAO::commit(m_batchDatabase) )
                     {
                         BaseDAO::rollback(m_batchDatabase);
-                        m_lastError = QObject::trUtf8("BatchDAOPrivate::prepareBatchStructure: %1").arg(BaseDAO::lastErrorMessage());
+                        m_lastError = QObject::tr("BatchDAOPrivate::prepareBatchStructure: %1").arg(BaseDAO::lastErrorMessage());
                         QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
                         return false;
                     }
@@ -470,7 +470,7 @@ bool BatchDAOPrivate::prepareBatchStructure()
         BaseDAO::executeWithoutPrepare(sqlDropView, m_batchDatabase);
         if ( !BaseDAO::executeWithoutPrepare(finalSqlView, m_batchDatabase) )
         {
-            m_lastError = QObject::trUtf8("BatchDAOPrivate::prepareBatchStructure: %1").arg(BaseDAO::lastErrorMessage());
+            m_lastError = QObject::tr("BatchDAOPrivate::prepareBatchStructure: %1").arg(BaseDAO::lastErrorMessage());
             QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
             BaseDAO::rollback(m_batchDatabase);
             return false;
@@ -479,7 +479,7 @@ bool BatchDAOPrivate::prepareBatchStructure()
         if ( !BaseDAO::commit(m_batchDatabase) )
         {
             BaseDAO::rollback(m_batchDatabase);
-            m_lastError = QObject::trUtf8("BatchDAOPrivate::prepareBatchStructure: %1").arg(BaseDAO::lastErrorMessage());
+            m_lastError = QObject::tr("BatchDAOPrivate::prepareBatchStructure: %1").arg(BaseDAO::lastErrorMessage());
             QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
             return false;
         }
@@ -511,7 +511,7 @@ bool BatchDAOPrivate::countToFetch(QHash<QString, int> &numRowsPerTable, int &to
         {
             if ( m_cancel )
             {
-                m_lastError = QObject::trUtf8("BatchDAOPrivate::countToFetch: Canceled by user.");
+                m_lastError = QObject::tr("BatchDAOPrivate::countToFetch: Canceled by user.");
                 return false;
             }
             QDateTime timeStamp = lastLocalUpdateOnTable(metadata->tableName());
@@ -521,7 +521,7 @@ bool BatchDAOPrivate::countToFetch(QHash<QString, int> &numRowsPerTable, int &to
                 timeStamp = QDateTime::currentDateTime().addYears(-10);
             }
             stringTS = timeStamp.toString("yyyy-MM-dd hh:mm:ss.zzz");
-            QString progress = QObject::trUtf8("Calculando número de registros a obtener de la tabla:\n%1").arg(metadata->alias());
+            QString progress = QObject::tr("Calculando número de registros a obtener de la tabla:\n%1").arg(metadata->alias());
             emit q_ptr->loadProgress(progress);
             CommonsFunctions::processEvents();
             QString sql = QString("SELECT tablename, sum(column1) as column2 FROM ("
@@ -551,7 +551,7 @@ bool BatchDAOPrivate::countToFetch(QHash<QString, int> &numRowsPerTable, int &to
             }
             else
             {
-                m_lastError = QObject::trUtf8("BatchDAOPrivate::countToFetch: [%1]").arg(qry->lastError().text());
+                m_lastError = QObject::tr("BatchDAOPrivate::countToFetch: [%1]").arg(qry->lastError().text());
                 QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
                 return false;
             }
@@ -577,14 +577,14 @@ bool BatchDAOPrivate::alterTableToIncludeForeignKey()
             {
                 if ( !trigger.isEmpty() && !BaseDAO::executeWithoutPrepare(trigger, m_batchDatabase) )
                 {
-                    m_lastError = QObject::trUtf8("BatchDAOPrivate::alterTableToIncludeForeignKey: Foreign Key Alter Table: %1").arg(BaseDAO::lastErrorMessage());
+                    m_lastError = QObject::tr("BatchDAOPrivate::alterTableToIncludeForeignKey: Foreign Key Alter Table: %1").arg(BaseDAO::lastErrorMessage());
                     BaseDAO::rollback(m_batchDatabase);
                     return false;
                 }
             }
             if ( !BaseDAO::commit(m_batchDatabase) )
             {
-                m_lastError = QObject::trUtf8("BatchDAOPrivate::alterTableToIncludeForeignKey: Foreign Key Alter Table: %1").arg(BaseDAO::lastErrorMessage());
+                m_lastError = QObject::tr("BatchDAOPrivate::alterTableToIncludeForeignKey: Foreign Key Alter Table: %1").arg(BaseDAO::lastErrorMessage());
                 BaseDAO::rollback(m_batchDatabase);
                 return false;
             }
@@ -603,13 +603,13 @@ bool BatchDAOPrivate::alterTableToDropForeignKey()
     BaseDAO::transaction(m_batchDatabase);
     if ( !AERPFirebirdDatabase::dropForeignKeys(m_batchDatabase) )
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::alterTableToDropForeignKey: %1").arg(AERPFirebirdDatabase::lastErrorMessage());
+        m_lastError = QObject::tr("BatchDAOPrivate::alterTableToDropForeignKey: %1").arg(AERPFirebirdDatabase::lastErrorMessage());
         BaseDAO::rollback(m_batchDatabase);
         return false;
     }
     if ( !BaseDAO::commit(m_batchDatabase) )
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::alterTableToDropForeignKey: Commit: %1").arg(BaseDAO::lastErrorMessage());
+        m_lastError = QObject::tr("BatchDAOPrivate::alterTableToDropForeignKey: Commit: %1").arg(BaseDAO::lastErrorMessage());
         BaseDAO::rollback(m_batchDatabase);
         return false;
     }
@@ -641,7 +641,7 @@ bool BatchDAOPrivate::checkForEmptyHistoryOnRemote(BaseBeanMetadata *metadata)
     QLogger::QLog_Debug(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::checkForEmptyHistoryOnRemote: [%1]").arg(sqlCount));
     if ( !qry->exec(sqlCount) || !qry->first() )
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::checkForEmptyHistoryOnRemote: [%1] [%2]").
+        m_lastError = QObject::tr("BatchDAOPrivate::checkForEmptyHistoryOnRemote: [%1] [%2]").
                       arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
         return false;
@@ -660,7 +660,7 @@ bool BatchDAOPrivate::checkForEmptyHistoryOnRemote(BaseBeanMetadata *metadata)
         QLogger::QLog_Debug(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::checkForEmptyHistoryOnRemote: [%1]").arg(execSql));
         if ( !qry->exec(execSql) )
         {
-            m_lastError = QObject::trUtf8("BatchDAOPrivate::checkForEmptyHistoryOnRemote: [%1] [%2]").
+            m_lastError = QObject::tr("BatchDAOPrivate::checkForEmptyHistoryOnRemote: [%1] [%2]").
                           arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
             QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
             return false;
@@ -672,7 +672,7 @@ bool BatchDAOPrivate::checkForEmptyHistoryOnRemote(BaseBeanMetadata *metadata)
         {
             if ( m_cancel )
             {
-                m_lastError = QObject::trUtf8("BatchDAOPrivate::checkForEmptyHistoryOnRemote: Canceled by user.");
+                m_lastError = QObject::tr("BatchDAOPrivate::checkForEmptyHistoryOnRemote: Canceled by user.");
                 BaseDAO::rollback(m_baseDatabase);
                 return false;
             }
@@ -783,7 +783,7 @@ bool BatchDAOPrivate::synchronizeBatchData(const QString &tableName)
             }
             if ( m_cancel )
             {
-                m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchData: Canceled by user");
+                m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchData: Canceled by user");
                 return false;
             }
             partialPk = (partialPk.isEmpty() ? QString("") : partialPk.append(QString(","))) + "'" + qryHistory->record().value("pkey").toString() + "'";
@@ -831,7 +831,7 @@ bool BatchDAOPrivate::synchronizeBatchData(const QString &tableName)
 
                     if ( m_cancel )
                     {
-                        m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchData: Canceled by user");
+                        m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchData: Canceled by user");
                         return false;
                     }
                     // Si la tabla local tiene registros, comprobamos que se tengan los últimos datos mediante hash
@@ -868,7 +868,7 @@ bool BatchDAOPrivate::synchronizeBatchData(const QString &tableName)
                         // Insertamos el registro de datos
                         if ( !qryInsert->prepare(insertSql) )
                         {
-                            m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchData: [%1] [%2]").
+                            m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchData: [%1] [%2]").
                                           arg(qryInsert->lastError().databaseText()).arg(qryInsert->lastError().driverText());
                             QLogger::QLog_Error(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::synchronizeBatchData: [%1]").arg(insertSql));
                             QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
@@ -881,7 +881,7 @@ bool BatchDAOPrivate::synchronizeBatchData(const QString &tableName)
                         }
                         if ( !qryInsert->exec() )
                         {
-                            m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchData: [%1] [%2]").
+                            m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchData: [%1] [%2]").
                                           arg(qryInsert->lastError().databaseText()).arg(qryInsert->lastError().driverText());
                             QLogger::QLog_Error(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::synchronizeBatchData: [%1]").arg(qryInsert->lastQuery()));
                             QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
@@ -892,7 +892,7 @@ bool BatchDAOPrivate::synchronizeBatchData(const QString &tableName)
 
                         if ( m_cancel )
                         {
-                            m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchData: Canceled by user");
+                            m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchData: Canceled by user");
                             return false;
                         }
 
@@ -904,7 +904,7 @@ bool BatchDAOPrivate::synchronizeBatchData(const QString &tableName)
                         qryInsert->bindValue(":hash", hashes[rec.value("pkey").toString()]);
                         if ( !qryInsert->exec() )
                         {
-                            m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchData: [%1] [%2]").
+                            m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchData: [%1] [%2]").
                                           arg(qryInsert->lastError().databaseText()).arg(qryInsert->lastError().driverText());
                             QLogger::QLog_Error(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::synchronizeBatchData: [%1]").arg(qryInsert->lastQuery()));
                             QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
@@ -913,7 +913,7 @@ bool BatchDAOPrivate::synchronizeBatchData(const QString &tableName)
                         QLogger::QLog_Debug(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::synchronizeBatchData: [%1]").arg(qryInsert->lastQuery()));
                     }
                     rowCount++;
-                    QString message = QObject::trUtf8("Sincronizando %1...\nProcesados %2 registros de un total de %3.").
+                    QString message = QObject::tr("Sincronizando %1...\nProcesados %2 registros de un total de %3.").
                                       arg(metadata->alias()).
                                       arg(alephERPSettings->locale()->toString(rowCount)).
                                       arg(alephERPSettings->locale()->toString(qryHistory->size()));
@@ -926,7 +926,7 @@ bool BatchDAOPrivate::synchronizeBatchData(const QString &tableName)
             }
             else
             {
-                m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchData: [%1] [%2]").
+                m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchData: [%1] [%2]").
                               arg(qryInsert->lastError().databaseText()).arg(qryInsert->lastError().driverText());
                 QLogger::QLog_Error(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::synchronizeBatchData: [%1]").arg(sqlRecord));
                 QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
@@ -947,7 +947,7 @@ bool BatchDAOPrivate::synchronizeBatchData(const QString &tableName)
     }
     else
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchData: [%1] [%2]").arg(qryHistory->lastError().databaseText()).arg(qryHistory->lastError().driverText());
+        m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchData: [%1] [%2]").arg(qryHistory->lastError().databaseText()).arg(qryHistory->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
         return false;
     }
@@ -977,7 +977,7 @@ bool BatchDAOPrivate::synchronizeBatchRelations()
     QLogger::QLog_Error(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::synchronizeBatchRelations: [%1]").arg(sqlMaxTs));
     if ( !qryMaxTs->exec(sqlMaxTs) )
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchRelations: [%1] [%2]").arg(qryMaxTs->lastError().databaseText()).arg(qryMaxTs->lastError().driverText());
+        m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchRelations: [%1] [%2]").arg(qryMaxTs->lastError().databaseText()).arg(qryMaxTs->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
         return false;
     }
@@ -996,7 +996,7 @@ bool BatchDAOPrivate::synchronizeBatchRelations()
     QLogger::QLog_Error(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::synchronizeBatchRelations: [%1]").arg(sqlRelations));
     if ( !qryRelations->exec(sqlRelations) )
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchRelations: [%1] [%2]").arg(qryRelations->lastError().databaseText()).arg(qryRelations->lastError().driverText());
+        m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchRelations: [%1] [%2]").arg(qryRelations->lastError().databaseText()).arg(qryRelations->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
         return false;
     }
@@ -1037,14 +1037,14 @@ bool BatchDAOPrivate::synchronizeBatchRelations()
                             }
                             else
                             {
-                                m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchRelations: [%1] [%2]").arg(qryLocalOid->lastError().databaseText()).arg(qryLocalOid->lastError().driverText());
+                                m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchRelations: [%1] [%2]").arg(qryLocalOid->lastError().databaseText()).arg(qryLocalOid->lastError().driverText());
                                 QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
                                 return false;
                             }
                         }
                         if ( !qryInsert->prepare(sqlInsert) )
                         {
-                            m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchRelations: [%1] [%2]").arg(qryInsert->lastError().databaseText()).arg(qryInsert->lastError().driverText());
+                            m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchRelations: [%1] [%2]").arg(qryInsert->lastError().databaseText()).arg(qryInsert->lastError().driverText());
                             QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
                             return false;
                         }
@@ -1060,7 +1060,7 @@ bool BatchDAOPrivate::synchronizeBatchRelations()
                         QLogger::QLog_Error(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::synchronizeBatchRelations: [%1]").arg(sqlInsert));
                         if ( !qryInsert->exec() )
                         {
-                            m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchRelations: [%1] [%2]").arg(qryInsert->lastError().databaseText()).arg(qryInsert->lastError().driverText());
+                            m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchRelations: [%1] [%2]").arg(qryInsert->lastError().databaseText()).arg(qryInsert->lastError().driverText());
                             QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
                             return false;
                         }
@@ -1068,7 +1068,7 @@ bool BatchDAOPrivate::synchronizeBatchRelations()
                 }
                 else
                 {
-                    m_lastError = QObject::trUtf8("BatchDAOPrivate::synchronizeBatchRelations: [%1] [%2]").arg(qryLocalOid->lastError().databaseText()).arg(qryLocalOid->lastError().driverText());
+                    m_lastError = QObject::tr("BatchDAOPrivate::synchronizeBatchRelations: [%1] [%2]").arg(qryLocalOid->lastError().databaseText()).arg(qryLocalOid->lastError().driverText());
                     QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
                     return false;
                 }
@@ -1097,7 +1097,7 @@ int BatchDAOPrivate::countRecordsOnLocalTable(const QString &tableName)
     QLogger::QLog_Debug(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::countRecordsOnLocalTable: [%1]").arg(sqlCount));
     if ( !qryCount->exec(sqlCount) )
     {
-        m_lastError = QObject::trUtf8("BatchDAO::countRecordsOnLocalTable: Error [%1] [%2]").
+        m_lastError = QObject::tr("BatchDAO::countRecordsOnLocalTable: Error [%1] [%2]").
                       arg(qryCount->lastError().databaseText()).
                       arg(qryCount->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
@@ -1209,7 +1209,7 @@ bool BatchDAOPrivate::verifySystemBatchTable()
     {
         return true;
     }
-    m_lastError = QObject::trUtf8("BatchDAOPrivate::verifySystemBatchTable: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
+    m_lastError = QObject::tr("BatchDAOPrivate::verifySystemBatchTable: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
     QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
     return false;
 }
@@ -1234,7 +1234,7 @@ bool BatchDAOPrivate::createSystemBatchTable()
                 QLogger::QLog_Debug(AlephERP::stLogBatch, QString::fromUtf8("BatchDAO::createSystemBatchTable: [%1]").arg(sql));
                 if ( !qry->exec(sql) )
                 {
-                    m_lastError = QObject::trUtf8("BatchDAO::createSystemBatchTable: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
+                    m_lastError = QObject::tr("BatchDAO::createSystemBatchTable: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
                     QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
                     return false;
                 }
@@ -1409,7 +1409,7 @@ bool BatchDAOPrivate::checkPreviousRecordWasEqual(const QString &tableName, cons
         }
         else
         {
-            m_lastError = QObject::trUtf8("BatchDAO::checkPreviousRecord: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
+            m_lastError = QObject::tr("BatchDAO::checkPreviousRecord: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
             QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
             return false;
         }
@@ -1430,13 +1430,13 @@ bool BatchDAOPrivate::deletePreviousRecord(BaseBean *bean)
         result = qry->exec();
         if ( !result )
         {
-            m_lastError = QObject::trUtf8("BatchDAOPrivate::deletePreviousRecord: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
+            m_lastError = QObject::tr("BatchDAOPrivate::deletePreviousRecord: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
             QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
         }
     }
     else
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::deletePreviousRecord: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
+        m_lastError = QObject::tr("BatchDAOPrivate::deletePreviousRecord: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
     }
     return result;
@@ -1451,7 +1451,7 @@ bool BatchDAOPrivate::deletePreviousRecord(BaseBean *bean)
  */
 bool BatchDAO::uploadChanges(const QString &messageTemplate, QString &report)
 {
-    QString errorReport = trUtf8("<html><body><p color='red'><i>Se he producido un error y no han podido subirse los cambios</i>.</p><p>ERROR: %1</p></body></html>");
+    QString errorReport = tr("<html><body><p color='red'><i>Se he producido un error y no han podido subirse los cambios</i>.</p><p>ERROR: %1</p></body></html>");
     d->m_messageTemplate = messageTemplate;
     int totalCount = d->countRecordsToUpload();
     if ( totalCount == -1 )
@@ -1462,11 +1462,11 @@ bool BatchDAO::uploadChanges(const QString &messageTemplate, QString &report)
     emit initLoad(totalCount);
     CommonsFunctions::processEvents();
     report = QString("<html><body>");
-    report = report + trUtf8("<p><b>INFORME DE SUBIDA DE DATOS AL SERVIDOR DE PRODUCCIÓN</b></p>");
-    report = report + trUtf8("<p><i>Es importante que lea este informe ya que certificará si los datos que ha estado "
+    report = report + tr("<p><b>INFORME DE SUBIDA DE DATOS AL SERVIDOR DE PRODUCCIÓN</b></p>");
+    report = report + tr("<p><i>Es importante que lea este informe ya que certificará si los datos que ha estado "
                              "editando en modo local, han podido ser guardados en el servidor remoto, y por tanto han quedado "
                              "consolidados.</i></p>");
-    report = report + trUtf8("<p><b>Número de registros a actualizar en el servidor remoto</b>: %1<p>")
+    report = report + tr("<p><b>Número de registros a actualizar en el servidor remoto</b>: %1<p>")
              .arg(alephERPSettings->locale()->toString(totalCount));
 
     // Para subir los cambios nos basaremos en la tabla de histórico local. La vamos examinando, buscando todos aquellos registros
@@ -1479,14 +1479,14 @@ bool BatchDAO::uploadChanges(const QString &messageTemplate, QString &report)
     QLogger::QLog_Debug(AlephERP::stLogBatch, QString::fromUtf8("BatchDAO::uploadChanges: [%1]").arg(sqlHistory));
     if ( !qry->exec(sqlHistory) )
     {
-        d->m_lastError = trUtf8("BatchDAO::uploadChanges: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
+        d->m_lastError = tr("BatchDAO::uploadChanges: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogBatch, d->m_lastError);
         report = errorReport.arg(d->m_lastError);
         return false;
     }
     if ( AERPFirebirdDatabase::size(qry.data()) == 0 )
     {
-        report = report + trUtf8("<p>No existe ningún cambio a consolidar</p></body></html>");
+        report = report + tr("<p>No existe ningún cambio a consolidar</p></body></html>");
         return true;
     }
 
@@ -1500,9 +1500,9 @@ bool BatchDAO::uploadChanges(const QString &messageTemplate, QString &report)
 
     report = report + "<table width='100%' border='0' bgcolor='#000000' cellpadding='1' cellspacing='1'>";
     report = report + QString("<tr>");
-    report = report + trUtf8("<th bgcolor='#CCCCCC' width='20%' align='left'><b>&nbsp;ACCIÓN</b></th>");
-    report = report + trUtf8("<th bgcolor='#CCCCCC' width='30%' align='left'><b>&nbsp;TABLA</b></th>");
-    report = report + trUtf8("<th bgcolor='#CCCCCC' width='50%' align='left'></b>&nbsp;REGISTRO</b></th>");
+    report = report + tr("<th bgcolor='#CCCCCC' width='20%' align='left'><b>&nbsp;ACCIÓN</b></th>");
+    report = report + tr("<th bgcolor='#CCCCCC' width='30%' align='left'><b>&nbsp;TABLA</b></th>");
+    report = report + tr("<th bgcolor='#CCCCCC' width='50%' align='left'></b>&nbsp;REGISTRO</b></th>");
     report = report + QString("</tr>");
 
     while ( qry->next() )
@@ -1563,7 +1563,7 @@ bool BatchDAO::uploadChanges(const QString &messageTemplate, QString &report)
         return false;
     }
     BaseDAO::commit(d->m_batchDatabase);
-    report = report + trUtf8("</table><p><b>Se han subido exitosamente los registros indicados.</b></p></body></html>");
+    report = report + tr("</table><p><b>Se han subido exitosamente los registros indicados.</b></p></body></html>");
     d->m_remoteBeans.clear();
     return true;
 }
@@ -1710,13 +1710,13 @@ bool BatchDAOPrivate::hashToCompare(BaseBeanMetadata *metadata, QString &hashLoc
 
     if ( !qryLocal->exec(sqlHashLocalOnInitBatchMode) )
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::updateRecordOnRemote: [%1] [%2]").arg(qryRemote->lastError().databaseText()).arg(qryRemote->lastError().driverText());
+        m_lastError = QObject::tr("BatchDAOPrivate::updateRecordOnRemote: [%1] [%2]").arg(qryRemote->lastError().databaseText()).arg(qryRemote->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::updateRecordOnRemote: [%1]").arg(m_lastError));
         return false;
     }
     if ( !qryRemote->exec(sqlHashRemote) )
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::updateRecordOnRemote: [%1] [%2]").arg(qryLocal->lastError().databaseText()).arg(qryLocal->lastError().driverText());
+        m_lastError = QObject::tr("BatchDAOPrivate::updateRecordOnRemote: [%1] [%2]").arg(qryLocal->lastError().databaseText()).arg(qryLocal->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::updateRecordOnRemote: [%1]").arg(m_lastError));
         return false;
     }
@@ -1772,7 +1772,7 @@ bool BatchDAOPrivate::uploadRecord(BaseBeanMetadata *metadata, const QString &se
     QLogger::QLog_Debug(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::uploadRecord: [%1]").arg(sql));
     if ( !qryRemote->exec(sql) || !qryRemote->first() )
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::uploadRecord: [%1] [%2]").arg(qryRemote->lastError().databaseText()).arg(qryRemote->lastError().driverText());
+        m_lastError = QObject::tr("BatchDAOPrivate::uploadRecord: [%1] [%2]").arg(qryRemote->lastError().databaseText()).arg(qryRemote->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::uploadRecord: [%1]").arg(m_lastError));
         return false;
     }
@@ -1781,7 +1781,7 @@ bool BatchDAOPrivate::uploadRecord(BaseBeanMetadata *metadata, const QString &se
     QLogger::QLog_Debug(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::uploadRecord: [%1]").arg(sql));
     if ( !qryLocal->exec(sql) || !qryLocal->first() )
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::uploadRecord: [%1] [%2]").arg(qryLocal->lastError().databaseText()).arg(qryLocal->lastError().driverText());
+        m_lastError = QObject::tr("BatchDAOPrivate::uploadRecord: [%1] [%2]").arg(qryLocal->lastError().databaseText()).arg(qryLocal->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
         return false;
     }
@@ -1806,7 +1806,7 @@ bool BatchDAOPrivate::uploadRecord(BaseBeanMetadata *metadata, const QString &se
     QLogger::QLog_Debug(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::uploadRecord: [%1]").arg(sqlCommitted));
     if ( !qryLocal->exec(sqlCommitted) )
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::uploadRecord: [%1] [%2]").arg(qryLocal->lastError().databaseText()).arg(qryLocal->lastError().driverText());
+        m_lastError = QObject::tr("BatchDAOPrivate::uploadRecord: [%1] [%2]").arg(qryLocal->lastError().databaseText()).arg(qryLocal->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
         return false;
     }
@@ -1917,7 +1917,7 @@ bool BatchDAOPrivate::updateRecordOnRemote(BaseBeanMetadata *metadata, const QSt
         {
             if ( !qryLocal->exec(QString("DELETE FROM %1 WHERE %2").arg(metadata->sqlTableName(BATCH_DATABASE_DRIVER)).arg(whereSqlPk)) )
             {
-                m_lastError = QObject::trUtf8("BatchDAOPrivate::updateRecordOnRemote: [%1] [%2]").arg(qryLocal->lastError().databaseText()).arg(qryLocal->lastError().driverText());
+                m_lastError = QObject::tr("BatchDAOPrivate::updateRecordOnRemote: [%1] [%2]").arg(qryLocal->lastError().databaseText()).arg(qryLocal->lastError().driverText());
                 return false;
             }
             return true;
@@ -1926,7 +1926,7 @@ bool BatchDAOPrivate::updateRecordOnRemote(BaseBeanMetadata *metadata, const QSt
         {
             if ( !qryLocal->exec(QString("UPDATE %1 SET committed = 1 WHERE %2").arg(metadata->sqlTableName(BATCH_DATABASE_DRIVER)).arg(whereSqlPk)) )
             {
-                m_lastError = QObject::trUtf8("BatchDAOPrivate::updateRecordOnRemote: [%1] [%2]").arg(qryLocal->lastError().databaseText()).arg(qryLocal->lastError().driverText());
+                m_lastError = QObject::tr("BatchDAOPrivate::updateRecordOnRemote: [%1] [%2]").arg(qryLocal->lastError().databaseText()).arg(qryLocal->lastError().driverText());
                 return false;
             }
             return true;
@@ -1947,13 +1947,13 @@ bool BatchDAOPrivate::updateRecordOnRemote(BaseBeanMetadata *metadata, const QSt
     validator->setConnection(m_baseDatabase);
     while ( !validator->validate() )
     {
-        int ret = QMessageBox::question(0, qApp->applicationName(), QObject::trUtf8("Existen errores de validación en un registro.<br/>%1<br/> Debe solventarlos antes de consolidar el registro "
+        int ret = QMessageBox::question(0, qApp->applicationName(), QObject::tr("Existen errores de validación en un registro.<br/>%1<br/> Debe solventarlos antes de consolidar el registro "
                                         "en el servidor remoto. ¿Desea abrir el formulario de edición? Si contesta no, se cancelará "
                                         "el proceso de subida al servidor remoto.").arg(validator->validateHtmlMessages()),
                                         QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::No )
         {
-            m_lastError = QObject::trUtf8("Existen errores en las reglas de validación.");
+            m_lastError = QObject::tr("Existen errores en las reglas de validación.");
             return false;
         }
         // Hay un error de validación del bean. Ofrecemos al usuario la posibilidad de solventarlo, editando el registro
@@ -1962,7 +1962,7 @@ bool BatchDAOPrivate::updateRecordOnRemote(BaseBeanMetadata *metadata, const QSt
         if ( !dlg->openSuccess() || !dlg->init() )
         {
             OpenedRecords::instance()->registerRecord(beanLocal, dlg);
-            m_lastError = QObject::trUtf8("BatchDAOPrivate::updateRecordOnRemote: Error abriendo el formulario de edición de %1").arg(beanRemote->metadata()->tableName());
+            m_lastError = QObject::tr("BatchDAOPrivate::updateRecordOnRemote: Error abriendo el formulario de edición de %1").arg(beanRemote->metadata()->tableName());
             return false;
         }
         dlg->exec();
@@ -2011,13 +2011,13 @@ bool BatchDAOPrivate::insertRecordOnRemote(BaseBeanMetadata *metadata, const QSt
     validator->setConnection(m_baseDatabase);
     while ( !validator->validate() )
     {
-        int ret = QMessageBox::question(0, qApp->applicationName(), QObject::trUtf8("Existen errores de validación en un registro.<br/>%1<br/> Debe solventarlos antes de consolidar el registro "
+        int ret = QMessageBox::question(0, qApp->applicationName(), QObject::tr("Existen errores de validación en un registro.<br/>%1<br/> Debe solventarlos antes de consolidar el registro "
                                         "en el servidor remoto. ¿Desea abrir el formulario de edición? Si contesta no, se cancelará "
                                         "el proceso de subida al servidor remoto.").arg(validator->validateHtmlMessages()),
                                         QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::No )
         {
-            m_lastError = QObject::trUtf8("Existen errores en las reglas de validación.");
+            m_lastError = QObject::tr("Existen errores en las reglas de validación.");
             return false;
         }
         // Hay un error de validación del bean. Ofrecemos al usuario la posibilidad de solventarlo, editando el registro
@@ -2026,7 +2026,7 @@ bool BatchDAOPrivate::insertRecordOnRemote(BaseBeanMetadata *metadata, const QSt
         if ( !dlg->openSuccess() || !dlg->init() )
         {
             OpenedRecords::instance()->registerRecord(bean, dlg);
-            m_lastError = QObject::trUtf8("BatchDAOPrivate::updateRecordOnRemote: Error abriendo el formulario de edición de %1").arg(bean->metadata()->tableName());
+            m_lastError = QObject::tr("BatchDAOPrivate::updateRecordOnRemote: Error abriendo el formulario de edición de %1").arg(bean->metadata()->tableName());
             return false;
         }
         dlg->exec();
@@ -2052,7 +2052,7 @@ bool BatchDAOPrivate::loadBean(BaseBean *bean, const QString &serializedPkey, co
     QLogger::QLog_Debug(AlephERP::stLogBatch, QString::fromUtf8("BatchDAOPrivate::loadBean: [%1]").arg(sql));
     if ( !qry->exec(sql) || !qry->first() )
     {
-        m_lastError = QObject::trUtf8("BatchDAOPrivate::loadBean: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
+        m_lastError = QObject::tr("BatchDAOPrivate::loadBean: [%1] [%2]").arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogBatch, m_lastError);
         return false;
     }

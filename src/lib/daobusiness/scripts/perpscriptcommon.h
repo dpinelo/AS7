@@ -37,7 +37,6 @@ class BaseBeanMetadata;
 class AERPScriptCommon : public QObject, public QScriptable
 {
     Q_OBJECT
-    Q_ENUMS(DatesInterval)
 
     Q_PROPERTY(QString lastError READ lastError)
 
@@ -58,6 +57,7 @@ public:
         MONTHS = 16,
         YEARS = 32
     };
+    Q_ENUM(DatesInterval)
 
     void setPropertiesForScriptObject(QScriptValue &obj);
 

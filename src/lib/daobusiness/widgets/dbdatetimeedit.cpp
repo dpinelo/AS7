@@ -71,7 +71,7 @@ DBDateTimeEdit::DBDateTimeEdit(QWidget *parent) :
         d->m_todayButton->setIconSize(QSize(iconSize, iconSize));
         d->m_todayButton->setCursor(Qt::ArrowCursor);
         d->m_todayButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
-        d->m_todayButton->setToolTip(trUtf8("Ajusta el valor del campo a Hoy"));
+        d->m_todayButton->setToolTip(tr("Ajusta el valor del campo a Hoy"));
         // Add extra padding to the right of the line edit. It looks better.
         le->setStyleSheet(QString("QLineEdit { padding-right: %1px; } ").arg(d->m_todayButton->sizeHint().width() + frameWidth + 1));
         QSize msz = le->minimumSizeHint();

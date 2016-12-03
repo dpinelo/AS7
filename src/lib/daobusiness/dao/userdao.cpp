@@ -610,7 +610,7 @@ bool UserDAO::updateUserRowAccess(BaseBeanPointer bean, const QString &connectio
 
     if ( bean->dbState() == BaseBean::INSERT )
     {
-        UserDAO::m_lastMessage = trUtf8("UserDAO::updateUserRowAccess: Bean estaba en modo insert.");
+        UserDAO::m_lastMessage = tr("UserDAO::updateUserRowAccess: Bean estaba en modo insert.");
         return false;
     }
     if ( BaseDAO::transaction(connectionName) )

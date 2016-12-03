@@ -531,7 +531,7 @@ BaseBeanSharedPointer DBTableView::addBean()
         {
             if ( !filterModel()->property(AlephERP::stLastErrorMessage).toString().isEmpty() )
             {
-                QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error al intentar agregar un registro. \nEl error es: %1").arg(filterModel()->property(AlephERP::stLastErrorMessage).toString()));
+                QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error al intentar agregar un registro. \nEl error es: %1").arg(filterModel()->property(AlephERP::stLastErrorMessage).toString()));
                 filterModel()->setProperty(AlephERP::stLastErrorMessage, "");
             }
         }

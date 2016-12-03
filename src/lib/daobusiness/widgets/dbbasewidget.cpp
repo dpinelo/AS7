@@ -507,7 +507,7 @@ void DBBaseWidget::askToRecalculateCounterField()
     if ( counters.size() > 0 )
     {
         int ret = QMessageBox::question(dynamic_cast<QWidget *>(this), qApp->applicationName(),
-                                        QObject::trUtf8("Este campo que acaba de modificar está involucrado en la generación del valor de los campos: %1. "
+                                        QObject::tr("Este campo que acaba de modificar está involucrado en la generación del valor de los campos: %1. "
                                                 "¿Desea usted recalcular estos campos?").arg(counterFields.join(", ")), QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::Yes )
         {

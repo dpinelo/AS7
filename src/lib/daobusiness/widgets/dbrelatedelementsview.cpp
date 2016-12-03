@@ -217,7 +217,7 @@ QString DBRelatedElementsView::askForMetadata(bool *cancel)
             }
         }
         bool ok;
-        QString item = QInputDialog::getItem(this, qApp->applicationName(), trUtf8("Seleccione el tipo de elemento relacionado que va a agregar"), items, 0, false, &ok);
+        QString item = QInputDialog::getItem(this, qApp->applicationName(), tr("Seleccione el tipo de elemento relacionado que va a agregar"), items, 0, false, &ok);
         if (ok && !item.isEmpty())
         {
             foreach ( QString allowedMetadata, d->m_allowedMetadatas )
@@ -255,7 +255,7 @@ QStringList DBRelatedElementsView::askForCategory(bool *cancel)
     if ( d->m_categories.size() > 1 )
     {
         bool ok;
-        QString item = QInputDialog::getItem(this, qApp->applicationName(), trUtf8("Seleccione la categoría del elemento relacionado que va a agregar"), d->m_categories, 0, false, &ok);
+        QString item = QInputDialog::getItem(this, qApp->applicationName(), tr("Seleccione la categoría del elemento relacionado que va a agregar"), d->m_categories, 0, false, &ok);
         if (ok && !item.isEmpty())
         {
             category.append(item);
@@ -585,7 +585,7 @@ void DBRelatedElementsView::addRelatedElement()
             dlg->setModal(true);
             if ( !dlg->openSuccess() || !dlg->init() )
             {
-                QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error abriendo el formulario de edición de %1").arg(element->relatedBean().data()->metadata()->alias()), QMessageBox::Ok);
+                QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error abriendo el formulario de edición de %1").arg(element->relatedBean().data()->metadata()->alias()), QMessageBox::Ok);
                 return;
             }
             dlg->exec();
@@ -605,7 +605,7 @@ void DBRelatedElementsView::addRelatedElement()
         }
         else if ( !d->m_model->property(AlephERP::stLastErrorMessage).toString().isEmpty() )
         {
-            QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error al intentar agregar un registro. \nEl error es: %1").arg(d->m_model->property(AlephERP::stLastErrorMessage).toString()));
+            QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error al intentar agregar un registro. \nEl error es: %1").arg(d->m_model->property(AlephERP::stLastErrorMessage).toString()));
             d->m_model->setProperty(AlephERP::stLastErrorMessage, "");
         }
     }
@@ -678,7 +678,7 @@ void DBRelatedElementsView::addExisting()
             {
                 if ( !d->m_model->property(AlephERP::stLastErrorMessage).toString().isEmpty() )
                 {
-                    QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error al intentar agregar un elemento. \nEl error es: %1").arg(d->m_model->property(AlephERP::stLastErrorMessage).toString()));
+                    QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error al intentar agregar un elemento. \nEl error es: %1").arg(d->m_model->property(AlephERP::stLastErrorMessage).toString()));
                     d->m_model->setProperty(AlephERP::stLastErrorMessage, "");
                 }
             }
@@ -715,10 +715,10 @@ void DBRelatedElementsView::deleteRelatedElement()
     if ( idx.size() == 0 )
     {
         QMessageBox::information(this, qApp->applicationName(),
-                                 trUtf8("Debe seleccionar al menos un elemento para eliminar."), QMessageBox::Ok);
+                                 tr("Debe seleccionar al menos un elemento para eliminar."), QMessageBox::Ok);
         return;
     }
-    int ret = QMessageBox::question(this, qApp->applicationName(), trUtf8("El registro relacionado será eliminado. Si lo único que desea es romper "
+    int ret = QMessageBox::question(this, qApp->applicationName(), tr("El registro relacionado será eliminado. Si lo único que desea es romper "
                                     "la relación, escoga la opción 'Desasociar'. ¿Está seguro de querer borrar el registro "
                                     "relacionado?"), QMessageBox::Yes | QMessageBox::No);
     if ( ret == QMessageBox::No )
@@ -787,7 +787,7 @@ void DBRelatedElementsView::editRelatedElement()
     if ( idx.size() == 0 )
     {
         QMessageBox::information(this, qApp->applicationName(),
-                                 trUtf8("Debe seleccionar al menos un elemento para editar."), QMessageBox::Ok);
+                                 tr("Debe seleccionar al menos un elemento para editar."), QMessageBox::Ok);
         return;
     }
     RelatedElement *element = d->m_model->element(idx.at(0));
@@ -839,14 +839,14 @@ void DBRelatedElementsView::viewRelatedElement()
     if ( idx.size() == 0 )
     {
         QMessageBox::information(this, qApp->applicationName(),
-                                 trUtf8("Debe seleccionar al menos un elemento para visualizar."), QMessageBox::Ok);
+                                 tr("Debe seleccionar al menos un elemento para visualizar."), QMessageBox::Ok);
         return;
     }
     RelatedElement *element = d->m_model->element(idx.at(0));
     if ( element == NULL )
     {
         QMessageBox::information(this, qApp->applicationName(),
-                                 trUtf8("Ha ocurrido un error, y no se puede visualizar el registro"), QMessageBox::Ok);
+                                 tr("Ha ocurrido un error, y no se puede visualizar el registro"), QMessageBox::Ok);
         return;
     }
     BaseBeanPointer bean = element->relatedBean();
@@ -869,7 +869,7 @@ void DBRelatedElementsView::removeExisting()
     if ( idx.size() == 0 )
     {
         QMessageBox::information(this, qApp->applicationName(),
-                                 trUtf8("Debe seleccionar al menos un elemento para visualizar."), QMessageBox::Ok);
+                                 tr("Debe seleccionar al menos un elemento para visualizar."), QMessageBox::Ok);
         return;
     }
     QList<int> rows;

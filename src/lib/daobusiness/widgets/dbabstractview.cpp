@@ -64,7 +64,7 @@ DBAbstractViewInterface::DBAbstractViewInterface(QWidget *widget, QHeaderView *h
     m_visibleRecords = AlephERP::DBRecordStates(AlephERP::Inserted | AlephERP::Existing);
     m_allowedEdit = true;
     m_readOnlyModel = true;
-    m_hideColumn = new QAction(QObject::trUtf8("Ocultar columna"), m_thisWidget);
+    m_hideColumn = new QAction(QObject::tr("Ocultar columna"), m_thisWidget);
     m_clickedColumn = -1;
     m_header = header;
     m_htmlDelegate = new AERPHtmlDelegate(m_thisWidget);
@@ -1123,7 +1123,7 @@ void DBAbstractViewInterface::nextCellOnEnter(const QModelIndex &actualCell, con
         int row = filterModel()->rowCount();
         if ( !filterModel()->insertRow(row) )
         {
-            QMessageBox::warning(0, qApp->applicationName(), QObject::trUtf8("Ha ocurrido un error al intentar agregar un registro. \nEl error es: %1").
+            QMessageBox::warning(0, qApp->applicationName(), QObject::tr("Ha ocurrido un error al intentar agregar un registro. \nEl error es: %1").
                                  arg(filterModel()->property(AlephERP::stLastErrorMessage).toString()));
             filterModel()->setProperty(AlephERP::stLastErrorMessage, "");
             return;
@@ -1231,7 +1231,7 @@ void DBAbstractViewInterface::paste()
             // error, uneven number of columns, probably bad data
             QMessageBox::critical(itemView,
                                   qApp->applicationName(),
-                                  QObject::trUtf8("Datos no válidos en el portapapeles. No se puede realizar el pegado."));
+                                  QObject::tr("Datos no válidos en el portapapeles. No se puede realizar el pegado."));
             return;
         }
 
@@ -1240,7 +1240,7 @@ void DBAbstractViewInterface::paste()
             // error, clipboard does not match current number of columns
             QMessageBox::critical(itemView,
                                   qApp->applicationName(),
-                                  QObject::trUtf8("Datos no válidos en el portapapeles. El número de columnas es incorrecta."));
+                                  QObject::tr("Datos no válidos en el portapapeles. El número de columnas es incorrecta."));
             return;
         }
 
@@ -1288,7 +1288,7 @@ void DBAbstractViewInterface::showContextMenu(const QPoint &point)
     {
         QAction *copyAction = NULL;
         QPixmap copyIcon(":/actions/actions/copy.png");
-        copyAction = new QAction(QIcon(copyIcon), QObject::trUtf8("Copiar"), itemView);
+        copyAction = new QAction(QIcon(copyIcon), QObject::tr("Copiar"), itemView);
         QObject::connect(copyAction, SIGNAL(triggered()), itemView, SLOT(copy()));
         contextMenu.addAction(copyAction);
     }
@@ -1300,7 +1300,7 @@ void DBAbstractViewInterface::showContextMenu(const QPoint &point)
         }
         QAction *pasteAction = NULL;
         QPixmap pasteIcon(":/actions/actions/paste.png");
-        pasteAction = new QAction(QIcon(pasteIcon), QObject::trUtf8("Pegar"), itemView);
+        pasteAction = new QAction(QIcon(pasteIcon), QObject::tr("Pegar"), itemView);
         QObject::connect(pasteAction, SIGNAL(triggered()), itemView, SLOT(paste()));
         contextMenu.addAction(pasteAction);
     }

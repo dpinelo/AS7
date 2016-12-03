@@ -64,12 +64,12 @@ QIcon DBFilterTableViewPlugin::icon() const
 
 QString DBFilterTableViewPlugin::toolTip() const
 {
-    return trUtf8("TableView que presenta los registros de una tabla, con opciones de filtrado");
+    return tr("TableView que presenta los registros de una tabla, con opciones de filtrado");
 }
 
 QString DBFilterTableViewPlugin::whatsThis() const
 {
-    return trUtf8("TableView que presenta los registros de una tabla, con opciones de filtrado");
+    return tr("TableView que presenta los registros de una tabla, con opciones de filtrado");
 }
 
 bool DBFilterTableViewPlugin::isContainer() const

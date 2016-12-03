@@ -49,12 +49,12 @@ QIcon DBScheduleViewPlugin::icon() const
 
 QString DBScheduleViewPlugin::toolTip() const
 {
-    return trUtf8("Vista de agenda");
+    return tr("Vista de agenda");
 }
 
 QString DBScheduleViewPlugin::whatsThis() const
 {
-    return trUtf8("Vista de agenda");
+    return tr("Vista de agenda");
 }
 
 bool DBScheduleViewPlugin::isContainer() const

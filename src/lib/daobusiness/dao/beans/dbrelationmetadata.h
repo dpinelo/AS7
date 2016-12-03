@@ -34,7 +34,6 @@ class DBFieldMetadata;
 class ALEPHERP_DLL_EXPORT DBRelationMetadata : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(DBRelationType)
     /** Tipo de relacion que se establece */
     Q_PROPERTY (DBRelationType type READ type WRITE setType)
     /** Nombre que se le da a la relacion */
@@ -96,7 +95,12 @@ public:
     explicit DBRelationMetadata(QObject *parent = NULL);
     ~DBRelationMetadata();
 
-    enum DBRelationType {ONE_TO_ONE, ONE_TO_MANY, MANY_TO_ONE};
+    enum DBRelationType {
+        ONE_TO_ONE,
+        ONE_TO_MANY,
+        MANY_TO_ONE
+    };
+    Q_ENUM(DBRelationType)
 
     DBRelationType type();
     void setType(DBRelationType type);

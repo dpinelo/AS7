@@ -76,7 +76,7 @@ JSConsole::JSConsole(QWidget *parent) :
     connect(ui->txtName, SIGNAL(textChanged(QString)), this, SLOT(modfied()));
     connect(ui->txtCode, SIGNAL(valueEdited(QVariant)), this, SLOT(modified()));
 
-    setWindowTitle(trUtf8("Edición de scripts [*]"));
+    setWindowTitle(tr("Edición de scripts [*]"));
 }
 
 JSConsole::JSConsole(QString *scriptName, QString *scriptCode, QWidget *parent) :
@@ -99,7 +99,7 @@ JSConsole::JSConsole(QString *scriptName, QString *scriptCode, QWidget *parent) 
     connect(ui->txtName, SIGNAL(textChanged(QString)), this, SLOT(modified()));
     connect(ui->txtCode, SIGNAL(valueEdited(QVariant)), this, SLOT(modified()));
 
-    setWindowTitle(trUtf8("Edición de scripts [*]"));
+    setWindowTitle(tr("Edición de scripts [*]"));
 }
 
 JSConsole::~JSConsole()
@@ -139,7 +139,7 @@ void JSConsole::execute()
     int line = 0;
     if ( !AERPScriptEngine::checkForErrorOnQS(ui->txtCode->value().toString(), error, line) )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Hay errores en el script: Línea: %1. Error: %2").arg(line).arg(error), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("Hay errores en el script: Línea: %1. Error: %2").arg(line).arg(error), QMessageBox::Ok);
         ui->txtCode->gotoLine(line);
         return;
     }
@@ -148,10 +148,10 @@ void JSConsole::execute()
     ui->txtResult->append("\n------------------------------------------------------------------------\n");
     if ( d->m_engine->lastMessage().isEmpty() )
     {
-        QString message = trUtf8("El script se ha ejecutado con ÉXITO.");
+        QString message = tr("El script se ha ejecutado con ÉXITO.");
         if (!result.isNull() && !result.toString().isEmpty())
         {
-            message.append(trUtf8("\n. El resultado es: %1").arg(result.toString()));
+            message.append(tr("\n. El resultado es: %1").arg(result.toString()));
         }
         ui->txtResult->append(message);
     }
@@ -172,7 +172,7 @@ void JSConsole::clickClose()
 {
     if ( isWindowModified() )
     {
-        int ret = QMessageBox::question(this, qApp->applicationName(), trUtf8("¿Desea guardar el script?"), QMessageBox::Yes | QMessageBox::No);
+        int ret = QMessageBox::question(this, qApp->applicationName(), tr("¿Desea guardar el script?"), QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::Yes )
         {
             if ( d->m_scriptCode != NULL && d->m_scriptName != NULL )

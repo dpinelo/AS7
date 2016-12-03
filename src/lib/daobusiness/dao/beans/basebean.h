@@ -102,7 +102,6 @@ inline BaseBeanPointerList AERP_STRONGLIST_TO_POINTERLIST(const BaseBeanSharedPo
 class ALEPHERP_DLL_EXPORT BaseBean : public DBObject
 {
     Q_OBJECT
-    Q_ENUMS(DbBeanStates)
 
     /** Identificador único en base de datos. OID en PostgreSQL */
     Q_PROPERTY(qlonglong dbOid READ dbOid)
@@ -199,6 +198,7 @@ public:
         TO_BE_DELETED = 4,
         DELETED = 8
     };
+    Q_ENUM(DbBeanStates)
 
     BaseBeanMetadata * metadata() const;
     qlonglong dbOid() const;

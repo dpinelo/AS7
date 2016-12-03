@@ -50,12 +50,12 @@ QIcon DBRelatedElementsViewPlugin::icon() const
 
 QString DBRelatedElementsViewPlugin::toolTip() const
 {
-    return trUtf8("Para editar los datos de una relación de un BaseBean");
+    return tr("Para editar los datos de una relación de un BaseBean");
 }
 
 QString DBRelatedElementsViewPlugin::whatsThis() const
 {
-    return trUtf8("Para editar los datos de una relación de un BaseBean");
+    return tr("Para editar los datos de una relación de un BaseBean");
 }
 
 bool DBRelatedElementsViewPlugin::isContainer() const

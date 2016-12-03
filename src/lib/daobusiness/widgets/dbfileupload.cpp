@@ -87,7 +87,7 @@ void DBFileUpload::setValue(const QVariant &value)
         QByteArray ba = value.toByteArray();
         if ( ba.isEmpty() )
         {
-            ui->lblImage->setText(trUtf8("Pendiente de añadir una imágen."));
+            ui->lblImage->setText(tr("Pendiente de añadir una imágen."));
         }
         else
         {
@@ -107,7 +107,7 @@ void DBFileUpload::setValue(const QVariant &value)
                     QByteArray ba2 = ba.toBase64();
                     if ( !pixmap.loadFromData(ba1) && !pixmap.loadFromData(ba2) )
                     {
-                        ui->lblImage->setText(trUtf8("Formato de imágen no válido."));
+                        ui->lblImage->setText(tr("Formato de imágen no válido."));
                     }
                     else
                     {
@@ -121,7 +121,7 @@ void DBFileUpload::setValue(const QVariant &value)
     }
     else
     {
-        ui->lblImage->setText(trUtf8("Pendiente de añadir una imágen."));
+        ui->lblImage->setText(tr("Pendiente de añadir una imágen."));
     }
 }
 
@@ -196,7 +196,7 @@ void DBFileUpload::showAnimation()
     AERPBackgroundAnimation::showAnimation();
     ui->pbUpload->setEnabled(false);
     ui->pbDelete->setEnabled(false);
-    ui->lblImage->setText(trUtf8("Cargando imágen..."));
+    ui->lblImage->setText(tr("Cargando imágen..."));
 }
 
 void DBFileUpload::hideAnimation()
@@ -232,8 +232,8 @@ void DBFileUploadPrivate::connections()
 
 void DBFileUpload::pbUploadClicked()
 {
-    // trUtf8("Imágenes (*.png *.xpm *.jpg, *.bmp, *.gif)")
-    QString fileName = QFileDialog::getOpenFileName(this, trUtf8("Seleccione el fichero con la imágen que desea agregar"));
+    // tr("Imágenes (*.png *.xpm *.jpg, *.bmp, *.gif)")
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Seleccione el fichero con la imágen que desea agregar"));
     if ( fileName.isNull() )
     {
         return;
@@ -241,13 +241,13 @@ void DBFileUpload::pbUploadClicked()
     QFile file(fileName);
     if (  !file.open(QIODevice::ReadOnly) )
     {
-        QMessageBox::warning(this,qApp->applicationName(), trUtf8("No se pudo abrir el archivo de imágen."), QMessageBox::Ok);
+        QMessageBox::warning(this,qApp->applicationName(), tr("No se pudo abrir el archivo de imágen."), QMessageBox::Ok);
         return;
     }
     QPixmap pixmap(fileName);
     if ( pixmap.isNull() )
     {
-        QMessageBox::warning(this,qApp->applicationName(), trUtf8("No se ha reconocido el formato de imágen seleccionado. No es posible agregar la imágen."), QMessageBox::Ok);
+        QMessageBox::warning(this,qApp->applicationName(), tr("No se ha reconocido el formato de imágen seleccionado. No es posible agregar la imágen."), QMessageBox::Ok);
         return;
     }
     d->m_pixmap = pixmap;
@@ -259,7 +259,7 @@ void DBFileUpload::pbUploadClicked()
 
 void DBFileUpload::pbDeleteClicked()
 {
-    int ret = QMessageBox::warning(this,qApp->applicationName(), trUtf8("La imágen se eliminará y no podra recuperarse. ¿Está seguro de querer continuar?"), QMessageBox::Yes | QMessageBox::No);
+    int ret = QMessageBox::warning(this,qApp->applicationName(), tr("La imágen se eliminará y no podra recuperarse. ¿Está seguro de querer continuar?"), QMessageBox::Yes | QMessageBox::No);
     if ( ret == QMessageBox::Yes )
     {
         ui->lblImage->clear();

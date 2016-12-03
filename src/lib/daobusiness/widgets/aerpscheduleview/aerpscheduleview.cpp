@@ -815,7 +815,7 @@ void AERPScheduleView::mouseReleaseEvent(QMouseEvent * /*e*/)
         {
             QMessageBox::information(this,
                                      qApp->applicationName(),
-                                     trUtf8("No se han podido guardar los cambios.  \nEl error es: %1").
+                                     tr("No se han podido guardar los cambios.  \nEl error es: %1").
                                         arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())));
         }
         qxt_d().m_selectedItem = NULL;

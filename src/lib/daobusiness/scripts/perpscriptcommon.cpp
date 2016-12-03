@@ -1466,7 +1466,7 @@ QScriptValue AERPScriptCommon::date(const QString &stringDate, const QString &fo
   */
 QScriptValue AERPScriptCommon::importResource()
 {
-    QString fileName = QFileDialog::getOpenFileName(0, trUtf8("Seleccione el fichero que desea agregar"));
+    QString fileName = QFileDialog::getOpenFileName(0, tr("Seleccione el fichero que desea agregar"));
     if ( fileName.isNull() )
     {
         return QScriptValue(QScriptValue::UndefinedValue);
@@ -1474,7 +1474,7 @@ QScriptValue AERPScriptCommon::importResource()
     QFile file(fileName);
     if (  !file.open(QIODevice::ReadOnly) )
     {
-        QMessageBox::warning(0,qApp->applicationName(), trUtf8("No se pudo abrir el archivo."), QMessageBox::Ok);
+        QMessageBox::warning(0,qApp->applicationName(), tr("No se pudo abrir el archivo."), QMessageBox::Ok);
         return QScriptValue(QScriptValue::UndefinedValue);
     }
     QByteArray binaryContent = file.readAll();
@@ -1856,7 +1856,7 @@ bool AERPScriptCommon::enterOnBatchMode()
 #ifdef ALEPHERP_LOCALMODE
     QProgressDialog progress(0);
     QString templateMessage = "Preparando el sistema para entrar en modo de trabajo local. \nSincronizando datos remotos: %1. Este proceso puede durar unos minutos. Por favor, espere...";
-    progress.setLabelText(trUtf8("Iniciando proceso de sincronización con datos remotos.."));
+    progress.setLabelText(tr("Iniciando proceso de sincronización con datos remotos.."));
     progress.setWindowTitle(qApp->applicationName());
     progress.setWindowModality(Qt::WindowModal);
     progress.setCancelButton(0);
@@ -1867,7 +1867,7 @@ bool AERPScriptCommon::enterOnBatchMode()
     connect (BeansFactory::instance(), SIGNAL(endEnterWorkMode()), &progress, SLOT(close()));
     if ( !BeansFactory::enterOnBatchMode(templateMessage) )
     {
-        QMessageBox::warning(0,qApp->applicationName(), trUtf8("No se han podido cargar los datos para el trabajo en local. \nInforme de error: %1").
+        QMessageBox::warning(0,qApp->applicationName(), tr("No se han podido cargar los datos para el trabajo en local. \nInforme de error: %1").
                              arg(BeansFactory::lastErrorMessage()), QMessageBox::Ok);
         return false;
     }
@@ -1946,7 +1946,7 @@ QScriptValue AERPScriptCommon::chooseRecordFromComboBox(const QString &tableName
     }
     else
     {
-        showedLabel = trUtf8("Seleccione: %1").arg(m->alias());
+        showedLabel = tr("Seleccione: %1").arg(m->alias());
     }
     bool ok;
     QString selectedValue = QInputDialog::getItem(0, qApp->applicationName(), label, showedStrings, -1, false, &ok);
@@ -2112,7 +2112,7 @@ QScriptValue AERPScriptCommon::chooseChildFromComboBox(BaseBean *bean,
     }
     else
     {
-        showedLabel = trUtf8("Seleccione: %1").arg(alias);
+        showedLabel = tr("Seleccione: %1").arg(alias);
     }
     bool ok;
     QString selectedValue = QInputDialog::getItem(0, qApp->applicationName(), label, showedStrings, -1, false, &ok);
@@ -2571,7 +2571,7 @@ QScriptValue AERPScriptCommon::dataTable()
     lay->addWidget(table);
     QDialogButtonBox *buttonGroup = new QDialogButtonBox(dlg.data());
     buttonGroup->addButton(new QPushButton(QIcon(":/aplicacion/images/ok.png"), "&Ok"), QDialogButtonBox::AcceptRole);
-    buttonGroup->addButton(new QPushButton(QIcon(":/generales/images/close.png"), trUtf8("&Cancelar")), QDialogButtonBox::RejectRole);
+    buttonGroup->addButton(new QPushButton(QIcon(":/generales/images/close.png"), tr("&Cancelar")), QDialogButtonBox::RejectRole);
 
     connect(buttonGroup, SIGNAL(accepted()), dlg.data(), SLOT(accept()));
     connect(buttonGroup, SIGNAL(rejected()), dlg.data(), SLOT(reject()));
@@ -2676,7 +2676,7 @@ void AERPScriptCommon::generateDefinitionFileSql(const QString &module, const QS
     QFile file(fileName);
     if ( !file.open(QIODevice::Truncate | QIODevice::WriteOnly) )
     {
-        QMessageBox::warning(0,qApp->applicationName(), trUtf8("No se pudo abrir el archivo."), QMessageBox::Ok);
+        QMessageBox::warning(0,qApp->applicationName(), tr("No se pudo abrir el archivo."), QMessageBox::Ok);
         return;
     }
     QTextStream out(&file);
@@ -2712,7 +2712,7 @@ bool AERPScriptCommon::importData(const QString &fileName, const QString &progre
     CommonsFunctions::processEvents();
     if ( !ModulesDAO::instance()->importData(f, tableName) )
     {
-        QMessageBox::warning(0,qApp->applicationName(), trUtf8("Ocurrió un error importando datos. \nEl error es: %1").arg(BaseDAO::lastErrorMessage()), QMessageBox::Ok);
+        QMessageBox::warning(0,qApp->applicationName(), tr("Ocurrió un error importando datos. \nEl error es: %1").arg(BaseDAO::lastErrorMessage()), QMessageBox::Ok);
         return false;
     }
     return true;
@@ -2781,7 +2781,7 @@ BaseBeanSharedPointerList AERPScriptCommonPrivate::chooseRecordsFromTable(const 
     }
     else
     {
-        showedLabel = QObject::trUtf8("Seleccione: %1").arg(m->alias());
+        showedLabel = QObject::tr("Seleccione: %1").arg(m->alias());
     }
 
     // Creamos el diálogo
@@ -2848,7 +2848,7 @@ BaseBeanSharedPointer AERPScriptCommonPrivate::chooseRecordFromTable(const QStri
     }
     else
     {
-        showedLabel = QObject::trUtf8("Seleccione: %1").arg(m->alias());
+        showedLabel = QObject::tr("Seleccione: %1").arg(m->alias());
     }
 
     // Creamos el diálogo
