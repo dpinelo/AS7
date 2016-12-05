@@ -362,7 +362,7 @@ void DBRecordDlgPrivate::addBeanToNavigationWidget(BaseBeanPointer bean, AlephER
         }
     }
     bool b = m_advancedNavigationWidget->blockSignals(true);
-    m_advancedNavigationWidget->addItem(QString("%1: %2").arg(bean->metadata()->alias()).arg(bean->toString()));
+    m_advancedNavigationWidget->addItem(QString("%1: %2").arg(bean->metadata()->alias(), bean->toString()));
     m_advancedNavigationWidget->blockSignals(b);
     BeansOnNavigation item;
     item.bean = bean;
@@ -446,7 +446,8 @@ void DBRecordDlgPrivate::setWidgetStateFromDesignerProperties()
 
     foreach (QWidget *widget, widgets)
     {
-        foreach (const char *roleProperty, propertiesHashNames.keys())
+        const QList<const char*> propertiesHashNamesKeys = propertiesHashNames.keys();
+        for (const char *roleProperty : propertiesHashNamesKeys)
         {
             if ( widget->property(roleProperty).isValid() )
             {
@@ -622,8 +623,8 @@ bool DBRecordDlg::init()
     if ( d->m_helpUrl.isEmpty() )
     {
         d->m_helpUrl = QString("qthelp://%1/doc/%2.html").
-                arg(d->m_bean->metadata()->module()->id()).
-                arg(d->m_bean->metadata()->tableName());
+                arg(d->m_bean->metadata()->module()->id(),
+                    d->m_bean->metadata()->tableName());
     }
 
     QString helpFilePath = QString("%1/alepherp.qhc").arg(alephERPSettings->dataPath());
@@ -696,8 +697,8 @@ bool DBRecordDlg::init()
         if ( !d->m_bean->metadata()->toStringScript().isEmpty() )
         {
             setWindowTitle(tr("Edición de %1 [*] - %2").
-                                    arg(d->m_bean->metadata()->alias()).
-                                    arg(d->m_bean->toString()));
+                                    arg(d->m_bean->metadata()->alias(),
+                                        d->m_bean->toString()));
         }
         else
         {
@@ -1103,9 +1104,9 @@ bool DBRecordDlg::lock()
                                              "Fue bloqueado: </i>%2</i>. "
                                              "¿Desea desbloquearlo? Si lo desbloquea, el usuario %3 perderá "
                                              "todos sus datos.").
-                                      arg(info.value(AlephERP::stUserName).toString()).
-                                      arg(alephERPSettings->locale()->toString(blockDate, alephERPSettings->locale()->dateFormat())).
-                                      arg(info.value(AlephERP::stUserName).toString());
+                                      arg(info.value(AlephERP::stUserName).toString(),
+                                          alephERPSettings->locale()->toString(blockDate, alephERPSettings->locale()->dateFormat()),
+                                          info.value(AlephERP::stUserName).toString());
                     CommonsFunctions::setOverrideCursor(QCursor(Qt::ArrowCursor));
                     int ret = QMessageBox::information(this,qApp->applicationName(), message, QMessageBox::Yes | QMessageBox::No);
                     CommonsFunctions::restoreOverrideCursor();
@@ -1356,8 +1357,8 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
                                     QMessageBox::warning(this,
                                                          qApp->applicationName(),
                                                          tr("Se ha producido un error en el acceso al gestor documental. No se ha podido borrar el documento %1. El error es: %2").
-                                                            arg(doc->name()).
-                                                            arg(AERPDocumentDAOWrapper::instance()->lastMessage()));
+                                                            arg(doc->name(),
+                                                                AERPDocumentDAOWrapper::instance()->lastMessage()));
                                 }
                             }
                         }
@@ -2203,6 +2204,7 @@ void DBRecordDlg::saveRecord()
   */
 void DBRecordDlg::saveAndNew()
 {
+    /*
     if ( save() )
     {
         if ( !d->m_bean.isNull() )
@@ -2239,6 +2241,7 @@ void DBRecordDlg::saveAndNew()
             }
         }
     }
+    */
 }
 
 /**

@@ -516,10 +516,7 @@ QString DBRelationPrivate::cacheKey(const QString &filter, const QString &order,
 {
     QString key;
     key = QString("%1|%2|%3|%4").
-            arg(filter).
-            arg(order).
-            arg(includeToBeDeleted ? "1" : "0").
-            arg(includeOtherChildren ? "1" : "0");
+            arg(filter, order, includeToBeDeleted ? "1" : "0", includeOtherChildren ? "1" : "0");
     return key;
 }
 

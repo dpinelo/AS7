@@ -580,7 +580,7 @@ bool Database::createSystemTablesSQLite()
             if ( !qry->exec(sql) )
             {
                 QLogger::QLog_Error(AlephERP::stLogDB, QObject::tr("Database::createSystemTablesSQLite: [%1] [%2] [%2]").
-                                    arg(sql).arg(qry->lastError().databaseText()).arg(qry->lastError().driverText()));
+                                    arg(sql, qry->lastError().databaseText(), qry->lastError().driverText()));
                 return false;
             }
         }
@@ -612,7 +612,8 @@ bool Database::createServerTablesSQLite()
     QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("Database::createServerTablesSQLite: [%1]").arg(qry->lastQuery()));
     if ( !result )
     {
-        QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("Database::createServerTablesSQLite: [%1] [%2]").arg(qry->lastQuery()).arg(qry->lastError().text()));
+        QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("Database::createServerTablesSQLite: [%1] [%2]").
+                            arg(qry->lastQuery(), qry->lastError().text()));
     }
     return result;
 }
@@ -631,7 +632,7 @@ void Database::buildError(const QSqlError &error)
         }
         else
         {
-            Database::m_lastErrorMessage = QObject::tr("Driver message: %1\nDatabase message: %2").arg(error.driverText()).arg(error.databaseText());
+            Database::m_lastErrorMessage = QObject::tr("Driver message: %1\nDatabase message: %2").arg(error.driverText(), error.databaseText());
         }
     }
 }

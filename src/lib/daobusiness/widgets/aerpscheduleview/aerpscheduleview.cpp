@@ -1046,8 +1046,9 @@ void AERPScheduleView::raiseItem(const QModelIndex &index)
     }
 }
 
-void AERPScheduleView::dataChanged(const QModelIndex & topLeft, const  QModelIndex & bottomRight)
+void AERPScheduleView::dataChanged(const QModelIndex & topLeft, const  QModelIndex & bottomRight, const QVector<int> &roles)
 {
+    Q_UNUSED(roles)
     for (int iLoop = topLeft.row(); iLoop <= bottomRight.row(); iLoop++)
     {
         QModelIndex index = model()->index(iLoop, 0);

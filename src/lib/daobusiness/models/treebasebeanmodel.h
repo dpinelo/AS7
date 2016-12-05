@@ -97,7 +97,7 @@ public:
 
     virtual BaseBeanSharedPointer bean(const QModelIndex &index, bool reloadIfNeeded = true) const;
     virtual BaseBeanSharedPointerList beans(const QModelIndexList &list);
-    QModelIndex index(const BaseBeanSharedPointer &bean);
+    QModelIndex index(const BaseBeanSharedPointer &bean) const;
     QModelIndex indexByPk(const QVariant &pk);
     virtual BaseBeanMetadata *metadata() const;
 

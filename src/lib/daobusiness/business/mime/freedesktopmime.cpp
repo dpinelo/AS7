@@ -60,8 +60,8 @@ static void extract_offset (const QString& offset, int *startOffset, int *endOff
     }
     else
     {
-        *startOffset = offset.mid(0, index).toInt();
-        *endOffset = *startOffset + offset.mid(index + 1).toInt();
+        *startOffset = offset.midRef(0, index).toInt();
+        *endOffset = *startOffset + offset.midRef(index + 1).toInt();
     }
 }
 

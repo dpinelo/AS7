@@ -38,8 +38,6 @@
 class AERPScriptMessageBox : public QObject, public QScriptable
 {
     Q_OBJECT
-    Q_ENUM(Button)
-    Q_FLAGS(Buttons)
 
 public:
     explicit AERPScriptMessageBox(QObject *parent = 0);

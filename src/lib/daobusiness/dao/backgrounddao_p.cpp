@@ -146,7 +146,7 @@ void BackgroundDAOWorker::run()
             bool r = query.exec(m_programmedQuerys.at(0));
             if ( !r )
             {
-                QString err = QString("BackgroundDAOThread::run: ERROR: [%1] [%2]").arg(query.lastError().databaseText()).arg(query.lastError().driverText());
+                QString err = QString("BackgroundDAOThread::run: ERROR: [%1] [%2]").arg(query.lastError().databaseText(), query.lastError().driverText());
                 m_errors[m_programmedIds.at(0)] = err;
                 QLogger::QLog_Error(AlephERP::stLogDB, err);
             }

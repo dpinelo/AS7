@@ -89,7 +89,7 @@ public:
     bool validatePage();
     void initializePage();
     void cleanupPage();
-    bool isComplete();
+    bool isComplete() const;
 };
 
 Q_DECLARE_METATYPE(DBWizardDlg*)

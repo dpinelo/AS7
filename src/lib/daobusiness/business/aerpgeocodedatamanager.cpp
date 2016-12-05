@@ -99,7 +99,7 @@ QString AERPGeocodeDataManager::address(const QString &coords)
 {
     QUrl url;
     QString uuid;
-    if ( d->m_server.isEmpty() || d->m_server.toLower().contains(QStringLiteral("google")) )
+    if ( d->m_server.isEmpty() || d->m_server.contains(QStringLiteral("google"), Qt::CaseInsensitive) )
     {
         QUrlQuery query;
         query.addQueryItem("sensor", "false");
@@ -184,7 +184,7 @@ void AERPGeocodeTask::run()
 
 void AERPGeocodeTask::replyFinished(QNetworkReply *reply)
 {
-    if ( d->m_server.isEmpty() || d->m_server.toLower().contains(QStringLiteral("google")) )
+    if ( d->m_server.isEmpty() || d->m_server.toLower().contains(QStringLiteral("google"), Qt::CaseInsensitive) )
     {
         d->replyFinishedGoogle(reply);
     }
@@ -261,8 +261,8 @@ void AERPGeocodeTaskPrivate::replyFinishedGoogle(QNetworkReply *reply)
             AlephERP::AERPMapPosition pos;
             pos.formattedAddress = v.toMap()["formatted_address"].toString();
             pos.coordinates = QString("%1,%2").
-                    arg(v.toMap()["geometry"].toMap()["location"].toMap()["lat"].toString()).
-                    arg(v.toMap()["geometry"].toMap()["location"].toMap()["lng"].toString());
+                    arg(v.toMap()["geometry"].toMap()["location"].toMap()["lat"].toString(),
+                        v.toMap()["geometry"].toMap()["location"].toMap()["lng"].toString());
             QVariantList addressComponents = v.toMap()["address_components"].toList();
             for (int i = 0 ; i < addressComponents.size() ;i++)
             {
@@ -288,8 +288,8 @@ void AERPGeocodeTaskPrivate::replyFinishedGoogle(QNetworkReply *reply)
         QVariant v = results.at(0);
         pos.formattedAddress = v.toMap()["formatted_address"].toString();
         pos.coordinates = QString("%1,%2").
-                arg(v.toMap()["geometry"].toMap()["location"].toMap()["lat"].toString()).
-                arg(v.toMap()["geometry"].toMap()["location"].toMap()["lng"].toString());
+                arg(v.toMap()["geometry"].toMap()["location"].toMap()["lat"].toString(),
+                    v.toMap()["geometry"].toMap()["location"].toMap()["lng"].toString());
         QVariantList addressComponents = v.toMap()["address_components"].toList();
         for (int i = 0 ; i < addressComponents.size() ;i++)
         {

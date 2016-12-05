@@ -348,7 +348,9 @@ void DBChooseRecordButton::showEvent(QShowEvent *event)
             }
             else
             {
-                QLogger::QLog_Error(AlephERP::stLogOther, QString("DBChooseRecordButton: %1 asignado a un field %2, con una relación 1M, cuando debería ser 11 o M1.").arg(objectName()).arg(fld->dbFieldName()));
+                QLogger::QLog_Error(AlephERP::stLogOther,
+                                    QString("DBChooseRecordButton: %1 asignado a un field %2, con una relación 1M, cuando debería ser 11 o M1.").
+                                    arg(objectName(), fld->dbFieldName()));
             }
         }
     }
@@ -410,7 +412,7 @@ void DBChooseRecordButton::buttonClicked()
                 {
                     filter = QString("%1 AND").arg(filter);
                 }
-                filter = QString("%1 %2").arg(filter).arg(d->m_searchFilter);
+                filter = QString("%1 %2").arg(filter, d->m_searchFilter);
             }
         }
         else

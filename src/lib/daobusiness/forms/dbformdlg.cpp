@@ -583,7 +583,7 @@ DBFormDlg::DBFormDlg(const QString &tableName, QWidget* parent, Qt::WindowFlags 
 
 bool DBFormDlg::construct(const QString &tableName)
 {
-    setObjectName(QString("%1%2").arg(objectName()).arg(tableName));
+    setObjectName(QString("%1%2").arg(objectName(), tableName));
     if ( !checkPermissionsToOpen() )
     {
         return false;
@@ -653,8 +653,8 @@ bool DBFormDlg::construct(const QString &tableName)
     if ( d->m_helpUrl.isEmpty() )
     {
         d->m_helpUrl = QString("qthelp://%1/doc/%2.html").
-                arg(metadata->module()->id()).
-                arg(metadata->tableName());
+                arg(metadata->module()->id(),
+                    metadata->tableName());
     }
     if ( !d->m_mainWindow.isNull() )
     {
@@ -1857,11 +1857,11 @@ QPushButton *DBFormDlg::createEditButton(int position, const QString &text, cons
     QString code;
     if ( editType.testFlag(DBFormDlg::EditButton) )
     {
-        code = QString("false;%1;%2").arg(uiCode).arg(qsCode);
+        code = QString("false;%1;%2").arg(uiCode, qsCode);
     }
     else if ( editType.testFlag(DBFormDlg::CreateButton) )
     {
-        code = QString("true;%1;%2").arg(uiCode).arg(qsCode);
+        code = QString("true;%1;%2").arg(uiCode, qsCode);
     }
     if ( !code.isEmpty() )
     {

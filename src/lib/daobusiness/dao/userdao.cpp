@@ -177,7 +177,7 @@ bool UserDAO::setMetadataAccess(const QString &userName, const QString &tableNam
 {
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase()));
     QString sql = QString("INSERT INTO %1_permissions (username, tablename, permissions) VALUES ('%2', '%3', '%4')").
-                  arg(alephERPSettings->systemTablePrefix()).arg(userName).arg(tableName).arg(permission);
+                  arg(alephERPSettings->systemTablePrefix(), userName, tableName, permission);
     bool result = qry->exec(sql);
     if ( !result )
     {
@@ -304,15 +304,15 @@ bool UserDAO::createUser(const QString &userName, const QString &password)
     if ( password.isEmpty() )
     {
         sql = QString("INSERT INTO %1_users (username) VALUES ('%2')").
-              arg(alephERPSettings->systemTablePrefix()).arg(userName);
+              arg(alephERPSettings->systemTablePrefix(), userName);
     }
     else
     {
         QString hash = QCryptographicHash::hash(password.toLatin1(), QCryptographicHash::Sha3_512).toHex();
         sql = QString("INSERT INTO %1_users (username, password) VALUES ('%2', '%3')").
-                  arg(alephERPSettings->systemTablePrefix()).
-                  arg(userName).
-                  arg(hash);
+                  arg(alephERPSettings->systemTablePrefix(),
+                      userName,
+                      hash);
     }
     UserDAO::clearLastDbMessage();
 
@@ -341,8 +341,8 @@ void UserDAO::writeDbMessages(QSqlQuery *qry)
         }
         else
         {
-            UserDAO::m_lastMessage = QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
-                                     arg(qry->lastError().databaseText());
+            UserDAO::m_lastMessage = QString("Driver Error: %1\nDatabase Error: %2").
+                    arg(qry->lastError().driverText(), qry->lastError().databaseText());
         }
     }
     QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("UserDAO: BBDD LastQuery: [%1]").arg(qry->lastQuery()));
@@ -480,8 +480,7 @@ bool UserDAO::loadUserRowAccessData(const QList<BaseBean *> &beans, const QStrin
                           "FROM %1_user_row_access as acc LEFT JOIN %1_roles as rol ON acc.id_rol = rol.id "
                           "WHERE acc.tablename=:tablename AND acc.recordoid IN (%2) "
                           "ORDER BY acc.recordoid, acc.username, rol.nombre").
-                  arg(alephERPSettings->systemTablePrefix()).
-                  arg(oids);
+                  arg(alephERPSettings->systemTablePrefix(), oids);
 
     UserDAO::clearLastDbMessage();
 
@@ -489,7 +488,8 @@ bool UserDAO::loadUserRowAccessData(const QList<BaseBean *> &beans, const QStrin
     if ( !qry->prepare(sql) )
     {
         writeDbMessages(qry.data());
-        QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("UserDAO::loadUserRowAccessData: Error en prepare: [%1] [%2]").arg(sql).arg(qry->lastError().text()));
+        QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("UserDAO::loadUserRowAccessData: Error en prepare: [%1] [%2]").
+                            arg(sql, qry->lastError().text()));
         return false;
     }
     qry->bindValue(":tablename", tableName);
@@ -563,7 +563,7 @@ bool UserDAO::loadUserRowAccessData(BaseBeanPointer bean, const QString &connect
     if ( !qry->prepare(sql) )
     {
         writeDbMessages(qry.data());
-        QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("UserDAO::loadUserRowAccessData: Error en prepare: [%1] [%2]").arg(sql).arg(qry->lastError().text()));
+        QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("UserDAO::loadUserRowAccessData: Error en prepare: [%1] [%2]").arg(sql, qry->lastError().text()));
         return false;
     }
     qry->bindValue(":tablename", bean->metadata()->tableName());

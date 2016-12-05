@@ -58,7 +58,7 @@ void AERPHelpWidgetPrivate::registerHelpFiles()
     {
         foreach (const QString helpFile, helpFiles)
         {
-            QString fileHelp = QString("%1/%2").arg(alephERPSettings->dataPath()).arg(helpFile);
+            QString fileHelp = QString("%1/%2").arg(alephERPSettings->dataPath(), helpFile);
             if ( QFile::exists(fileHelp) )
             {
                 if ( !m_helpFiles.contains(fileHelp) )
@@ -69,7 +69,7 @@ void AERPHelpWidgetPrivate::registerHelpFiles()
                         if ( !m_helpEngine->registerDocumentation(fileHelp) )
                         {
                             QLogger::QLog_Error(AlephERP::stLogOther, QString("AERPHelpWidgetPrivate::registerHelpFiles: Error registrando el archivo de documentación: [%1]. ERROR: [%2]").
-                                                arg(fileHelp).arg(m_helpEngine->error()));
+                                                arg(fileHelp, m_helpEngine->error()));
                         }
                     }
                 }

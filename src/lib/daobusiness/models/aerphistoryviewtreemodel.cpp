@@ -138,8 +138,7 @@ AERPHistoryViewTreeModel::AERPHistoryViewTreeModel(BaseBeanPointer bean, QObject
             transactionItem->setData(0, Qt::DecorationRole, QPixmap(":/generales/images/edit_edit.png").scaled(16, 16, Qt::KeepAspectRatio));
 
             QString text = QObject::tr("Transacción realizada por %1 con fecha %2").
-                    arg(transaction.userName).
-                    arg(alephERPSettings->locale()->toString(transaction.timeStamp));
+                    arg(transaction.userName, alephERPSettings->locale()->toString(transaction.timeStamp));
             transactionItem->setData(0, Qt::DisplayRole, text);
 
             for (int rowCount = 0 ; rowCount < transaction.items.size() ; rowCount++ )

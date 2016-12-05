@@ -825,19 +825,19 @@ QString AlephERPSettings::dataPath() const
 void AlephERPSettings::saveRegistryValue(const QString &key, const QVariant &value)
 {
     QMutexLocker lock(&mutex);
-    QString registryKey = QString("%1/%2").arg(KEY_OTHERS).arg(key);
+    QString registryKey = QString("%1/%2").arg(KEY_OTHERS, key);
     m_settings->setValue(registryKey, value);
 }
 
 QVariant AlephERPSettings::loadRegistryValue(const QString &key)
 {
-    QString registryKey = QString("%1/%2").arg(KEY_OTHERS).arg(key);
+    QString registryKey = QString("%1/%2").arg(KEY_OTHERS, key);
     return m_settings->value(registryKey);
 }
 
 QMap<QString, QString> AlephERPSettings::groupValues(const QString &key)
 {
-    QString registryKey = QString("%1/%2").arg(KEY_OTHERS).arg(key);
+    QString registryKey = QString("%1/%2").arg(KEY_OTHERS, key);
     QMap<QString, QString> map;
     foreach (const QString childKey, m_settings->allKeys())
     {

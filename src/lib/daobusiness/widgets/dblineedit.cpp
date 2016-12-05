@@ -1075,7 +1075,7 @@ void DBLineEdit::processAutocompletion()
             {
                 BaseBeanSharedPointer b = BeansFactory::instance()->newQBaseBean(d->m_autoCompleteTableName);
                 if (fld != NULL &&
-                    BaseDAO::selectFirst(b, QString("%1 = %2").arg(d->m_autoCompleteColumn).arg(fld->sqlValue())) )
+                    BaseDAO::selectFirst(b, QString("%1 = %2").arg(d->m_autoCompleteColumn, fld->sqlValue())) )
                 {
                     d->m_completerBaseBean = b;
                     if ( !d->m_completerBaseBean.isNull() && text() != d->m_completerBaseBean->fieldValue(d->m_autoCompleteColumn) )
@@ -1248,7 +1248,6 @@ void DBLineEditPrivate::initCompleterFromFieldValues()
     {
         return;
     }
-    QString order = m_autoCompleteColumn + QString(" ASC");
     DBField *fld = qobject_cast<DBField *>(q_ptr->observer()->entity());
     if ( fld == NULL )
     {
@@ -1261,8 +1260,8 @@ void DBLineEditPrivate::initCompleterFromFieldValues()
     // el completer funcione. Esto signfica que Completer no funcionará si se encuentra algo así como esto
     // "Aa", "Ba", ""
     // Esa última cadena "" hace que no funcione.
-    QString sql = QString("SELECT DISTINCT %1 FROM %2 WHERE %1 <> '' AND %1 IS NOT NULL ORDER BY %3 ASC").arg(fld->metadata()->dbFieldName()).
-                  arg(fld->bean()->metadata()->tableName()).arg(fld->metadata()->dbFieldName());
+    QString sql = QString("SELECT DISTINCT %1 FROM %2 WHERE %1 <> '' AND %1 IS NOT NULL ORDER BY %3 ASC").
+            arg(fld->metadata()->dbFieldName(), fld->bean()->metadata()->tableName(), fld->metadata()->dbFieldName());
     model->setQuery(sql);
     m_completerModel = model;
     if ( !m_autoComplete.testFlag(AlephERP::NoPopup) )
@@ -1282,7 +1281,7 @@ void DBLineEditPrivate::initCompleterFromTable()
     {
         QLogger::QLog_Debug(AlephERP::stLogOther,
                             QString("DBBaseWidget::initCompleter: Tabla de autocompletado [%1] no valida para campo [%2]").
-                            arg(m_autoCompleteTableName).arg(q_ptr->fieldName()));
+                            arg(m_autoCompleteTableName, q_ptr->fieldName()));
         return;
     }
     FilterBaseBeanModel *filter = new FilterBaseBeanModel();
@@ -1509,12 +1508,12 @@ bool DBLineEditPrivate::completerCheckRestrictValueFromTable(const QVariant &val
     {
         return false;
     }
-    QString filter = QString("%1 = %2").arg(m_autoCompleteColumn).arg(fld->metadata()->sqlValue(value));
+    QString filter = QString("%1 = %2").arg(m_autoCompleteColumn, fld->metadata()->sqlValue(value));
     if ( !m_autoCompleteTableNameFilter.isEmpty() )
     {
         filter.append(QString(" AND %1").arg(m_autoCompleteTableNameFilter));
     }
-    QString sql = QString("SELECT count(*) FROM %1 WHERE %2").arg(m_autoCompleteTableName).arg(filter);
+    QString sql = QString("SELECT count(*) FROM %1 WHERE %2").arg(m_autoCompleteTableName, filter);
     QVariant result;
     if ( !BaseDAO::execute(sql, result) )
     {
@@ -1547,12 +1546,12 @@ bool DBLineEditPrivate::completerCheckRestrictValueFromRelation(const QVariant &
     }
     relations.first()->setFilter(q_ptr->relationFilter());
 
-    QString filter = QString("%1 = %2").arg(m_autoCompleteColumn).arg(fld->metadata()->sqlValue(value));
+    QString filter = QString("%1 = %2").arg(m_autoCompleteColumn, fld->metadata()->sqlValue(value));
     if ( !relations.first()->sqlRelationWhere().isEmpty() )
     {
         filter.append(QString(" AND %1").arg(relations.first()->sqlRelationWhere()));
     }
-    QString sql = QString("SELECT count(*) FROM %1 WHERE %2").arg(m_autoCompleteTableName).arg(filter);
+    QString sql = QString("SELECT count(*) FROM %1 WHERE %2").arg(m_autoCompleteTableName, filter);
     QVariant result;
     if ( !BaseDAO::execute(sql, result) )
     {

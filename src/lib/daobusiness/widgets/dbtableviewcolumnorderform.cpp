@@ -131,7 +131,7 @@ void DBTableViewColumnOrderForm::init()
                 }
             }
             QListWidgetItem *item = new QListWidgetItem (ui->listWidget);
-            item->setText(QString("%1%2").arg(name).arg(textOrder));
+            item->setText(QString("%1%2").arg(name, textOrder));
             item->setIcon(d->m_iconAscending);
             item->setData(AlephERP::DBFieldNameRole, value);
             if ( columnHidden )

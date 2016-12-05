@@ -97,9 +97,9 @@ public:
 
     virtual bool canShowCheckBoxes() const;
     virtual void setCanShowCheckBoxes(bool value);
-    virtual QModelIndexList checkedItems();
-    virtual void setCheckedItems(QModelIndexList list, bool checked = true);
-    virtual void setCheckedItem(QModelIndex index, bool checked = true);
+    virtual QModelIndexList checkedItems(const QModelIndex &idx = QModelIndex());
+    virtual void setCheckedItems(const QModelIndexList &list, bool checked = true);
+    virtual void setCheckedItem(const QModelIndex &index, bool checked = true);
     virtual void setCheckedItem(int row, bool checked = true);
     virtual void checkAllItems(bool checked = true);
     virtual void setCheckColumns(const QStringList &fieldNames);

@@ -103,7 +103,7 @@ public:
     DBAbstractViewInterface(QWidget *widget, QHeaderView *header);
     virtual ~DBAbstractViewInterface();
 
-    virtual bool aerpControlRelation()
+    virtual bool aerpControlRelation() const
     {
         return true;
     }

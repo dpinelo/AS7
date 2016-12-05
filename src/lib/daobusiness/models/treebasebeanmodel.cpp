@@ -446,7 +446,7 @@ QModelIndex TreeBaseBeanModel::indexForItem(BeanTreeItem *item)
 /*!
     Devuelve el índice del modelo para el bean dado.
  */
-QModelIndex TreeBaseBeanModel::index(const BaseBeanSharedPointer &bean)
+QModelIndex TreeBaseBeanModel::index(const BaseBeanSharedPointer &bean) const
 {
     // Primero vamos a determinar en qu nivel se encuentra el objeto
     QModelIndex indice;
@@ -580,7 +580,7 @@ Qt::ItemFlags TreeBaseBeanModel::flags (const QModelIndex & index) const
         {
             flags = flags | Qt::ItemIsEnabled;
         }
-        QString checkColumn = QString("%1.%2").arg(bean->metadata()->tableName()).arg(field->dbFieldName());
+        QString checkColumn = QString("%1.%2").arg(bean->metadata()->tableName(), field->dbFieldName());
         if ( BaseBeanModel::checkColumns().contains(checkColumn))
         {
             flags = flags | Qt::ItemIsUserCheckable;
@@ -715,7 +715,7 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
         }
         if ( field != NULL )
         {
-            checkColumn = QString("%1.%2").arg(b->metadata()->tableName()).arg(field->dbFieldName());
+            checkColumn = QString("%1.%2").arg(b->metadata()->tableName(), field->dbFieldName());
         }
     }
 
@@ -1062,7 +1062,7 @@ bool TreeBaseBeanModel::setData(const QModelIndex &idx, const QVariant &value, i
     {
         return false;
     }
-    QString checkColumn = QString("%1.%2").arg(bean->metadata()->tableName()).arg(field->dbFieldName());
+    QString checkColumn = QString("%1.%2").arg(bean->metadata()->tableName(), field->dbFieldName());
     if ( role == Qt::CheckStateRole && BaseBeanModel::checkColumns().contains(checkColumn) )
     {
         bool ok;

@@ -258,7 +258,8 @@ QVariant RelatedTreeItem::data(int column, int role) const
                 BaseBeanMetadata *relBean = BeansFactory::metadataBean(d->m_dbRelation->metadata()->tableName());
                 if ( relBean != NULL )
                 {
-                    return QObject::tr("Registros descendientes o ancestros: %1 (%2)").arg(relBean->alias()).arg(alephERPSettings->locale()->toString(childCount()));
+                    return QObject::tr("Registros descendientes o ancestros: %1 (%2)").
+                            arg(relBean->alias(), alephERPSettings->locale()->toString(childCount()));
                 }
                 else
                 {
@@ -289,7 +290,8 @@ QVariant RelatedTreeItem::data(int column, int role) const
                 }
                 ::EmailAttachment attachment = d->m_element->email().attachments().at(d->m_attachmentRow);
                 double sizeOnMb = attachment.sizeOnBytes() / (1024*1024);
-                QString name = QString("%1 (%2)").arg(attachment.emailFileName()).arg(CommonsFunctions::sizeHuman(sizeOnMb));
+                QString name = QString("%1 (%2)").
+                        arg(attachment.emailFileName(), CommonsFunctions::sizeHuman(sizeOnMb));
                 return name;
 #else
                 return QString();

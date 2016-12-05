@@ -591,7 +591,7 @@ void DBDetailView::addExisting()
             {
                 filter = QString("%1 AND ").arg(filter);
             }
-            filter = QString("%1%2").arg(filter).arg(m_relationFilter);
+            filter = filter.append(m_relationFilter);
         }
         // Añadimos un filtro adicional: no visualizar los que ya están agregados
         BaseBeanPointerList relationChildren = rel->children("", false);
@@ -613,7 +613,7 @@ void DBDetailView::addExisting()
             {
                 filter = QString("%1 AND ").arg(filter);
             }
-            filter = QString("%1oid NOT IN (%2)").arg(filter).arg(filterNotInclude);
+            filter = QString("%1oid NOT IN (%2)").arg(filter, filterNotInclude);
         }
         // El programador Qs podrá también modificar o agregar algo al filtro... máxima versatilidad
         AERPBaseDialog *containerDlg = CommonsFunctions::aerpParentDialog(this);

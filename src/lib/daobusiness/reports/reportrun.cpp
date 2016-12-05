@@ -436,7 +436,7 @@ AERPReportsInterface * ReportRun::loadPlugin(const QString &pluginName)
 #if defined(Q_OS_WIN)
         QString pathPluginFile = QString("%1/%2.dll").arg(reportPluginDir).arg(pluginName);
 #else
-        QString pathPluginFile = QString("%1/lib%2.so").arg(reportPluginDir).arg(pluginName);
+        QString pathPluginFile = QString("%1/lib%2.so").arg(reportPluginDir, pluginName);
 #endif
         QFile pluginFile(pathPluginFile);
         if (!pluginFile.exists())
@@ -454,7 +454,7 @@ AERPReportsInterface * ReportRun::loadPlugin(const QString &pluginName)
         {
             CommonsFunctions::restoreOverrideCursor();
             m_lastMessage = QObject::tr("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
-                            arg(pluginName).arg(pluginLoader->errorString());
+                            arg(pluginName, pluginLoader->errorString());
         }
         else
         {
@@ -853,7 +853,7 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
     if ( !qry->prepare(sql) || ! qryCount->prepare(sqlCount) )
     {
         d->m_lastErrorMessage = tr("Ocurrió un error al preparar la consulta de exportación. \nEl error es: [%1][%2]").
-                arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
+                arg(qry->lastError().databaseText(), qry->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
         return false;
     }
@@ -878,7 +878,7 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
     if ( !rCount || !r )
     {
         d->m_lastErrorMessage = tr("Ocurrió un error ejecutando la consulta de exportación. \nEl error es: [%1][%2]").
-                arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
+                arg(qry->lastError().databaseText(), qry->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
         return false;
     }

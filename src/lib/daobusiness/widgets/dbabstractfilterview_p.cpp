@@ -108,11 +108,11 @@ QString DBAbstractFilterViewPrivate::initSortForModel()
                 }
                 if ( sort.isEmpty() )
                 {
-                    sort = QString("%1 %2").arg(order.at(i)).arg(s);
+                    sort = QString("%1 %2").arg(order.at(i), s);
                 }
                 else
                 {
-                    sort = QString("%1, %2 %3").arg(sort).arg(order.at(i)).arg(s);
+                    sort = QString("%1, %2 %3").arg(sort, order.at(i), s);
                 }
             }
         }
@@ -362,7 +362,7 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
                     // Añadimos los hijos de la relación al combo
                     foreach ( BaseBeanSharedPointer child, list )
                     {
-                        QString where = QString("%1=%2").arg(fieldToFilter).arg(child->sqlFieldValue(rel->childFieldName()));
+                        QString where = QString("%1=%2").arg(fieldToFilter, child->sqlFieldValue(rel->childFieldName()));
                         cb->addItem(child->displayFieldValue(relationFieldToShow), where);
                     }
                 }
@@ -392,7 +392,7 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
     {
         cb->addItem(QObject::tr("Ver todos"), "");
     }
-    QString key = QString("%1%2").arg(m_tableName).arg(cb->objectName());
+    QString key = QString("%1%2").arg(m_tableName, cb->objectName());
     QVariant v = alephERPSettings->loadRegistryValue(key);
     int index = cb->findData(v);
     if ( index != -1 )
@@ -481,7 +481,7 @@ QString DBAbstractFilterViewPrivate::sqlFilterForStrongFilter(const QString &tab
             {
                 sqlFilter.append(" AND ");
             }
-            sqlFilter = QString("%1(%2)").arg(sqlFilter).arg(data);
+            sqlFilter = QString("%1(%2)").arg(sqlFilter, data);
         }
     }
     // Ahora se agregan las variables de entorno
@@ -619,7 +619,7 @@ QString DBAbstractFilterViewPrivate::buildFilterWhere(const QString &aditionalSq
                 }
                 else
                 {
-                    whereFilter = QString("%1 AND %2").arg(whereFilter).arg(filter);
+                    whereFilter = QString("%1 AND %2").arg(whereFilter, filter);
                 }
             }
         }
@@ -633,14 +633,12 @@ QString DBAbstractFilterViewPrivate::buildFilterWhere(const QString &aditionalSq
             if ( le->property(AlephERP::stShowTextLineExactlySearch).toBool() )
             {
                 filter = QString("lower(%1) like lower('%2')").
-                    arg(le->property(AlephERP::stFieldName).toString()).
-                    arg(le->text());
+                    arg(le->property(AlephERP::stFieldName).toString(), le->text());
             }
             else
             {
                 filter = QString("lower(%1) like lower('%%2%')").
-                    arg(le->property(AlephERP::stFieldName).toString()).
-                    arg(le->text());
+                    arg(le->property(AlephERP::stFieldName).toString(), le->text());
             }
             if ( whereFilter.isEmpty() )
             {
@@ -648,7 +646,7 @@ QString DBAbstractFilterViewPrivate::buildFilterWhere(const QString &aditionalSq
             }
             else
             {
-                whereFilter = QString("%1 AND %2").arg(whereFilter).arg(filter);
+                whereFilter = QString("%1 AND %2").arg(whereFilter, filter);
             }
         }
     }
@@ -661,7 +659,7 @@ QString DBAbstractFilterViewPrivate::buildFilterWhere(const QString &aditionalSq
         }
         else
         {
-            whereFilter = QString("%1 AND %2").arg(whereFilter).arg(aditionalSql);
+            whereFilter = QString("%1 AND %2").arg(whereFilter, aditionalSql);
         }
     }
     return whereFilter;
@@ -893,17 +891,17 @@ void DBAbstractFilterViewPrivate::calculateSubTotals()
                     if ( !where.isEmpty() )
                     {
                         sql = QString("SELECT %1(%2) FROM %3 WHERE %4").
-                              arg(subTotal["calc"]).
-                              arg(subTotal["field"]).
-                              arg(m_metadata->sqlTableName()).
-                              arg(where);
+                              arg(subTotal["calc"],
+                                 subTotal["field"],
+                                 m_metadata->sqlTableName(),
+                                 where);
                     }
                     else
                     {
                         sql = QString("SELECT %1(%2) FROM %3").
-                              arg(subTotal["calc"]).
-                              arg(subTotal["field"]).
-                              arg(m_metadata->sqlTableName());
+                              arg(subTotal["calc"],
+                                  subTotal["field"],
+                                  m_metadata->sqlTableName());
                     }
                 }
                 if ( !sql.isEmpty() )
@@ -940,7 +938,8 @@ QString DBAbstractFilterViewPrivate::buildSqlWhereForSubTotal()
                 {
                     sql += " AND ";
                 }
-                sql = QString("%1 %2 BETWEEN %3 AND %4").arg(sql).arg(dbFieldName).arg(fld->sqlValue(filterValues["value1"])).arg(fld->sqlValue(filterValues["value2"]));
+                sql = QString("%1 %2 BETWEEN %3 AND %4").
+                        arg(sql, dbFieldName, fld->sqlValue(filterValues["value1"]), fld->sqlValue(filterValues["value2"]));
             }
             else
             {
@@ -951,11 +950,11 @@ QString DBAbstractFilterViewPrivate::buildSqlWhereForSubTotal()
                 }
                 if ( fld->type() == QVariant::String )
                 {
-                    sql = QString("%1 UPPER(%2) LIKE UPPER('%%3%')").arg(sql).arg(dbFieldName).arg(v.toString());
+                    sql = QString("%1 UPPER(%2) LIKE UPPER('%%3%')").arg(sql, dbFieldName, v.toString());
                 }
                 else
                 {
-                    sql = QString("%1 %2%3%4").arg(sql).arg(dbFieldName).arg(filterValues.value("operator").toString()).arg(fld->sqlValue(v));
+                    sql = QString("%1 %2%3%4").arg(sql, dbFieldName, filterValues.value("operator").toString(), fld->sqlValue(v));
                 }
             }
         }
@@ -969,7 +968,7 @@ QString DBAbstractFilterViewPrivate::buildSqlWhereForSubTotal()
         }
         else
         {
-            where = QString("%1 AND %2").arg(m_whereFilter).arg(sql);
+            where = QString("%1 AND %2").arg(m_whereFilter, sql);
         }
     }
     else
@@ -981,7 +980,7 @@ QString DBAbstractFilterViewPrivate::buildSqlWhereForSubTotal()
     {
         if ( !where.isEmpty() )
         {
-            where = QString("%1 AND %2").arg(where).arg(modelWhere);
+            where = QString("%1 AND %2").arg(where, modelWhere);
         }
         else
         {

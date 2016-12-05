@@ -147,7 +147,7 @@ void DBRelation::updateChildrens()
         {
             if ( rootField->rawValue().isValid() && d->haveToSearchOnDatabase(rootField) )
             {
-                QString where = QString("%1 = %2").arg(d->m->childFieldName()).arg(rootField->sqlValue(true, "", true));
+                QString where = QString("%1 = %2").arg(d->m->childFieldName(), rootField->sqlValue(true, "", true));
                 // Como vamos a obtener el nuevo padre, habrá que limpiarlo (por ejemplo, si tiene
                 // hijos de una relación)
                 QList<DBRelation *> rels = d->m_father->relations();
@@ -765,7 +765,7 @@ BaseBeanSharedPointer DBRelation::newChild(int pos)
     {
         QLogger::QLog_Warning(AlephERP::stLogOther,
                               QString("DBRelation::newChild: RARO: %1 es un tipo serial en la tabla %2, y es referenciada en la relación").
-                              arg(d->m->childFieldName()).arg(d->m->tableName()));
+                              arg(d->m->childFieldName(), d->m->tableName()));
     }
 
     // Establecemos el ID del padre en la relación
@@ -1474,7 +1474,7 @@ BaseBeanPointer DBRelation::father(bool retrieveOnDemand)
                 {
                     searchOnDb = d->haveToSearchOnDatabase(fld);
                 }
-                QString where = QString("%1 = %2").arg(d->m->childFieldName()).arg(fld->sqlValue());
+                QString where = QString("%1 = %2").arg(d->m->childFieldName(), fld->sqlValue());
                 bool previousState = d->m_father->blockAllSignals(true);
                 if ( searchOnDb && BaseDAO::selectFirst(d->m_father.data(), where) )
                 {
@@ -1519,7 +1519,7 @@ BaseBeanPointer DBRelation::father(bool retrieveOnDemand)
     {
         QLogger::QLog_Info(AlephERP::stLogOther, QString::fromUtf8("DBRelation::father: ATENCIÓN: SE HA SOLICITADO EL PADRE DE LA RELACIÓN [%1] "
                            "] EN EL BEAN [%2] SIENDO ESTA RELACIÓN DE TIPO 1->M").
-                           arg(d->m->tableName()).arg(ownerBean()->metadata()->tableName()));
+                           arg(d->m->tableName(), ownerBean()->metadata()->tableName()));
     }
     return d->m_father;
 }
@@ -1835,7 +1835,7 @@ QString DBRelation::fetchChildSqlWhere (const QString &aliasChild)
         DBField *orig = ownerBean()->field(d->m->rootFieldName());
         if ( orig != NULL )
         {
-            sql = QString("%1%2 = %3").arg(alias).arg(d->m->childFieldName()).arg(orig->sqlValue());
+            sql = QString("%1%2 = %3").arg(alias, d->m->childFieldName(), orig->sqlValue());
         }
         else
         {
@@ -1857,7 +1857,7 @@ QString DBRelation::fetchFatherSqlWhere(const QString &aliasRoot)
         DBField *orig = ownerBean()->field(d->m->rootFieldName());
         if ( orig != NULL )
         {
-            sql = QString("%1%2 = %3").arg(alias).arg(d->m->rootFieldName()).arg(orig->sqlValue());
+            sql = QString("%1%2 = %3").arg(alias, d->m->rootFieldName(), orig->sqlValue());
         }
         else
         {
@@ -1886,7 +1886,7 @@ QString DBRelation::sqlRelationWhere()
     {
         if ( d->m->type() == DBRelationMetadata::ONE_TO_MANY || d->m->type() == DBRelationMetadata::ONE_TO_ONE )
         {
-            sql = QString("%1 AND %2").arg(fetchChildSqlWhere()).arg(d->m_filter);
+            sql = QString("%1 AND %2").arg(fetchChildSqlWhere(), d->m_filter);
         }
         else
         {
@@ -2055,8 +2055,7 @@ bool DBRelation::loadChildrenOnBackground(const QString &order)
         QVariant result;
         // Necesitamos saber cuántos hijos se obtienen
         QString sql = QString("SELECT count(*) FROM %1 WHERE %2")
-                .arg(d->m->sqlTableName()).
-                arg(sqlRelationWhere());
+                .arg(d->m->sqlTableName(), sqlRelationWhere());
         if ( BaseDAO::execute(sql, result) )
         {
             d->m_childrenCount = result.toInt();

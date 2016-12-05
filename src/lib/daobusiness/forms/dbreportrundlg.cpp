@@ -628,7 +628,7 @@ bool DBReportRunDlg::exportToSpreadSheet()
                                              qApp->applicationName(),
                                              tr("Seleccione el nombre del fichero a generar."),
                                              QLineEdit::Normal,
-                                             QString("%1.%2").arg(d->m_run->metadata()->alias().replace("/", "")).arg(type),
+                                             QString("%1.%2").arg(d->m_run->metadata()->alias().replace("/", ""), type),
                                              &ok);
     if ( !ok || fileName.isEmpty())
     {
@@ -646,7 +646,7 @@ bool DBReportRunDlg::exportToSpreadSheet()
     qApp->processEvents();
 
     d->m_run->setParameters(d->constructParameterMap());
-    QString filePath = QString("%1/%2").arg(dir).arg(fileName);
+    QString filePath = QString("%1/%2").arg(dir, fileName);
     bool execute = d->m_run->exportToSpreadSheet(type, filePath);
     dlg->close();
     if ( !execute )

@@ -113,7 +113,7 @@ bool AERPHTTPConnection::makeHttpConnection(QString &readedData, const QUrl &url
 
     if ( d->m_usePreemptiveAuthentication )
     {
-        QByteArray ba = (QString("%1:%2").arg(url.userName()).arg(url.password())).toLocal8Bit();
+        QByteArray ba = (QString("%1:%2").arg(url.userName(), url.password())).toLocal8Bit();
         QString auth = QString("Basic %1").arg(QString(ba.toBase64()));
         request.setRawHeader("Authorization", auth.toLocal8Bit());
     }
@@ -165,7 +165,7 @@ void AERPHTTPConnection::processSslErrors(QNetworkReply * reply, const QList<QSs
     {
         if ( error.error() != QSslError::SelfSignedCertificate && error.error() != QSslError::HostNameMismatch )
         {
-            d->m_error = QString("%1%2\n").arg(d->m_error).arg(error.errorString());
+            d->m_error = QString("%1%2\n").arg(d->m_error, error.errorString());
         }
     }
     if ( d->m_error.isEmpty() )
@@ -288,6 +288,6 @@ QString AERPHttpConnectionPrivate::errorToString(const QNetworkReply *err)
     {
         errorMessage = QObject::tr("A breakdown in protocol was detected (parsing error, invalid or unexpected responses, etc.)");
     }
-    errorMessage = QString("%1\n%2").arg(errorMessage).arg(err->errorString());
+    errorMessage = QString("%1\n%2").arg(errorMessage, err->errorString());
     return errorMessage;
 }

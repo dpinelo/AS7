@@ -1223,7 +1223,7 @@ AERPExtractPlainContentIface *CommonsFunctions::loadPlainContentPlugin(QString &
         {
             CommonsFunctions::restoreOverrideCursor();
             error = QObject::tr("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
-                    arg(pluginName).arg(pluginLoader->errorString());
+                    arg(pluginName, pluginLoader->errorString());
             return NULL;
         }
         else

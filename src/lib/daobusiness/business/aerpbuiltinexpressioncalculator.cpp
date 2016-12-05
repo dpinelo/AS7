@@ -158,7 +158,8 @@ void AERPBuiltInExpressionCalculatorPrivate::createVarsOnParser()
                 else
                 {
                     QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPBuiltInExpressionCalculatorPrivate::createVarsOnParser: El valor del field [%1] "
-                             "no ha podido ser convertido a double. Valor: [%2]").arg(fld->metadata()->dbFieldName()).arg(variant.toString()));
+                             "no ha podido ser convertido a double. Valor: [%2]").
+                                        arg(fld->metadata()->dbFieldName(), variant.toString()));
                 }
             }
         }
@@ -238,7 +239,8 @@ void AERPBuiltInExpressionCalculatorPrivate::updateVarValues()
             else
             {
                 QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPBuiltInExpressionCalculatorPrivate::setVarsValueOnParser: El valor del field [%1] "
-                         "no ha podido ser convertido a double. Valor: [%2]").arg(v->field->metadata()->dbFieldName()).arg(variant.toString()));
+                         "no ha podido ser convertido a double. Valor: [%2]").
+                                    arg(v->field->metadata()->dbFieldName(), variant.toString()));
             }
         }
     }

@@ -160,7 +160,7 @@ QMimeData *MenuTreeWidget::mimeData(const QList<QTreeWidgetItem *> items) const
         }
         else
         {
-            text = QString("%1;%2").arg(mimeData->text()).arg(act->objectName());
+            text = QString("%1;%2").arg(mimeData->text(), act->objectName());
         }
     }
     mimeData->setData(AlephERP::stMimeDataAction, text.toUtf8());

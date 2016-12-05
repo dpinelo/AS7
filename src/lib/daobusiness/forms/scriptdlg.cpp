@@ -66,7 +66,7 @@ ScriptDlg::ScriptDlg(const QString &uiName, const QString &qsName, QWidget* pare
 bool ScriptDlg::init()
 {
     // Nombre único para identificar las propiedades de este formulario
-    setObjectName(QString("%1%2").arg(objectName()).arg(d->m_ui));
+    setObjectName(QString("%1%2").arg(objectName(), d->m_ui));
 
     setWindowFlags(windowFlags() | Qt::WindowMinMaxButtonsHint |
                    Qt::WindowSystemMenuHint | Qt::WindowContextHelpButtonHint);

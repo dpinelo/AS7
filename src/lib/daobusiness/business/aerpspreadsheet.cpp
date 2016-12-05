@@ -232,7 +232,7 @@ void AERPSpreadSheet::loadPlugins()
     for (const QString &pluginFile : plugins)
     {
         AERPSpreadSheetIface *iface = NULL;
-        QString pathPluginFile = QString("%1/%2").arg(pluginDirPath).arg(pluginFile);
+        QString pathPluginFile = QString("%1/%2").arg(pluginDirPath, pluginFile);
 
         // Este comando puede dar "not real memory leaks" en valgrind. La razón, se puede encontrar aquí:
         // https://bugreports.qt-project.org/browse/QTBUG-25279
@@ -244,7 +244,7 @@ void AERPSpreadSheet::loadPlugins()
             {
                 CommonsFunctions::restoreOverrideCursor();
                 qDebug() << tr("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
-                        arg(pathPluginFile).arg(pluginLoader->errorString());
+                        arg(pathPluginFile, pluginLoader->errorString());
             }
             else
             {

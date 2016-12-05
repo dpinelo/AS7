@@ -319,8 +319,7 @@ void DBTabWidgetPrivate::filterChildren(int index)
                         if ( list.size() > 0 )
                         {
                             relationFilter.append(QString("%1 = %2").
-                                                  arg(rel->rootFieldName()).
-                                                  arg(list.at(0).toString()));
+                                                  arg(rel->rootFieldName(), list.at(0).toString()));
                             dbBase->setRelationFilter(relationFilter);
                         }
                     }

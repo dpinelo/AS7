@@ -136,7 +136,7 @@ public:
     void setCategories(const QString &value);
     CategoriesRule categoriesRule() const;
     void setCategoriesRule(CategoriesRule rule);
-    bool aerpControl()
+    bool aerpControl() const
     {
         return true;
     }

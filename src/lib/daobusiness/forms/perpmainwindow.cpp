@@ -1278,15 +1278,15 @@ void AERPMainWindow::init()
 
     // Ponemos Window title con más info:
     QString wt = QString("%1 - [%2] [%3]").
-            arg(windowTitle()).
-            arg(AERPLoggedUser::instance()->server()).
-            arg(AERPLoggedUser::instance()->userName());
+            arg(windowTitle(),
+                AERPLoggedUser::instance()->server(),
+                AERPLoggedUser::instance()->userName());
     setWindowTitle(wt);
     if ( statusBar() )
     {
         statusBar()->addPermanentWidget(new QLabel(tr("Servidor: %1. Usuario: %2").
-                                                   arg(AERPLoggedUser::instance()->server()).
-                                                   arg(AERPLoggedUser::instance()->userName())));
+                                                   arg(AERPLoggedUser::instance()->server(),
+                                                       AERPLoggedUser::instance()->userName())));
     }
 }
 
@@ -1674,7 +1674,7 @@ void AERPMainWindow::initScheduledJob(const QString &jobName)
             d->m_jobLabel->show();
             if ( alephERPSettings->allowSystemTray() && d->m_trayIcon->isVisible() )
             {
-                QString toolTip = QString("%1</br>%2").arg(qApp->applicationName()).arg(msg);
+                QString toolTip = QString("%1</br>%2").arg(qApp->applicationName(), msg);
                 d->m_trayIcon->showMessage(qApp->applicationName(), msg);
                 d->m_trayIcon->setToolTip(toolTip);
             }
@@ -1747,7 +1747,6 @@ void AERPMainWindow::hotFolders()
 
 void AERPMainWindow::syncHotFolders()
 {
-    QString error;
     if ( alephERPSettings->hotFolders().isEmpty() )
     {
         QMessageBox::warning(this, qApp->applicationName(), tr("Debe seleccionar qué carpetas del gestor documental desea sincronizar en su disco duro."));

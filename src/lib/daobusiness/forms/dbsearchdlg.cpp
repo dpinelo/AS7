@@ -659,7 +659,7 @@ void DBSearchDlgPrivate::setupWidget()
     }
     layout = new QGridLayout();
     QHash<int, QWidgetList> widgets = q_ptr->setupWidgetFromBaseBeanMetadata(m_metadata, qobject_cast<QGridLayout *>(layout), true);
-    if ( widgets.keys().size() > 0 )
+    if ( widgets.size() > 0 )
     {
         q_ptr->ui->gbSearchFields->setVisible(true);
         q_ptr->ui->gbSearchFields->setLayout(layout);
@@ -684,7 +684,7 @@ bool DBSearchDlgPrivate::setupExternalWidget()
 {
     QString fileName;
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBSearchDlgPrivate::setupExternalWidget: Tabla: %1 tiene definido el dbsearch: %2").
-                        arg(q_ptr->tableName()).arg(m_metadata->uiDbSearch()));
+                        arg(q_ptr->tableName(), m_metadata->uiDbSearch()));
     if ( m_metadata->uiDbSearch().isEmpty() )
     {
         fileName = QString("%1.search.ui").arg(q_ptr->tableName());
@@ -899,7 +899,7 @@ void DBSearchDlg::select (const QModelIndex &index)
                 {
                     QMessageBox::warning(this,qApp->applicationName(), tr("Debe seleccionar un elemento de tipo <strong>%1</strong>. "
                                          "Ha intentado seleccionar un elemento de tipo %2. Debe escoger un elemento final del árbol.").
-                                         arg(d->m_metadata->alias()).arg(bean->metadata()->alias()), QMessageBox::Ok);
+                                         arg(d->m_metadata->alias(), bean->metadata()->alias()), QMessageBox::Ok);
                     return;
                 }
                 d->m_selectedBean = bean;
@@ -1418,7 +1418,7 @@ QString DBSearchDlgPrivate::sqlWhere(SearchPerformed *searchState) const
                 }
                 if ( hashValue["operator"].toString() == OP_AND )
                 {
-                    where += QString("%1 %2").arg(hashValue["operator"].toString()).arg(sqlValue);
+                    where += QString("%1 %2").arg(hashValue["operator"].toString(), sqlValue);
                 }
                 else
                 {
@@ -1426,14 +1426,14 @@ QString DBSearchDlgPrivate::sqlWhere(SearchPerformed *searchState) const
                     {
                         where = where + " AND ";
                     }
-                    where += QString("upper(%1) %2 %3").arg(fld->dbFieldName()).arg(hashValue["operator"].toString()).arg(sqlValue.toUpper());
+                    where += QString("upper(%1) %2 %3").arg(fld->dbFieldName(), hashValue["operator"].toString(), sqlValue.toUpper());
                 }
             }
             else
             {
                 if ( hashValue["operator"].toString() == OP_AND )
                 {
-                    where += QString("%1 %2").arg(hashValue["operator"].toString()).arg(sqlValue);
+                    where += QString("%1 %2").arg(hashValue["operator"].toString(), sqlValue);
                 }
                 else
                 {
@@ -1441,7 +1441,7 @@ QString DBSearchDlgPrivate::sqlWhere(SearchPerformed *searchState) const
                     {
                         where = where + " AND ";
                     }
-                    where += QString("%1 %2 %3").arg(fld->dbFieldName()).arg(hashValue["operator"].toString()).arg(sqlValue);
+                    where += QString("%1 %2 %3").arg(fld->dbFieldName(), hashValue["operator"].toString(), sqlValue);
                 }
             }
         }

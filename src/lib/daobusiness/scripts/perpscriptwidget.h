@@ -122,7 +122,7 @@ protected:
     void showEvent(QShowEvent *event);
     void closeEvent (QCloseEvent * event);
     void focusInEvent(QFocusEvent * event);
-    AbstractObserver *observer();
+    AbstractObserver *observer(bool sync = true);
 
 public:
     explicit AERPScriptWidget(QWidget *parent = 0);

@@ -210,7 +210,7 @@ QVariant BaseBeanModel::data(DBField *field, const QModelIndex &item, int role) 
     {
         if ( bean != NULL )
         {
-            return QString("[%1][%2]").arg(bean->metadata()->tableName()).arg(bean->pkSerializedValue());
+            return QString("[%1][%2]").arg(bean->metadata()->tableName(), bean->pkSerializedValue());
         }
         else
         {
@@ -735,8 +735,9 @@ void BaseBeanModel::setCanShowCheckBoxes(bool value)
     d->m_canShowCheckBoxes = value;
 }
 
-QModelIndexList BaseBeanModel::checkedItems()
+QModelIndexList BaseBeanModel::checkedItems(const QModelIndex &idx)
 {
+    Q_UNUSED(idx)
     QModelIndexList list;
     QHashIterator<int, bool> it(m_checkedItems);
     while ( it.hasNext() )
@@ -819,7 +820,7 @@ bool BaseBeanModel::isLinkColumn(int column) const
     return false;
 }
 
-void BaseBeanModel::setCheckedItems(QModelIndexList list, bool checked)
+void BaseBeanModel::setCheckedItems(const QModelIndexList &list, bool checked)
 {
     int lessRow = INT_MAX, lessCol = INT_MAX, maxRow = 0, maxCol = 0;
     if ( list.size() == 0 )
@@ -854,7 +855,7 @@ void BaseBeanModel::setCheckedItems(QModelIndexList list, bool checked)
     }
 }
 
-void BaseBeanModel::setCheckedItem(QModelIndex index, bool checked)
+void BaseBeanModel::setCheckedItem(const QModelIndex &index, bool checked)
 {
     if ( index.isValid() )
     {
@@ -953,18 +954,18 @@ QString BaseBeanModel::sqlSelectFieldsClausule(BaseBeanMetadata *metadata, QList
                     }
                     else
                     {
-                        sql = QString("%1.%2").arg(alias).arg(field->dbFieldName());
+                        sql = QString("%1.%2").arg(alias, field->dbFieldName());
                     }
                 }
                 else
                 {
                     if ( alias.isEmpty() )
                     {
-                        sql = QString("%1, %2").arg(sql).arg(field->dbFieldName());
+                        sql = QString("%1, %2").arg(sql, field->dbFieldName());
                     }
                     else
                     {
-                        sql = QString("%1, %2.%3").arg(sql).arg(alias).arg(field->dbFieldName());
+                        sql = QString("%1, %2.%3").arg(sql, alias, field->dbFieldName());
                     }
                 }
             }
@@ -976,7 +977,7 @@ QString BaseBeanModel::sqlSelectFieldsClausule(BaseBeanMetadata *metadata, QList
                 }
                 else
                 {
-                    sql = QString("%1, 'notVisible' as %2").arg(sql).arg(field->dbFieldName());
+                    sql = QString("%1, 'notVisible' as %2").arg(sql, field->dbFieldName());
                 }
             }
         }
@@ -1002,7 +1003,7 @@ QString BaseBeanModel::sqlSelectFieldsClausule(BaseBeanMetadata *metadata, QList
             }
             else
             {
-                sql = QString("%1, %2.oid").arg(sql).arg(alias);
+                sql = QString("%1, %2.oid").arg(sql, alias);
             }
         }
     }
@@ -1037,9 +1038,9 @@ QString BaseBeanModel::buildSqlSelect(BaseBeanMetadata *metadata, const QString 
         {
             sql = sqlSelectFieldsClausule(metadata, fields, includeOid, "t1");
             sql = QString("SELECT DISTINCT %1 FROM %2 AS t1 LEFT JOIN %3_user_row_access AS t2 ON t1.oid = t2.recordoid WHERE ").
-                  arg(sql).
-                  arg(metadata->sqlTableName()).
-                  arg(alephERPSettings->systemTablePrefix());
+                  arg(sql,
+                      metadata->sqlTableName(),
+                      alephERPSettings->systemTablePrefix());
             if ( !where.isEmpty() )
             {
                 sql = sql % BaseDAO::proccessSqlToAddAlias(where, metadata, "t1") % QString(" AND ");
@@ -1066,11 +1067,11 @@ QString BaseBeanModel::buildSqlSelect(BaseBeanMetadata *metadata, const QString 
         QHash<QString, QString> xmlSql = metadata->sql();
         if ( xmlSql.contains("FROM") )
         {
-            sql = QString("SELECT DISTINCT %1 FROM %2").arg(sqlFields).arg(xmlSql.value("FROM"));
+            sql = QString("SELECT DISTINCT %1 FROM %2").arg(sqlFields, xmlSql.value("FROM"));
         }
         else
         {
-            sql = QString("SELECT DISTINCT %1 FROM %2").arg(sqlFields).arg(metadata->sqlTableName());
+            sql = QString("SELECT DISTINCT %1 FROM %2").arg(sqlFields, metadata->sqlTableName());
         }
         if ( xmlSql.contains("WHERE") )
         {

@@ -644,7 +644,6 @@ void DBRelatedElementsView::addExisting()
         }
     }
 
-    QString contextName = QUuid::createUuid().toString();
     QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(metadata, d->m_useNewContext, this));
     if ( dlg->openSuccess() )
     {
@@ -655,7 +654,7 @@ void DBRelatedElementsView::addExisting()
             {
                 filter = QString("%1 AND ").arg(filter);
             }
-            filter = QString("%1%2").arg(filter).arg(m_relationFilter);
+            filter = QString("%1%2").arg(filter, m_relationFilter);
         }
         if ( !filter.isEmpty() )
         {
@@ -972,7 +971,6 @@ void DBRelatedElementsView::itemClicked(const QModelIndex &idx)
     else
     {
         QApplication::setOverrideCursor(Qt::WaitCursor);
-        QString contextName = QUuid::createUuid().toString();
         QPointer<DBRecordDlg> dlg = new DBRecordDlg(element->relatedBean().data(), openType, d->m_useNewContext, this);
         QApplication::restoreOverrideCursor();
         if ( dlg->openSuccess() && dlg->init() )

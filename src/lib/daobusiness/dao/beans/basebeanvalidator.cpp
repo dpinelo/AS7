@@ -220,14 +220,18 @@ bool BaseBeanValidatorPrivate::checkUniqueCompound()
         if ( recordCount == -1 )
         {
             result = false;
-            m_message = QObject::tr("%1\r\nHa ocurrido un error pasando la validación de campos únicos compuestos: [%2].").arg(m_message).arg(BaseDAO::lastErrorMessage());
-            m_htmlMessage = QObject::tr("%1<p>Ha ocurrido un error pasando la validación de campos únicos compuestos: [%2]<</p>").arg(m_htmlMessage).arg(BaseDAO::lastErrorMessage());
+            m_message = QObject::tr("%1\r\nHa ocurrido un error pasando la validación de campos únicos compuestos: [%2].").
+                    arg(m_message, BaseDAO::lastErrorMessage());
+            m_htmlMessage = QObject::tr("%1<p>Ha ocurrido un error pasando la validación de campos únicos compuestos: [%2]<</p>").
+                    arg(m_htmlMessage, BaseDAO::lastErrorMessage());
         }
         else if ( recordCount > 0 )
         {
             result = false;
-            m_message = QObject::tr("%1\r\nYa existe otro registro con los mismos valores para: %2.").arg(m_message).arg(fieldNames.join(", "));
-            m_htmlMessage = QObject::tr("%1<p>Ya existe otro registro con los mismos valores para: %2.</p>").arg(m_htmlMessage).arg(fieldNames.join(", "));
+            m_message = QObject::tr("%1\r\nYa existe otro registro con los mismos valores para: %2.").
+                    arg(m_message, fieldNames.join(", "));
+            m_htmlMessage = QObject::tr("%1<p>Ya existe otro registro con los mismos valores para: %2.</p>").
+                    arg(m_htmlMessage, fieldNames.join(", "));
         }
     }
     return result;

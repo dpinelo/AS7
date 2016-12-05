@@ -926,14 +926,14 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
                                                      "  <device>%7</device>\n"
                                                      "  <idOrigin>%8</idOrigin>\n"
                                                      "</file>\n").
-                                             arg(systemObject->name()).
-                                             arg(fileName).
-                                             arg(systemObject->version()).
-                                             arg(systemObject->type()).
-                                             arg((systemObject->debug() ? "true" : "false")).
-                                             arg((systemObject->onInitDebug() ? "true" : "false")).
-                                             arg(systemObject->deviceTypes().join(",")).
-                                             arg(systemObject->idOrigin());
+                                             arg(systemObject->name(),
+                                                 fileName,
+                                                 QString(systemObject->version()),
+                                                 systemObject->type(),
+                                                 (systemObject->debug() ? "true" : "false"),
+                                                 (systemObject->onInitDebug() ? "true" : "false"),
+                                                 systemObject->deviceTypes().join(","),
+                                                 QString(systemObject->idOrigin()));
                 if ( moduleMetadatas.contains(systemObject->module()->id()) )
                 {
                     moduleMetadatas[systemObject->module()->id()] = QString("%1%2").arg(moduleMetadatas[systemObject->module()->id()], lineModuleMetadata);
@@ -985,13 +985,13 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
                                                  "<icon><![CDATA[%5]]></icon>\n"
                                                  "<enabled>%6</enabled>\n"
                                                  "<tableCreationOptions>%7</tableCreationOptions>").
-                                         arg(module->id()).
-                                         arg(module->name()).
-                                         arg(module->description()).
-                                         arg(module->showedName()).
-                                         arg(module->icon()).
-                                         arg((module->enabled() ? "true" : "false")).
-                                         arg(module->stringTableCreationOptions());
+                                         arg(module->id(),
+                                             module->name(),
+                                             module->description(),
+                                             module->showedName(),
+                                             module->icon(),
+                                             (module->enabled() ? "true" : "false"),
+                                             module->stringTableCreationOptions());
             QTextStream out(&file);
             out.setCodec("UTF-8");
             out << "<?xml version='1.0' encoding='UTF-8'?>\n<AlephERP>\n<export>\n";
@@ -1036,13 +1036,12 @@ void ModulesDAO::updateModuleMetadata(const QString &moduleId, const QString &pa
                                          "<icon><![CDATA[%5]]></icon>\n"
                                          "<enabled>%6</enabled>\n"
                                          "<tableCreationOptions>%7</tableCreationOptions>\n").
-                                 arg(module->id()).
-                                 arg(module->name()).
-                                 arg(module->description()).
-                                 arg(module->showedName()).
-                                 arg(module->icon()).
-                                 arg((module->enabled() ? "true" : "false")).
-                                 arg(module->stringTableCreationOptions());
+                                 arg(module->id(),
+                                     module->name(),
+                                     module->description(),
+                                     module->showedName(),
+                                     module->icon(),(module->enabled() ? "true" : "false"),
+                                     module->stringTableCreationOptions());
 
     out << lineModuleMetadata;
     out << QString("<generatedTime>%1</generatedTime>\n").arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));

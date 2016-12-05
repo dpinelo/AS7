@@ -235,7 +235,7 @@ bool AERPLoggedUser::loadMetadataAccess()
     while (it.hasNext())
     {
         it.next();
-        QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPLoggedUser::loadMetadataAccess: [%1]: [%2]").arg(it.key()).arg(it.value().toString()));
+        QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPLoggedUser::loadMetadataAccess: [%1]: [%2]").arg(it.key(), it.value().toString()));
     }
     if ( !UserDAO::lastErrorMessage().isEmpty() )
     {

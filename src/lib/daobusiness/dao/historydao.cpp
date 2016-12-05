@@ -61,19 +61,19 @@ QString HistoryDAO::createData(BaseBean *bean)
                 endCData = "]]>";
             }
             result = QString("%1\n<field name=\"%2\" modified=\"%3\">%4%5%6</field>").
-                     arg(result).
-                     arg(fld->metadata()->dbFieldName()).
-                     arg(fld->modified() ? "true" : "false").
-                     arg(initCData).
-                     arg(fld->sqlValue(false, "", true)).
-                     arg(endCData);
+                     arg(result,
+                         fld->metadata()->dbFieldName(),
+                         fld->modified() ? "true" : "false",
+                         initCData,
+                         fld->sqlValue(false, "", true),
+                         endCData);
             if ( fld->modified() )
             {
                 result.append(QString("\n<fieldOldValue name=\"%1\">%2%3%4</fieldOldValue>").
-                              arg(fld->metadata()->dbFieldName()).
-                              arg(initCData).
-                              arg(fld->sqlOldValue(false)).
-                              arg(endCData));
+                              arg(fld->metadata()->dbFieldName(),
+                                  initCData,
+                                  fld->sqlOldValue(false),
+                                  endCData));
             }
         }
     }
@@ -194,8 +194,10 @@ QHash<QString, QVariant> HistoryDAO::lastEntry(BaseBean *bean, const QString &co
 {
     QHash<QString, QVariant> hash;
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
-    QString sql = QString(SQL_LAST_ENTRY).arg(alephERPSettings->systemTablePrefix()).arg(bean->metadata()->tableName()).
-                  arg(bean->pkSerializedValue()).arg(Database::getQDatabase(connection).driverName()=="QIBASE" ? "ROWS 1" : "LIMIT 1");
+    QString sql = QString(SQL_LAST_ENTRY).arg(alephERPSettings->systemTablePrefix(),
+                                              bean->metadata()->tableName(),
+                                              bean->pkSerializedValue(),
+                                              Database::getQDatabase(connection).driverName()=="QIBASE" ? "ROWS 1" : "LIMIT 1");
 
     if ( !qry->prepare(sql) )
     {
@@ -291,9 +293,10 @@ AlephERP::HistoryItemTransactionList HistoryDAO::historyEntries(BaseBeanPointer 
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
     QString sql = QString("SELECT DISTINCT idtransaction, ts, username "
                           "FROM %1_history WHERE tablename='%2' and pkey='%3' "
-                          "ORDER BY ts DESC").arg(alephERPSettings->systemTablePrefix()).
-                                                 arg(bean->metadata()->tableName()).
-                                                 arg(bean->pkSerializedValue());
+                          "ORDER BY ts DESC").
+            arg(alephERPSettings->systemTablePrefix(),
+                bean->metadata()->tableName(),
+                bean->pkSerializedValue());
 
     if ( !qry->prepare(sql) )
     {
@@ -321,8 +324,8 @@ AlephERP::HistoryItemTransactionList HistoryDAO::historyEntries(BaseBeanPointer 
             QString detailSql = QString("SELECT action, pkey, changed_data, hash, ts, othertableoid, idtransaction, tablename "
                                         "FROM %1_history WHERE idtransaction='%2' "
                                         "ORDER BY ts DESC").
-                                arg(alephERPSettings->systemTablePrefix()).
-                                arg(results.at(iTransaction).idTransaction);
+                                arg(alephERPSettings->systemTablePrefix(),
+                                    results.at(iTransaction).idTransaction);
             QScopedPointer<QSqlQuery> qryDetail (new QSqlQuery(Database::getQDatabase(connection)));
             QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("HistoryDAO: historyItems: [%1]").arg(detailSql));
             if ( qryDetail->exec(detailSql) )

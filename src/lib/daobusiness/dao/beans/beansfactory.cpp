@@ -107,7 +107,7 @@ bool BeansFactory::buildMetadataBeans()
             if ( object->type() == QStringLiteral("table") && !BeansFactory::hasDependObject(object) )
             {
                 QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::buildMetadataBeans: Metadata disponible: [%1][%2]").
-                                    arg(object->module()->name()).arg(object->name()));
+                                    arg(object->module()->name(), object->name()));
                 BaseBeanMetadata *metadata = new BaseBeanMetadata(qApp);
                 metadata->setTableName(object->name());
                 metadata->setModule(object->module());
@@ -213,12 +213,12 @@ bool BeansFactory::buildScripts()
                             }
                             else
                             {
-                                dir = QString("%1/%2").arg(dir).arg(tree.at(i));
+                                dir = QString("%1/%2").arg(dir, tree.at(i));
                             }
                         }
                         fileName = tree.at(tree.size()-1);
                     }
-                    fullDir = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).arg(dir);
+                    fullDir = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), dir);
                     QDir initDir(fullDir);
                     if ( !initDir.exists() )
                     {
@@ -229,7 +229,7 @@ bool BeansFactory::buildScripts()
                             return false;
                         }
                     }
-                    fullFileName = QString("%1/%2").arg(fullDir).arg(fileName);
+                    fullFileName = QString("%1/%2").arg(fullDir, fileName);
                     QFile file (fullFileName);
                     if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
                     {
@@ -270,8 +270,7 @@ bool BeansFactory::buildTableReports()
             if ( systemObject->type() == QStringLiteral("report") && !BeansFactory::hasDependObject(systemObject) )
             {
                 QString fileName = QString("%1/%2").
-                                   arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                                   arg(systemObject->name());
+                                   arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), systemObject->name());
                 QFile file (fileName);
                 if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
                 {
@@ -323,8 +322,7 @@ bool BeansFactory::buildResources()
                 bool canRegister = systemObject->type() == QStringLiteral("rcc");
                 QByteArray binaryContent = QByteArray::fromBase64(systemObject->content().toUtf8());
                 QString fileName = QString("%1/%2").
-                                   arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                                   arg(systemObject->name());
+                                   arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), systemObject->name());
                 QFile file (fileName);
                 if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
                 {
@@ -417,8 +415,7 @@ bool BeansFactory::buildHelpResources()
             {
                 QByteArray binaryContent = QByteArray::fromBase64(systemObject->content().toUtf8());
                 QString fileName = QString("%1/%2").
-                                   arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                                   arg(systemObject->name());
+                                   arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), systemObject->name());
                 QFile file (fileName);
                 if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
                 {
@@ -683,7 +680,7 @@ AERPSystemModule *BeansFactory::module(const QString &id)
         }
     }
     QLogger::QLog_Info(AlephERP::stLogOther, QString("BeansFactory::module: No existe el módulo [%1].\nMódulos disponibles: [%2]").
-                        arg(id).arg(availableModules.join("\n")));
+                        arg(id, availableModules.join("\n")));
     return NULL;
 }
 
@@ -1231,14 +1228,14 @@ bool BeansFactory::checkConsistencyMetadata(QVariantList &log)
                             tableErrors["tablename"] = m->tableName();
                             tableErrors["relation"] = rel->name();
                             tableErrors["column"] = QString("%1 - %2 (%3)").
-                                    arg(rel->rootFieldName()).
-                                    arg(rel->tableName()).
-                                    arg(rel->childFieldName());
+                                    arg(rel->rootFieldName(),
+                                        rel->tableName(),
+                                        rel->childFieldName());
                             tableErrors["error"] = tr("La foreign key en la tabla %1 (%2) que apunta a %3 (%4) no existe.").
-                                    arg(m->tableName()).
-                                    arg(rel->rootFieldName()).
-                                    arg(rel->tableName()).
-                                    arg(rel->childFieldName());
+                                    arg(m->tableName(),
+                                        rel->rootFieldName(),
+                                        rel->tableName(),
+                                        rel->childFieldName());
                             flagErrors = AlephERP::ForeignKeyNotExists;
                             tableErrors["code"] = QString("%1").arg(flagErrors);
                             log.append(tableErrors);
@@ -1254,8 +1251,7 @@ bool BeansFactory::checkConsistencyMetadata(QVariantList &log)
                             tableErrors["tablename"] = m->tableName();
                             tableErrors["column"] = "Relations";
                             tableErrors["error"] = tr("La columna %1 en la tabla relacionada %2 no existe.").
-                                                   arg(rel->childFieldName()).
-                                                   arg(rel->tableName());
+                                                   arg(rel->childFieldName(), rel->tableName());
                             flagErrors = AlephERP::RelatedColumnNotExists;
                             tableErrors["code"] = QString("%1").arg(flagErrors);
                             log.append(tableErrors);

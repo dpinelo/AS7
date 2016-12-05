@@ -36,6 +36,7 @@ AERPMdiArea::AERPMdiArea(QWidget *parent) :
 
 void AERPMdiArea::paintEvent(QPaintEvent *paintEvent)
 {
+    Q_UNUSED(paintEvent)
     QPainter painter(viewport());
     QLinearGradient linearGrad(viewport()->rect().topLeft(), viewport()->rect().bottomRight());
     linearGrad.setColorAt(0, Qt::darkGray);

@@ -233,8 +233,7 @@ void AERPConsistencyMetadataTableDlg::fix()
                 else
                 {
                     QLogger::QLog_Error(AlephERP::stLogDB, tr("No existe la columna %1 en la tabla %2 en los metadatos.").
-                                        arg(ui->tableWidget->item(row, TV_IDX_COLUMN)->text()).
-                                        arg(ui->tableWidget->item(row, TV_IDX_TABLENAME)->text()));
+                                        arg(ui->tableWidget->item(row, TV_IDX_COLUMN)->text(), ui->tableWidget->item(row, TV_IDX_TABLENAME)->text()));
                 }
             }
         }

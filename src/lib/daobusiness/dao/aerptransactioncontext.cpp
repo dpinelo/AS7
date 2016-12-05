@@ -284,9 +284,9 @@ bool AERPTransactionContext::addToContext(const QString &contextName, const Base
     d->m_contextObjects[contextName]->addBean(bean);
     bean->setActualContext(contextName);
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPTransactionContext::addToContext: Bean agregado al contexto: [%1] tabla [%2]. Número de beans en el contexto: [%3]").
-                        arg(contextName).
-                        arg(bean->metadata()->tableName()).
-                        arg(d->m_contextObjects[contextName]->list().size()));
+                        arg(contextName,
+                            bean->metadata()->tableName(),
+                            QString(d->m_contextObjects[contextName]->list().size())));
 
     emit beanAddedToContext(contextName, bean);
     /*
@@ -762,16 +762,16 @@ BaseBeanPointerList AERPTransactionContextPrivate::doOrderForTransaction(const Q
     foreach (BaseBeanPointer bean, list)
     {
         QLogger::QLog_Info(AlephERP::stLogDB,
-                           QObject::tr("Bean: %1. [%2] Estado: %3. OID: %4").arg(bean->metadata()->alias()).
-                                                                    arg(bean->objectName()).
-                                                                    arg(bean->dbStateDisplayName()).
-                                                                    arg(bean->dbOid()));
+                           QObject::tr("Bean: %1. [%2] Estado: %3. OID: %4").arg(bean->metadata()->alias(),
+                                                                                 bean->objectName(),
+                                                                                 bean->dbStateDisplayName(),
+                                                                                 QString::number(bean->dbOid())));
         foreach (DBField *fld, bean->fields())
         {
             QLogger::QLog_Debug(AlephERP::stLogDB,
                                 QObject::tr("   %1: [%2]").
-                                    arg(fld->dbFieldName()).
-                                    arg(fld->value().toString()));
+                                    arg(fld->dbFieldName(),
+                                        fld->value().toString()));
         }
     }
     QLogger::QLog_Info(AlephERP::stLogDB, QObject::tr("----- FIN ----"));
@@ -798,8 +798,8 @@ bool AERPTransactionContextPrivate::doValidationForTransaction(const BaseBeanPoi
         {
             m_lastError.append(bean->metadata()->alias()).append(": ").append(bean->validateMessages()).append("\n");
             QLogger::QLog_Error(AlephERP::stLogDB, QString("AERPTransactionContext::commit: [%1]. Estado: [%2]").
-                                arg(bean->metadata()->tableName()).
-                                arg(bean->dbState() == BaseBean::INSERT ? "INSERT" : (bean->dbState() == BaseBean::UPDATE ? "UPDATE" : "DELETE")));
+                                arg(bean->metadata()->tableName(),
+                                    bean->dbState() == BaseBean::INSERT ? "INSERT" : (bean->dbState() == BaseBean::UPDATE ? "UPDATE" : "DELETE")));
             QLogger::QLog_Error(AlephERP::stLogDB, QString("AERPTransactionContext::commit: ERROR: [%1]").arg(m_lastError));
         }
     }

@@ -632,7 +632,7 @@ void DBWizardPage::cleanupPage()
     }
 }
 
-bool DBWizardPage::isComplete()
+bool DBWizardPage::isComplete() const
 {
     DBWizardDlg *parentWizard = qobject_cast<DBWizardDlg *>(wizard());
     if ( parentWizard != NULL )

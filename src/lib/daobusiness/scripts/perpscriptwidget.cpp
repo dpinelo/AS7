@@ -183,8 +183,9 @@ void AERPScriptWidget::setQsClassName(const QString &value)
     d->m_qsClassName = value;
 }
 
-AbstractObserver * AERPScriptWidget::observer()
+AbstractObserver * AERPScriptWidget::observer(bool sync)
 {
+    Q_UNUSED(sync)
     if ( m_observer == NULL )
     {
         BaseBean *containerBean = beanFromContainer();

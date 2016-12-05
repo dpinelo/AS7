@@ -640,13 +640,6 @@ void AERPReadDataWorker::terminate()
     d->m_terminate = true;
 }
 
-BaseBeanSharedPointer AERPQueryModel::bean (QModelIndex &index, bool onlyVisibleData)
-{
-    Q_UNUSED(index)
-    Q_UNUSED(onlyVisibleData)
-    return BaseBeanSharedPointer();
-}
-
 BaseBeanSharedPointerList AERPQueryModel::beans(const QModelIndexList &list)
 {
     Q_UNUSED(list)

@@ -1089,7 +1089,7 @@ QString DBAbstractViewInterface::configurationName()
     QDialog *parent = CommonsFunctions::parentDialog(m_thisWidget);
     if ( parent != NULL )
     {
-        name = QString("%1-%2").arg(parent->objectName()).arg(temp);
+        name = QString("%1-%2").arg(parent->objectName(), temp);
     }
     else
     {

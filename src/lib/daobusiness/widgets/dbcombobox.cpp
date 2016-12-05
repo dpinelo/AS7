@@ -310,7 +310,7 @@ void DBComboBox::setModelColumn()
                 {
                     QLogger::QLog_Error(AlephERP::stLogOther, QString("DBComboBox::setModelColumn: ComboBox: [%1]. "
                                         "El filtro no contiene ninguna columna visible de nombre [%2] para la tabla [%3]").
-                                        arg(objectName()).arg(d->m_listColumnName). arg(m->tableName()));
+                                        arg(objectName(), d->m_listColumnName, m->tableName()));
                 }
                 else
                 {
@@ -321,7 +321,7 @@ void DBComboBox::setModelColumn()
             {
                 QLogger::QLog_Error(AlephERP::stLogOther, QString("DBComboBox::setModelColumn: ComboBox: [%1]. "
                                     "La columna [%2] no se ha encontrado entre los campos de [%3]").
-                                    arg(objectName()).arg(d->m_listColumnName). arg(m->tableName()));
+                                    arg(objectName(), d->m_listColumnName, m->tableName()));
             }
         }
     }

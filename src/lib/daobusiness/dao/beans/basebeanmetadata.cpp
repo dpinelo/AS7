@@ -435,7 +435,7 @@ QString BaseBeanMetadata::sqlTableName(const QString &dialect)
     {
         return name;
     }
-    return QString("%1.%2").arg(d->m_schema).arg(name);
+    return QString("%1.%2").arg(d->m_schema, name);
 }
 
 AlephERP::DBObjectType BaseBeanMetadata::dbObjectType() const
@@ -879,7 +879,7 @@ QScriptProgram BaseBeanMetadata::associatedScriptProgram(const QString &function
     {
         if ( associatedScript->functions.contains(functionName) )
         {
-            QString scriptName = QString("%1.%2.associatedFunctions.js").arg(d->m_tableName).arg(associatedScript->scriptFileName);
+            QString scriptName = QString("%1.%2.associatedFunctions.js").arg(d->m_tableName, associatedScript->scriptFileName);
             if ( associatedScript->scriptProgram.isNull() )
             {
                 if ( !BeansFactory::systemScripts.contains(associatedScript->scriptFileName) )
@@ -2323,7 +2323,7 @@ void BaseBeanMetadataPrivate::setConfig()
                 if ( visibleValues.size() != dbValues.size() && visibleValues.size() > 0 && dbValues.size() > 0 )
                 {
                     QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBeanMetadataPrivate::setConfig: Atención. Tabla [%1], para el field [%2], optionList y optionValues "
-                                        "tienen diferente tamaño.").arg(m_tableName).arg(field->dbFieldName()));
+                                        "tienen diferente tamaño.").arg(m_tableName, field->dbFieldName()));
                 }
 
                 for ( int i = 0 ; i < visibleValues.size() ; i++ )
@@ -2343,7 +2343,7 @@ void BaseBeanMetadataPrivate::setConfig()
                 if ( visibleValues.size() != iconValues.size() && visibleValues.size() > 0 && iconValues.size() > 0 )
                 {
                     QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBeanMetadataPrivate::setConfig: Atención. Tabla [%1], para el field [%2], optionList y optionIcons "
-                                        "tienen diferente tamaño.").arg(m_tableName).arg(field->dbFieldName()));
+                                        "tienen diferente tamaño.").arg(m_tableName, field->dbFieldName()));
                 }
 
                 map.clear();
@@ -2999,9 +2999,11 @@ void BaseBeanMetadataPrivate::readItemsFilterColumn(const QDomElement &e)
             }
 
 
-            QString idFilter = QString("%1;%2;%3;%4;%5;%6;%7").arg(hash[AlephERP::stFieldToFilter]).arg(hash[AlephERP::stRelationFieldToShow]).arg(hash[AlephERP::stOrder])
-                               .arg(hash[AlephERP::stSetFilterValueOnNewRecords]).arg(hash[AlephERP::stRelationFilter]).arg(hash[AlephERP::stRelationFilterScript])
-                               .arg(hash[AlephERP::stViewAllOption]);
+            QString idFilter = QString("%1;%2;%3;%4;%5;%6;%7").
+                    arg(hash[AlephERP::stFieldToFilter],
+                        hash[AlephERP::stRelationFieldToShow], hash[AlephERP::stOrder],
+                        hash[AlephERP::stSetFilterValueOnNewRecords], hash[AlephERP::stRelationFilter],
+                        hash[AlephERP::stRelationFilterScript], hash[AlephERP::stViewAllOption]);
             hash["idFilter"] = QCryptographicHash::hash(idFilter.toUtf8(), QCryptographicHash::Md5);
             m_itemsFilterColumn.append(hash);
         }
@@ -3362,7 +3364,7 @@ QString BaseBeanMetadata::processWhereSqlToIncludeEnvVars(const QString &initial
                 {
                     where.append(" AND ");
                 }
-                where = QString("%1(%2)").arg(where).arg(tempSql);
+                where = QString("%1(%2)").arg(where, tempSql);
                 tempSql.clear();
             }
         }
@@ -3381,7 +3383,7 @@ QString BaseBeanMetadata::processWhereSqlToIncludeEnvVars(const QString &initial
         {
             where.append(" AND ");
         }
-        where = QString("%1(%2)").arg(where).arg(tempSql);
+        where = QString("%1(%2)").arg(where, tempSql);
     }
 
     if ( !initialWhere.isEmpty() )
@@ -3674,7 +3676,7 @@ QString BaseBeanMetadata::toStringExecute(BaseBean *b)
                 {
                     result = QString("%1 - ").arg(result);
                 }
-                result = QString("%1%2").arg(result).arg(fld->displayValue());
+                result = QString("%1%2").arg(result, fld->displayValue());
             }
         }
         if ( result.isEmpty() )
@@ -4215,7 +4217,7 @@ QString BaseBeanMetadata::sqlCreateTable(AlephERP::CreationTableSqlOptions optio
         {
             if ( !fieldsSql.isEmpty() )
             {
-                fieldsSql = QString("%1, %2").arg(fieldsSql).arg(field->ddlCreationTable(optionsForColumn, dialect));
+                fieldsSql = QString("%1, %2").arg(fieldsSql, field->ddlCreationTable(optionsForColumn, dialect));
             }
             else
             {
@@ -4257,7 +4259,7 @@ QString BaseBeanMetadata::sqlCreateTable(AlephERP::CreationTableSqlOptions optio
             fieldsSql = QString("%1, is_deleted boolean DEFAULT false").arg(fieldsSql);
         }
     }
-    sql = QString("%1%2").arg(sql).arg(fieldsSql);
+    sql = QString("%1%2").arg(sql, fieldsSql);
     if ( pkFields().size() > 0 )
     {
         QString pkeySql;
@@ -4267,7 +4269,7 @@ QString BaseBeanMetadata::sqlCreateTable(AlephERP::CreationTableSqlOptions optio
             isSerial = isSerial | field->serial();
             if ( !pkeySql.isEmpty() )
             {
-                pkeySql = QString("%1, %2").arg(pkeySql).arg(field->dbFieldName());
+                pkeySql = QString("%1, %2").arg(pkeySql, field->dbFieldName());
             }
             else
             {
@@ -4283,8 +4285,8 @@ QString BaseBeanMetadata::sqlCreateTable(AlephERP::CreationTableSqlOptions optio
         {
             if ( !isSerial )
             {
-                QString constraintPkey = QString("CONSTRAINT %1 PRIMARY KEY(%2))").arg(constraintName).arg(pkeySql);
-                sql = QString("%1, %2").arg(sql).arg(constraintPkey);
+                QString constraintPkey = QString("CONSTRAINT %1 PRIMARY KEY(%2))").arg(constraintName, pkeySql);
+                sql = QString("%1, %2").arg(sql, constraintPkey);
             }
             else
             {
@@ -4293,8 +4295,8 @@ QString BaseBeanMetadata::sqlCreateTable(AlephERP::CreationTableSqlOptions optio
         }
         else
         {
-            QString constraintPkey = QString("CONSTRAINT %1 PRIMARY KEY(%2))").arg(constraintName).arg(pkeySql);
-            sql = QString("%1, %2").arg(sql).arg(constraintPkey);
+            QString constraintPkey = QString("CONSTRAINT %1 PRIMARY KEY(%2))").arg(constraintName, pkeySql);
+            sql = QString("%1, %2").arg(sql, constraintPkey);
         }
     }
     else
@@ -4359,9 +4361,7 @@ QString BaseBeanMetadata::sqlCreateIndexes(AlephERP::CreationTableSqlOptions opt
             idxName = QString("idx_%1").arg(alephERPSettings->uniqueId());
         }
         sql = QString("%1CREATE UNIQUE INDEX %2 ON %3(hash);").
-              arg(sql).
-              arg(idxName).
-              arg(sqlTableName(dialect));
+              arg(sql, idxName, sqlTableName(dialect));
     }
     return sql;
 }
@@ -4374,21 +4374,21 @@ QString BaseBeanMetadata::sqlAddColumn(AlephERP::CreationTableSqlOptions options
         return QString();
     }
     QString partialSql = fld->ddlCreationTable(options, dialect);
-    QString sql = QString("ALTER TABLE %1 ADD COLUMN %2").arg(sqlTableName(dialect)).arg(partialSql);
+    QString sql = QString("ALTER TABLE %1 ADD COLUMN %2").arg(sqlTableName(dialect), partialSql);
     return sql;
 }
 
 QString BaseBeanMetadata::sqlDropColumn(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect)
 {
     Q_UNUSED(options)
-    QString sql = QString("ALTER TABLE %1 DROP COLUMN %2").arg(sqlTableName(dialect)).arg(dbFieldName);
+    QString sql = QString("ALTER TABLE %1 DROP COLUMN %2").arg(sqlTableName(dialect), dbFieldName);
     return sql;
 }
 
 QString BaseBeanMetadata::sqlMakeNotNull(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect)
 {
     Q_UNUSED(options)
-    QString sql = QString("ALTER TABLE %1 ALTER COLUMN %2 SET NOT NULL").arg(sqlTableName(dialect)).arg(dbFieldName);
+    QString sql = QString("ALTER TABLE %1 ALTER COLUMN %2 SET NOT NULL").arg(sqlTableName(dialect), dbFieldName);
     return sql;
 }
 
@@ -4400,9 +4400,7 @@ QString BaseBeanMetadata::sqlAlterColumnSetLength(AlephERP::CreationTableSqlOpti
     if ( f->type() == QVariant::String && f->length() > 0 )
     {
         sql = QString("ALTER TABLE %1 ALTER COLUMN %2 TYPE character varying(%3)").
-                arg(sqlTableName(dialect)).
-                arg(dbFieldName).
-                arg(f->length());
+                arg(sqlTableName(dialect), dbFieldName, QString(f->length()));
     }
     return sql;
 }
@@ -4939,7 +4937,8 @@ QObject *BaseBeanMetadata::navigateThroughProperties(const QString &path, bool r
         QVariant v = obj->property(ba.constData());
         if ( !v.isValid() )
         {
-            QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBeanMetadata::navigateThroughProperties: La ruta [%1] no conduce a ningún lugar. Item: [%2]").arg(path).arg(items.at(i)));
+            QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBeanMetadata::navigateThroughProperties: La ruta [%1] no conduce a ningún lugar. Item: [%2]").
+                                arg(path, items.at(i)));
             return NULL;
         }
         // http://liveblue.wordpress.com/2012/10/29/qobject-multiple-inheritance-and-smart-delegators/
@@ -5063,9 +5062,9 @@ void BaseBeanMetadata::buildFieldsCalculatedRelations()
                     {
                         fieldsInvolvedNames.append(fieldInvolved->metadata()->dbFieldName());
                         QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBeanMetadata::buildFieldsCalculatedRelations: Tabla: [%1] Field [%2] involucra a: [%3]").
-                                            arg(d->m_tableName).
-                                            arg(fld->metadata()->dbFieldName()).
-                                            arg(fieldInvolved->metadata()->dbFieldName()));
+                                            arg(d->m_tableName,
+                                                fld->metadata()->dbFieldName(),
+                                                fieldInvolved->metadata()->dbFieldName()));
                     }
                     else
                     {
@@ -5090,9 +5089,9 @@ void BaseBeanMetadata::buildFieldsCalculatedRelations()
                                             path.append("father");
                                             fieldsInvolvedNames.append(path);
                                             QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBeanMetadata::buildFieldsCalculatedRelations: Tabla: [%1] Field [%2] involucra a: [%3]").
-                                                                arg(d->m_tableName).
-                                                                arg(fld->metadata()->dbFieldName()).
-                                                                arg(path));
+                                                                arg(d->m_tableName,
+                                                                    fld->metadata()->dbFieldName(),
+                                                                    path));
                                         }
                                         else
                                         {
@@ -5104,9 +5103,7 @@ void BaseBeanMetadata::buildFieldsCalculatedRelations()
                                 {
                                     fieldsInvolvedNames.append(path);
                                     QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBeanMetadata::buildFieldsCalculatedRelations: Tabla: [%1] Field [%2] involucra a: [%3]").
-                                                        arg(d->m_tableName).
-                                                        arg(fld->metadata()->dbFieldName()).
-                                                        arg(path));
+                                                        arg(d->m_tableName, fld->metadata()->dbFieldName(), path));
                                 }
                             }
                             dbObject = qobject_cast<DBObject *>(dbObject->parent());

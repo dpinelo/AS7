@@ -96,8 +96,7 @@ void DBAbstractFilterView::setTableName (const QString &tableName)
     if ( !d->m_itemView.isNull() )
     {
         QString objName = QString("%1_dbFilterTableView_%2").
-                          arg(d->m_itemView->metaObject()->className()).
-                          arg(tableName);
+                          arg(d->m_itemView->metaObject()->className(), tableName);
         d->m_itemView->setObjectName(objName);
         d->m_metadata = BeansFactory::metadataBean(tableName);
         if ( d->m_metadata == NULL )
@@ -295,7 +294,7 @@ void DBAbstractFilterView::saveStrongFilterWidgetStatus()
     {
         if ( cb->currentIndex() != -1 )
         {
-            QString key = QString("%1%2").arg(d->m_tableName).arg(cb->objectName());
+            QString key = QString("%1%2").arg(d->m_tableName, cb->objectName());
             alephERPSettings->saveRegistryValue(key, cb->itemData(cb->currentIndex()));
         }
     }
@@ -598,13 +597,15 @@ void DBAbstractFilterView::filterWithSql()
             {
                 if ( !ui->leFastFilter->text().isEmpty() )
                 {
-                    aditionalSql = QString("UPPER(%1) LIKE UPPER('%%%2%%')").arg(fld->dbFieldName()).arg(fld->sqlValue(ui->leFastFilter->text(), false));
+                    aditionalSql = QString("UPPER(%1) LIKE UPPER('%%%2%%')").arg(fld->dbFieldName(), fld->sqlValue(ui->leFastFilter->text(), false));
                 }
             }
             else if ( fld->type() == QVariant::Date || fld->type() == QVariant::DateTime )
             {
-                aditionalSql = QString("%1 BETWEEN %2 AND %3").arg(fld->dbFieldName()).
-                               arg(fld->sqlValue(ui->deFastFilter1->date())).arg(fld->sqlValue(ui->deFastFilter2->date()));
+                aditionalSql = QString("%1 BETWEEN %2 AND %3").
+                        arg(fld->dbFieldName(),
+                            fld->sqlValue(ui->deFastFilter1->date()),
+                            fld->sqlValue(ui->deFastFilter2->date()));
             }
             else if ( fld->type() == QVariant::Int || fld->type() == QVariant::LongLong || fld->type() == QVariant::Double )
             {
@@ -620,8 +621,7 @@ void DBAbstractFilterView::filterWithSql()
                         }
                         else if ( ui->cbFastFilterOperators->currentIndex() == CB_OPERATOR_BETWEEN )
                         {
-                            aditionalSql = QString("%1 BETWEEN %2 AND %3").arg(fld->dbFieldName()).
-                                           arg(fld->sqlValue(v1)).arg(fld->sqlValue(v2));
+                            aditionalSql = QString("%1 BETWEEN %2 AND %3").arg(fld->dbFieldName(), fld->sqlValue(v1), fld->sqlValue(v2));
                         }
                         else if ( ui->cbFastFilterOperators->currentIndex() == CB_OPERATOR_LESS )
                         {

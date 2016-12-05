@@ -931,7 +931,7 @@ DBField *BaseBean::field(const QString &dbFieldName)
          dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
          dbFieldName != QLatin1String(AlephERP::stInactive) )
     {
-        QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::field: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::field: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
     }
     return field;
 }
@@ -981,7 +981,7 @@ int BaseBean::fieldIndex(const QString &dbFieldName)
          dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
          dbFieldName != QLatin1String(AlephERP::stInactive) )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldIndex: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldIndex: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
     }
     return index;
 }
@@ -1019,7 +1019,7 @@ DBRelation * BaseBean::relation(const QString &relationName)
     }
     if ( rel == NULL && !relationName.isEmpty() )
     {
-        QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::relation: [%1]. No existe la relación: [%2]").arg(d->m->tableName()).arg(relationName));
+        QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::relation: [%1]. No existe la relación: [%2]").arg(d->m->tableName(), relationName));
     }
     return rel;
 }
@@ -1033,7 +1033,7 @@ BaseBeanPointer BaseBean::father(const QString &relationName)
     DBRelation *rel = relation(relationName);
     if ( rel == NULL || relationName.isEmpty() )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::father: [%1]. No existe la relación: [%2]").arg(d->m->tableName()).arg(relationName));
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::father: [%1]. No existe la relación: [%2]").arg(d->m->tableName(), relationName));
     }
     else
     {
@@ -1104,7 +1104,7 @@ QVariant BaseBean::fieldValue(const QString &dbFieldName)
              dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
              dbFieldName != QLatin1String(AlephERP::stInactive) )
         {
-            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
         }
     }
     else
@@ -1125,7 +1125,7 @@ bool  BaseBean::isFieldEmpty(const QString &dbFieldName)
          dbFieldName.isEmpty() ||
          dbFieldName == QLatin1String("editable") )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::isFieldEmpty: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::isFieldEmpty: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
         return true;
     }
     return fld->isEmpty();
@@ -1182,7 +1182,7 @@ QString BaseBean::displayFieldValue(const QString & dbFieldName)
          dbFieldName.isEmpty() ||
          dbFieldName == QLatin1String("editable") )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::displayFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::displayFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
     }
     else
     {
@@ -1220,7 +1220,7 @@ QString BaseBean::sqlFieldValue(const QString & dbFieldName)
          dbFieldName.isEmpty() ||
          dbFieldName == QLatin1String("editable") )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::sqlFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::sqlFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
     }
     else
     {
@@ -1245,7 +1245,7 @@ QString BaseBean::toolTipField(const QString &dbFieldName)
          dbFieldName.isEmpty() ||
          dbFieldName == QLatin1String("editable") )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::toolTipField: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::toolTipField: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
     }
     else
     {
@@ -1278,7 +1278,7 @@ QVariant BaseBean::defaultFieldValue(const QString &dbFieldName)
          dbFieldName.isEmpty() ||
          dbFieldName == QLatin1String("editable") )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::defaultFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::defaultFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
     }
     else
     {
@@ -1299,7 +1299,7 @@ QString BaseBean::sqlWhere(const QString &fieldName, const QString &op)
          fieldName.isEmpty() ||
          fieldName == "editable" )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::sqlWhere: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(fieldName));
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::sqlWhere: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), fieldName));
     }
     else
     {
@@ -1593,9 +1593,9 @@ void BaseBean::recalculateCalculatedFields()
                 {
                     d->m_recalculatingField.push(fld);
                     QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::recalculateCalculatedFields: Forzando el recalculo de [%1][%2]. Bean número: [%3]").
-                                       arg(d->m->tableName()).
-                                       arg(fld->metadata()->dbFieldName()).
-                                       arg(objectName()));
+                                       arg(d->m->tableName(),
+                                           fld->metadata()->dbFieldName(),
+                                           objectName()));
                     // Si la señal viene dada por la carga de un padre, no tendríamos porqué emitir ningúna señal (si es por ejemplo
                     // una modificación, la carga del padre implica necesariamente que se haya dado un valor al campo que apunta a ese padre
                     QString senderSignal;
@@ -2249,7 +2249,7 @@ DBObject *BaseBean::navigateThroughProperties(const QString &path, bool returnIn
         QVariant v = obj->property(ba.constData());
         if ( !v.isValid() )
         {
-            QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBean::navigateThroughProperties: La ruta [%1] no conduce a ningún lugar. Item: [%2]").arg(path).arg(items.at(i)));
+            QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBean::navigateThroughProperties: La ruta [%1] no conduce a ningún lugar. Item: [%2]").arg(path, items.at(i)));
             return NULL;
         }
         // http://liveblue.wordpress.com/2012/10/29/qobject-multiple-inheritance-and-smart-delegators/
@@ -3627,7 +3627,7 @@ void BaseBean::registerRecalculateFields()
 
 void BaseBean::setValuesFromFilter(const QString &filter)
 {
-    if ( filter.toLower().contains(QStringLiteral(" or ")) )
+    if ( filter.contains(QStringLiteral(" or "), Qt::CaseInsensitive) )
     {
         return;
     }
@@ -4041,7 +4041,7 @@ QString BaseBean::hash(bool useRawValue)
     {
         if ( fld->metadata()->isOnDb() )
         {
-            totalData = QString("%1%2;").arg(totalData).arg(fld->sqlValue(true, "", useRawValue));
+            totalData = QString("%1%2;").arg(totalData, fld->sqlValue(true, "", useRawValue));
         }
     }
     QByteArray ba = QCryptographicHash::hash(totalData.toUtf8(), QCryptographicHash::Sha1);
@@ -4062,7 +4062,7 @@ QString BaseBean::rawHash()
     {
         if ( fld->metadata()->isOnDb() )
         {
-            totalData = QString("%1%2;").arg(totalData).arg(fld->metadata()->sqlValue(fld->rawValue()));
+            totalData = QString("%1%2;").arg(totalData, fld->metadata()->sqlValue(fld->rawValue()));
         }
     }
     QByteArray ba = QCryptographicHash::hash(totalData.toUtf8(), QCryptographicHash::Sha1);

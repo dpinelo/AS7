@@ -193,9 +193,9 @@ bool DBFieldPrivate::checkLength()
     {
         result = false;
         m_message = QObject::tr("%1\r\n%2: La longitud del texto introducido sobrepasa la permitida. Acorte el texto.").
-                    arg(m_message).arg(q_ptr->metadata()->fieldName());
+                    arg(m_message, q_ptr->metadata()->fieldName());
         m_htmlMessage = QObject::tr("%1<p><strong>%2</strong>: La longitud del texto introducido sobrepasa la permitida. Acorte el texto.</p>").
-                        arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
+                        arg(m_htmlMessage, q_ptr->metadata()->fieldName());
         if ( m_widget == NULL )
         {
             // TODO esto no es muy elegante
@@ -216,8 +216,8 @@ bool DBFieldPrivate::checkUnique()
 {
     QMutexLocker lock(&m_mutex);
     bool result = true;
-    QString sql = QString("SELECT COUNT(*) as column1 FROM %1 WHERE %2=%3").arg(q_ptr->bean()->metadata()->tableName()).
-                  arg(q_ptr->metadata()->dbFieldName()).arg(q_ptr->sqlValue(true));
+    QString sql = QString("SELECT COUNT(*) as column1 FROM %1 WHERE %2=%3").
+            arg(q_ptr->bean()->metadata()->tableName(), q_ptr->metadata()->dbFieldName(), q_ptr->sqlValue(true));
     QVariant sqlValue;
     if ( BaseDAO::execute(sql, sqlValue, Database::databaseConnectionForThisThread()) )
     {
@@ -226,15 +226,15 @@ bool DBFieldPrivate::checkUnique()
         {
             result = false;
             m_message = QObject::tr("%1\r\n[%2] %3: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: %4").
-                            arg(m_message).
-                            arg(q_ptr->bean()->metadata()->alias()).
-                            arg(q_ptr->metadata()->fieldName()).
-                            arg(q_ptr->displayValue());
+                            arg(m_message,
+                                q_ptr->bean()->metadata()->alias(),
+                                q_ptr->metadata()->fieldName(),
+                                q_ptr->displayValue());
             m_htmlMessage = QObject::tr("%1<p>[%2] <strong>%3</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: <i>%4</i></p>").
-                            arg(m_htmlMessage).
-                            arg(q_ptr->bean()->metadata()->alias()).
-                            arg(q_ptr->metadata()->fieldName()).
-                            arg(q_ptr->displayValue());
+                            arg(m_htmlMessage,
+                                q_ptr->bean()->metadata()->alias(),
+                                q_ptr->metadata()->fieldName(),
+                                q_ptr->displayValue());
             if ( m_widget == NULL )
             {
                 // TODO esto no es muy elegante
@@ -298,9 +298,9 @@ bool DBFieldPrivate::checkNull()
 
         if ( ! result )
         {
-            m_message = QObject::tr("%1\r\n%2: No puede estar vacío.").arg(m_message).arg(q_ptr->metadata()->fieldName());
+            m_message = QObject::tr("%1\r\n%2: No puede estar vacío.").arg(m_message, q_ptr->metadata()->fieldName());
             m_htmlMessage = QObject::tr("%1<p><strong>%2</strong>: No puede estar vac&iacute;o.</p>").
-                            arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
+                            arg(m_htmlMessage, q_ptr->metadata()->fieldName());
             if ( m_widget == NULL )
             {
                 // TODO Esto no es muy elegante
@@ -317,9 +317,9 @@ bool DBFieldPrivate::checkNull()
         if ( q_ptr->value().isNull() || !q_ptr->value().isValid() )
         {
             result = false;
-            m_message = QObject::tr("%1\r\n%2: No puede estar vacío.").arg(m_message).arg(q_ptr->metadata()->fieldName());
+            m_message = QObject::tr("%1\r\n%2: No puede estar vacío.").arg(m_message, q_ptr->metadata()->fieldName());
             m_htmlMessage = QObject::tr("%1<p><strong>%2</strong>: No puede estar vac&iacute;o.</p>").
-                            arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
+                            arg(m_htmlMessage, q_ptr->metadata()->fieldName());
             if ( m_widget == NULL )
             {
                 // TODO Esto no es muy elegante
@@ -357,13 +357,13 @@ bool DBFieldPrivate::checkUniqueOnFilterField()
         {
             if ( sqlFilterField.isEmpty() )
             {
-                sqlFilterField = QString("%1=%2").arg(dbField->metadata()->dbFieldName()).
-                                 arg(dbField->sqlValue(true));
+                sqlFilterField = QString("%1=%2").
+                        arg(dbField->metadata()->dbFieldName(), dbField->sqlValue(true));
             }
             else
             {
-                sqlFilterField = QString("%1 AND %2=%3").arg(sqlFilterField).arg(dbField->metadata()->dbFieldName()).
-                                 arg(dbField->sqlValue(true));
+                sqlFilterField = QString("%1 AND %2=%3").
+                        arg(sqlFilterField, dbField->metadata()->dbFieldName(), dbField->sqlValue(true));
             }
         }
     }
@@ -373,10 +373,10 @@ bool DBFieldPrivate::checkUniqueOnFilterField()
     }
     // Hay que distinguir el caso en el que se está insertando, o editando.
     QString sql = QString("SELECT COUNT(*) as column1 FROM %1 WHERE %2=%3 AND %4").
-                        arg(q_ptr->bean()->metadata()->sqlTableName()).
-                        arg(q_ptr->metadata()->dbFieldName()).
-                        arg(q_ptr->sqlValue(true)).
-                        arg(sqlFilterField);
+                        arg(q_ptr->bean()->metadata()->sqlTableName(),
+                            q_ptr->metadata()->dbFieldName(),
+                            q_ptr->sqlValue(true),
+                            sqlFilterField);
     if ( m_bean->dbState() == BaseBean::UPDATE )
     {
         sql.append(" AND NOT (").append(m_bean->sqlWherePk()).append(")");
@@ -400,23 +400,23 @@ bool DBFieldPrivate::checkUniqueOnFilterField()
                     {
                         q_ptr->setValue(q_ptr->calculateCounter());
                         m_message = QObject::tr("%1\r\n%2: Se ha calculado un nuevo valor.").
-                                    arg(m_message).arg(q_ptr->metadata()->fieldName());
+                                    arg(m_message, q_ptr->metadata()->fieldName());
                         m_htmlMessage = QObject::tr("%1<p><strong>%2</strong>: Se ha calculado un nuevo valor.</p>").
-                                        arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
+                                        arg(m_htmlMessage, q_ptr->metadata()->fieldName());
                         return true;
                     }
                 }
             }
             m_message = QObject::tr("%1\r\n[%2] %3: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: %4").
-                            arg(m_message).
-                            arg(q_ptr->bean()->metadata()->alias()).
-                            arg(q_ptr->metadata()->fieldName()).
-                            arg(q_ptr->displayValue());
+                            arg(m_message,
+                                q_ptr->bean()->metadata()->alias(),
+                                q_ptr->metadata()->fieldName(),
+                                q_ptr->displayValue());
             m_htmlMessage = QObject::tr("%1<p>[%2] <strong>%3</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: <i>%4</i></p>").
-                            arg(m_htmlMessage).
-                            arg(q_ptr->bean()->metadata()->alias()).
-                            arg(q_ptr->metadata()->fieldName()).
-                            arg(q_ptr->displayValue());
+                            arg(m_htmlMessage,
+                                q_ptr->bean()->metadata()->alias(),
+                                q_ptr->metadata()->fieldName(),
+                                q_ptr->displayValue());
             if ( m_widget == NULL )
             {
                 // TODO esto no es muy elegante
@@ -1089,7 +1089,7 @@ QString DBFieldPrivate::filterForUniqueOnFilterField(const QString where)
             if ( !sqlVal.isEmpty() )
             {
                 first = false;
-                tempSql.append(QString("%1=%2").arg(part).arg(sqlVal));
+                tempSql.append(QString("%1=%2").arg(part, sqlVal));
             }
         }
         tempSql.append(")");
@@ -1681,14 +1681,11 @@ QString DBField::sqlWhere(const QString &op, const QString &dialect)
 
     if ( d->m->type() == QVariant::Double )
     {
-        result = QString ("round(%1::numeric, %2) %3 %4").arg(sqlFieldName).
-                 arg(DB_DOUBLE_PRECISION).arg(op).
-                 arg(sqlValue(true, dialect));
+        result = QString ("round(%1::numeric, %2) %3 %4").arg(sqlFieldName, QString(DB_DOUBLE_PRECISION), op, sqlValue(true, dialect));
     }
     else
     {
-        result = QString("%1 %2 %3").arg(sqlFieldName).
-                 arg(op).arg(sqlValue(true, dialect));
+        result = QString("%1 %2 %3").arg(sqlFieldName, op, sqlValue(true, dialect));
     }
     return result;
 }
@@ -2028,9 +2025,7 @@ QVariant DBFieldPrivate::calculateAggregateValue()
     q_ptr->restoreOverrideOnExecution();
     qint64 elapsed = timer.elapsed();
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBFieldPrivate::calculateAggregateValue: fieldName: %1.%2. Calculate Aggregate: [%3] ms").
-               arg(m_bean->metadata()->tableName()).
-               arg(m->dbFieldName()).
-               arg(elapsed));
+               arg(m_bean->metadata()->tableName(), m->dbFieldName(), QString::number(elapsed)));
     if ( elapsed > AlephERP::warningCalculatedTime )
     {
         QLogger::QLog_Info(AlephERP::stLogScript, "DBFieldPrivate::calculateAggregateValue: Ha tomado mucho tiempo!!!");
@@ -2306,9 +2301,7 @@ QVariant DBField::calculateCounter(const QString &connection, bool searchOnTrans
     restoreOverrideOnExecution();
     qint64 elapsed = timer.elapsed();
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBField::calculateCounter: fieldName: %1.%2. Calculate Aggregate: [%3] ms").
-               arg(d->m_bean->metadata()->tableName()).
-               arg(d->m->dbFieldName()).
-               arg(elapsed));
+               arg(d->m_bean->metadata()->tableName(), d->m->dbFieldName(), QString::number(elapsed)));
     if ( elapsed > AlephERP::warningCalculatedTime )
     {
         QLogger::QLog_Info(AlephERP::stLogScript, "DBField::calculateCounter: Ha tomado mucho tiempo!!!");
@@ -2374,13 +2367,11 @@ QVariant DBFieldPrivate::calculateCounterOldMethod(const QString &connection, bo
     counterPrefix.append(m->counterDefinition()->separator);
     if ( m_counterVariablePart == -1 )
     {
-        QString where = QString("%1 LIKE '%2%%'").arg(m->dbFieldName()).arg(counterPrefix);
+        QString where = QString("%1 LIKE '%2%%'").arg(m->dbFieldName(), counterPrefix);
         where = filterForUniqueOnFilterField(where);
         where = m->beanMetadata()->processWhereSqlToIncludeEnvVars(where);
         QString sql = QString("SELECT max(%1) as column1 FROM %2 WHERE %3").
-                        arg(m->dbFieldName()).
-                        arg(m_bean->metadata()->sqlTableName()).
-                        arg(where);
+                        arg(m->dbFieldName(), m_bean->metadata()->sqlTableName(), where);
         if ( !BaseDAO::execute(sql, result, connection) )
         {
             return result;
@@ -2449,13 +2440,11 @@ QVariant DBFieldPrivate::calculateCounter(const QString &connection, bool search
     {
         QString sql, where;
         sql = QString("SELECT max(%1) as column1 FROM %2").
-                      arg(m->dbFieldName()).
-                      arg(m_bean->metadata()->sqlTableName());
+                      arg(m->dbFieldName(), m_bean->metadata()->sqlTableName());
         if ( m->type() == QVariant::String )
         {
             where = QString("%1 LIKE '%2%%'").
-                      arg(m->dbFieldName()).
-                      arg(result);
+                      arg(m->dbFieldName(), result);
         }
         where = filterForUniqueOnFilterField(where);
         where = m_bean->metadata()->processWhereSqlToIncludeEnvVars(where);
@@ -2741,7 +2730,7 @@ bool DBField::validate()
         if ( !temp && !message.isEmpty() )
         {
             d->m_htmlMessage = QString("%1<p><strong>%2</strong>: %3</p>").
-                               arg(d->m_htmlMessage).arg(metadata()->fieldName()).arg(message);
+                               arg(d->m_htmlMessage, metadata()->fieldName(), message);
         }
     }
     // Si el campo está marcado como único, no puede haber ningún valor igual
@@ -2777,8 +2766,8 @@ void DBField::loadValueOnBackground()
     {
         return;
     }
-    QString sql = QString("SELECT %1 FROM %2 WHERE %3").arg(metadata()->dbFieldName()).
-                  arg(bean()->metadata()->sqlTableName()).arg(bean()->sqlWherePk());
+    QString sql = QString("SELECT %1 FROM %2 WHERE %3").
+            arg(metadata()->dbFieldName(), bean()->metadata()->sqlTableName(), bean()->sqlWherePk());
 
     d->m_backgroundUuid = BackgroundDAO::instance()->programQuery(sql);
     connect(BackgroundDAO::instance(), SIGNAL(queryExecuted(QString,bool)), this, SLOT(backgroundDataAvailable(QString,bool)));
