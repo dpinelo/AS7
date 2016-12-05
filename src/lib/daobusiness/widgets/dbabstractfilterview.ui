@@ -53,58 +53,6 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item row="1" column="11">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>69</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="1" column="3">
-       <widget class="QComboBox" name="cbFastFilterOperators">
-        <item>
-         <property name="text">
-          <string>Igual a</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Entre</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Mayor que</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Menor que</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>Distinto de</string>
-         </property>
-        </item>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QLabel" name="lblFastFilter">
-        <property name="text">
-         <string>&amp;Filtro rapido</string>
-        </property>
-        <property name="buddy">
-         <cstring>cbFastFilter</cstring>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="4">
        <widget class="QComboBox" name="cbFastFilterValue">
         <property name="sizePolicy">
@@ -112,47 +60,6 @@
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="5">
-       <widget class="QLineEdit" name="leFastFilter">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>Introduzca aquí el valor por el que desea filtrar el campo seleccionado en el combo adyacente. Pulse intro para realizar el filtrado.</string>
-        </property>
-        <property name="statusTip">
-         <string>Introduzca aquí el valor por el que desea filtrar el campo seleccionado en el combo adyacente. Pulse intro para realizar el filtrado.</string>
-        </property>
-        <property name="whatsThis">
-         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;table style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
-&lt;tr&gt;
-&lt;td style=&quot;border: none;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Introduzca aquí el valor por el que desea filtrar el campo seleccionado en el combo adyacente. Se presentarán sólo aquellos registros cuyos valores de la columna indicada en el combo, coincidan con el introducido por usted. &lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Dispone de algunos modificadores: Por ejemplo, si utiliza &amp;lt;, &amp;gt; o = en una columna con un campo numérico, visualizará aquellos registros con un valor menor, mayor o igual al indicado.&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Pulse intro para realizar el filtrado.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2">
-       <widget class="QComboBox" name="cbFastFilter">
-        <property name="toolTip">
-         <string>Seleccione la columna por el que desa realizar el filtrado rápido.</string>
-        </property>
-        <property name="statusTip">
-         <string>Seleccione la columna por el que desa realizar el filtrado rápido.</string>
-        </property>
-        <property name="whatsThis">
-         <string>Seleccione la columna por el que desa realizar el filtrado rápido.</string>
         </property>
        </widget>
       </item>
@@ -200,10 +107,98 @@ p, li { white-space: pre-wrap; }
         </item>
        </layout>
       </item>
+      <item row="1" column="7">
+       <widget class="QLabel" name="lblBetween">
+        <property name="text">
+         <string>E&amp;ntre</string>
+        </property>
+        <property name="buddy">
+         <cstring>leFastFilter1</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="11">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>69</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="lblFastFilter">
+        <property name="text">
+         <string>&amp;Filtro rapido</string>
+        </property>
+        <property name="buddy">
+         <cstring>cbFastFilter</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="3">
+       <widget class="QComboBox" name="cbFastFilterOperators">
+        <item>
+         <property name="text">
+          <string>Igual a</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Entre</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Mayor que</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Menor que</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Distinto de</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QComboBox" name="cbFastFilter">
+        <property name="toolTip">
+         <string>Seleccione la columna por el que desa realizar el filtrado rápido.</string>
+        </property>
+        <property name="statusTip">
+         <string>Seleccione la columna por el que desa realizar el filtrado rápido.</string>
+        </property>
+        <property name="whatsThis">
+         <string>Seleccione la columna por el que desa realizar el filtrado rápido.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="10">
+       <widget class="QLineEdit" name="leFastFilter2"/>
+      </item>
       <item row="1" column="8">
        <widget class="QLineEdit" name="leFastFilter1"/>
       </item>
-      <item row="1" column="12">
+      <item row="1" column="9">
+       <widget class="QLabel" name="lblAnd">
+        <property name="text">
+         <string>&amp;y</string>
+        </property>
+        <property name="buddy">
+         <cstring>leFastFilter2</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="13">
        <widget class="QPushButton" name="pbRefresh">
         <property name="toolTip">
          <string>Refresca los datos del modelo actual...</string>
@@ -220,30 +215,10 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="1" column="10">
-       <widget class="QLineEdit" name="leFastFilter2"/>
+      <item row="1" column="0">
+       <layout class="QHBoxLayout" name="hlBranchTree"/>
       </item>
-      <item row="1" column="7">
-       <widget class="QLabel" name="lblBetween">
-        <property name="text">
-         <string>E&amp;ntre</string>
-        </property>
-        <property name="buddy">
-         <cstring>leFastFilter1</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="9">
-       <widget class="QLabel" name="lblAnd">
-        <property name="text">
-         <string>&amp;y</string>
-        </property>
-        <property name="buddy">
-         <cstring>leFastFilter2</cstring>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="13">
+      <item row="1" column="14">
        <widget class="QPushButton" name="pbSort">
         <property name="toolTip">
          <string>Ordenar por varios campos</string>
@@ -266,8 +241,47 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <layout class="QHBoxLayout" name="hlBranchTree"/>
+      <item row="1" column="5">
+       <widget class="QLineEdit" name="leFastFilter">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Introduzca aquí el valor por el que desea filtrar el campo seleccionado en el combo adyacente. Pulse intro para realizar el filtrado.</string>
+        </property>
+        <property name="statusTip">
+         <string>Introduzca aquí el valor por el que desea filtrar el campo seleccionado en el combo adyacente. Pulse intro para realizar el filtrado.</string>
+        </property>
+        <property name="whatsThis">
+         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'DejaVu Sans'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;table style=&quot;-qt-table-type: root; margin-top:4px; margin-bottom:4px; margin-left:4px; margin-right:4px;&quot;&gt;
+&lt;tr&gt;
+&lt;td style=&quot;border: none;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Introduzca aquí el valor por el que desea filtrar el campo seleccionado en el combo adyacente. Se presentarán sólo aquellos registros cuyos valores de la columna indicada en el combo, coincidan con el introducido por usted. &lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Dispone de algunos modificadores: Por ejemplo, si utiliza &amp;lt;, &amp;gt; o = en una columna con un campo numérico, visualizará aquellos registros con un valor menor, mayor o igual al indicado.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Pulse intro para realizar el filtrado.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="12">
+       <widget class="QPushButton" name="pbInlineEdit">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../../../plugins/openrptplugin/openrpt/OpenRPT/images/OpenRPTWrtembed.qrc">
+          <normaloff>:/OpenRPT/icons/icons_24x24/crosstab_24x24.png</normaloff>:/OpenRPT/icons/icons_24x24/crosstab_24x24.png</iconset>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -296,6 +310,7 @@ p, li { white-space: pre-wrap; }
  <resources>
   <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
+  <include location="../../../plugins/openrptplugin/openrpt/OpenRPT/images/OpenRPTWrtembed.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>

@@ -65,6 +65,7 @@ DBAbstractFilterView::DBAbstractFilterView(QWidget *parent) :
     connect (ui->leFastFilter, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
     connect (ui->leFastFilter1, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
     connect (ui->leFastFilter2, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
+    connect (ui->pbInlineEdit, SIGNAL(clicked(bool)), this, SIGNAL(inlineEdit(bool)));
 
     ui->leFastFilter->installEventFilter(this);
 }
@@ -353,6 +354,23 @@ void DBAbstractFilterView::reSort()
             sort = tree->header()->sortIndicatorOrder();
         }
         filterModel()->sort(sortColumn, sort);
+    }
+}
+
+void DBAbstractFilterView::inlineEdit(bool enabled)
+{
+    QTableView *tv = qobject_cast<QTableView *>(d->m_itemView);
+    if ( tv == NULL )
+    {
+        return;
+    }
+    if ( enabled )
+    {
+        tv->setSelectionBehavior(QAbstractItemView::SelectItems);
+    }
+    else
+    {
+        tv->setSelectionBehavior(QAbstractItemView::SelectRows);
     }
 }
 
@@ -883,6 +901,7 @@ void DBAbstractFilterView::init(bool initStrongFilter)
     d->m_itemView->setModel(d->m_modelFilter);
     d->m_itemView->setDragDropMode(QAbstractItemView::DragOnly);
     d->m_itemView->setDragEnabled(true);
+    ui->pbInlineEdit->setVisible(d->m_metadata->editOnDbForm());
 
     d->addFieldsCombo();
 

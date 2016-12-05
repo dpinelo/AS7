@@ -1325,7 +1325,7 @@ int SystemDAO::versionSystemObject(const QString &name, const QString &type, con
             arg(name,
                 type,
                 device,
-                QString(idOrigin));
+                QString::number(idOrigin));
     QString md5Hash = QCryptographicHash::hash(hash.toLatin1(), QCryptographicHash::Md5).toHex();
 
     if ( versionObjectHash.isEmpty() )

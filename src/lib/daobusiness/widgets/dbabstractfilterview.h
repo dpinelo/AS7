@@ -127,6 +127,7 @@ public slots:
     virtual void disableRestoreSaveState();
     virtual bool isRestoreSaveStateEnabled();
     virtual void reSort();
+    virtual void inlineEdit(bool enabled);
 
 signals:
     void columnHeaderClicked(int logicalIndex);

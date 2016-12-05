@@ -1000,7 +1000,7 @@ void BaseBeanMetadata::setReadOnlyScript(const QString &value)
 
 bool BaseBeanMetadata::editOnDbForm() const
 {
-    foreach (DBFieldMetadata *fld, d->m_fields)
+    for (DBFieldMetadata *fld : d->m_fields)
     {
         if ( fld->editOnDbForm() )
         {
@@ -1017,7 +1017,7 @@ bool BaseBeanMetadata::editOnDbForm() const
  */
 bool BaseBeanMetadata::showSomeRelationOnRelatedElementsModel()
 {
-    foreach (DBRelationMetadata *rel, d->m_relations)
+    for (DBRelationMetadata *rel : d->m_relations)
     {
         if ( rel->showOnRelatedModels() )
         {
@@ -1125,7 +1125,7 @@ QList<DBFieldMetadata *> BaseBeanMetadata::fields()
 QStringList BaseBeanMetadata::dbFieldNames() const
 {
     QStringList lst;
-    foreach (DBFieldMetadata *fld, d->m_fields)
+    for (DBFieldMetadata *fld : d->m_fields)
     {
         lst << fld->dbFieldName();
     }
@@ -1140,7 +1140,7 @@ QStringList BaseBeanMetadata::dbFieldNames() const
 int BaseBeanMetadata::countSerialFields()
 {
     int count = 0;
-    foreach (DBFieldMetadata *fld, d->m_fields)
+    for (DBFieldMetadata *fld : d->m_fields)
     {
         if ( fld->serial() )
         {
@@ -1157,7 +1157,7 @@ QList<DBRelationMetadata *> BaseBeanMetadata::relations(AlephERP::RelationTypes 
         return d->m_relations;
     }
     QList<DBRelationMetadata *> rels;
-    foreach ( DBRelationMetadata *rel, d->m_relations )
+    for ( DBRelationMetadata *rel : d->m_relations )
     {
         if ( type.testFlag(AlephERP::OneToMany) && rel->type() == DBRelationMetadata::ONE_TO_MANY )
         {
@@ -2379,7 +2379,7 @@ void BaseBeanMetadataPrivate::setConfig()
         {
             QString sort;
             QList<DBFieldMetadata *> fldsPkey = q_ptr->pkFields();
-            foreach (DBFieldMetadata *fld, fldsPkey)
+            for (DBFieldMetadata *fld : fldsPkey)
             {
                 if ( !sort.isEmpty() )
                 {
