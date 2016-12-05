@@ -134,7 +134,8 @@ bool AERPScriptSqlQuery::exec(const QString &sql)
     if (!result)
     {
         QLogger::QLog_Debug(AlephERP::stLogScript,
-                            QString::fromUtf8("AERPScriptSqlQuery:exec(): ERROR EN EXEC: [%1] [%2]").arg(d->m_sql).arg(d->m_query->lastError().text()));
+                            QString::fromUtf8("AERPScriptSqlQuery:exec(): ERROR EN EXEC: [%1] [%2]").
+                            arg(d->m_sql, d->m_query->lastError().text()));
         setProperty(AlephERP::stLastErrorMessage, d->m_query->lastError().text());
         return false;
     }
@@ -176,7 +177,8 @@ bool AERPScriptSqlQuery::exec ()
 
     if ( !d->m_query->prepare(d->m_sql) )
     {
-        QLogger::QLog_Debug(AlephERP::stLogScript, QString::fromUtf8("AERPScriptSqlQuery:exec(): ERROR EN PREPARE: [%1] [%2]").arg(d->m_sql).arg(d->m_query->lastError().text()));
+        QLogger::QLog_Debug(AlephERP::stLogScript, QString::fromUtf8("AERPScriptSqlQuery:exec(): ERROR EN PREPARE: [%1] [%2]").
+                            arg(d->m_sql, d->m_query->lastError().text()));
         setProperty(AlephERP::stLastErrorMessage, d->m_query->lastError().text());
         return false;
     }
@@ -203,7 +205,7 @@ bool AERPScriptSqlQuery::exec ()
     bool result = d->m_query->exec();
     if (!result)
     {
-        QLogger::QLog_Debug(AlephERP::stLogScript, QString::fromUtf8("AERPScriptSqlQuery:exec(): ERROR EN EXEC: [%1] [%2]").arg(d->m_sql).arg(d->m_query->lastError().text()));
+        QLogger::QLog_Debug(AlephERP::stLogScript, QString::fromUtf8("AERPScriptSqlQuery:exec(): ERROR EN EXEC: [%1] [%2]").arg(d->m_sql, d->m_query->lastError().text()));
         setProperty(AlephERP::stLastErrorMessage, d->m_query->lastError().text());
         return false;
     }

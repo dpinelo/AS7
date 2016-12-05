@@ -224,18 +224,21 @@ void AERPScript::printError(QScriptEngine *engine, const QString &functionName, 
     {
         m_backTrace = engine->uncaughtExceptionBacktrace();
         m_lastMessage = QString("AERPScript: Script [%1]. Function [%2]: Error en línea: [%3]. ERROR: [%4]").
-                        arg(d->m_scriptName).arg(functionName).arg(engine->uncaughtExceptionLineNumber()).arg(engine->uncaughtException().toString());
+                        arg(d->m_scriptName,
+                            functionName,
+                            QString(engine->uncaughtExceptionLineNumber()),
+                            engine->uncaughtException().toString());
 
         QLogger::QLog_Error(AlephERP::stLogScript, "-------------------------------------------------------------------------------------------");
         QLogger::QLog_Error(AlephERP::stLogScript, m_lastMessage);
-        QLogger::QLog_Error(AlephERP::stLogScript, QString("AERPScript: Script [%1]. Function [%2]. BACKTRACE:").arg(d->m_scriptName).arg(functionName));
+        QLogger::QLog_Error(AlephERP::stLogScript, QString("AERPScript: Script [%1]. Function [%2]. BACKTRACE:").arg(d->m_scriptName, functionName));
         foreach ( QString error, m_backTrace )
         {
             QLogger::QLog_Error(AlephERP::stLogScript, QString("AERPScript: %1").arg(error));
         }
         QLogger::QLog_Error(AlephERP::stLogScript, scriptCode);
         QLogger::QLog_Error(AlephERP::stLogScript, "-------------------------------------------------------------------------------------------");
-        qWarning() << QString("AERPScript: ERROR: Script [%1]. Function [%2].").arg(d->m_scriptName).arg(functionName);
+        qWarning() << QString("AERPScript: ERROR: Script [%1]. Function [%2].").arg(d->m_scriptName, functionName);
     }
 }
 
@@ -245,7 +248,7 @@ void AERPScript::processError()
     d->m_lastError = exception.toString();
     d->m_lastError.append("\n").append(m_engine->uncaughtExceptionBacktrace().join("\n"));
     d->m_lastErrorLine = m_engine->uncaughtExceptionLineNumber();
-    qWarning() << QString("AERPScript: ERROR: Script [%1]. Error: [%2].").arg(d->m_scriptName).arg(d->m_lastError);
+    qWarning() << QString("AERPScript: ERROR: Script [%1]. Error: [%2].").arg(d->m_scriptName, d->m_lastError);
 }
 
 void AERPScript::clearError()
@@ -822,7 +825,7 @@ QScriptValue AERPScript::createScriptValue(const QVariant &value)
     return m_engine->newVariant(value);
 }
 
-QScriptValue  AERPScript::createScriptValue(QObject * object)
+QScriptValue  AERPScript::createScriptValue(QObject *object)
 {
     QMutexLocker lock(&d->m_mutex);
     if ( m_engine == NULL )

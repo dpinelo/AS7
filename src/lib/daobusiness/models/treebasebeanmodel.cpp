@@ -446,6 +446,7 @@ QModelIndex TreeBaseBeanModel::indexForItem(BeanTreeItem *item)
 /*!
     Devuelve el índice del modelo para el bean dado.
  */
+/*
 QModelIndex TreeBaseBeanModel::index(const BaseBeanSharedPointer &bean) const
 {
     // Primero vamos a determinar en qu nivel se encuentra el objeto
@@ -463,6 +464,7 @@ QModelIndex TreeBaseBeanModel::index(const BaseBeanSharedPointer &bean) const
 
     return indice;
 }
+*/
 
 QModelIndex TreeBaseBeanModel::indexByPk(const QVariant &pk)
 {

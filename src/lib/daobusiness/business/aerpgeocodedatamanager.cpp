@@ -73,7 +73,7 @@ QString AERPGeocodeDataManager::coordinates(const QString& address)
 {
     QUrl url;
     QString uuid;
-    if ( d->m_server.isEmpty() || d->m_server.toLower().contains(QStringLiteral("google")) )
+    if ( d->m_server.isEmpty() || d->m_server.contains(QStringLiteral("google"), Qt::CaseInsensitive) )
     {
         QUrlQuery query;
         query.addQueryItem("sensor", "false");
@@ -184,7 +184,7 @@ void AERPGeocodeTask::run()
 
 void AERPGeocodeTask::replyFinished(QNetworkReply *reply)
 {
-    if ( d->m_server.isEmpty() || d->m_server.toLower().contains(QStringLiteral("google"), Qt::CaseInsensitive) )
+    if ( d->m_server.isEmpty() || d->m_server.contains(QStringLiteral("google"), Qt::CaseInsensitive) )
     {
         d->replyFinishedGoogle(reply);
     }
@@ -221,7 +221,8 @@ void AERPGeocodeTaskPrivate::replyFinishedGoogle(QNetworkReply *reply)
 
     if (error.error != QJsonParseError::NoError)
     {
-        emit q_ptr->errorOccured(m_uuid, QObject::tr("Cannot convert to QJson object: %1. Error: %2").arg(QString::fromUtf8(jsonResponse)).arg(error.errorString()));
+        emit q_ptr->errorOccured(m_uuid, QObject::tr("Cannot convert to QJson object: %1. Error: %2").
+                                 arg(QString::fromUtf8(jsonResponse), error.errorString()));
         emit q_ptr->taskFinished(m_uuid);
         m_isWorking = false;
         return;

@@ -265,38 +265,6 @@ QVariant AERPQueryModel::data(const QModelIndex& item, int role) const
     return v;
 }
 
-/*!
-  Realiza una búsqueda en las columnas indicadas, para los valores indicados. Devuelve hits resultados o todos si hits=-1
-*/
-QModelIndexList AERPQueryModel::match (const QHash<int, QVariant> &values, int role,
-                                       int hits, Qt::MatchFlags flags ) const
-{
-    Q_UNUSED(flags)
-    QModelIndexList results;
-
-    for ( int row = 0 ; row < this->rowCount() ; row++ )
-    {
-        if ( results.size() == hits )
-        {
-            return results;
-        }
-        QModelIndex idx;
-        QHashIterator<int, QVariant> it(values);
-        bool checked = true;
-        while (it.hasNext())
-        {
-            it.next();
-            idx = index(row, it.key());
-            QVariant dato = data(idx, role);
-            checked = checked & ( dato == it.value() );
-        }
-        if ( checked )
-        {
-            results.append(idx);
-        }
-    }
-    return results;
-}
 
 void AERPQueryModel::setQuery (const QString &query)
 {

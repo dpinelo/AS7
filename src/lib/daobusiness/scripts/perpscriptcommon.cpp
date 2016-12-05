@@ -237,7 +237,7 @@ QString AERPScriptCommon::saveToTempFile(const QString &content, const QString &
     QTemporaryFile file;
     if ( !extension.isEmpty() )
     {
-        file.setFileTemplate(QString("%1/alepherp_XXXXXX.%2").arg(QDir::tempPath()).arg(extension));
+        file.setFileTemplate(QString("%1/alepherp_XXXXXX.%2").arg(QDir::tempPath(), extension));
     }
     else
     {
@@ -495,7 +495,7 @@ QScriptValue AERPScriptCommon::beanByField(const QString &tableName, const QStri
     {
         return result;
     }
-    QString where = QString("%1=%2").arg(fieldName).arg(fld->metadata()->sqlValue(value));
+    QString where = QString("%1=%2").arg(fieldName, fld->metadata()->sqlValue(value));
     if ( !BaseDAO::selectFirst(bean, where, "", Database::databaseConnectionForThisThread()) )
     {
         result = QScriptValue(QScriptValue::UndefinedValue);
@@ -606,7 +606,7 @@ QVariant AERPScriptCommon::sqlSelectFirstColumn(const QString &sql, const QStrin
     if ( engine() )
     {
         QString defSql = sql;
-        if ( !defSql.toLower().contains("limit 1") )
+        if ( !defSql.contains("limit 1", Qt::CaseInsensitive) )
         {
             defSql.append(" LIMIT 1");
         }
@@ -1394,7 +1394,7 @@ QScriptValue AERPScriptCommon::nextCounter(DBField *fld, const QString &sqlFilte
     {
         return QScriptValue();
     }
-    QString sql = QString("SELECT max(%1) as column1 FROM %2").arg(fld->metadata()->dbFieldName()).arg(bean->metadata()->tableName());
+    QString sql = QString("SELECT max(%1) as column1 FROM %2").arg(fld->metadata()->dbFieldName(), bean->metadata()->tableName());
     QString where;
     if ( !sqlFilter.isEmpty() )
     {
@@ -1406,7 +1406,7 @@ QScriptValue AERPScriptCommon::nextCounter(DBField *fld, const QString &sqlFilte
     }
     if ( !where.isEmpty() )
     {
-        sql = QString("%1 WHERE %2").arg(sql).arg(where);
+        sql = QString("%1 WHERE %2").arg(sql, where);
     }
     QVariant result;
     QScriptValue scriptResult (QScriptValue::UndefinedValue);
@@ -1430,7 +1430,7 @@ QScriptValue AERPScriptCommon::nextCounter(DBField *fld, const QString &sqlFilte
             {
                 zeroString = zeroString + '0';
             }
-            QString stringValue = QString("%1%2").arg(zeroString).arg(tmp);
+            QString stringValue = QString("%1%2").arg(zeroString, tmp);
             scriptResult = QScriptValue(stringValue);
         }
         else if ( fld->metadata()->type() == QVariant::Int || fld->metadata()->type() == QVariant::Double || fld->metadata()->type() == QVariant::LongLong )
@@ -1775,7 +1775,7 @@ bool AERPScriptCommon::sendEmail(const QString &to, const QString &cc, const QSt
     QString from;
     if ( !AERPLoggedUser::instance()->userName().isEmpty() && !AERPLoggedUser::instance()->email().isEmpty() )
     {
-        from = QString("%1 <%2>").arg(AERPLoggedUser::instance()->name()).arg(AERPLoggedUser::instance()->email());
+        from = QString("%1 <%2>").arg(AERPLoggedUser::instance()->name(), AERPLoggedUser::instance()->email());
     }
     else if ( !AERPLoggedUser::instance()->email().isEmpty() )
     {
@@ -2737,8 +2737,7 @@ QString AERPScriptCommon::getSystemObjectPath(const QString &objectName, const Q
         if ( obj->name() == objectName && obj->type() == type )
         {
             QString fileName = QString("%1/%2").
-                               arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                               arg(obj->name());
+                               arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), obj->name());
             return fileName;
         }
     }

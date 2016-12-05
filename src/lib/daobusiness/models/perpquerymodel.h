@@ -54,10 +54,6 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value,
                        int role = Qt::EditRole);
-    QModelIndexList match (const QHash<int, QVariant> &values,
-                           int role,
-                           int hits = 1,
-                           Qt::MatchFlags flags = Qt::MatchFlags( Qt::MatchStartsWith | Qt::MatchWrap ) ) const;
 
     void setQuery (const QString & query);
 

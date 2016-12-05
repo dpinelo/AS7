@@ -185,8 +185,8 @@ bool DBWizardDlgPrivate::insertRow(QItemSelectionModel *selectionModel)
                         if  ( ancestor != item->bean()->metadata()->tableName() )
                         {
                             message = QObject::tr("Para agregar un registro de tipo <i>%1</i> debe escoger el elemento del que colgará en el árbol"
-                                                      ", es decir, el registro de tipo <i>%2</i> al que pertenecera").arg(mChild->alias()).
-                                      arg(mAncestor->alias());
+                                                      ", es decir, el registro de tipo <i>%2</i> al que pertenecera").
+                                    arg(mChild->alias(), mAncestor->alias());
                         }
                     }
                 }

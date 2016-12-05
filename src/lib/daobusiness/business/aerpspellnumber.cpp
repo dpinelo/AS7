@@ -453,7 +453,7 @@ QString AERPSpellNumber::spellNumber(double n, int decimalPlaces, const QString 
     QString result;
     if ( !strDecimalPart.isEmpty() )
     {
-        result = QObject::tr("%1 con %2").arg(strIntegerPart).arg(strDecimalPart);
+        result = QObject::tr("%1 con %2").arg(strIntegerPart, strDecimalPart);
     }
     else
     {
