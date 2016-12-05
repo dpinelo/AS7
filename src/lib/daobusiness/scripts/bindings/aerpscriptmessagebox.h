@@ -38,7 +38,7 @@
 class AERPScriptMessageBox : public QObject, public QScriptable
 {
     Q_OBJECT
-    Q_ENUMS(Button)
+    Q_ENUM(Button)
     Q_FLAGS(Buttons)
 
 public:

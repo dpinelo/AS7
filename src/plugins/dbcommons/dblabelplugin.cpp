@@ -49,12 +49,12 @@ QIcon DBLabelPlugin::icon() const
 
 QString DBLabelPlugin::toolTip() const
 {
-    return trUtf8("QLabel que lee de base de datos, interactuando a través de objetos BaseBean");
+    return tr("QLabel que lee de base de datos, interactuando a través de objetos BaseBean");
 }
 
 QString DBLabelPlugin::whatsThis() const
 {
-    return trUtf8("QLabel que lee de base de datos, interactuando a través de objetos BaseBean");
+    return tr("QLabel que lee de base de datos, interactuando a través de objetos BaseBean");
 }
 
 bool DBLabelPlugin::isContainer() const

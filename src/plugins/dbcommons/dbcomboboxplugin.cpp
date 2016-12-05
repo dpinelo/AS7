@@ -49,12 +49,12 @@ QIcon DBComboBoxPlugin::icon() const
 
 QString DBComboBoxPlugin::toolTip() const
 {
-    return trUtf8("ComboBox que lee de base de datos, interactuando a través de objetos BaseBean");
+    return tr("ComboBox que lee de base de datos, interactuando a través de objetos BaseBean");
 }
 
 QString DBComboBoxPlugin::whatsThis() const
 {
-    return trUtf8("ComboBox que lee de base de datos, interactuando a través de objetos BaseBean");
+    return tr("ComboBox que lee de base de datos, interactuando a través de objetos BaseBean");
 }
 
 bool DBComboBoxPlugin::isContainer() const

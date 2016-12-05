@@ -410,7 +410,7 @@ void AERPMainWindowPrivate::processSpecialActions()
     if ( alephERPSettings->localMode() )
     {
         actionEnterLocalMode->setChecked(true);
-        actionEnterLocalMode->setText(QObject::trUtf8("Salir del modo de trabajo local"));
+        actionEnterLocalMode->setText(QObject::tr("Salir del modo de trabajo local"));
     }
     if ( actionEnterLocalMode )
     {
@@ -541,7 +541,7 @@ void AERPMainWindowPrivate::createModuleToolbarFromMetadata()
     {
         return;
     }
-    tb = q_ptr->QMainWindow::addToolBar(QObject::trUtf8("Barra de Herramientas de Módulos"));
+    tb = q_ptr->QMainWindow::addToolBar(QObject::tr("Barra de Herramientas de Módulos"));
     tb->setObjectName(AlephERP::stModuleToolBar);
     tb->setAllowedAreas(Qt::AllToolBarAreas);
 
@@ -711,75 +711,75 @@ void AERPMainWindowPrivate::addOrcreateOnSubMenu(const QString &pathStr, QAction
 void AERPMainWindowPrivate::createSystemActions()
 {
     QAction *actionModules = new QAction(q_ptr);
-    actionModules->setText(QObject::trUtf8("Módulos"));
+    actionModules->setText(QObject::tr("Módulos"));
     actionModules->setObjectName(QString("table_%1_modules").arg(alephERPSettings->systemTablePrefix()));
     m_signalMapper->setMapping(actionModules, actionModules->objectName());
     QObject::connect(actionModules, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
 
     QAction *actionDebug = new QAction(q_ptr);
-    actionDebug->setText(QObject::trUtf8("Tablas de sistema"));
+    actionDebug->setText(QObject::tr("Tablas de sistema"));
     actionDebug->setObjectName(QString("table_%1_system").arg(alephERPSettings->systemTablePrefix()));
     actionDebug->setIcon(QIcon(":/generales/images/systemobjects.png"));
     m_signalMapper->setMapping(actionDebug, actionDebug->objectName());
     QObject::connect(actionDebug, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
 
     QAction *actionRoles = new QAction(q_ptr);
-    actionRoles->setText(QObject::trUtf8("Roles"));
+    actionRoles->setText(QObject::tr("Roles"));
     actionRoles->setObjectName(QString("table_%1_roles").arg(alephERPSettings->systemTablePrefix()));
     m_signalMapper->setMapping(actionRoles, actionRoles->objectName());
     QObject::connect(actionRoles, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
 
     QAction *actionUsers = new QAction(q_ptr);
-    actionUsers->setText(QObject::trUtf8("Tablas de sistema"));
+    actionUsers->setText(QObject::tr("Tablas de sistema"));
     actionUsers->setObjectName(QString("table_%1_users").arg(alephERPSettings->systemTablePrefix()));
     m_signalMapper->setMapping(actionUsers, actionUsers->objectName());
     QObject::connect(actionUsers, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
 
     QAction *actionEnvVars = new QAction(q_ptr);
-    actionEnvVars->setText(QObject::trUtf8("Variables de entorno"));
+    actionEnvVars->setText(QObject::tr("Variables de entorno"));
     actionEnvVars->setObjectName(QString("table_%1_envvars").arg(alephERPSettings->systemTablePrefix()));
     m_signalMapper->setMapping(actionEnvVars, actionEnvVars->objectName());
     QObject::connect(actionEnvVars, SIGNAL(triggered()), m_signalMapper, SLOT (map()));
 
     QAction *actionScheduledView = new QAction(q_ptr);
-    actionScheduledView->setText(QObject::trUtf8("Visor de tareas programadas de sistema"));
+    actionScheduledView->setText(QObject::tr("Visor de tareas programadas de sistema"));
     actionScheduledView->setIcon(QIcon(":/generales/images/scheduledjobs.png"));
     QObject::connect(actionScheduledView, SIGNAL(triggered()), q_ptr, SLOT(scheduledJobsView()));
 
     QAction *actionJSConsole = new QAction(q_ptr);
-    actionJSConsole->setText(QObject::trUtf8("Consola Javascript"));
+    actionJSConsole->setText(QObject::tr("Consola Javascript"));
     actionJSConsole->setIcon(QIcon(":/generales/images/jsconsole.png"));
     QObject::connect(actionJSConsole, SIGNAL(triggered()), q_ptr, SLOT(jsConsole()));
 
 #ifdef ALEPHERP_DEVTOOLS
     QAction *actionJSScripts = new QAction(q_ptr);
-    actionJSScripts->setText(QObject::trUtf8("Scripts de Administración"));
+    actionJSScripts->setText(QObject::tr("Scripts de Administración"));
     actionJSScripts->setIcon(QIcon(":/generales/images/scripts.png"));
     QObject::connect(actionJSScripts, SIGNAL(triggered()), q_ptr, SLOT(jsScripts()));
 #endif
 
     QAction *actionImportModules = new QAction(q_ptr);
-    actionImportModules->setText(QObject::trUtf8("Importar módulos"));
+    actionImportModules->setText(QObject::tr("Importar módulos"));
     actionImportModules->setIcon(QIcon(":/generales/images/importmodule.png"));
     QObject::connect(actionImportModules, SIGNAL(triggered()), q_ptr, SLOT(importModules()));
 
     QAction *actionExportModules = new QAction(q_ptr);
-    actionExportModules->setText(QObject::trUtf8("Exportar módulos"));
+    actionExportModules->setText(QObject::tr("Exportar módulos"));
     actionExportModules->setIcon(QIcon(":/generales/images/exportmodule.png"));
     QObject::connect(actionExportModules, SIGNAL(triggered()), q_ptr, SLOT(exportModules()));
 
     QAction *actionExportData = new QAction(q_ptr);
-    actionExportData->setText(QObject::trUtf8("Exportar datos"));
+    actionExportData->setText(QObject::tr("Exportar datos"));
     actionExportData->setIcon(QIcon(":/generales/images/exportdata.png"));
     QObject::connect(actionExportData, SIGNAL(triggered()), q_ptr, SLOT(exportData()));
 
     QAction *actionImportData = new QAction(q_ptr);
-    actionImportData->setText(QObject::trUtf8("Importar datos"));
+    actionImportData->setText(QObject::tr("Importar datos"));
     actionImportData->setIcon(QIcon(":/generales/images/importdata.png"));
     QObject::connect(actionImportData, SIGNAL(triggered()), q_ptr, SLOT(importData()));
 
     QMenuBar *menuBar = q_ptr->menuBar();
-    QMenu *menuAction = menuBar->addMenu(QObject::trUtf8("Sistema"));
+    QMenu *menuAction = menuBar->addMenu(QObject::tr("Sistema"));
     menuAction->addAction(actionDebug);
     menuAction->addAction(actionScheduledView);
     menuAction->addSeparator();
@@ -795,7 +795,7 @@ void AERPMainWindowPrivate::createSystemActions()
     menuAction->addAction(actionImportData);
 
     QAction *actionConsistency = new QAction(q_ptr);
-    actionConsistency->setText(QObject::trUtf8("Chequear consistencia de Metadatos"));
+    actionConsistency->setText(QObject::tr("Chequear consistencia de Metadatos"));
     QObject::connect(actionConsistency, SIGNAL(triggered()), q_ptr, SLOT(checkConsistency()));
     menuAction->addAction(actionConsistency);
 }
@@ -896,7 +896,7 @@ AERPMainWindow::AERPMainWindow(QWidget* parent, Qt::WindowFlags fl)
         d->m_uiName = "main.qmaindlg";
     }
     setCentralWidget(d->m_mdiArea);
-    d->m_relatedWidgetDock = QPointer<QDockWidget> (new QDockWidget(trUtf8("Elementos relacionados con el registro seleccionado"), this));
+    d->m_relatedWidgetDock = QPointer<QDockWidget> (new QDockWidget(tr("Elementos relacionados con el registro seleccionado"), this));
     d->m_relatedWidget = QPointer<RelatedElementsWidget> (new RelatedElementsWidget(NULL, this));
     d->m_relatedWidget->setWindowFlags(Qt::Widget);
     d->m_relatedWidgetDock->setWidget(d->m_relatedWidget.data());
@@ -936,7 +936,7 @@ AERPMainWindow *AERPMainWindow::loadUi()
         mainWindow = qobject_cast<AERPMainWindow *>(AERPUiLoader::instance()->load(&buffer));
         if ( mainWindow == NULL )
         {
-            QString message = QObject::trUtf8("No se ha podido cargar la interfaz de usuario principal de la aplicación. Existe un problema en la carga del UI.");
+            QString message = QObject::tr("No se ha podido cargar la interfaz de usuario principal de la aplicación. Existe un problema en la carga del UI.");
             QMessageBox::warning(0, qApp->applicationName(), message, QMessageBox::Ok);
         }
         else
@@ -946,7 +946,7 @@ AERPMainWindow *AERPMainWindow::loadUi()
     }
     else
     {
-        QString message = QObject::trUtf8("No se ha podido cargar la interfaz de usuario principal de la aplicación. Existe un problema en la definición de las tablas de sistema de su programa.");
+        QString message = QObject::tr("No se ha podido cargar la interfaz de usuario principal de la aplicación. Existe un problema en la definición de las tablas de sistema de su programa.");
         QMessageBox::warning(0, qApp->applicationName(), message, QMessageBox::Ok);
     }
     return mainWindow;
@@ -990,17 +990,17 @@ void AERPMainWindow::closeEvent(QCloseEvent * event)
     if ( alephERPSettings->allowSystemTray() && d->m_trayIcon->isVisible() )
     {
         QMessageBox dlg;
-        dlg.setText(trUtf8("¿Está seguro de querer cerrar la aplicación? También puede minimizarla en la barra de tareas."));
+        dlg.setText(tr("¿Está seguro de querer cerrar la aplicación? También puede minimizarla en la barra de tareas."));
         dlg.setWindowTitle(qApp->applicationName());
-        dlg.addButton(trUtf8("&Cerrar la aplicación"), QMessageBox::YesRole);
+        dlg.addButton(tr("&Cerrar la aplicación"), QMessageBox::YesRole);
         dlg.setIcon(QMessageBox::Information);
-        QPushButton *noButton = dlg.addButton(trUtf8("&Minimizar barra de herramientas"), QMessageBox::NoRole);
+        QPushButton *noButton = dlg.addButton(tr("&Minimizar barra de herramientas"), QMessageBox::NoRole);
         dlg.exec();
         if ( dlg.clickedButton() == noButton )
         {
             hide();
             event->ignore();
-            d->m_trayIcon->showMessage(qApp->applicationName(), trUtf8("%1 ha sido minimizado. Para restaurarlo pinche con el botón "
+            d->m_trayIcon->showMessage(qApp->applicationName(), tr("%1 ha sido minimizado. Para restaurarlo pinche con el botón "
                                        "derecho en este icono, y escoja la opción 'Restaurar %1'").arg(qApp->applicationName()));
             return;
         }
@@ -1011,7 +1011,7 @@ void AERPMainWindow::closeEvent(QCloseEvent * event)
     if (BeansFactory::isOnBatchMode())
     {
         int ret = QMessageBox::question(this, qApp->applicationName(),
-                                        trUtf8("El sistema se encuentra en modo de trabajo local. "
+                                        tr("El sistema se encuentra en modo de trabajo local. "
                                                "Es decir, los cambios aún no han sido subidos al servidor remoto. "
                                                "Se recomienda que salga del modo local y suba por tanto los datos al servidor remoto, "
                                                "antes de cerrar el programa. ¿Desea usted salir del modo de trabajo local?"), QMessageBox::Yes | QMessageBox::No);
@@ -1022,7 +1022,7 @@ void AERPMainWindow::closeEvent(QCloseEvent * event)
         else
         {
             QMessageBox::information(this, qApp->applicationName(),
-                                     trUtf8("La próxima vez que inicie el programa estará en modo de trabajo local, es decir, "
+                                     tr("La próxima vez que inicie el programa estará en modo de trabajo local, es decir, "
                                             "sin poder ver aún los cambios que otros usuarios haya introducido en el servidor remoto."), QMessageBox::Ok);
         }
     }
@@ -1107,11 +1107,11 @@ bool AERPMainWindow::execQs()
     bool result = d->m_engine.createQsObject();
     if ( !result )
     {
-        QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ha ocurrido un error al cargar el script asociado a este "
+        QMessageBox::warning(this,qApp->applicationName(), tr("Ha ocurrido un error al cargar el script asociado a este "
                              "formulario. Es posible que algunas funciones no estén disponibles."),
                              QMessageBox::Ok);
 #ifdef ALEPHERP_DEVTOOLS
-        int ret = QMessageBox::information(this,qApp->applicationName(), trUtf8("El script ejecutado contiene errores. ¿Desea editarlo?"),
+        int ret = QMessageBox::information(this,qApp->applicationName(), tr("El script ejecutado contiene errores. ¿Desea editarlo?"),
                                            QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::Yes )
         {
@@ -1157,9 +1157,9 @@ void AERPMainWindow::createSystemTrayWidget()
         d->m_trayIcon->setToolTip(qApp->applicationName());
         d->m_trayIcon->setIcon(QIcon(":/aplicacion/images/BolaAleph.png"));
         d->m_trayIconMenu = new QMenu(this);
-        d->m_trayIconMenu->addAction(QIcon(), trUtf8("Restaurar AlephERP"), this, SLOT(show()));
+        d->m_trayIconMenu->addAction(QIcon(), tr("Restaurar AlephERP"), this, SLOT(show()));
         d->m_trayIconMenu->addSeparator();
-        d->m_trayIconMenu->addAction(QIcon(":/generales/images/close.png"), trUtf8("Cerrar AlephERP"), this, SLOT(close()));
+        d->m_trayIconMenu->addAction(QIcon(":/generales/images/close.png"), tr("Cerrar AlephERP"), this, SLOT(close()));
         d->m_trayIcon->setContextMenu(d->m_trayIconMenu);
         d->m_trayIcon->show();
         qApp->setProperty(AlephERP::stTrayIcon, QVariant::fromValue((void *) d->m_trayIcon));
@@ -1299,7 +1299,7 @@ void AERPMainWindow::showEvent(QShowEvent *event)
         if ( alephERPSettings->localMode() )
         {
             QMessageBox::information(this, qApp->applicationName(),
-                                     trUtf8("Está usted trabajando en modo de trabajo local. La última vez que estaba trabajando en el sistema "
+                                     tr("Está usted trabajando en modo de trabajo local. La última vez que estaba trabajando en el sistema "
                                             "lo cerró sin guardar sus cambios en local en el servidor remoto. El sistema arranca automáticamente en "
                                             "modo local. Esto significa <i>que usted no está actualmente viendo los datos del servidor remoto, sino "
                                             "que está viendo los datos que sincronizaron por última vez cuando entró en modo local, el dia %1. "
@@ -1365,12 +1365,12 @@ bool AERPMainWindow::enterOnBatchMode()
             {
                 mdiSub->close();
             }
-            QString messageTemplate = trUtf8("Preparando el sistema para entrar en modo de trabajo local.\nTarea actual: %1\nEste proceso puede durar unos minutos. Por favor, espere...");
+            QString messageTemplate = tr("Preparando el sistema para entrar en modo de trabajo local.\nTarea actual: %1\nEste proceso puede durar unos minutos. Por favor, espere...");
             QScopedPointer<QProgressDialog> progress (new QProgressDialog(this));
-            QPushButton *cancelButton = new QPushButton(trUtf8("&Cancelar"));
+            QPushButton *cancelButton = new QPushButton(tr("&Cancelar"));
             cancelButton->setIcon(QIcon(":/generales/images/close.png"));
-            progress.data()->setLabelText(trUtf8("Iniciando sincronización con datos remotos..."));
-            progress.data()->setWindowTitle(trUtf8("%1 - Modo de trabajo local").arg(qApp->applicationName()));
+            progress.data()->setLabelText(tr("Iniciando sincronización con datos remotos..."));
+            progress.data()->setWindowTitle(tr("%1 - Modo de trabajo local").arg(qApp->applicationName()));
             progress.data()->setWindowModality(Qt::WindowModal);
             progress.data()->setCancelButton(cancelButton);
             progress.data()->show();
@@ -1386,15 +1386,15 @@ bool AERPMainWindow::enterOnBatchMode()
             if ( !BeansFactory::instance()->enterOnBatchMode(messageTemplate) )
             {
                 progress.data()->close();
-                QMessageBox::warning(this,qApp->applicationName(), trUtf8("No se han podido cargar los datos para el trabajo en local.\nInforme de error: %1").arg(BeansFactory::lastErrorMessage()), QMessageBox::Ok);
+                QMessageBox::warning(this,qApp->applicationName(), tr("No se han podido cargar los datos para el trabajo en local.\nInforme de error: %1").arg(BeansFactory::lastErrorMessage()), QMessageBox::Ok);
                 bool blockState = actionEnterLocalMode->blockSignals(true);
                 actionEnterLocalMode->setChecked(false);
                 actionEnterLocalMode->blockSignals(blockState);
                 return false;
             }
             progress.data()->close();
-            actionEnterLocalMode->setText(trUtf8("Salir del modo de trabajo local"));
-            QMessageBox::information(this,qApp->applicationName(), trUtf8("A partir de este momento está usted en <i>modo de trabajo local</i>.<br/> "
+            actionEnterLocalMode->setText(tr("Salir del modo de trabajo local"));
+            QMessageBox::information(this,qApp->applicationName(), tr("A partir de este momento está usted en <i>modo de trabajo local</i>.<br/> "
                                      "Esto significa que todos los cambios que realice a partir de este momento "
                                      "se almacenarán temporalmente en su ordenador. <br/>Se encuentra por tanto <i>deconectado "
                                      "del servidor central</i>. <i>No podrá visualizar las modificaciones o cambios que "
@@ -1422,12 +1422,12 @@ bool AERPMainWindow::finishBatchMode()
     QAction *actionEnterLocalMode = findChild<QAction *> ("actionEnterLocalMode");
     if ( actionEnterLocalMode != NULL )
     {
-        QString messageTemplate = trUtf8("Preparando el sistema para salir del modo de trabajo local.\nTarea actual: %1\nEste proceso puede durar unos minutos. Por favor, espere...");
+        QString messageTemplate = tr("Preparando el sistema para salir del modo de trabajo local.\nTarea actual: %1\nEste proceso puede durar unos minutos. Por favor, espere...");
         QScopedPointer<QProgressDialog> progress (new QProgressDialog(this));
-        progress.data()->setLabelText(trUtf8("Sincronizando datos locales con servidor remoto. \nEste proceso puede durar unos minutos. Por favor, espere..."));
+        progress.data()->setLabelText(tr("Sincronizando datos locales con servidor remoto. \nEste proceso puede durar unos minutos. Por favor, espere..."));
         progress.data()->setWindowTitle(qApp->applicationName());
         progress.data()->setWindowModality(Qt::WindowModal);
-        progress.data()->setCancelButton(new QPushButton(trUtf8("Cancelar")));
+        progress.data()->setCancelButton(new QPushButton(tr("Cancelar")));
         progress.data()->show();
         CommonsFunctions::processEvents();
 
@@ -1440,14 +1440,14 @@ bool AERPMainWindow::finishBatchMode()
         if ( !BeansFactory::instance()->finishBatchMode(messageTemplate, report) )
         {
             progress.data()->close();
-            SimpleMessageDlg::showMessage(trUtf8("No se han podido subir los datos al servidor remoto.\nInforme de error: %1").arg(report), this);
+            SimpleMessageDlg::showMessage(tr("No se han podido subir los datos al servidor remoto.\nInforme de error: %1").arg(report), this);
             bool blockState = actionEnterLocalMode->blockSignals(true);
             actionEnterLocalMode->setChecked(true);
             actionEnterLocalMode->blockSignals(blockState);
             return false;
         }
         SimpleMessageDlg::showMessage(report, this);
-        actionEnterLocalMode->setText(trUtf8("Entrar en modo de trabajo local"));
+        actionEnterLocalMode->setText(tr("Entrar en modo de trabajo local"));
     }
     return true;
 #else
@@ -1459,7 +1459,7 @@ void AERPMainWindow::exportData()
 {
 #ifdef ALEPHERP_DEVTOOLS
     QMessageBox::information(this, qApp->applicationName(),
-                             trUtf8("Se le mostrará un formulario con todas las tablas de sistema, en las que podrá "
+                             tr("Se le mostrará un formulario con todas las tablas de sistema, en las que podrá "
                                     "seleccionar aquellas de las que desee exportar los datos. La exportación se realizará "
                                     "a un fichero XML sencillo."), QMessageBox::Ok);
     QScopedPointer<SystemItemsDlg> dlg (new SystemItemsDlg("", "table", this));
@@ -1469,7 +1469,7 @@ void AERPMainWindow::exportData()
     QStringList tables = dlg->selectedTables();
     if ( tables.size() > 0 )
     {
-        QString dir = QFileDialog::getExistingDirectory(this, trUtf8("Seleccione el directorio en el que exportar los datos"));
+        QString dir = QFileDialog::getExistingDirectory(this, tr("Seleccione el directorio en el que exportar los datos"));
         if ( !dir.isNull() )
         {
             QList<BaseBeanMetadata *> metadatas;
@@ -1484,13 +1484,13 @@ void AERPMainWindow::exportData()
             if ( ModulesDAO::instance()->exportData(metadatas, QDir(dir)) )
             {
                 QMessageBox::information(this, qApp->applicationName(),
-                                         trUtf8("Los datos se han exportado correctamente al fichero:<br/>%1/AlephERP-Data.xml").arg(dir),
+                                         tr("Los datos se han exportado correctamente al fichero:<br/>%1/AlephERP-Data.xml").arg(dir),
                                          QMessageBox::Ok);
             }
             else
             {
                 QMessageBox::information(this, qApp->applicationName(),
-                                         trUtf8("Ha ocurrido un error exportando los datos."), QMessageBox::Ok);
+                                         tr("Ha ocurrido un error exportando los datos."), QMessageBox::Ok);
             }
         }
     }
@@ -1500,25 +1500,25 @@ void AERPMainWindow::exportData()
 void AERPMainWindow::importData()
 {
 #ifdef ALEPHERP_DEVTOOLS
-    QString filePath = QFileDialog::getOpenFileName(this, trUtf8("Seleccione el fichero a importar"), QDir::homePath());
+    QString filePath = QFileDialog::getOpenFileName(this, tr("Seleccione el fichero a importar"), QDir::homePath());
     if ( !filePath.isEmpty() )
     {
         QFile file(filePath);
         if ( !file.open(QIODevice::ReadOnly) )
         {
             QMessageBox::information(this, qApp->applicationName(),
-                                     trUtf8("No se ha podido abrir el fichero %1").arg(filePath),
+                                     tr("No se ha podido abrir el fichero %1").arg(filePath),
                                      QMessageBox::Ok);
         }
         if ( ModulesDAO::instance()->importData(file) )
         {
             QMessageBox::information(this, qApp->applicationName(),
-                                     trUtf8("Se han importado correctamente los datos."), QMessageBox::Ok);
+                                     tr("Se han importado correctamente los datos."), QMessageBox::Ok);
         }
         else
         {
             QMessageBox::information(this, qApp->applicationName(),
-                                     trUtf8("Ha ocurrido un error importando los datos. El error es %1").arg(ModulesDAO::instance()->lastErrorMessage()),
+                                     tr("Ha ocurrido un error importando los datos. El error es %1").arg(ModulesDAO::instance()->lastErrorMessage()),
                                      QMessageBox::Ok);
         }
     }
@@ -1547,7 +1547,7 @@ void AERPMainWindow::docMngmnt()
         subWin->setOption(QMdiSubWindow::RubberBandMove, true);
         subWin->setAttribute(Qt::WA_DeleteOnClose);
         subWin->setWindowIcon(QIcon(":/generales/images/document.png"));
-        subWin->setWindowTitle(trUtf8("Explorador del repositorio de documentos"));
+        subWin->setWindowTitle(tr("Explorador del repositorio de documentos"));
         CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
         subWin->show();
         CommonsFunctions::restoreOverrideCursor();
@@ -1610,7 +1610,7 @@ void AERPMainWindow::scheduledJobsView()
 void AERPMainWindow::importModules()
 {
 #ifdef ALEPHERP_DEVTOOLS
-    QString file = QFileDialog::getOpenFileName (0, QObject::trUtf8("Seleccione el archivo xml de resumen de importación."), QString(), QString("*.xml"));
+    QString file = QFileDialog::getOpenFileName (0, QObject::tr("Seleccione el archivo xml de resumen de importación."), QString(), QString("*.xml"));
     if ( !file.isEmpty() )
     {
         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
@@ -1618,12 +1618,12 @@ void AERPMainWindow::importModules()
         CommonsFunctions::restoreOverrideCursor();
         if ( !result )
         {
-            QMessageBox::warning(this, qApp->applicationName(), QObject::trUtf8("Se ha producido un error importando los datos. El error es: %1").arg(ModulesDAO::instance()->lastErrorMessage()));
+            QMessageBox::warning(this, qApp->applicationName(), QObject::tr("Se ha producido un error importando los datos. El error es: %1").arg(ModulesDAO::instance()->lastErrorMessage()));
         }
         else
         {
             QMessageBox::warning(this, qApp->applicationName(),
-                                 QObject::trUtf8("Se ha importado correctamente el módulo. Debe reiniciar la aplicación."));
+                                 QObject::tr("Se ha importado correctamente el módulo. Debe reiniciar la aplicación."));
             return;
         }
     }
@@ -1638,7 +1638,7 @@ void AERPMainWindow::exportModules()
     {
         return;
     }
-    QString directory = QFileDialog::getExistingDirectory (this, QObject::trUtf8("Seleccione el directorio en el que exportar los datos."));
+    QString directory = QFileDialog::getExistingDirectory (this, QObject::tr("Seleccione el directorio en el que exportar los datos."));
     if ( !directory.isEmpty() )
     {
         bool result = true;
@@ -1652,12 +1652,12 @@ void AERPMainWindow::exportModules()
         if ( result )
         {
             QMessageBox::warning(this, qApp->applicationName(),
-                                 QObject::trUtf8("Se han exportando correctamente los módulos."));
+                                 QObject::tr("Se han exportando correctamente los módulos."));
         }
         else
         {
             QMessageBox::warning(this, qApp->applicationName(),
-                                 QObject::trUtf8("Ha ocurrido un error exportando los módulos. Error: %1").arg(ModulesDAO::instance()->lastErrorMessage()));
+                                 QObject::tr("Ha ocurrido un error exportando los módulos. Error: %1").arg(ModulesDAO::instance()->lastErrorMessage()));
         }
     }
 #endif
@@ -1669,7 +1669,7 @@ void AERPMainWindow::initScheduledJob(const QString &jobName)
     {
         if ( job->metadata()->name() == jobName )
         {
-            QString msg = trUtf8("Ejecutando tarea: %1 ...").arg(job->metadata()->alias().isEmpty() ? job->metadata()->name() : job->metadata()->alias());
+            QString msg = tr("Ejecutando tarea: %1 ...").arg(job->metadata()->alias().isEmpty() ? job->metadata()->name() : job->metadata()->alias());
             d->m_jobLabel->setText(msg);
             d->m_jobLabel->show();
             if ( alephERPSettings->allowSystemTray() && d->m_trayIcon->isVisible() )
@@ -1695,7 +1695,7 @@ void AERPMainWindow::endScheduledJob(const QString &jobName)
                 QString msg = job->metadata()->alias().isEmpty() ? job->metadata()->name() : job->metadata()->alias();
                 if ( alephERPSettings->allowSystemTray() && d->m_trayIcon->isVisible() )
                 {
-                    d->m_trayIcon->showMessage(qApp->applicationName(), trUtf8("Tarea %1 finalizada.").arg(msg));
+                    d->m_trayIcon->showMessage(qApp->applicationName(), tr("Tarea %1 finalizada.").arg(msg));
                     d->m_trayIcon->setToolTip(qApp->applicationName());
                 }
             }
@@ -1750,11 +1750,11 @@ void AERPMainWindow::syncHotFolders()
     QString error;
     if ( alephERPSettings->hotFolders().isEmpty() )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Debe seleccionar qué carpetas del gestor documental desea sincronizar en su disco duro."));
+        QMessageBox::warning(this, qApp->applicationName(), tr("Debe seleccionar qué carpetas del gestor documental desea sincronizar en su disco duro."));
         hotFolders();
         if ( alephERPSettings->hotFolders().isEmpty() )
         {
-            QMessageBox::warning(this, qApp->applicationName(), trUtf8("No ha seleccionado ninguna carpeta a sincronizar. No se iniciará la sincronización."));
+            QMessageBox::warning(this, qApp->applicationName(), tr("No ha seleccionado ninguna carpeta a sincronizar. No se iniciará la sincronización."));
             QAction *actionSyncHotFolders = findChild<QAction *>("actionSyncHotFolders");
             if ( actionSyncHotFolders )
             {
@@ -1824,7 +1824,7 @@ void AERPMainWindow::addActionOnToolbarFromOtherAction(QAction *action)
 void AERPMainWindow::addToolBar()
 {
     QString title = QInputDialog::getText(this, qApp->applicationName(),
-                                          trUtf8("Introduzca un identificador o nombre para la barra de herramientas"));
+                                          tr("Introduzca un identificador o nombre para la barra de herramientas"));
     if ( !title.isEmpty() )
     {
         QToolBar *tb = QMainWindow::addToolBar(title);
@@ -1868,7 +1868,7 @@ void AERPMainWindow::backgroundBatchLoad()
         if ( d->m_labelBatch.isNull() )
         {
             d->m_labelBatch = new QLabel(this);
-            d->m_labelBatch->setText(trUtf8("Iniciando carga remota..."));
+            d->m_labelBatch->setText(tr("Iniciando carga remota..."));
             d->m_labelBatch->setMinimumSize(250, bar->size().height());
         }
         if ( d->m_progressBatch.isNull() )
@@ -1881,7 +1881,7 @@ void AERPMainWindow::backgroundBatchLoad()
             d->m_cancelProgressBatchButton = new QPushButton(this);
             d->m_cancelProgressBatchButton->setMaximumSize(d->m_labelBatch->size().height(), d->m_labelBatch->size().height());
             d->m_cancelProgressBatchButton->setIcon(QIcon(":/generales/images/delete.png"));
-            d->m_cancelProgressBatchButton->setToolTip(trUtf8("Cancelar"));
+            d->m_cancelProgressBatchButton->setToolTip(tr("Cancelar"));
         }
         bar->addPermanentWidget(d->m_labelBatch);
         bar->addPermanentWidget(d->m_progressBatch);
@@ -1918,10 +1918,10 @@ QMenu *AERPMainWindow::createPopupMenu()
 
     menu->addSeparator();
 
-    QAction *mnuAddToolBar = menu->addAction(trUtf8("Añadir barra de herramientas"));
+    QAction *mnuAddToolBar = menu->addAction(tr("Añadir barra de herramientas"));
     connect(mnuAddToolBar, SIGNAL(triggered()), this, SLOT(addToolBar()));
 
-    QMenu *mnuRemoveToolbar = menu->addMenu(trUtf8("Eliminar barra de herramientas"));
+    QMenu *mnuRemoveToolbar = menu->addMenu(tr("Eliminar barra de herramientas"));
     QList<QToolBar *> toolBars = findChildren<QToolBar *>();
     foreach (QToolBar *toolBar, toolBars)
     {
@@ -1932,7 +1932,7 @@ QMenu *AERPMainWindow::createPopupMenu()
 
     menu->addSeparator();
 
-    QMenu *subMenu = menu->addMenu(trUtf8("Acciones disponibles en la barra de herramientas"));
+    QMenu *subMenu = menu->addMenu(tr("Acciones disponibles en la barra de herramientas"));
     QList<QAction *> actionList = QMainWindow::menuBar()->actions();
     foreach (QAction *action, actionList)
     {

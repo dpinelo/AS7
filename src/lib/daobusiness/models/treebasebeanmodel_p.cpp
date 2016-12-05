@@ -180,9 +180,9 @@ BeanTreeItemPointer TreeBaseBeanModelPrivate::itemById(qlonglong id, const QStri
     QList<BeanTreeItemPointer> list;
     if ( tableName.isEmpty() )
     {
-        foreach (QList<BeanTreeItemPointer> l, m_itemsPerTable.values())
+        for (QList<BeanTreeItemPointer> itemList : m_itemsPerTable.values())
         {
-            list.append(l);
+            list.append(itemList);
         }
     }
     else
@@ -387,8 +387,7 @@ QString TreeBaseBeanModelPrivate::lastLevelCountUnderlyingSql()
             where.prepend(" WHERE ");
         }
         sql = QString("SELECT count(*) as lastlevelcount, %1 FROM %2 whereClausule GROUP BY %1").
-                arg(rel->rootFieldName()).
-                arg(last.metadata->sqlTableName());
+                arg(rel->rootFieldName(), last.metadata->sqlTableName());
         // La cláusula where puede contener algo así como
         //  WHERE idempresa = 2 AND idejercicio = 12 AND UPPER(codsubcuenta) LIKE UPPER('%%4%%')
         // y en ese último %%4%% se produciría un reemplazo no deseable.

@@ -239,7 +239,7 @@ bool AERPLoggedUser::loadMetadataAccess()
     }
     if ( !UserDAO::lastErrorMessage().isEmpty() )
     {
-        d->m_lastError = trUtf8("No se han podido leer los permisos del usuario. "
+        d->m_lastError = tr("No se han podido leer los permisos del usuario. "
                                 "Ha ocurrido un error en la ejecución de la consulta. \n"
                                 "El error es: %1"
                                ).arg(UserDAO::lastErrorMessage());
@@ -254,7 +254,7 @@ bool AERPLoggedUser::loadRoles()
     d->m_roles = UserDAO::userRoles(d->m_userName);
     if ( !UserDAO::lastErrorMessage().isEmpty() )
     {
-        d->m_lastError = QObject::trUtf8("Ha ocurrido un error en la conexión a la base de datos. No han podido cargarse los roles: \r\nERROR: %1.").arg(UserDAO::lastErrorMessage());
+        d->m_lastError = QObject::tr("Ha ocurrido un error en la conexión a la base de datos. No han podido cargarse los roles: \r\nERROR: %1.").arg(UserDAO::lastErrorMessage());
         return false;
     }
     return true;

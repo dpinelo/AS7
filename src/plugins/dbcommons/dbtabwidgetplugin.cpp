@@ -49,12 +49,12 @@ QIcon DBTabWidgetPlugin::icon() const
 
 QString DBTabWidgetPlugin::toolTip() const
 {
-    return trUtf8("QTabWidget que lee sus tabs de base de datos, interactuando a través de objetos BaseBean");
+    return tr("QTabWidget que lee sus tabs de base de datos, interactuando a través de objetos BaseBean");
 }
 
 QString DBTabWidgetPlugin::whatsThis() const
 {
-    return trUtf8("QTabWidget que lee sus tabs de base de datos, interactuando a través de objetos BaseBean");
+    return tr("QTabWidget que lee sus tabs de base de datos, interactuando a través de objetos BaseBean");
 }
 
 bool DBTabWidgetPlugin::isContainer() const

@@ -192,9 +192,9 @@ bool DBFieldPrivate::checkLength()
     if ( temp.size() > q_ptr->length() )
     {
         result = false;
-        m_message = QObject::trUtf8("%1\r\n%2: La longitud del texto introducido sobrepasa la permitida. Acorte el texto.").
+        m_message = QObject::tr("%1\r\n%2: La longitud del texto introducido sobrepasa la permitida. Acorte el texto.").
                     arg(m_message).arg(q_ptr->metadata()->fieldName());
-        m_htmlMessage = QObject::trUtf8("%1<p><strong>%2</strong>: La longitud del texto introducido sobrepasa la permitida. Acorte el texto.</p>").
+        m_htmlMessage = QObject::tr("%1<p><strong>%2</strong>: La longitud del texto introducido sobrepasa la permitida. Acorte el texto.</p>").
                         arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
         if ( m_widget == NULL )
         {
@@ -225,12 +225,12 @@ bool DBFieldPrivate::checkUnique()
         if ( count > 0 )
         {
             result = false;
-            m_message = QObject::trUtf8("%1\r\n[%2] %3: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: %4").
+            m_message = QObject::tr("%1\r\n[%2] %3: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: %4").
                             arg(m_message).
                             arg(q_ptr->bean()->metadata()->alias()).
                             arg(q_ptr->metadata()->fieldName()).
                             arg(q_ptr->displayValue());
-            m_htmlMessage = QObject::trUtf8("%1<p>[%2] <strong>%3</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: <i>%4</i></p>").
+            m_htmlMessage = QObject::tr("%1<p>[%2] <strong>%3</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: <i>%4</i></p>").
                             arg(m_htmlMessage).
                             arg(q_ptr->bean()->metadata()->alias()).
                             arg(q_ptr->metadata()->fieldName()).
@@ -298,8 +298,8 @@ bool DBFieldPrivate::checkNull()
 
         if ( ! result )
         {
-            m_message = QObject::trUtf8("%1\r\n%2: No puede estar vacío.").arg(m_message).arg(q_ptr->metadata()->fieldName());
-            m_htmlMessage = QObject::trUtf8("%1<p><strong>%2</strong>: No puede estar vac&iacute;o.</p>").
+            m_message = QObject::tr("%1\r\n%2: No puede estar vacío.").arg(m_message).arg(q_ptr->metadata()->fieldName());
+            m_htmlMessage = QObject::tr("%1<p><strong>%2</strong>: No puede estar vac&iacute;o.</p>").
                             arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
             if ( m_widget == NULL )
             {
@@ -317,8 +317,8 @@ bool DBFieldPrivate::checkNull()
         if ( q_ptr->value().isNull() || !q_ptr->value().isValid() )
         {
             result = false;
-            m_message = QObject::trUtf8("%1\r\n%2: No puede estar vacío.").arg(m_message).arg(q_ptr->metadata()->fieldName());
-            m_htmlMessage = QObject::trUtf8("%1<p><strong>%2</strong>: No puede estar vac&iacute;o.</p>").
+            m_message = QObject::tr("%1\r\n%2: No puede estar vacío.").arg(m_message).arg(q_ptr->metadata()->fieldName());
+            m_htmlMessage = QObject::tr("%1<p><strong>%2</strong>: No puede estar vac&iacute;o.</p>").
                             arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
             if ( m_widget == NULL )
             {
@@ -393,26 +393,26 @@ bool DBFieldPrivate::checkUniqueOnFilterField()
                 if ( (q_ptr->metadata()->counterDefinition()->calculateOnlyOnInsert && bean->dbState() == BaseBean::INSERT) || !q_ptr->metadata()->counterDefinition()->calculateOnlyOnInsert )
                 {
                     int ret = QMessageBox::question(m_widget, qApp->applicationName(),
-                                                    QObject::trUtf8("Existe ya un registro con este mismo valor: <strong>%1</strong>. "
+                                                    QObject::tr("Existe ya un registro con este mismo valor: <strong>%1</strong>. "
                                                             "El valor debe ser único. ¿Desea volver a calcularlo?").arg(q_ptr->displayValue()),
                                                     QMessageBox::Yes | QMessageBox::No);
                     if ( ret == QMessageBox::Yes )
                     {
                         q_ptr->setValue(q_ptr->calculateCounter());
-                        m_message = QObject::trUtf8("%1\r\n%2: Se ha calculado un nuevo valor.").
+                        m_message = QObject::tr("%1\r\n%2: Se ha calculado un nuevo valor.").
                                     arg(m_message).arg(q_ptr->metadata()->fieldName());
-                        m_htmlMessage = QObject::trUtf8("%1<p><strong>%2</strong>: Se ha calculado un nuevo valor.</p>").
+                        m_htmlMessage = QObject::tr("%1<p><strong>%2</strong>: Se ha calculado un nuevo valor.</p>").
                                         arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
                         return true;
                     }
                 }
             }
-            m_message = QObject::trUtf8("%1\r\n[%2] %3: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: %4").
+            m_message = QObject::tr("%1\r\n[%2] %3: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: %4").
                             arg(m_message).
                             arg(q_ptr->bean()->metadata()->alias()).
                             arg(q_ptr->metadata()->fieldName()).
                             arg(q_ptr->displayValue());
-            m_htmlMessage = QObject::trUtf8("%1<p>[%2] <strong>%3</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: <i>%4</i></p>").
+            m_htmlMessage = QObject::tr("%1<p>[%2] <strong>%3</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: <i>%4</i></p>").
                             arg(m_htmlMessage).
                             arg(q_ptr->bean()->metadata()->alias()).
                             arg(q_ptr->metadata()->fieldName()).
@@ -825,7 +825,7 @@ QVariant DBField::previousValue() const
 {
     if ( !d->m_bean->checkAccess('r') )
     {
-        return trUtf8(AlephERP::stNoAccess);
+        return tr(AlephERP::stNoAccess);
     }
     return d->m_previousValue;
 }
@@ -834,7 +834,7 @@ QVariant DBField::oldValue() const
 {
     if ( !d->m_bean->checkAccess('r') )
     {
-        return trUtf8(AlephERP::stNoAccess);
+        return tr(AlephERP::stNoAccess);
     }
     return d->m_oldValue;
 }
@@ -882,7 +882,7 @@ QVariant DBField::value()
     }
     if ( !d->m_bean->checkAccess('r') )
     {
-        return trUtf8(AlephERP::stNoAccess);
+        return tr(AlephERP::stNoAccess);
     }
     if ( d->m->coordinates() )
     {
@@ -1105,7 +1105,7 @@ QVariant DBField::defaultValue()
 {
     if ( !d->m_bean->checkAccess('r') )
     {
-        return trUtf8(AlephERP::stNoAccess);
+        return tr(AlephERP::stNoAccess);
     }
     QVariant v = d->m->calculateDefaultValue(this);
     emit defaultValueCalculated(d->m->dbFieldName(), v);
@@ -1542,7 +1542,7 @@ QString DBField::sqlValue(bool includeQuotesOnString, const QString &dialect, bo
 {
     if ( !d->m_bean->checkAccess('r') )
     {
-        return trUtf8(AlephERP::stNoAccess);
+        return tr(AlephERP::stNoAccess);
     }
     QVariant v;
     if ( useRawValue )
@@ -1560,7 +1560,7 @@ QString DBField::sqlOldValue(bool includeQuotesOnString, const QString &dialect)
 {
     if ( !d->m_bean->checkAccess('r') )
     {
-        return trUtf8(AlephERP::stNoAccess);
+        return tr(AlephERP::stNoAccess);
     }
 
     return d->sqlValue(d->m_oldValue, includeQuotesOnString, dialect);

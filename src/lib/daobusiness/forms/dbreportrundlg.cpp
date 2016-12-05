@@ -175,7 +175,7 @@ bool DBReportRunDlg::init()
 
     if ( d->m_run->metadata() == NULL && d->m_run->availableReports().size() == 0 )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Existe un error en la definición de metadatos del informe."));
+        QMessageBox::warning(this, qApp->applicationName(), tr("Existe un error en la definición de metadatos del informe."));
         return false;
     }
     if ( d->m_run->metadata() == NULL && d->m_run->availableReports().size() > 0 )
@@ -203,12 +203,12 @@ bool DBReportRunDlg::init()
 
     if ( d->m_run->metadata() != NULL )
     {
-        setWindowTitle(trUtf8("Informes - %1").arg(d->m_run->metadata()->alias()));
+        setWindowTitle(tr("Informes - %1").arg(d->m_run->metadata()->alias()));
         ui->pbSpreadSheet->setVisible(d->m_run->canExportSpreadSheet());
     }
     else
     {
-        setWindowTitle(trUtf8("Informes - %1").arg(qApp->applicationName()));
+        setWindowTitle(tr("Informes - %1").arg(qApp->applicationName()));
     }
 
     connect (ui->pbClose, SIGNAL(clicked()), this, SLOT(close()));
@@ -355,7 +355,7 @@ void DBReportRunDlgPrivate::buildUIParameters()
     if ( m_run->beans().isEmpty() || m_run->beans().first().isNull() )
     {
         q_ptr->ui->gbParameters->setVisible(false);
-        QLogger::QLog_Debug(AlephERP::stLogOther, QObject::trUtf8("Este informe no está asociado a ninguna tabla. No puede crearse una interfaz automática."));
+        QLogger::QLog_Debug(AlephERP::stLogOther, QObject::tr("Este informe no está asociado a ninguna tabla. No puede crearse una interfaz automática."));
         return;
     }
     QList<AlephERP::ReportParameterInfo> paramList = m_run->parametersRequired();
@@ -365,7 +365,7 @@ void DBReportRunDlgPrivate::buildUIParameters()
     if ( m == NULL )
     {
         q_ptr->ui->gbParameters->setVisible(false);
-        QLogger::QLog_Debug(AlephERP::stLogOther, QObject::trUtf8("Este informe no está asociado a ninguna tabla. No puede crearse una interfaz automática."));
+        QLogger::QLog_Debug(AlephERP::stLogOther, QObject::tr("Este informe no está asociado a ninguna tabla. No puede crearse una interfaz automática."));
         return;
     }
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
@@ -500,7 +500,7 @@ void DBReportRunDlgPrivate::buildUIChooseReport()
     }
     else
     {
-        QLabel *lbl = new QLabel(QObject::trUtf8("Seleccione el informe"), q_ptr);
+        QLabel *lbl = new QLabel(QObject::tr("Seleccione el informe"), q_ptr);
         QComboBox *cb = new QComboBox(q_ptr);
         QHBoxLayout *lay = new QHBoxLayout();
         lay->addWidget(lbl);
@@ -609,7 +609,7 @@ bool DBReportRunDlg::exportToSpreadSheet()
     bool ok;
     QString selectedType = QInputDialog::getItem(this,
                                                  qApp->applicationName(),
-                                                 trUtf8("Seleccione el tipo de fichero al que desea exportar."),
+                                                 tr("Seleccione el tipo de fichero al que desea exportar."),
                                                  displayTypes,
                                                  0,
                                                  false,
@@ -619,14 +619,14 @@ bool DBReportRunDlg::exportToSpreadSheet()
         return false;
     }
     QString type = types.at(displayTypes.indexOf(selectedType));
-    QString dir = QFileDialog::getExistingDirectory(this, trUtf8("Seleccione el directorio en el que se exportará el fichero."), QDir::homePath());
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Seleccione el directorio en el que se exportará el fichero."), QDir::homePath());
     if ( dir.isEmpty() )
     {
         return false;
     }
     QString fileName = QInputDialog::getText(this,
                                              qApp->applicationName(),
-                                             trUtf8("Seleccione el nombre del fichero a generar."),
+                                             tr("Seleccione el nombre del fichero a generar."),
                                              QLineEdit::Normal,
                                              QString("%1.%2").arg(d->m_run->metadata()->alias().replace("/", "")).arg(type),
                                              &ok);
@@ -651,11 +651,11 @@ bool DBReportRunDlg::exportToSpreadSheet()
     dlg->close();
     if ( !execute )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error al tratar de generar el archivo de hoja de cálculo. \nEl error es: [%1]").arg(d->m_run->lastErrorMessage()), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error al tratar de generar el archivo de hoja de cálculo. \nEl error es: [%1]").arg(d->m_run->lastErrorMessage()), QMessageBox::Ok);
     }
     else
     {
-        int ret = QMessageBox::question(this, qApp->applicationName(), trUtf8("Se ha generado correctamente el fichero de hoja de cálculo. ¿Desea abrirlo?"), QMessageBox::Yes | QMessageBox::No);
+        int ret = QMessageBox::question(this, qApp->applicationName(), tr("Se ha generado correctamente el fichero de hoja de cálculo. ¿Desea abrirlo?"), QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::Yes )
         {
             QDesktopServices::openUrl(QUrl::fromLocalFile(filePath));
@@ -728,7 +728,7 @@ bool DBReportRunDlgPrivate::setupMainWidget()
         }
         else
         {
-            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de informes de sistema de su programa.").arg(fileName),
+            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::tr("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de informes de sistema de su programa.").arg(fileName),
                                  QMessageBox::Ok);
             result = false;
         }
@@ -748,7 +748,7 @@ bool DBReportRunDlgPrivate::setupMainWidget()
         }
         else
         {
-            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de informes de sistema de su programa.").arg(fileName),
+            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::tr("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de informes de sistema de su programa.").arg(fileName),
                                  QMessageBox::Ok);
             result = false;
         }
@@ -822,12 +822,12 @@ void DBReportRunDlgPrivate::execQs()
         {
             CommonsFunctions::setOverrideCursor(QCursor(Qt::ArrowCursor));
             QMessageBox::warning(q_ptr, qApp->applicationName(),
-                                 QObject::trUtf8("Ha ocurrido un error al cargar el script asociado a este "
+                                 QObject::tr("Ha ocurrido un error al cargar el script asociado a este "
                                                  "formulario. Es posible que algunas funciones no estén disponibles."),
                                  QMessageBox::Ok);
 #ifdef ALEPHERP_DEVTOOLS
             int ret = QMessageBox::information(q_ptr, qApp->applicationName(),
-                                               QObject::trUtf8("El script ejecutado contiene errores. ¿Desea editarlo?"),
+                                               QObject::tr("El script ejecutado contiene errores. ¿Desea editarlo?"),
                                                QMessageBox::Yes | QMessageBox::No);
             if ( ret == QMessageBox::Yes )
             {
@@ -912,7 +912,7 @@ void DBReportRunDlgPrivate::showAvailableButtons()
             q_ptr->ui->pbPreview->setVisible(false);
             q_ptr->ui->pbPDF->setVisible(false);
             q_ptr->ui->pbPrint->setVisible(false);
-            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::trUtf8("No se ha podido cargar el plugin de impresión"));
+            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::tr("No se ha podido cargar el plugin de impresión"));
         }
         if (!m_run.isNull())
         {

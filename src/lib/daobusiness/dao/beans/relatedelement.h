@@ -44,7 +44,6 @@ class AERPDocMngmntDocument;
 class RelatedElement : public QObject, public QScriptable
 {
     Q_OBJECT
-    Q_ENUMS(RelatedElementStates)
 
     /** ID de base de datos del elemento relacionado */
     Q_PROPERTY(int id READ id WRITE setId)
@@ -105,7 +104,14 @@ public:
 
     // Los elementos marcados como LINK indican que se crean virtualmente en tiempo de ejecución, pero no están
     // en base de datos.
-    enum RelatedElementStates { INSERT = 1, UPDATE = 2, TO_BE_DELETED = 4, DELETED = 8, LINK = 16 };
+    enum RelatedElementStates {
+        INSERT = 1,
+        UPDATE = 2,
+        TO_BE_DELETED = 4,
+        DELETED = 8,
+        LINK = 16
+    };
+    Q_ENUM(RelatedElementStates)
 
     int id() const;
     void setId(int id);

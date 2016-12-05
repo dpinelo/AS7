@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
 #endif
     {
         QMessageBox::warning(0, qApp->applicationName(),
-                             QObject::trUtf8("Ha sido imposible cargar el fichero con las traducciones."));
+                             QObject::tr("Ha sido imposible cargar el fichero con las traducciones."));
     }
     else
     {
@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
         if ( opts.licenseKey.isEmpty() )
         {
             QMessageBox::warning(0, qApp->applicationName(),
-                                 QObject::trUtf8("Esta aplicación necesita un número de licencia para el acceso a los servicios remotos."));
+                                 QObject::tr("Esta aplicación necesita un número de licencia para el acceso a los servicios remotos."));
             closeApp();
             return 0;
         }
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
     AERPSplashScreen *splash = new AERPSplashScreen (QPixmap(splashFilePath));
     splash->setAttribute(Qt::WA_DeleteOnClose);
     splash->show();
-    splash->showMessage(QObject::trUtf8("Cargando directorios con plugins..."));
+    splash->showMessage(QObject::tr("Cargando directorios con plugins..."));
 
     // Cargamos todos los plugins que necesita la aplicación
     loadPlugins();
@@ -259,7 +259,7 @@ int main(int argc, char *argv[])
     AlephERP::initAlephERPWidgets();
 
     // Necesitamos la conexión a las bases de datos auxiliares.
-    splash->showMessage(QObject::trUtf8("Conectando con las bases de datos auxiliares..."));
+    splash->showMessage(QObject::tr("Conectando con las bases de datos auxiliares..."));
 #ifndef ALEPHERP_STANDALONE
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     bool r = Database::createServerConnection();
@@ -301,7 +301,7 @@ int main(int argc, char *argv[])
     if ( countSystemObjects == -1 )
     {
         QMessageBox::critical(0, qApp->applicationName(),
-                              QObject::trUtf8("No se han podido leer las definiciones de sistema. "
+                              QObject::tr("No se han podido leer las definiciones de sistema. "
                                               "Ha ocurrido un error en el acceso a la base de datos. \n. "
                                               "ERROR: %1. ").arg(SystemDAO::lastErrorMessage()));
         splash->close();
@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
     // Ahora cargamos las variables de entorno propias del usuario
     if ( !BaseDAO::loadUserEnvVars(Database::databaseConnectionForThisThread()) )
     {
-        QMessageBox::critical(0, qApp->applicationName(), QObject::trUtf8("No se han podido cargar las variables de entorno de usuario. El error es: %1").
+        QMessageBox::critical(0, qApp->applicationName(), QObject::tr("No se han podido cargar las variables de entorno de usuario. El error es: %1").
                               arg(BaseDAO::lastErrorMessage()),
                               QMessageBox::Ok);
     }
@@ -335,7 +335,7 @@ int main(int argc, char *argv[])
     QObject::connect(SystemDAO::instance(), SIGNAL(initLoadSystemTables(int)), BeansFactory::instance(), SLOT(setProgressOffset(int)));
     splash->connect(SystemDAO::instance(), SIGNAL(loadSystemTablesProgress(int)), SLOT(setProgressValue(int)));
     splash->connect(BeansFactory::instance(), SIGNAL(initProgressValue(int)), SLOT(setProgressValue(int)));
-    splash->showMessage(QObject::trUtf8("Inicializando las definiciones de sistema..."));
+    splash->showMessage(QObject::tr("Inicializando las definiciones de sistema..."));
 
     QString failedBean;
     // Madre del cordero. Se inicia el proceso de lectura de la estructura de sistema.
@@ -345,7 +345,7 @@ int main(int argc, char *argv[])
     if ( !init && !SystemDAO::lastErrorMessage().isEmpty() )
     {
         QMessageBox::critical(0, qApp->applicationName(),
-                              QObject::trUtf8("No se han podido leer las definiciones de sistema. "
+                              QObject::tr("No se han podido leer las definiciones de sistema. "
                                               "Ha ocurrido un error en el acceso a la base de datos. \n "
                                               "ERROR: %1. ").arg(SystemDAO::lastErrorMessage()));
         splash->close();
@@ -355,7 +355,7 @@ int main(int argc, char *argv[])
 
     // Vamos a solicitar el análisis de las relaciones para campos calculados. Es muy importante que se haga
     // justo después de haber inicializado los metadatos y haber cargado en estos la información sobre permisos
-    splash->showMessage(QObject::trUtf8("Analizando relaciones para el cálculo de campos..."));
+    splash->showMessage(QObject::tr("Analizando relaciones para el cálculo de campos..."));
     BeansFactory::instance()->buildCalculatedFieldRules();
 
     // La solicitud de permisos debe ir en este punto, cuando los metadatos YA se han cargado.
@@ -379,26 +379,26 @@ int main(int argc, char *argv[])
         {
             if ( error.isEmpty() )
             {
-                int ret = QMessageBox::question(0, qApp->applicationName(), QObject::trUtf8("El repositorio de gestión documental no est´a iniciado. ¿Desea iniciarlo?"), QMessageBox::Yes | QMessageBox::No);
+                int ret = QMessageBox::question(0, qApp->applicationName(), QObject::tr("El repositorio de gestión documental no est´a iniciado. ¿Desea iniciarlo?"), QMessageBox::Yes | QMessageBox::No);
                 if ( ret == QMessageBox::Yes )
                 {
                     if ( !CommonsFunctions::initRepo(error) )
                     {
                         QMessageBox::critical(0, qApp->applicationName(),
-                                              QObject::trUtf8("No se ha podido iniciar el repositorio del módulo de gestión documental. Estar´a deshabilitado en la ejecución. ERROR:%1 ").arg(error));
+                                              QObject::tr("No se ha podido iniciar el repositorio del módulo de gestión documental. Estar´a deshabilitado en la ejecución. ERROR:%1 ").arg(error));
                     }
                 }
             }
             else
             {
                 QMessageBox::critical(0, qApp->applicationName(),
-                                      QObject::trUtf8("No se ha podido acceder al módulo de gestión documental. Estar´a deshabilitado en la ejecución. ERROR:%1 ").arg(error));
+                                      QObject::tr("No se ha podido acceder al módulo de gestión documental. Estar´a deshabilitado en la ejecución. ERROR:%1 ").arg(error));
             }
         }
     }
 #endif
 
-    splash->showMessage(QObject::trUtf8("Creando ventana principal..."));
+    splash->showMessage(QObject::tr("Creando ventana principal..."));
     QLogger::QLog_Debug(AlephERP::stLogOther, "Iniciando la creación del formulario principa...l");
 
 #ifdef ALEPHERP_TEST
@@ -443,7 +443,7 @@ int main(int argc, char *argv[])
     }
     qApp->setProperty(AlephERP::stMainWindowPointer, QVariant::fromValue((void *) mainWin));
 
-    splash->showMessage(QObject::trUtf8("Iniciando la aplicación..."));
+    splash->showMessage(QObject::tr("Iniciando la aplicación..."));
     // ¿Debemos arrancar el sistema con modo de trabajo local?
 #ifdef ALEPHERP_LOCALMODE
     if ( alephERPSettings->localMode() )
@@ -543,7 +543,7 @@ void setStyle()
         }
 #endif
         QMessageBox::warning(0, qApp->applicationName(),
-                             QObject::trUtf8("No tiene ningún estilo estético seleccionado. Se le presentará el formulario para que escoja uno."));
+                             QObject::tr("No tiene ningún estilo estético seleccionado. Se le presentará el formulario para que escoja uno."));
         QScopedPointer<StyleSelectDlg> dlg (new StyleSelectDlg());
         dlg->setModal(true);
         dlg->exec();
@@ -575,7 +575,7 @@ void setStyle()
 void exportModules(const QString &moduleName)
 {
 #ifdef ALEPHERP_DEVTOOLS
-    QString directory = QFileDialog::getExistingDirectory (0, QObject::trUtf8("Seleccione el directorio en el que exportar los datos."));
+    QString directory = QFileDialog::getExistingDirectory (0, QObject::tr("Seleccione el directorio en el que exportar los datos."));
     if ( !directory.isEmpty() )
     {
         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
@@ -588,7 +588,7 @@ void exportModules(const QString &moduleName)
 void exportData(const QString &moduleName)
 {
 #ifdef ALEPHERP_DEVTOOLS
-    QString directory = QFileDialog::getExistingDirectory (0, QObject::trUtf8("Seleccione el directorio en el que exportar los datos."));
+    QString directory = QFileDialog::getExistingDirectory (0, QObject::tr("Seleccione el directorio en el que exportar los datos."));
     if ( !directory.isEmpty() )
     {
         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
@@ -601,7 +601,7 @@ void exportData(const QString &moduleName)
 bool importModules(bool reinitMetadata, bool askForObjects)
 {
 #ifdef ALEPHERP_DEVTOOLS
-    QString file = QFileDialog::getOpenFileName (0, QObject::trUtf8("Seleccione el archivo xml de resumen de importación."), QString(), QString("*.xml"));
+    QString file = QFileDialog::getOpenFileName (0, QObject::tr("Seleccione el archivo xml de resumen de importación."), QString(), QString("*.xml"));
     if ( !file.isEmpty() )
     {
         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
@@ -609,7 +609,7 @@ bool importModules(bool reinitMetadata, bool askForObjects)
         CommonsFunctions::restoreOverrideCursor();
         if ( !result )
         {
-            QMessageBox::warning(0, qApp->applicationName(), QObject::trUtf8("Se ha producido un error creando la estructura de datos."));
+            QMessageBox::warning(0, qApp->applicationName(), QObject::tr("Se ha producido un error creando la estructura de datos."));
             return false;
         }
         else
@@ -624,7 +624,7 @@ bool importModules(bool reinitMetadata, bool askForObjects)
                 if ( !result && !SystemDAO::lastErrorMessage().isEmpty() )
                 {
                     QMessageBox::critical(0, qApp->applicationName(),
-                                          QObject::trUtf8("No se han podido leer las definiciones de sistema. "
+                                          QObject::tr("No se han podido leer las definiciones de sistema. "
                                                           "Ha ocurrido un error en el acceso a la base de datos. \n "
                                                           "ERROR: %1. ").arg(SystemDAO::lastErrorMessage()));
                     return false;
@@ -634,7 +634,7 @@ bool importModules(bool reinitMetadata, bool askForObjects)
                 CommonsFunctions::restoreOverrideCursor();
                 if ( !result )
                 {
-                    QMessageBox::warning(0, qApp->applicationName(), QObject::trUtf8("Se ha producido un error importando los datos. La estructura de datos sin embargo, se creó correctamente."));
+                    QMessageBox::warning(0, qApp->applicationName(), QObject::tr("Se ha producido un error importando los datos. La estructura de datos sin embargo, se creó correctamente."));
                     return false;
                 }
             }
@@ -687,7 +687,7 @@ bool connectToMainDatabase()
     CommonsFunctions::restoreOverrideCursor();
     if ( !result )
     {
-        QString errorMessage = QObject::trUtf8("Ha sido imposible conectar con la base de datos. No es posible iniciar AlephERP.\r\nError: %1").
+        QString errorMessage = QObject::tr("Ha sido imposible conectar con la base de datos. No es posible iniciar AlephERP.\r\nError: %1").
                                arg(Database::lastErrorMessage());
         QMessageBox::critical(0, qApp->applicationName(), errorMessage);
         if ( Database::lastErrorMessage().contains("00001") )
@@ -724,7 +724,7 @@ UserDAO::LoginMessages attemptToLogin(QString &userName, const QString &password
     }
     else if ( result == UserDAO::NOT_LOGIN )
     {
-        QMessageBox::warning(0, qApp->applicationName(), QObject::trUtf8("Usuario y/o contraseña incorrectos."), QMessageBox::Ok);
+        QMessageBox::warning(0, qApp->applicationName(), QObject::tr("Usuario y/o contraseña incorrectos."), QMessageBox::Ok);
     }
     return result;
 }
@@ -757,7 +757,7 @@ bool loginProcess()
             if ( firstCreateStructure )
             {
                 // ¿Se acaban de crear la estructura de base de datos?
-                QMessageBox::information(0, qApp->applicationName(), QObject::trUtf8("Es la primera vez que trabaja en esta base de datos, y se encuentra sin datos. "
+                QMessageBox::information(0, qApp->applicationName(), QObject::tr("Es la primera vez que trabaja en esta base de datos, y se encuentra sin datos. "
                                          "Esta aplicación se encuentra configurada en modo trabajo local, de modo que tendrá acceso absoluto a todos los datos que dé de alta. "
                                          "En este modo no se admiten múltiples usuarios ni permisos."), QMessageBox::Ok);
             }
@@ -774,7 +774,7 @@ bool loginProcess()
     CommonsFunctions::restoreOverrideCursor();
     if ( !result )
     {
-        QMessageBox::critical(0, qApp->applicationName(), QObject::trUtf8("No se han podido cargar las variables de entorno comunes. El error es: %1").arg(BaseDAO::lastErrorMessage()),
+        QMessageBox::critical(0, qApp->applicationName(), QObject::tr("No se han podido cargar las variables de entorno comunes. El error es: %1").arg(BaseDAO::lastErrorMessage()),
                               QMessageBox::Ok);
     }
     // Cargamos los roles del usuario
@@ -783,7 +783,7 @@ bool loginProcess()
     {
         if ( !UserDAO::setDbAllAccess() )
         {
-            QMessageBox::information(0, qApp->applicationName(), QObject::trUtf8("Se ha producido un error en el acceso a la base de datos. ERROR: [%1].").
+            QMessageBox::information(0, qApp->applicationName(), QObject::tr("Se ha producido un error en el acceso a la base de datos. ERROR: [%1].").
                                      arg(UserDAO::lastErrorMessage()), QMessageBox::Ok);
             return false;
         }
@@ -821,7 +821,7 @@ bool loginProcess()
             else
             {
 #if !defined(ALEPHERP_FORCE_TO_USE_CLOUD)
-                int ret = QMessageBox::question(0, qApp->applicationName(), QObject::trUtf8("¿Desea conectarse a otro motor de base de datos?. Si contesta no, se cerrará la aplicación."), QMessageBox::Yes | QMessageBox::No);
+                int ret = QMessageBox::question(0, qApp->applicationName(), QObject::tr("¿Desea conectarse a otro motor de base de datos?. Si contesta no, se cerrará la aplicación."), QMessageBox::Yes | QMessageBox::No);
                 if ( ret == QMessageBox::No )
                 {
                     return false;
@@ -845,7 +845,7 @@ bool loginProcess()
             if ( databaseOk && firstCreateStructure )
             {
                 // ¿Se acaban de crear la estructura de base de datos?
-                QMessageBox::information(0, qApp->applicationName(), QObject::trUtf8("Es la primera vez que trabaja en esta base de datos, y se encuentra sin datos. "
+                QMessageBox::information(0, qApp->applicationName(), QObject::tr("Es la primera vez que trabaja en esta base de datos, y se encuentra sin datos. "
                                          "Se introducirá un usuario con nombre <i>admin</i> al que deberá asignar una contraseña. "
                                          "Este usuario será administrador de esta base de datos."), QMessageBox::Ok);
                 userName = "admin";
@@ -861,7 +861,7 @@ bool loginProcess()
         CommonsFunctions::restoreOverrideCursor();
         if ( !result )
         {
-            QMessageBox::critical(0, qApp->applicationName(), QObject::trUtf8("No se han podido cargar las variables de entorno comunes. El error es: %1").arg(BaseDAO::lastErrorMessage()),
+            QMessageBox::critical(0, qApp->applicationName(), QObject::tr("No se han podido cargar las variables de entorno comunes. El error es: %1").arg(BaseDAO::lastErrorMessage()),
                                   QMessageBox::Ok);
         }
 
@@ -869,7 +869,7 @@ bool loginProcess()
         UserDAO::LoginMessages loginResult = attemptToLogin(userName, loginDlg->password());
         if ( loginResult == UserDAO::LOGIN_ERROR )
         {
-            QMessageBox::critical(0, qApp->applicationName(), QObject::trUtf8("La base de datos ha generado un error a la hora de logarse. Es probable que la estructura remota sea incorrecta. El error es: %1").arg(UserDAO::lastErrorMessage()),
+            QMessageBox::critical(0, qApp->applicationName(), QObject::tr("La base de datos ha generado un error a la hora de logarse. Es probable que la estructura remota sea incorrecta. El error es: %1").arg(UserDAO::lastErrorMessage()),
                                   QMessageBox::Ok);
         }
         else if ( loginResult == UserDAO::LOGIN_OK )
@@ -918,13 +918,13 @@ bool isSystemStructureCreated(bool &firstCreateStructure)
                 // Veamos si no hay creada ninguna tabla
                 if ( notExists.size() == SystemDAO::systemTables().size() )
                 {
-                    QMessageBox::warning(0, qApp->applicationName(), QObject::trUtf8("La base de datos no tiene definidas las tablas de sistemas de AlephERP. Se crearán de forma automática."));
+                    QMessageBox::warning(0, qApp->applicationName(), QObject::tr("La base de datos no tiene definidas las tablas de sistemas de AlephERP. Se crearán de forma automática."));
                     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
                     result = SystemDAO::createSystemTables(BASE_CONNECTION);
                     CommonsFunctions::restoreOverrideCursor();
                     if ( !result )
                     {
-                        QMessageBox::critical(0, qApp->applicationName(), QObject::trUtf8("No se han podido crear las tablas de sistema. No es posible iniciar AlephERP en esta base de datos."
+                        QMessageBox::critical(0, qApp->applicationName(), QObject::tr("No se han podido crear las tablas de sistema. No es posible iniciar AlephERP en esta base de datos."
                                               "\nError: <i>%1</i>").arg(SystemDAO::lastErrorMessage()));
                         return false;
                     }
@@ -935,19 +935,19 @@ bool isSystemStructureCreated(bool &firstCreateStructure)
                 }
                 else
                 {
-                    QMessageBox::warning(0, qApp->applicationName(), QObject::trUtf8("Su instalación de AlephERP está corrupta. No existen tablas de sistema requeridas. Las tablas que no existen son: %1.").arg(notExists.join(", ")));
+                    QMessageBox::warning(0, qApp->applicationName(), QObject::tr("Su instalación de AlephERP está corrupta. No existen tablas de sistema requeridas. Las tablas que no existen son: %1.").arg(notExists.join(", ")));
                     return false;
                 }
             }
             else
             {
-                QMessageBox::warning(0, qApp->applicationName(), QObject::trUtf8("La base de datos no tiene definidas las tablas de sistemas de AlephERP. <br/>No es posible iniciar la aplicación."));
+                QMessageBox::warning(0, qApp->applicationName(), QObject::tr("La base de datos no tiene definidas las tablas de sistemas de AlephERP. <br/>No es posible iniciar la aplicación."));
                 return false;
             }
         }
         else
         {
-            QMessageBox::warning(0, qApp->applicationName(), QObject::trUtf8("Ha ocurrido un error en el acceso a la base de datos."
+            QMessageBox::warning(0, qApp->applicationName(), QObject::tr("Ha ocurrido un error en el acceso a la base de datos."
                                  "\nError: <i>%1</i>").arg(SystemDAO::lastErrorMessage()));
             return false;
         }

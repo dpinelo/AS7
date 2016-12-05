@@ -39,7 +39,7 @@ ChangePasswordDlg::ChangePasswordDlg(const QString &userName, bool emptyPassword
     connect(ui->pbCancel, SIGNAL(clicked()), this, SLOT(close()));
     if ( emptyPassword )
     {
-        ui->lblInfo->setText(trUtf8("Su contraseña está vacía. Debe introducir una contraseña nueva."));
+        ui->lblInfo->setText(tr("Su contraseña está vacía. Debe introducir una contraseña nueva."));
         ui->lblOldPassword->setVisible(false);
         ui->txtOldPassword->setVisible(false);
     }
@@ -56,21 +56,21 @@ void ChangePasswordDlg::okClicked()
     {
         QMessageBox::warning(this,
                              qApp->applicationName(),
-                             trUtf8("No ha escrito bien la nueva contraseña. Debe ser la misma en los dos controles de texto inferiores."), QMessageBox::Ok);
+                             tr("No ha escrito bien la nueva contraseña. Debe ser la misma en los dos controles de texto inferiores."), QMessageBox::Ok);
         return;
     }
     if ( UserDAO::changePassword(m_userName, ui->txtOldPassword->text(), ui->txtNewPassword->text()) )
     {
         QMessageBox::information(this,
                           qApp->applicationName(),
-                          trUtf8("Contraeña modificada correctamente."), QMessageBox::Ok);
+                          tr("Contraeña modificada correctamente."), QMessageBox::Ok);
         close();
     }
     else
     {
         QMessageBox::warning(this,
                              qApp->applicationName(),
-                             trUtf8("Ha ocurrido un error tratando de cambiar su contraseña."
+                             tr("Ha ocurrido un error tratando de cambiar su contraseña."
                              "\nEl error es: <i>%1</i>").arg(UserDAO::lastErrorMessage()), QMessageBox::Ok);
     }
 }

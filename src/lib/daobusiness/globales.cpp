@@ -332,7 +332,7 @@ QString CommonsFunctions::timeToFormat(int seconds)
     int hours = (int) ((seconds - (days * 24 * 60 * 60))) / (60 * 60);
     int minutes = (int) ((seconds  - (days * 24 * 60 * 60) - (hours * 60 * 60)) / 60);
     int secs = seconds - (days * 24 * 60 * 60) - (hours * 60 * 60) - (minutes * 60);
-    return trUtf8("%1 días, %2h:%3m:%4s").
+    return tr("%1 días, %2h:%3m:%4s").
            arg(alephERPSettings->locale()->toString(days)).
            arg(hours, 2, 10, QChar('0')).arg(minutes, 2, 10, QChar('0')).arg(secs, 2, 10, QChar('0'));
 }
@@ -444,51 +444,51 @@ QIcon CommonsFunctions::iconFromMimeType(const QString &mimeType)
 QPixmap CommonsFunctions::pixmapFromMimeType(const QString &mimeType)
 {
     QPixmap icon;
-    if ( mimeType.toLower().contains(QStringLiteral("bmp")) )
+    if ( mimeType.contains(QStringLiteral("bmp"), Qt::CaseInsensitive) )
     {
         icon = QPixmap(QStringLiteral(":/mime/mimeicons/bmp.png"));
     }
-    else if ( mimeType.toLower().contains(QStringLiteral("excel")) )
+    else if ( mimeType.contains(QStringLiteral("excel"), Qt::CaseInsensitive) )
     {
         icon = QPixmap(QStringLiteral(":/mime/mimeicons/excel.png"));
     }
-    else if ( mimeType.toLower().contains(QStringLiteral("font-ttf")) )
+    else if ( mimeType.contains(QStringLiteral("font-ttf"), Qt::CaseInsensitive) )
     {
         icon = QPixmap(QStringLiteral(":/mime/mimeicons/font_truemimeType.png"));
     }
-    else if ( mimeType.toLower().contains(QStringLiteral("font")) )
+    else if ( mimeType.contains(QStringLiteral("font"), Qt::CaseInsensitive) )
     {
         icon = QPixmap(QStringLiteral(":/mime/mimeicons/font.png"));
     }
-    else if ( mimeType.toLower().contains(QStringLiteral("gif")) )
+    else if ( mimeType.contains(QStringLiteral("gif"), Qt::CaseInsensitive) )
     {
         icon = QPixmap(QStringLiteral(":/mime/mimeicons/gif.png"));
     }
-    else if ( mimeType.toLower().contains(QStringLiteral("html")) )
+    else if ( mimeType.contains(QStringLiteral("html"), Qt::CaseInsensitive) )
     {
         icon = QPixmap(QStringLiteral(":/mime/mimeicons/html.png"));
     }
-    else if ( mimeType.toLower().contains(QStringLiteral("java")) )
+    else if ( mimeType.contains(QStringLiteral("java"), Qt::CaseInsensitive) )
     {
         icon = QPixmap(QStringLiteral(":/mime/mimeicons/java.png"));
     }
-    else if ( mimeType.toLower().contains(QStringLiteral("jpg")) )
+    else if ( mimeType.contains(QStringLiteral("jpg"), Qt::CaseInsensitive) )
     {
         icon = QPixmap(QStringLiteral(":/mime/mimeicons/jpg.png"));
     }
-    else if ( mimeType.toLower().contains(QStringLiteral("pdf")) )
+    else if ( mimeType.contains(QStringLiteral("pdf"), Qt::CaseInsensitive) )
     {
         icon = QPixmap(QStringLiteral(":/mime/mimeicons/pdf.png"));
     }
-    else if ( mimeType.toLower().contains(QStringLiteral("vnd.openxmlformats-officedocument.presentationml")) )
+    else if ( mimeType.contains(QStringLiteral("vnd.openxmlformats-officedocument.presentationml"), Qt::CaseInsensitive) )
     {
         icon = QPixmap(QStringLiteral(":/mime/mimeicons/powerpoint.png"));
     }
-    else if ( mimeType.toLower().contains(QStringLiteral("msword")) )
+    else if ( mimeType.contains(QStringLiteral("msword"), Qt::CaseInsensitive) )
     {
         icon = QPixmap(QStringLiteral(":/mime/mimeicons/word.png"));
     }
-    else if ( mimeType.toLower().contains(QStringLiteral("zip")) )
+    else if ( mimeType.contains(QStringLiteral("zip"), Qt::CaseInsensitive) )
     {
         icon = QPixmap(QStringLiteral(":/mime/mimeicons/zip.png"));
     }
@@ -688,7 +688,7 @@ bool CommonsFunctions::nifValid(const QString &nifOriginal)
     {
         return false;
     }
-    dni = nif.left(8).toInt(&ok);
+    dni = nif.leftRef(8).toInt(&ok);
     if ( !ok )
     {
         return false;
@@ -775,8 +775,7 @@ bool CommonsFunctions::openPDF(QUrl urlFile)
         QString linea;
 
         linea = QString("%1 %2").
-                arg( QDir::fromNativeSeparators ( alephERPSettings->externalPDFViewer() ) ).
-                arg( urlFile.toLocalFile() );
+                arg(QDir::fromNativeSeparators(alephERPSettings->externalPDFViewer()), urlFile.toLocalFile());
         QProcess::execute ( linea );
     }
     else
@@ -960,7 +959,7 @@ AERPSMTPIface *CommonsFunctions::loadSMTPPlugin(const QString &pluginName, QStri
         QFile pluginFile(pathPluginFile);
         if (!pluginFile.exists())
         {
-            error = QObject::trUtf8("No existe el plugin indicado: %1").arg(pluginName);
+            error = QObject::tr("No existe el plugin indicado: %1").arg(pluginName);
             return iface;
         }
         pluginLoader = new QPluginLoader(pathPluginFile, qApp);
@@ -971,7 +970,7 @@ AERPSMTPIface *CommonsFunctions::loadSMTPPlugin(const QString &pluginName, QStri
         if ( !pluginLoader->load() )
         {
             CommonsFunctions::restoreOverrideCursor();
-            error = QObject::trUtf8("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
+            error = QObject::tr("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
                     arg(pluginName).arg(pluginLoader->errorString());
         }
         else
@@ -980,7 +979,7 @@ AERPSMTPIface *CommonsFunctions::loadSMTPPlugin(const QString &pluginName, QStri
             CommonsFunctions::restoreOverrideCursor();
             if ( !iface )
             {
-                error = QObject::trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
+                error = QObject::tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
             }
         }
     }
@@ -990,7 +989,7 @@ AERPSMTPIface *CommonsFunctions::loadSMTPPlugin(const QString &pluginName, QStri
         CommonsFunctions::restoreOverrideCursor();
         if ( !iface )
         {
-            error = QObject::trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
+            error = QObject::tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
         }
     }
     return iface;
@@ -1008,7 +1007,7 @@ AERPDocumentDAOPluginIface *CommonsFunctions::documentDAOPluginInstance(QString 
     if ( pluginName.isEmpty() )
     {
         qDebug() << "CommonsFunctions::loadPlugin: El sistema de gestión documental no está preparado para este usuario.";
-        error = QObject::trUtf8("CommonsFunctions::loadPlugin: El sistema de gestión documental no está preparado para este usuario.");
+        error = QObject::tr("CommonsFunctions::loadPlugin: El sistema de gestión documental no está preparado para este usuario.");
         return NULL;
     }
 
@@ -1016,14 +1015,14 @@ AERPDocumentDAOPluginIface *CommonsFunctions::documentDAOPluginInstance(QString 
     {
         QString docPluginDir = QString("%1/plugins/doc").arg(QApplication::applicationDirPath());
 #if defined(Q_OS_WIN)
-        QString pathPluginFile = QString("%1/%2.dll").arg(docPluginDir).arg(pluginName);
+        QString pathPluginFile = QString("%1/%2.dll").arg(docPluginDir, pluginName);
 #else
-        QString pathPluginFile = QString("%1/lib%2.so").arg(docPluginDir).arg(pluginName);
+        QString pathPluginFile = QString("%1/lib%2.so").arg(docPluginDir, pluginName);
 #endif
         QFile pluginFile(pathPluginFile);
         if (!pluginFile.exists())
         {
-            error = QObject::trUtf8("No existe el plugin indicado: %1").arg(pluginName);
+            error = QObject::tr("No existe el plugin indicado: %1").arg(pluginName);
             return iface;
         }
         else
@@ -1039,8 +1038,8 @@ AERPDocumentDAOPluginIface *CommonsFunctions::documentDAOPluginInstance(QString 
         if ( !pluginLoader->load() )
         {
             CommonsFunctions::restoreOverrideCursor();
-            error = QObject::trUtf8("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
-                    arg(pluginName).arg(pluginLoader->errorString());
+            error = QObject::tr("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
+                    arg(pluginName, pluginLoader->errorString());
         }
         else
         {
@@ -1048,7 +1047,7 @@ AERPDocumentDAOPluginIface *CommonsFunctions::documentDAOPluginInstance(QString 
             CommonsFunctions::restoreOverrideCursor();
             if ( !iface )
             {
-                error = QObject::trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
+                error = QObject::tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
             }
         }
     }
@@ -1058,7 +1057,7 @@ AERPDocumentDAOPluginIface *CommonsFunctions::documentDAOPluginInstance(QString 
         CommonsFunctions::restoreOverrideCursor();
         if ( !iface )
         {
-            error = QObject::trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
+            error = QObject::tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
         }
     }
     return iface;
@@ -1073,7 +1072,7 @@ bool CommonsFunctions::initRepo(QString &error)
     }
     if ( !iface->canInitRepo() )
     {
-        error = trUtf8("Este driver no permite iniciar el repositorio.");
+        error = tr("Este driver no permite iniciar el repositorio.");
         return false;
     }
     if ( !iface->initRepo() )
@@ -1127,7 +1126,7 @@ AERPScannerIface *CommonsFunctions::loadScannerPlugin(QString &error)
     if ( pluginName.isEmpty() )
     {
         qDebug() << "CommonsFunctions::loadScannerPlugin: No existe un plugin para escaneo.";
-        error = QObject::trUtf8("CommonsFunctions::loadScannerPlugin: El sistema de escaneo no está preparado para este usuario.");
+        error = QObject::tr("CommonsFunctions::loadScannerPlugin: El sistema de escaneo no está preparado para este usuario.");
         QLogger::QLog_Error(AlephERP::stLogOther, QString("CommonsFunctions::loadScannerPlugin: [%1]").arg(error));
         return NULL;
     }
@@ -1135,14 +1134,14 @@ AERPScannerIface *CommonsFunctions::loadScannerPlugin(QString &error)
     {
         QString docPluginDir = QString("%1/plugins/doc").arg(QApplication::applicationDirPath());
 #if defined(Q_OS_WIN)
-        QString pathPluginFile = QString("%1/%2.dll").arg(docPluginDir).arg(pluginName);
+        QString pathPluginFile = QString("%1/%2.dll").arg(docPluginDir, pluginName);
 #else
-        QString pathPluginFile = QString("%1/lib%2.so").arg(docPluginDir).arg(pluginName);
+        QString pathPluginFile = QString("%1/lib%2.so").arg(docPluginDir, pluginName);
 #endif
         QFile pluginFile(pathPluginFile);
         if (!pluginFile.exists())
         {
-            error = QObject::trUtf8("No existe el plugin indicado: %1").arg(pluginName);
+            error = QObject::tr("No existe el plugin indicado: %1").arg(pluginName);
             QLogger::QLog_Error(AlephERP::stLogOther, QString("CommonsFunctions::loadScannerPlugin: [%1]").arg(error));
             return iface;
         }
@@ -1154,8 +1153,8 @@ AERPScannerIface *CommonsFunctions::loadScannerPlugin(QString &error)
         if ( !pluginLoader->load() )
         {
             CommonsFunctions::restoreOverrideCursor();
-            error = QObject::trUtf8("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
-                    arg(pluginName).arg(pluginLoader->errorString());
+            error = QObject::tr("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
+                    arg(pluginName, pluginLoader->errorString());
             QLogger::QLog_Error(AlephERP::stLogOther, QString("CommonsFunctions::loadScannerPlugin: [%1]").arg(error));
             return NULL;
         }
@@ -1165,7 +1164,7 @@ AERPScannerIface *CommonsFunctions::loadScannerPlugin(QString &error)
             CommonsFunctions::restoreOverrideCursor();
             if ( !iface )
             {
-                error = QObject::trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
+                error = QObject::tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
                 QLogger::QLog_Error(AlephERP::stLogOther, QString("CommonsFunctions::loadScannerPlugin: [%1]").arg(error));
                 return NULL;
             }
@@ -1177,7 +1176,7 @@ AERPScannerIface *CommonsFunctions::loadScannerPlugin(QString &error)
         CommonsFunctions::restoreOverrideCursor();
         if ( !iface )
         {
-            error = QObject::trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
+            error = QObject::tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
             QLogger::QLog_Error(AlephERP::stLogOther, QString("CommonsFunctions::loadScannerPlugin: [%1]").arg(error));
             return NULL;
         }
@@ -1198,21 +1197,21 @@ AERPExtractPlainContentIface *CommonsFunctions::loadPlainContentPlugin(QString &
     if ( pluginName.isEmpty() )
     {
         qDebug() << "CommonsFunctions::loadPlainContentPlugin: No existe un plugin para extracción de contenido.";
-        error = QObject::trUtf8("CommonsFunctions::loadPlainContentPlugin: El sistema de extracción de contenido no está preparado para este usuario.");
+        error = QObject::tr("CommonsFunctions::loadPlainContentPlugin: El sistema de extracción de contenido no está preparado para este usuario.");
         return NULL;
     }
     if ( pluginLoader == NULL )
     {
         QString docPluginDir = QString("%1/plugins/doc").arg(QApplication::applicationDirPath());
 #if defined(Q_OS_WIN)
-        QString pathPluginFile = QString("%1/%2.dll").arg(docPluginDir).arg(pluginName);
+        QString pathPluginFile = QString("%1/%2.dll").arg(docPluginDir, pluginName);
 #else
-        QString pathPluginFile = QString("%1/lib%2.so").arg(docPluginDir).arg(pluginName);
+        QString pathPluginFile = QString("%1/lib%2.so").arg(docPluginDir, pluginName);
 #endif
         QFile pluginFile(pathPluginFile);
         if (!pluginFile.exists())
         {
-            error = QObject::trUtf8("No existe el plugin indicado: %1").arg(pluginName);
+            error = QObject::tr("No existe el plugin indicado: %1").arg(pluginName);
             return iface;
         }
         pluginLoader = new QPluginLoader(pathPluginFile, qApp);
@@ -1223,7 +1222,7 @@ AERPExtractPlainContentIface *CommonsFunctions::loadPlainContentPlugin(QString &
         if ( !pluginLoader->load() )
         {
             CommonsFunctions::restoreOverrideCursor();
-            error = QObject::trUtf8("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
+            error = QObject::tr("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
                     arg(pluginName).arg(pluginLoader->errorString());
             return NULL;
         }
@@ -1233,7 +1232,7 @@ AERPExtractPlainContentIface *CommonsFunctions::loadPlainContentPlugin(QString &
             CommonsFunctions::restoreOverrideCursor();
             if ( !iface )
             {
-                error = QObject::trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
+                error = QObject::tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
                 return NULL;
             }
         }
@@ -1244,7 +1243,7 @@ AERPExtractPlainContentIface *CommonsFunctions::loadPlainContentPlugin(QString &
         CommonsFunctions::restoreOverrideCursor();
         if ( !iface )
         {
-            error = QObject::trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
+            error = QObject::tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
             return NULL;
         }
     }

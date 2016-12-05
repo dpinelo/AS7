@@ -66,7 +66,7 @@ AERPScheduledJobViewer::AERPScheduledJobViewer(QWidget *parent) :
             ui->tableWidgetScheduledJobs->setItem(row, 0, item);
             if ( job->metadata()->cronExpression().isEmpty() )
             {
-                item = new QTableWidgetItem(trUtf8("Notificación de base de datos: %1").arg(job->metadata()->databaseNotification()));
+                item = new QTableWidgetItem(tr("Notificación de base de datos: %1").arg(job->metadata()->databaseNotification()));
                 item->setData(Qt::UserRole, row);
                 ui->tableWidgetScheduledJobs->setItem(row, 1, item);
                 item = new QTableWidgetItem("");
@@ -167,7 +167,7 @@ void AERPScheduledJobViewer::activateDeactivateJob()
             {
                 jobs.at(jobIdx)->stop();
                 itemIcon->setIcon(QIcon(":/generales/images/delete.png"));
-                itemIcon->setText(trUtf8("Inactivo"));
+                itemIcon->setText(tr("Inactivo"));
                 itemNext->setText("");
                 itemLeft->setText("");
             }
@@ -175,7 +175,7 @@ void AERPScheduledJobViewer::activateDeactivateJob()
             {
                 jobs.at(jobIdx)->init();
                 itemIcon->setIcon(QIcon(":/aplicacion/images/ok.png"));
-                itemIcon->setText(trUtf8("Activo"));
+                itemIcon->setText(tr("Activo"));
                 QDateTime nextExecution = jobs.at(jobIdx)->nextExecution();
                 itemNext->setText(alephERPSettings->locale()->toString(nextExecution));
                 itemLeft->setText(CommonsFunctions::timeToFormat(QDateTime::currentDateTime().secsTo(nextExecution)));
@@ -203,7 +203,7 @@ void AERPScheduledJobViewer::setActivateIcon(QTableWidgetItem *previous, QTableW
         {
             ui->pbActivateDeactivate->setIcon(QIcon(":/aplicacion/images/ok.png"));
             ui->pbActivateDeactivate->setEnabled(true);
-            ui->pbActivateDeactivate->setText(trUtf8("Activar"));
+            ui->pbActivateDeactivate->setText(tr("Activar"));
             ui->pbRunNow->setEnabled(false);
         }
         else if ( job->isWorking() )
@@ -215,7 +215,7 @@ void AERPScheduledJobViewer::setActivateIcon(QTableWidgetItem *previous, QTableW
         {
             ui->pbActivateDeactivate->setIcon(QIcon(":/generales/images/delete.png"));
             ui->pbActivateDeactivate->setEnabled(true);
-            ui->pbActivateDeactivate->setText(trUtf8("Desactivar"));
+            ui->pbActivateDeactivate->setText(tr("Desactivar"));
             ui->pbRunNow->setEnabled(true);
         }
     }
@@ -242,7 +242,7 @@ void AERPScheduledJobViewer::runJobNow()
             {
                 if ( !jobs.at(jobIdx)->forceToRun() )
                 {
-                    QMessageBox::warning(this, qApp->applicationName(), trUtf8("No se ha podido lanzar el trabajo..."), QMessageBox::Ok);
+                    QMessageBox::warning(this, qApp->applicationName(), tr("No se ha podido lanzar el trabajo..."), QMessageBox::Ok);
                     return;
                 }
             }
@@ -292,17 +292,17 @@ QString AERPScheduledJobViewerPrivate::getTextForJob(AERPScheduledJob *job)
 {
     if ( !job->isActive() )
     {
-        return QObject::trUtf8("Inactivo");
+        return QObject::tr("Inactivo");
     }
     else
     {
         if ( job->isWorking() )
         {
-            return QObject::trUtf8("Ejecutándose...");
+            return QObject::tr("Ejecutándose...");
         }
         else
         {
-            return QObject::trUtf8("Activo");
+            return QObject::tr("Activo");
         }
     }
 }

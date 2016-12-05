@@ -75,7 +75,7 @@ bool AERPSystemObjectEditDlg::validate()
         int line = 0;
         if ( !AERPScriptEngine::checkForErrorOnQS(b->fieldValue("contenido").toString(), error, line) )
         {
-            int ret = QMessageBox::question(this, qApp->applicationName(), trUtf8("Existe un error en el script. ¿Desea guardarlo?<br/>Línea: <i>%1</i><br/>Error: <font color='red'>%2</font>").
+            int ret = QMessageBox::question(this, qApp->applicationName(), tr("Existe un error en el script. ¿Desea guardarlo?<br/>Línea: <i>%1</i><br/>Error: <font color='red'>%2</font>").
                                             arg(line).arg(error), QMessageBox::Yes | QMessageBox::No);
             if ( ret == QMessageBox::No )
             {
@@ -154,7 +154,7 @@ bool AERPSystemObjectEditDlg::save()
             QDir dir(path);
             if ( path.isEmpty() || !dir.exists() )
             {
-                path = QFileDialog::getExistingDirectory(this, trUtf8("Seleccione el directorio en el que exportar el código"), QDir::homePath());
+                path = QFileDialog::getExistingDirectory(this, tr("Seleccione el directorio en el que exportar el código"), QDir::homePath());
                 if ( path.isEmpty() )
                 {
                     return true;

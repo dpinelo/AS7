@@ -180,8 +180,8 @@ bool BaseBeanValidatorPrivate::checkPk()
     if ( !temp.isNull() )
     {
         result = false;
-        m_message = QObject::trUtf8("%1\r\nYa existe un registro con el mismo identificador \303\272nico.").arg(m_message);
-        m_htmlMessage = QObject::trUtf8("%1<p>Ya existe un registro con el <strong>mismo identificador \303\272nico.</strong></p>").arg(m_htmlMessage);
+        m_message = QObject::tr("%1\r\nYa existe un registro con el mismo identificador \303\272nico.").arg(m_message);
+        m_htmlMessage = QObject::tr("%1<p>Ya existe un registro con el <strong>mismo identificador \303\272nico.</strong></p>").arg(m_htmlMessage);
     }
     return result;
 }
@@ -220,14 +220,14 @@ bool BaseBeanValidatorPrivate::checkUniqueCompound()
         if ( recordCount == -1 )
         {
             result = false;
-            m_message = QObject::trUtf8("%1\r\nHa ocurrido un error pasando la validación de campos únicos compuestos: [%2].").arg(m_message).arg(BaseDAO::lastErrorMessage());
-            m_htmlMessage = QObject::trUtf8("%1<p>Ha ocurrido un error pasando la validación de campos únicos compuestos: [%2]<</p>").arg(m_htmlMessage).arg(BaseDAO::lastErrorMessage());
+            m_message = QObject::tr("%1\r\nHa ocurrido un error pasando la validación de campos únicos compuestos: [%2].").arg(m_message).arg(BaseDAO::lastErrorMessage());
+            m_htmlMessage = QObject::tr("%1<p>Ha ocurrido un error pasando la validación de campos únicos compuestos: [%2]<</p>").arg(m_htmlMessage).arg(BaseDAO::lastErrorMessage());
         }
         else if ( recordCount > 0 )
         {
             result = false;
-            m_message = QObject::trUtf8("%1\r\nYa existe otro registro con los mismos valores para: %2.").arg(m_message).arg(fieldNames.join(", "));
-            m_htmlMessage = QObject::trUtf8("%1<p>Ya existe otro registro con los mismos valores para: %2.</p>").arg(m_htmlMessage).arg(fieldNames.join(", "));
+            m_message = QObject::tr("%1\r\nYa existe otro registro con los mismos valores para: %2.").arg(m_message).arg(fieldNames.join(", "));
+            m_htmlMessage = QObject::tr("%1<p>Ya existe otro registro con los mismos valores para: %2.</p>").arg(m_htmlMessage).arg(fieldNames.join(", "));
         }
     }
     return result;

@@ -46,7 +46,7 @@ DBFullScheduleView::DBFullScheduleView(QWidget *parent) :
     setFrameStyle(QFrame::NoFrame);
     setStyleSheet("DBFullScheduleView {background: transparent;}");
 
-    ui->dbScheduleView->setHeaderDateFormat(trUtf8("dddd, dd 'de' MMMM"));
+    ui->dbScheduleView->setHeaderDateFormat(tr("dddd, dd 'de' MMMM"));
 
     connect(ui->pbNext, SIGNAL(clicked()), this, SLOT(nextView()));
     connect(ui->pbPrevious, SIGNAL(clicked()), this, SLOT(previousView()));

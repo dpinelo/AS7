@@ -192,7 +192,7 @@ void AERPGeocodeTask::replyFinished(QNetworkReply *reply)
 
 void AERPGeocodeTask::timeout()
 {
-    emit errorOccured(d->m_uuid, trUtf8("HTTP Timeout getting coordinates."));
+    emit errorOccured(d->m_uuid, tr("HTTP Timeout getting coordinates."));
     emit taskFinished(d->m_uuid);
     d->m_isWorking = false;
 }
@@ -209,7 +209,7 @@ void AERPGeocodeTaskPrivate::replyFinishedGoogle(QNetworkReply *reply)
 
     if (!ok)
     {
-        emit q_ptr->errorOccured(m_uuid, QObject::trUtf8("Cannot convert to QJson object: %1").arg(json));
+        emit q_ptr->errorOccured(m_uuid, QObject::tr("Cannot convert to QJson object: %1").arg(json));
         emit q_ptr->taskFinished(m_uuid);
         m_isWorking = false;
         return;
@@ -221,7 +221,7 @@ void AERPGeocodeTaskPrivate::replyFinishedGoogle(QNetworkReply *reply)
 
     if (error.error != QJsonParseError::NoError)
     {
-        emit q_ptr->errorOccured(m_uuid, QObject::trUtf8("Cannot convert to QJson object: %1. Error: %2").arg(QString::fromUtf8(jsonResponse)).arg(error.errorString()));
+        emit q_ptr->errorOccured(m_uuid, QObject::tr("Cannot convert to QJson object: %1. Error: %2").arg(QString::fromUtf8(jsonResponse)).arg(error.errorString()));
         emit q_ptr->taskFinished(m_uuid);
         m_isWorking = false;
         return;
@@ -239,7 +239,7 @@ void AERPGeocodeTaskPrivate::replyFinishedGoogle(QNetworkReply *reply)
     }
     if (status.toLower() != "ok")
     {
-        emit q_ptr->errorOccured(m_uuid, QObject::trUtf8("Status of request is: %1").arg(status));
+        emit q_ptr->errorOccured(m_uuid, QObject::tr("Status of request is: %1").arg(status));
         emit q_ptr->taskFinished(m_uuid);
         m_isWorking = false;
         return;
@@ -248,7 +248,7 @@ void AERPGeocodeTaskPrivate::replyFinishedGoogle(QNetworkReply *reply)
     QVariantList results = result["results"].toList();
     if (results.size() == 0)
     {
-        emit q_ptr->errorOccured(m_uuid, QObject::trUtf8("Cannot find any locations"));
+        emit q_ptr->errorOccured(m_uuid, QObject::tr("Cannot find any locations"));
         emit q_ptr->taskFinished(m_uuid);
         m_isWorking = false;
         return;

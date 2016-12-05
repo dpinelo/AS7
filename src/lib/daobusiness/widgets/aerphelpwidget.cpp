@@ -142,8 +142,8 @@ void AERPHelpWidget::setupUi()
 
     QVBoxLayout *vLayout = new QVBoxLayout(helpWidget);
     QComboBox *cb = new QComboBox(helpWidget);
-    cb->addItem(trUtf8("Contenido"));
-    cb->addItem(trUtf8("Índice"));
+    cb->addItem(tr("Contenido"));
+    cb->addItem(tr("Índice"));
 
     QSizePolicy hSize (QSizePolicy::Preferred, QSizePolicy::Preferred);
     hSize.setHorizontalStretch(1);

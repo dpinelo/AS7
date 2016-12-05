@@ -49,12 +49,12 @@ QIcon DBDetailViewPlugin::icon() const
 
 QString DBDetailViewPlugin::toolTip() const
 {
-    return trUtf8("Para editar los datos de una relación de un BaseBean");
+    return tr("Para editar los datos de una relación de un BaseBean");
 }
 
 QString DBDetailViewPlugin::whatsThis() const
 {
-    return trUtf8("Para editar los datos de una relación de un BaseBean");
+    return tr("Para editar los datos de una relación de un BaseBean");
 }
 
 bool DBDetailViewPlugin::isContainer() const

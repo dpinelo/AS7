@@ -385,7 +385,7 @@ void DBDetailView::editRecord(const QString &action)
         {
             if ( !filterModel()->property(AlephERP::stLastErrorMessage).toString().isEmpty() )
             {
-                QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error al intentar agregar un registro. \nEl error es: %1").
+                QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error al intentar agregar un registro. \nEl error es: %1").
                                      arg(filterModel()->property(AlephERP::stLastErrorMessage).toString()));
                 filterModel()->setProperty(AlephERP::stLastErrorMessage, "");
             }
@@ -486,7 +486,7 @@ void DBDetailView::deleteRecord()
     if ( rows.isEmpty()  )
     {
         QMessageBox::information(this, qApp->applicationName(),
-                                 trUtf8("Debe seleccionar registros para borrar."), QMessageBox::Ok);
+                                 tr("Debe seleccionar registros para borrar."), QMessageBox::Ok);
         return;
     }
 
@@ -510,7 +510,7 @@ void DBDetailView::deleteRecord()
         }
     }
 
-    QString mensaje = trUtf8("¿Está seguro de querer borrar el/los registro/s seleccionado/s?");
+    QString mensaje = tr("¿Está seguro de querer borrar el/los registro/s seleccionado/s?");
 
     int ret;
     if ( d->m_promptForDelete )
@@ -562,13 +562,13 @@ void DBDetailView::addExisting()
     RelationBaseBeanModel *mdl = qobject_cast<RelationBaseBeanModel *>(filterModel()->sourceModel());
     if ( m_externalModel || mdl == NULL )
     {
-        QMessageBox::information(this, qApp->applicationName(), trUtf8("Esta funcionalidad sólo está disponible para modelos de tipo interno."), QMessageBox::Ok);
+        QMessageBox::information(this, qApp->applicationName(), tr("Esta funcionalidad sólo está disponible para modelos de tipo interno."), QMessageBox::Ok);
         return;
     }
     DBRelation *rel = mdl->relation();
     if ( rel == NULL )
     {
-        QMessageBox::information(this, qApp->applicationName(), trUtf8("La aplicación está mal configurada. No existe la relación: ").arg(mdl->tableName()), QMessageBox::Ok);
+        QMessageBox::information(this, qApp->applicationName(), tr("La aplicación está mal configurada. No existe la relación: ").arg(mdl->tableName()), QMessageBox::Ok);
         return;
     }
     QString contextName = QUuid::createUuid().toString();
@@ -670,19 +670,19 @@ void DBDetailView::removeExisting()
     RelationBaseBeanModel *mdl = qobject_cast<RelationBaseBeanModel *>(filterModel()->sourceModel());
     if ( m_externalModel || mdl == NULL )
     {
-        QMessageBox::information(this, qApp->applicationName(), trUtf8("Esta funcionalidad sólo está disponible para modelos de tipo interno."), QMessageBox::Ok);
+        QMessageBox::information(this, qApp->applicationName(), tr("Esta funcionalidad sólo está disponible para modelos de tipo interno."), QMessageBox::Ok);
         return;
     }
     DBRelation *rel = mdl->relation();
     if ( rel == NULL )
     {
-        QMessageBox::information(this, qApp->applicationName(), trUtf8("La aplicación está mal configurada. No existe la relación: ").arg(mdl->tableName()), QMessageBox::Ok);
+        QMessageBox::information(this, qApp->applicationName(), tr("La aplicación está mal configurada. No existe la relación: ").arg(mdl->tableName()), QMessageBox::Ok);
         return;
     }
     if ( !index.isValid() )
     {
         QMessageBox::information(this, qApp->applicationName(),
-                                 trUtf8("Debe seleccionar registros para desasignar."), QMessageBox::Ok);
+                                 tr("Debe seleccionar registros para desasignar."), QMessageBox::Ok);
         return;
     }
     else
@@ -690,7 +690,7 @@ void DBDetailView::removeExisting()
         ui->tableView->selectRow(index.row());
         ui->tableView->update();
     }
-    QString mensaje = trUtf8("¿Está seguro de querer desasigar el registro? \nNo será borrado, simplemente se eliminará la relación con el registro actual.");
+    QString mensaje = tr("¿Está seguro de querer desasigar el registro? \nNo será borrado, simplemente se eliminará la relación con el registro actual.");
 
     int ret;
     if ( d->m_promptForDelete )
@@ -1061,7 +1061,7 @@ BaseBeanSharedPointer DBDetailViewPrivate::insertRow()
             CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
             QMessageBox::warning(q_ptr,
                                  qApp->applicationName(),
-                                 QObject::trUtf8("Debe seleccionar un registro del que colgará el que desea insertar."),
+                                 QObject::tr("Debe seleccionar un registro del que colgará el que desea insertar."),
                                  QMessageBox::Ok);
             CommonsFunctions::restoreOverrideCursor();
             return b;
@@ -1076,7 +1076,7 @@ BaseBeanSharedPointer DBDetailViewPrivate::insertRow()
     {
         m_newSourceRow = -1;
         m_newSourceRowParent = QModelIndex();
-        QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.\nEl error es: %1").arg(sourceModel->property(AlephERP::stLastErrorMessage).toString());
+        QString message = QObject::tr("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.\nEl error es: %1").arg(sourceModel->property(AlephERP::stLastErrorMessage).toString());
         sourceModel->setProperty(AlephERP::stLastErrorMessage, "");
         CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
         QMessageBox::warning(q_ptr,
@@ -1094,7 +1094,7 @@ BaseBeanSharedPointer DBDetailViewPrivate::insertRow()
     QModelIndex recentInsertIndex = filterModel->mapFromSource(sourceIndex);
     if ( b.isNull() )
     {
-        QString message = QObject::trUtf8("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.");
+        QString message = QObject::tr("No se puede insertar un nuevo registro ya que ha ocurrido un error inesperado.");
         CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
         QMessageBox::warning(q_ptr,
                              qApp->applicationName(),

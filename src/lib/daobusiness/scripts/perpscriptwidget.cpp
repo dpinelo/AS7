@@ -227,7 +227,7 @@ AbstractObserver * AERPScriptWidget::observer()
 bool AERPScriptWidget::initQs()
 {
     QString qsName = QString ("%1.widget.qs").arg(name());
-    QString mensaje = trUtf8("Ha ocurrido un error al cargar el script asociado al widget "
+    QString mensaje = tr("Ha ocurrido un error al cargar el script asociado al widget "
                              "%1. Es posible que algunas funciones no estén disponibles.").arg(name());
     QDialog *dlg = CommonsFunctions::parentDialog(this);
     if ( dlg == NULL )
@@ -279,7 +279,7 @@ bool AERPScriptWidget::initQs()
         {
             QMessageBox::warning(this,qApp->applicationName(), mensaje, QMessageBox::Ok);
 #ifdef ALEPHERP_DEVTOOLS
-            int ret = QMessageBox::information(this,qApp->applicationName(), trUtf8("El script ejecutado contiene errores. ¿Desea editarlo?"),
+            int ret = QMessageBox::information(this,qApp->applicationName(), tr("El script ejecutado contiene errores. ¿Desea editarlo?"),
                                                QMessageBox::Yes | QMessageBox::No);
             if ( ret == QMessageBox::Yes )
             {
@@ -300,7 +300,7 @@ bool AERPScriptWidget::initQs()
 bool AERPScriptWidgetPrivate::setupWidget()
 {
     QString fileName = QString("%1.widget.ui").arg(q_ptr->name());
-    QString mensaje = QObject::trUtf8("No se ha podido cargar la interfaz de usuario del objeto %1. "
+    QString mensaje = QObject::tr("No se ha podido cargar la interfaz de usuario del objeto %1. "
                                       "Existe un problema en la definición de las tablas de sistema de su programa.").
                       arg(q_ptr->name());
     bool result = true;

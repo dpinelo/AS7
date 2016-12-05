@@ -74,12 +74,12 @@ RelatedElementsWidget::RelatedElementsWidget(BaseBean *bean, QWidget *parent) :
     }
     ui->treeView->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    d->m_openAttachment = new QAction(QIcon(":/generales/images/scripts.png"), trUtf8("Abrir adjunto"), this);
-    d->m_saveAttachment = new QAction(QIcon(":/generales/images/save.png"), trUtf8("Guardar como..."), this);
-    d->m_openRecord = new QAction(QIcon(":/generales/images/edit_edit.png"), trUtf8("Abrir registro"), this);
-    d->m_openEmail = new QAction(QIcon(":/generales/images/email.png"), trUtf8("Abrir correo"), this);
-    d->m_openDocument = new QAction(QIcon(":/generales/images/edit_search.png"), trUtf8("Abrir documento"), this);
-    d->m_saveDocument = new QAction(QIcon(":/generales/images/save.png"), trUtf8("Guardar como..."), this);
+    d->m_openAttachment = new QAction(QIcon(":/generales/images/scripts.png"), tr("Abrir adjunto"), this);
+    d->m_saveAttachment = new QAction(QIcon(":/generales/images/save.png"), tr("Guardar como..."), this);
+    d->m_openRecord = new QAction(QIcon(":/generales/images/edit_edit.png"), tr("Abrir registro"), this);
+    d->m_openEmail = new QAction(QIcon(":/generales/images/email.png"), tr("Abrir correo"), this);
+    d->m_openDocument = new QAction(QIcon(":/generales/images/edit_search.png"), tr("Abrir documento"), this);
+    d->m_saveDocument = new QAction(QIcon(":/generales/images/save.png"), tr("Guardar como..."), this);
 
     connect(ui->pbOk, SIGNAL(clicked()), this, SLOT(okClicked()));
     connect(ui->treeView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
@@ -216,7 +216,7 @@ void RelatedElementsWidget::openAttachment()
 
 void RelatedElementsWidget::saveAttachment()
 {
-    QMessageBox::information(this, qApp->applicationName(), trUtf8("Probando"));
+    QMessageBox::information(this, qApp->applicationName(), tr("Probando"));
 }
 
 void RelatedElementsWidget::openRecord()
@@ -236,7 +236,7 @@ void RelatedElementsWidget::openRecord()
         bean = element->relatedBean();
         if ( !element->found() )
         {
-            QMessageBox::warning(this, qApp->applicationName(), trUtf8("El registro fue borrado."), QMessageBox::Ok);
+            QMessageBox::warning(this, qApp->applicationName(), tr("El registro fue borrado."), QMessageBox::Ok);
             return;
         }
     }
@@ -259,7 +259,7 @@ void RelatedElementsWidget::openRecord()
 
 void RelatedElementsWidget::openEmail()
 {
-    QMessageBox::information(this, qApp->applicationName(), trUtf8("Probando"));
+    QMessageBox::information(this, qApp->applicationName(), tr("Probando"));
 }
 
 void RelatedElementsWidget::openDocument()
@@ -276,12 +276,12 @@ void RelatedElementsWidget::openDocument()
     AERPDocMngmntDocument *doc = d->m_treeMenuItemSelected->relatedElement()->document();
     if ( !d->m_treeMenuItemSelected->relatedElement()->found() )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("El documento asociado no ha podido ser encontrado. Es probable que haya sido borrado."), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("El documento asociado no ha podido ser encontrado. Es probable que haya sido borrado."), QMessageBox::Ok);
         return;
     }
     if ( doc == NULL )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("El documento asociado no ha podido ser cargado."), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("El documento asociado no ha podido ser cargado."), QMessageBox::Ok);
         return;
     }
     AERPDocumentVersion *version = doc->version(doc->lastVersion());
@@ -290,7 +290,7 @@ void RelatedElementsWidget::openDocument()
         QString tempPath = QDir::fromNativeSeparators(QDir::tempPath()) + "/" + doc->name();
         if ( !AERPDocumentDAOWrapper::instance()->fetchVersion(version, tempPath) )
         {
-            QMessageBox::warning(this, qApp->applicationName(), trUtf8("No se ha podido obtener el documento. ERROR: %1").arg(AERPDocumentDAOWrapper::instance()->lastMessage()));
+            QMessageBox::warning(this, qApp->applicationName(), tr("No se ha podido obtener el documento. ERROR: %1").arg(AERPDocumentDAOWrapper::instance()->lastMessage()));
             return;
         }
         else
@@ -298,7 +298,7 @@ void RelatedElementsWidget::openDocument()
             QUrl url = QUrl::fromLocalFile(tempPath);
             if ( !QDesktopServices::openUrl(url) )
             {
-                QMessageBox::warning(this, qApp->applicationName(), trUtf8("No se ha podido abrir el archivo. Se encuentra en: %1").arg(tempPath));
+                QMessageBox::warning(this, qApp->applicationName(), tr("No se ha podido abrir el archivo. Se encuentra en: %1").arg(tempPath));
             }
         }
     }
@@ -319,13 +319,13 @@ void RelatedElementsWidget::saveDocument()
     AERPDocMngmntDocument *doc = d->m_treeMenuItemSelected->relatedElement()->document();
     if ( doc == NULL )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("El documento asociado no ha podido ser cargado."), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("El documento asociado no ha podido ser cargado."), QMessageBox::Ok);
         return;
     }
     AERPDocumentVersion *version = doc->version(doc->lastVersion());
     if ( version != NULL )
     {
-        QString dirPath = QFileDialog::getExistingDirectory(this, trUtf8("Seleccione ruta..."), QDir::homePath());
+        QString dirPath = QFileDialog::getExistingDirectory(this, tr("Seleccione ruta..."), QDir::homePath());
         if ( dirPath.isEmpty() )
         {
             return;
@@ -333,12 +333,12 @@ void RelatedElementsWidget::saveDocument()
         QString tempPath = QDir::fromNativeSeparators(dirPath) + "/" + doc->name();
         if ( !AERPDocumentDAOWrapper::instance()->fetchVersion(version, tempPath) )
         {
-            QMessageBox::warning(this, qApp->applicationName(), trUtf8("No se ha podido obtener el documento. ERROR: %1").arg(AERPDocumentDAOWrapper::instance()->lastMessage()));
+            QMessageBox::warning(this, qApp->applicationName(), tr("No se ha podido obtener el documento. ERROR: %1").arg(AERPDocumentDAOWrapper::instance()->lastMessage()));
             return;
         }
         else
         {
-            int ret = QMessageBox::question(this, qApp->applicationName(), trUtf8("Se ha obtenido el fichero adecuadamente. ¿Desea abrir el directorio que lo contiene?"), QMessageBox::Yes | QMessageBox::No);
+            int ret = QMessageBox::question(this, qApp->applicationName(), tr("Se ha obtenido el fichero adecuadamente. ¿Desea abrir el directorio que lo contiene?"), QMessageBox::Yes | QMessageBox::No);
             if ( ret == QMessageBox::Yes )
             {
                 QUrl url = QUrl::fromLocalFile(dirPath);

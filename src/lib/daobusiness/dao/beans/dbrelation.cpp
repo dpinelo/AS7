@@ -188,7 +188,7 @@ void DBRelation::updateChildrens()
     }
     else if ( d->m->type() == DBRelationMetadata::ONE_TO_ONE || d->m->type() == DBRelationMetadata::ONE_TO_MANY )
     {
-        BaseBeanSharedPointerList items = d->children();
+        QVector<BaseBeanSharedPointer> items = d->children();
         for ( BaseBeanSharedPointer bean : items )
         {
             if ( bean )
@@ -400,7 +400,7 @@ bool DBRelation::blockAllSignals(bool value)
         blockSignals(value);
         if ( d->m_childrenLoaded )
         {
-            BaseBeanSharedPointerList items = d->children();
+            QVector<BaseBeanSharedPointer> items = d->children();
             for (BaseBeanSharedPointer child : items)
             {
                 if ( child )
@@ -459,7 +459,7 @@ int DBRelation::childrenCount(bool includeToBeDeleted)
     }
     if ( !includeToBeDeleted )
     {
-        BaseBeanSharedPointerList items = d->children();
+        QVector<BaseBeanSharedPointer> items = d->children();
         for (BaseBeanSharedPointer bean : items )
         {
             if ( bean && bean->dbState() == BaseBean::TO_BE_DELETED && bean->dbState() != BaseBean::DELETED )
@@ -500,7 +500,7 @@ int DBRelation::childrenCountByState(BaseBean::DbBeanStates state)
     else
     {
         count = 0 ;
-        BaseBeanSharedPointerList items = d->children();
+        QVector<BaseBeanSharedPointer> items = d->children();
         for (BaseBeanSharedPointer bean : items)
         {
             if ( bean && bean->dbState() == state)
@@ -628,7 +628,7 @@ BaseBeanPointerList DBRelation::internalChildren()
     }
     else
     {
-        BaseBeanSharedPointerList items = d->children();
+        QVector<BaseBeanSharedPointer> items = d->children();
         for (BaseBeanSharedPointer b : items)
         {
             if ( b )
@@ -1240,7 +1240,7 @@ BaseBeanPointerList DBRelation::modifiedChildren()
     {
         return list;
     }
-    BaseBeanSharedPointerList items = d->children();
+    QVector<BaseBeanSharedPointer> items = d->children();
     for ( BaseBeanSharedPointer bean : items )
     {
         if ( bean && bean->modified() )
@@ -1343,7 +1343,7 @@ BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeD
     }
     if ( !includeToBeDeleted )
     {
-        BaseBeanSharedPointerList items = d->children();
+        QVector<BaseBeanSharedPointer> items = d->children();
         for ( BaseBeanSharedPointer bean : items )
         {
             if ( bean && (bean->dbState() != BaseBean::TO_BE_DELETED && bean->dbState() != BaseBean::DELETED) )
@@ -1432,7 +1432,7 @@ BaseBeanPointer DBRelation::father(bool retrieveOnDemand)
             d->m_father = BeansFactory::instance()->newBaseBean(d->m->tableName(), false, true, BaseBeanPointerList(), this);
             if ( d->m_father.isNull() )
             {
-                QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("DBRelation::father: No existen los metadatos: [%1]").arg(d->m->tableName()));
+                QLogger::QLog_Error(AlephERP::stLogOther, tr("DBRelation::father: No existen los metadatos: [%1]").arg(d->m->tableName()));
                 return NULL;
             }
             bool previous = d->m_father->blockAllSignals(d->m_allSignalsBlocked);

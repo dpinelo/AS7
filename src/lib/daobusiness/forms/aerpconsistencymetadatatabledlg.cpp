@@ -131,7 +131,7 @@ void AERPConsistencyMetadataTableDlg::fix()
                 bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                 if (!result)
                 {
-                    QString err = trUtf8("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    QString err = tr("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText(), BaseDAO::lastErrorMessage());
                     ui->txtResults->setPlainText(err);
                     qApp->processEvents();
                 }
@@ -146,7 +146,7 @@ void AERPConsistencyMetadataTableDlg::fix()
                 bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                 if (!result)
                 {
-                    QString err = trUtf8("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    QString err = tr("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText(), BaseDAO::lastErrorMessage());
                     ui->txtResults->setPlainText(err);
                     qApp->processEvents();
                 }
@@ -161,7 +161,7 @@ void AERPConsistencyMetadataTableDlg::fix()
                 bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                 if (!result)
                 {
-                    QString err = trUtf8("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    QString err = tr("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText(), BaseDAO::lastErrorMessage());
                     ui->txtResults->setPlainText(err);
                     qApp->processEvents();
                 }
@@ -176,7 +176,7 @@ void AERPConsistencyMetadataTableDlg::fix()
                 bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                 if (!result)
                 {
-                    QString err = trUtf8("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    QString err = tr("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText(), BaseDAO::lastErrorMessage());
                     ui->txtResults->setPlainText(err);
                     qApp->processEvents();
                 }
@@ -195,7 +195,7 @@ void AERPConsistencyMetadataTableDlg::fix()
                     bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                     if (!result)
                     {
-                        QString err = trUtf8("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                        QString err = tr("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText(), BaseDAO::lastErrorMessage());
                         ui->txtResults->setPlainText(err);
                         qApp->processEvents();
                     }
@@ -221,7 +221,7 @@ void AERPConsistencyMetadataTableDlg::fix()
                     bool result = BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION);
                     if (!result)
                     {
-                        QString err = trUtf8("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                        QString err = tr("%1\r\nOcurrió un error: %2").arg(ui->txtResults->toPlainText(), BaseDAO::lastErrorMessage());
                         ui->txtResults->setPlainText(err);
                         qApp->processEvents();
                     }
@@ -232,7 +232,7 @@ void AERPConsistencyMetadataTableDlg::fix()
                 }
                 else
                 {
-                    QLogger::QLog_Error(AlephERP::stLogDB, trUtf8("No existe la columna %1 en la tabla %2 en los metadatos.").
+                    QLogger::QLog_Error(AlephERP::stLogDB, tr("No existe la columna %1 en la tabla %2 en los metadatos.").
                                         arg(ui->tableWidget->item(row, TV_IDX_COLUMN)->text()).
                                         arg(ui->tableWidget->item(row, TV_IDX_TABLENAME)->text()));
                 }
@@ -240,7 +240,7 @@ void AERPConsistencyMetadataTableDlg::fix()
         }
     }
     CommonsFunctions::restoreOverrideCursor();
-    QString err = trUtf8("%1\r\nAcciones completadas.").arg(ui->txtResults->toPlainText());
+    QString err = tr("%1\r\nAcciones completadas.").arg(ui->txtResults->toPlainText());
     ui->txtResults->setPlainText(err);
 }
 
@@ -254,7 +254,8 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
         if ( !BaseDAO::executeWithoutPrepare(sqlCreate, BASE_CONNECTION) )
         {
             BaseDAO::rollback(BASE_CONNECTION);
-            QString err = trUtf8("%1\r\nNo se pudo crear la tabla %1 en base de datos. Error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+            QString err = tr("%1\r\nNo se pudo crear la tabla %1 en base de datos. Error: %2").
+                    arg(ui->txtResults->toPlainText(), BaseDAO::lastErrorMessage());
             ui->txtResults->setPlainText(err);
             qApp->processEvents();
             CommonsFunctions::restoreOverrideCursor();
@@ -269,7 +270,8 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
                 if ( !BaseDAO::executeWithoutPrepare(sqlOneIndex, BASE_CONNECTION) )
                 {
                     BaseDAO::rollback(BASE_CONNECTION);
-                    QString err = trUtf8("%1\r\nNo se pudieron crear los índices %1 en base de datos. Error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    QString err = tr("%1\r\nNo se pudieron crear los índices %1 en base de datos. Error: %2").
+                            arg(ui->txtResults->toPlainText(), BaseDAO::lastErrorMessage());
                     ui->txtResults->setPlainText(err);
                     qApp->processEvents();
                     CommonsFunctions::restoreOverrideCursor();
@@ -285,7 +287,8 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
                 if ( !BaseDAO::executeWithoutPrepare(sql, BASE_CONNECTION) )
                 {
                     BaseDAO::rollback(BASE_CONNECTION);
-                    QString err = trUtf8("%1\r\nNo se pudieron crear las relaciones de integridad referencial %1 en base de datos. Error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    QString err = tr("%1\r\nNo se pudieron crear las relaciones de integridad referencial %1 en base de datos. Error: %2").
+                            arg(ui->txtResults->toPlainText(), BaseDAO::lastErrorMessage());
                     ui->txtResults->setPlainText(err);
                     qApp->processEvents();
                     CommonsFunctions::restoreOverrideCursor();
@@ -302,7 +305,8 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
                 {
                     BaseDAO::rollback(BASE_CONNECTION);
                     CommonsFunctions::restoreOverrideCursor();
-                    QString err = trUtf8("%1\r\nNo se ejecutar sql adicional para %1 en base de datos. Error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+                    QString err = tr("%1\r\nNo se ejecutar sql adicional para %1 en base de datos. Error: %2").
+                            arg(ui->txtResults->toPlainText(), BaseDAO::lastErrorMessage());
                     ui->txtResults->setPlainText(err);
                     qApp->processEvents();
                     return false;
@@ -317,7 +321,8 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
         {
             BaseDAO::rollback(BASE_CONNECTION);
             CommonsFunctions::restoreOverrideCursor();
-            QString err = trUtf8("%1\r\nNo se pudo crear la vista %1 en base de datos. Error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+            QString err = tr("%1\r\nNo se pudo crear la vista %1 en base de datos. Error: %2").
+                    arg(ui->txtResults->toPlainText(), BaseDAO::lastErrorMessage());
             ui->txtResults->setPlainText(err);
             qApp->processEvents();
             return false;
@@ -325,7 +330,8 @@ bool AERPConsistencyMetadataTableDlg::createTable(BaseBeanMetadata *m)
     }
     if ( !BaseDAO::commit(BASE_CONNECTION) )
     {
-        QString err = trUtf8("%1\r\nOcurrió un error ejecutando el commit. Error: %2").arg(ui->txtResults->toPlainText()).arg(BaseDAO::lastErrorMessage());
+        QString err = tr("%1\r\nOcurrió un error ejecutando el commit. Error: %2").
+                arg(ui->txtResults->toPlainText(), BaseDAO::lastErrorMessage());
         ui->txtResults->setPlainText(err);
         qApp->processEvents();
         BaseDAO::rollback(BASE_CONNECTION);
@@ -359,10 +365,10 @@ QString AERPConsistencyMetadataTableDlgPrivate::priorityForError(const QString &
 {
     int iFlag = code.toInt();
     AlephERP::ConsistencyTableErrors error(iFlag);
-    QString stCritical = QObject::trUtf8("CRITICAL");
-    QString stError = QObject::trUtf8("ERROR");
-    QString stWarning = QObject::trUtf8("WARNING");
-    QString stEnhancement = QObject::trUtf8("WARNING");
+    QString stCritical = QObject::tr("CRITICAL");
+    QString stError = QObject::tr("ERROR");
+    QString stWarning = QObject::tr("WARNING");
+    QString stEnhancement = QObject::tr("WARNING");
 
     switch (error)
     {
@@ -409,5 +415,5 @@ QString AERPConsistencyMetadataTableDlgPrivate::priorityForError(const QString &
         return stEnhancement;
     }
 
-    return QObject::trUtf8("Not knwon");
+    return QObject::tr("Not knwon");
 }

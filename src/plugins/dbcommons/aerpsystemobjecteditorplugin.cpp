@@ -49,12 +49,12 @@ QIcon AERPSystemObjectEditorWidgetPlugin::icon() const
 
 QString AERPSystemObjectEditorWidgetPlugin::toolTip() const
 {
-    return trUtf8("Editor de objetos de sistema de AlephERP.");
+    return tr("Editor de objetos de sistema de AlephERP.");
 }
 
 QString AERPSystemObjectEditorWidgetPlugin::whatsThis() const
 {
-    return trUtf8("Editor de objetos de sistema de AlephERP.");
+    return tr("Editor de objetos de sistema de AlephERP.");
 }
 
 bool AERPSystemObjectEditorWidgetPlugin::isContainer() const

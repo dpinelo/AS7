@@ -402,7 +402,6 @@ bool RelatedDAO::deleteRelations(BaseBean *bean, const QString &idTransaction, c
                     else if ( element->type() == AlephERP::Document )
                     {
 #ifdef ALEPHERP_DOC_MANAGEMENT
-                        QString error;
                         if ( !AERPDocumentDAOWrapper::instance()->deleteDocument(element->document()) )
                         {
                             QLogger::QLog_Error(AlephERP::stLogOther, QString("RelatedDAO::deleteRelations: [%1]").arg(AERPDocumentDAOWrapper::instance()->lastMessage()));

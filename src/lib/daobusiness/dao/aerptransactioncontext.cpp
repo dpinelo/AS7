@@ -473,7 +473,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
 
     if ( !d->m_contextObjects.contains(contextName) )
     {
-        d->m_lastError = trUtf8("AERPTransactionContext::commit: No hay ningún contexto llamado %1").arg(contextName);
+        d->m_lastError = tr("AERPTransactionContext::commit: No hay ningún contexto llamado %1").arg(contextName);
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
         d->m_counterValues[contextName].clear();
         // Devolvemos true porque no pasa nada...
@@ -530,7 +530,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     // Iniciamos la transacción
     if ( !BaseDAO::transaction(d->m_database) )
     {
-        d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido iniciar la transacción. \n%1").arg(BaseDAO::lastErrorMessage());
+        d->m_lastError = tr("AERPTransactionContext::commit: No se ha podido iniciar la transacción. \n%1").arg(BaseDAO::lastErrorMessage());
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
         emit transactionAborted(contextName);
         d->m_doingCommit[contextName] = false;
@@ -542,7 +542,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     {
         if ( !BaseDAO::execute(sql) )
         {
-            d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. \n%1").arg(BaseDAO::lastErrorMessage());
+            d->m_lastError = tr("AERPTransactionContext::commit: No se ha podido completar la transacción. \n%1").arg(BaseDAO::lastErrorMessage());
             QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
             BaseDAO::rollback(d->m_database);
             emit transactionAborted(contextName);
@@ -557,7 +557,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
         if ( d->m_cancel[contextName] )
         {
             BaseDAO::rollback(d->m_database);
-            d->m_lastError = trUtf8("Cancelado por el usuario");
+            d->m_lastError = tr("Cancelado por el usuario");
             emit transactionAborted(contextName);
             d->m_cancel[contextName] = false;
             d->m_doingCommit[contextName] = false;
@@ -568,7 +568,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
             emit workingWithBean(bean);
             if ( !bean->save(idTransaction, false, false) )
             {
-                d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. \n%1").arg(BaseDAO::lastErrorMessage());
+                d->m_lastError = tr("AERPTransactionContext::commit: No se ha podido completar la transacción. \n%1").arg(BaseDAO::lastErrorMessage());
                 QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
                 BaseDAO::rollback(d->m_database);
                 emit transactionAborted(contextName);
@@ -603,7 +603,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     {
         if ( !saveOneToOneIds(bean, contextName) )
         {
-            d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. \n%1").arg(BaseDAO::lastErrorMessage());
+            d->m_lastError = tr("AERPTransactionContext::commit: No se ha podido completar la transacción. \n%1").arg(BaseDAO::lastErrorMessage());
             QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
             BaseDAO::rollback(d->m_database);
             emit transactionAborted(contextName);
@@ -617,7 +617,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     {
         if ( !BaseDAO::execute(sql) )
         {
-            d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. \n%1").arg(BaseDAO::lastErrorMessage());
+            d->m_lastError = tr("AERPTransactionContext::commit: No se ha podido completar la transacción. \n%1").arg(BaseDAO::lastErrorMessage());
             QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
             BaseDAO::rollback(d->m_database);
             emit transactionAborted(contextName);
@@ -631,7 +631,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     if ( !transactionSuccess )
     {
         BaseDAO::rollback(d->m_database);
-        d->m_lastError = trUtf8("AERPTransactionContext::commit: No se ha podido completar la transacción. \n%1").arg(BaseDAO::lastErrorMessage());
+        d->m_lastError = tr("AERPTransactionContext::commit: No se ha podido completar la transacción. \n%1").arg(BaseDAO::lastErrorMessage());
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
         emit transactionAborted(contextName);
         d->m_doingCommit[contextName] = false;
@@ -703,7 +703,7 @@ bool AERPTransactionContextPrivate::doPrepareTransaction(const QString &contextN
                 {
                     if ( !bean->metadata()->beforeInsertScriptExecute(bean) || !bean->metadata()->beforeSaveScriptExecute(bean) )
                     {
-                        m_lastError = QObject::trUtf8("No se han cumplido las condiciones necesarias para la inserción de este registro '%1'").arg(bean->metadata()->alias());
+                        m_lastError = QObject::tr("No se han cumplido las condiciones necesarias para la inserción de este registro '%1'").arg(bean->metadata()->alias());
                         return false;
                     }
                     emit q_ptr->beforeSaveBean(bean);
@@ -714,7 +714,7 @@ bool AERPTransactionContextPrivate::doPrepareTransaction(const QString &contextN
                 {
                     if ( !bean->metadata()->beforeUpdateScriptExecute(bean) || !bean->metadata()->beforeSaveScriptExecute(bean) )
                     {
-                        m_lastError = QObject::trUtf8("No se han cumplido las condiciones necesarias para la edición de este registro '%1'").arg(bean->metadata()->alias());
+                        m_lastError = QObject::tr("No se han cumplido las condiciones necesarias para la edición de este registro '%1'").arg(bean->metadata()->alias());
                         return false;
                     }
                     emit q_ptr->beforeSaveBean(bean);
@@ -725,7 +725,7 @@ bool AERPTransactionContextPrivate::doPrepareTransaction(const QString &contextN
                 {
                     if ( !bean->metadata()->beforeDeleteScriptExecute(bean) )
                     {
-                        m_lastError = QObject::trUtf8("No se han cumplido las condiciones necesarias para eliminar este registro '%1'").arg(bean->metadata()->alias());
+                        m_lastError = QObject::tr("No se han cumplido las condiciones necesarias para eliminar este registro '%1'").arg(bean->metadata()->alias());
                         return false;
                     }
                     emit q_ptr->beforeDeleteBean(bean);
@@ -832,7 +832,7 @@ bool AERPTransactionContext::saveOneToOneIds(BaseBeanPointer bean, const QString
                 if ( !oneSideField->metadata()->unique() && !otherSideField->metadata()->unique() &&
                      !oneSideField->metadata()->serial() && !otherSideField->metadata()->serial() )
                 {
-                    QLogger::QLog_Error(AlephERP::stLogDB, trUtf8("En una relación 11, uno de los dos campos debe ser serial o único."));
+                    QLogger::QLog_Error(AlephERP::stLogDB, tr("En una relación 11, uno de los dos campos debe ser serial o único."));
                 }
                 else
                 {
@@ -890,7 +890,7 @@ bool AERPTransactionContext::rollback(const QString &contextName)
 {
     if ( !d->m_contextObjects.contains(contextName) )
     {
-        d->m_lastError = trUtf8("AERPTransactionContext::rollback: No hay ningún contexto llamado [%1]").arg(contextName);
+        d->m_lastError = tr("AERPTransactionContext::rollback: No hay ningún contexto llamado [%1]").arg(contextName);
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
         return false;
     }

@@ -571,7 +571,7 @@ QVariant BaseBeanModel::headerData(DBFieldMetadata *field, int section, Qt::Orie
         {
             return d->headerDataFunction(section);
         }
-        return QObject::trUtf8(field->fieldName().toUtf8());
+        return QObject::tr(field->fieldName().toUtf8());
 
     case AlephERP::DBFieldNameRole:
         return field->dbFieldName();
@@ -1276,7 +1276,7 @@ bool BaseBeanModel::exportToSpreadSheet(QAbstractItemModel *model, BaseBeanMetad
 {
     if ( !m )
     {
-        model->setProperty("lastErrorMessage", trUtf8("Los metadatos están vacíos."));
+        model->setProperty("lastErrorMessage", tr("Los metadatos están vacíos."));
         return false;
     }
     d->m_cancelExportToSpreadSheet = false;
@@ -1491,7 +1491,7 @@ QString BaseBeanModelPrivate::headerDataFunction(int column) const
     }
     if ( q_ptr->visibleFields().at(column).contains("incrementalSum") )
     {
-        return QObject::trUtf8("%1 - Incremental").arg(fld->fieldName());
+        return QObject::tr("%1 - Incremental").arg(fld->fieldName());
     }
     return QString();
 }

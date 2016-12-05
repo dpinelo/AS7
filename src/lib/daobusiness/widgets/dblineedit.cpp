@@ -546,7 +546,7 @@ void DBLineEdit::showRecalculateButton()
                 sizeHint().height() - (4 * frameWidth)));
         d->m_recalculateCounterButton->setCursor(Qt::ArrowCursor);
         d->m_recalculateCounterButton->setStyleSheet("QToolButton { border: none; padding: 0px; }");
-        d->m_recalculateCounterButton->setToolTip(trUtf8("Recalcula el valor del campo"));
+        d->m_recalculateCounterButton->setToolTip(tr("Recalcula el valor del campo"));
         // Add extra padding to the right of the line edit. It looks better.
         setStyleSheet(QString("QLineEdit { padding-right: %1px; } ").arg(d->m_recalculateCounterButton->sizeHint().width() + frameWidth + 1));
         QSize msz = minimumSizeHint();

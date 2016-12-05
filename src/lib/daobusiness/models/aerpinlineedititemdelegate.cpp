@@ -312,7 +312,7 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
         if ( fld->isEmpty() )
         {
             buttonOption.rect = option.rect;
-            buttonOption.text = trUtf8("Seleccione %1").arg(fld->metadata()->fieldName());
+            buttonOption.text = tr("Seleccione %1").arg(fld->metadata()->fieldName());
             QApplication::style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter);
         }
         else
@@ -403,7 +403,7 @@ void AERPInlineEditItemDelegate::buttonClicked(const QModelIndex &index)
                     if ( father->dbState() == BaseBean::INSERT )
                     {
                         int ret = QMessageBox::question(0,qApp->applicationName(),
-                                                        trUtf8("Previamente creó un nuevo registro de tipo <strong>%1</strong>."
+                                                        tr("Previamente creó un nuevo registro de tipo <strong>%1</strong>."
                                                                "Este registro aún no ha sido guardado en la base de datos. ¿Desea editarlo? <br/>"
                                                                "Si responde no, perderá este registro que insertó y se abrirá la ventana de búsqueda.").arg(father->metadata()->alias()),
                                                         QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );

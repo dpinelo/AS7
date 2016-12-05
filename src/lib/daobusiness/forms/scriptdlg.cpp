@@ -133,7 +133,7 @@ void ScriptDlg::setupMainWidget()
     {
         QMessageBox::warning(this,
                              qApp->applicationName(),
-                             trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").
+                             tr("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").
                                 arg(d->m_ui),
                              QMessageBox::Ok);
         close();
@@ -181,11 +181,11 @@ void ScriptDlg::execQs()
     CommonsFunctions::restoreOverrideCursor();
     if ( !result )
     {
-        QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ha ocurrido un error al cargar el script asociado a este "
+        QMessageBox::warning(this,qApp->applicationName(), tr("Ha ocurrido un error al cargar el script asociado a este "
                              "formulario. Es posible que algunas funciones no estén disponibles."),
                              QMessageBox::Ok);
 #ifdef ALEPHERP_DEVTOOLS
-        int ret = QMessageBox::information(this,qApp->applicationName(), trUtf8("El script ejecutado contiene errores. ¿Desea editarlo?"),
+        int ret = QMessageBox::information(this,qApp->applicationName(), tr("El script ejecutado contiene errores. ¿Desea editarlo?"),
                                            QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::Yes )
         {

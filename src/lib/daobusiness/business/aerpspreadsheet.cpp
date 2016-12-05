@@ -243,7 +243,7 @@ void AERPSpreadSheet::loadPlugins()
             if ( !pluginLoader->load() )
             {
                 CommonsFunctions::restoreOverrideCursor();
-                qDebug() << trUtf8("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
+                qDebug() << tr("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
                         arg(pathPluginFile).arg(pluginLoader->errorString());
             }
             else
@@ -252,7 +252,7 @@ void AERPSpreadSheet::loadPlugins()
                 CommonsFunctions::restoreOverrideCursor();
                 if ( !iface )
                 {
-                    qDebug() << trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pathPluginFile);
+                    qDebug() << tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pathPluginFile);
                 }
                 else
                 {
@@ -266,7 +266,7 @@ void AERPSpreadSheet::loadPlugins()
             CommonsFunctions::restoreOverrideCursor();
             if ( !iface )
             {
-                qDebug() << QObject::trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pathPluginFile);
+                qDebug() << QObject::tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pathPluginFile);
             }
             else
             {
@@ -297,7 +297,7 @@ AERPSpreadSheet *AERPSpreadSheet::openSpreadSheet(const QString &file, const QSt
         {
             if ( !iface->wasInited() && !iface->init() )
             {
-                qDebug () << trUtf8("AERPSpreadSheet::openSpreadSheet: No se ha podido inicializar el driver. Error: [%1]").arg(iface->lastMessage());
+                qDebug () << tr("AERPSpreadSheet::openSpreadSheet: No se ha podido inicializar el driver. Error: [%1]").arg(iface->lastMessage());
                 return NULL;
             }
             return iface->openFile(file, init, offset);
@@ -399,7 +399,7 @@ bool AERPSpreadSheet::saveAs(const QString &path, const QString &typeToSave)
 
     if ( type.isEmpty() )
     {
-        d->m_lastMessage = trUtf8("Debe especificar un tipo.");
+        d->m_lastMessage = tr("Debe especificar un tipo.");
         return false;
     }
     QScopedPointer<AERPSpreadSheet> spread(new AERPSpreadSheet());
@@ -415,12 +415,12 @@ bool AERPSpreadSheet::saveAs(const QString &path, const QString &typeToSave)
     }
     if ( iface == NULL )
     {
-        d->m_lastMessage = trUtf8("Tipo desconocido.");
+        d->m_lastMessage = tr("Tipo desconocido.");
         return false;
     }
     if ( !iface->canWriteFiles() )
     {
-        d->m_lastMessage = trUtf8("No es posible escribir en este tipo.");
+        d->m_lastMessage = tr("No es posible escribir en este tipo.");
         return false;
     }
     return iface->writeFile(this, file);
@@ -1160,7 +1160,7 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
     bool ok;
     QString displayType = QInputDialog::getItem(uiParent,
                                                 qApp->applicationName(),
-                                                trUtf8("Seleccione el formato al que desea exportar la información."),
+                                                tr("Seleccione el formato al que desea exportar la información."),
                                                 displayTypes,
                                                 0,
                                                 false,
@@ -1171,7 +1171,7 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
     }
 
     QString writeTo = QFileDialog::getExistingDirectory(uiParent,
-                                                        trUtf8("Seleccione el directorio en el que guardar los datos"),
+                                                        tr("Seleccione el directorio en el que guardar los datos"),
                                                         QDir::homePath());
     if ( writeTo.isEmpty() )
     {
@@ -1191,7 +1191,7 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
     {
         QMessageBox::warning(uiParent,
                              qApp->applicationName(),
-                             trUtf8("Ha ocurrido un error exportando los datos. \nNo tiene configurado ningún plugin."));
+                             tr("Ha ocurrido un error exportando los datos. \nNo tiene configurado ningún plugin."));
         return;
     }
     writeTo.append("/").
@@ -1204,8 +1204,8 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
     QProgressDialog dlg;
     dlg.setMaximum(filterModel->rowCount());
     dlg.setMinimum(0);
-    dlg.setLabelText(trUtf8("Exportando información... Por favor, espere."));
-    dlg.setWindowTitle(trUtf8("%1 - Exportando datos").arg(qApp->applicationName()));
+    dlg.setLabelText(tr("Exportando información... Por favor, espere."));
+    dlg.setWindowTitle(tr("%1 - Exportando datos").arg(qApp->applicationName()));
     dlg.setWindowModality(Qt::WindowModal);
     connect(&dlg, SIGNAL(canceled()), filterModel, SLOT(cancelExportToSpreadSheet()));
     connect(filterModel, SIGNAL(rowProcessed(int)), &dlg, SLOT(setValue(int)));
@@ -1219,6 +1219,6 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
     {
         QMessageBox::warning(uiParent,
                              qApp->applicationName(),
-                             trUtf8("Ha ocurrido un error exportando los datos. \nEl error es: %1").arg(filterModel->lastErrorMessage()));
+                             tr("Ha ocurrido un error exportando los datos. \nEl error es: %1").arg(filterModel->lastErrorMessage()));
     }
 }

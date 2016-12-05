@@ -65,12 +65,12 @@ QIcon AERPMainWindowPlugin::icon() const
 
 QString AERPMainWindowPlugin::toolTip() const
 {
-    return trUtf8("QMainWindow personalizable");
+    return tr("QMainWindow personalizable");
 }
 
 QString AERPMainWindowPlugin::whatsThis() const
 {
-    return trUtf8("QMainWindow personalizable");
+    return tr("QMainWindow personalizable");
 }
 
 bool AERPMainWindowPlugin::isContainer() const

@@ -64,12 +64,6 @@ class ALEPHERP_DLL_EXPORT DBDetailView :
         public QScriptable
 {
     Q_OBJECT
-    Q_FLAGS(Buttons)
-    Q_ENUMS(Button)
-    Q_FLAGS(WorkModes)
-    Q_ENUMS(WorkMode)
-    Q_FLAGS(RecordStates)
-    Q_ENUMS(RecordState)
     Q_DISABLE_COPY(DBDetailView)
 
     Q_PROPERTY (QString relationName READ relationName WRITE setRelationName)
@@ -250,6 +244,11 @@ public:
     Q_INVOKABLE virtual void orderColumns(const QStringList &order);
     Q_INVOKABLE virtual void sortByColumn(const QString &field, Qt::SortOrder order = Qt::DescendingOrder);
     Q_INVOKABLE QPushButton *createPushButton(int position, const QString &text, const QString &toolTip = "", const QString &img = "", const QString &methodNameToInvokeOnClicked = "");
+
+    Q_FLAG(Buttons)
+    Q_ENUM(Button)
+    Q_FLAG(WorkModes)
+    Q_ENUM(WorkMode)
 
 public slots:
     virtual void setValue(const QVariant &value);

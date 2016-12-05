@@ -64,12 +64,12 @@ QIcon AERPBaseDialogPlugin::icon() const
 
 QString AERPBaseDialogPlugin::toolTip() const
 {
-    return trUtf8("QDialog base de AlephERP.");
+    return tr("QDialog base de AlephERP.");
 }
 
 QString AERPBaseDialogPlugin::whatsThis() const
 {
-    return trUtf8("QDialog base de AlephERP.");
+    return tr("QDialog base de AlephERP.");
 }
 
 bool AERPBaseDialogPlugin::isContainer() const

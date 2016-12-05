@@ -163,16 +163,6 @@ public:
     static const char * stLogDBCloud;
 #endif
 
-    Q_FLAGS(AutoCompleteTypes)
-    Q_FLAGS(CreationTableSqlOptions)
-    Q_FLAGS(RelationTypes)
-    Q_ENUMS(DBRecordState)
-    Q_FLAGS(DBRecordStates)
-    Q_ENUMS(RelatedElementCardinality)
-    Q_FLAGS(RelatedElementCardinalities)
-    Q_ENUMS(DateTimeParts)
-    Q_ENUMS(FormOpenType)
-
     enum DateTimeParts
     {
         Second = 0x01,
@@ -465,6 +455,17 @@ public:
         QHash<QString, QString> engineValues;
         QString formattedAddress;
     };
+
+    Q_FLAG(AutoCompleteTypes)
+    Q_FLAG(CreationTableSqlOptions)
+    Q_FLAG(RelationTypes)
+    Q_ENUM(DBRecordState)
+    Q_FLAG(DBRecordStates)
+    Q_ENUM(RelatedElementCardinality)
+    Q_FLAG(RelatedElementCardinalities)
+    Q_ENUM(DateTimeParts)
+    Q_ENUM(FormOpenType)
+
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(AlephERP::RelationTypes)

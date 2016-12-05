@@ -1721,7 +1721,7 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore, 
         {
             if ( d->m_modified && (!metadata()->beforeInsertScriptExecute(this) || !metadata()->beforeSaveScriptExecute(this)) )
             {
-                QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("No se han cumplido las condiciones necesarias para la inserción de este registro '%1'").arg(metadata()->alias()));
+                QLogger::QLog_Error(AlephERP::stLogOther, tr("No se han cumplido las condiciones necesarias para la inserción de este registro '%1'").arg(metadata()->alias()));
                 return false;
             }
             emitBeforeInsert();
@@ -1731,7 +1731,7 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore, 
         {
             if ( d->m_modified && !(metadata()->beforeUpdateScriptExecute(this) || metadata()->beforeSaveScriptExecute(this)) )
             {
-                QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("No se han cumplido las condiciones necesarias para la edición de este registro '%1'").arg(metadata()->alias()));
+                QLogger::QLog_Error(AlephERP::stLogOther, tr("No se han cumplido las condiciones necesarias para la edición de este registro '%1'").arg(metadata()->alias()));
                 return false;
             }
             emitBeforeUpdate();

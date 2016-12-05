@@ -44,7 +44,7 @@ DBChooseRecordButtonTaskMenu::DBChooseRecordButtonTaskMenu(DBChooseRecordButton 
     d->m_recordButton = button;
     d->m_replaceFieldsAction = new QAction(tr("AlephERP: Edit Replace Fields when select a record..."), this);
     connect(d->m_replaceFieldsAction, SIGNAL(triggered()), this, SLOT(editFields()));
-    d->m_editFieldsAction = new QAction(trUtf8("AlephERP: Assign DB Field..."), this);
+    d->m_editFieldsAction = new QAction(tr("AlephERP: Assign DB Field..."), this);
     connect(d->m_editFieldsAction, SIGNAL(triggered()), this, SLOT(selectFields()));
 }
 

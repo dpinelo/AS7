@@ -339,9 +339,9 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
     if ( fld->type() == QVariant::Bool )
     {
         QString filterItem = fld->sqlWhere("=", true);
-        cb->addItem(QIcon(":/aplicacion/images/ok.png"), QObject::trUtf8("Verdadero"), filterItem);
+        cb->addItem(QIcon(":/aplicacion/images/ok.png"), QObject::tr("Verdadero"), filterItem);
         filterItem = fld->sqlWhere("=", false);
-        cb->addItem(QIcon(":/generales/images/delete.png"), QObject::trUtf8("Falso"), filterItem);
+        cb->addItem(QIcon(":/generales/images/delete.png"), QObject::tr("Falso"), filterItem);
     }
     else
     {
@@ -390,7 +390,7 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
     }
     if ( viewAll )
     {
-        cb->addItem(QObject::trUtf8("Ver todos"), "");
+        cb->addItem(QObject::tr("Ver todos"), "");
     }
     QString key = QString("%1%2").arg(m_tableName).arg(cb->objectName());
     QVariant v = alephERPSettings->loadRegistryValue(key);
@@ -706,7 +706,7 @@ void DBAbstractFilterViewPrivate::addOptionsCombo(DBFieldMetadata *fld)
 {
     bool blockState = q_ptr->ui->cbFastFilterValue->blockSignals(true);
     q_ptr->ui->cbFastFilterValue->clear();
-    q_ptr->ui->cbFastFilterValue->addItem(QObject::trUtf8("Ver todos"), QString(""));
+    q_ptr->ui->cbFastFilterValue->addItem(QObject::tr("Ver todos"), QString(""));
     if ( !fld->optionsList().isEmpty() )
     {
         QMapIterator<QString, QString> optionList(fld->optionsList());
@@ -718,8 +718,8 @@ void DBAbstractFilterViewPrivate::addOptionsCombo(DBFieldMetadata *fld)
     }
     else if ( fld->type() == QVariant::Bool )
     {
-        q_ptr->ui->cbFastFilterValue->addItem(QIcon(":/aplicacion/images/ok.png"), QObject::trUtf8("Verdadero"), QVariant("true"));
-        q_ptr->ui->cbFastFilterValue->addItem(QIcon(":/generales/images/delete.png"), QObject::trUtf8("Falso"), QVariant("false"));
+        q_ptr->ui->cbFastFilterValue->addItem(QIcon(":/aplicacion/images/ok.png"), QObject::tr("Verdadero"), QVariant("true"));
+        q_ptr->ui->cbFastFilterValue->addItem(QIcon(":/generales/images/delete.png"), QObject::tr("Falso"), QVariant("false"));
     }
     q_ptr->ui->cbFastFilterValue->blockSignals(blockState);
 }
@@ -823,7 +823,7 @@ void DBAbstractFilterViewPrivate::createSubTotals()
     QGroupBox *gb = new QGroupBox(q_ptr);
     QHBoxLayout *lay = new QHBoxLayout(gb);
     QSpacerItem *horizontalSpacer = new QSpacerItem(224, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    gb->setTitle(QObject::trUtf8("Subtotales"));
+    gb->setTitle(QObject::tr("Subtotales"));
     gb->setLayout(lay);
     lay->addItem(horizontalSpacer);
     q_ptr->layout()->addWidget(gb);
@@ -1013,7 +1013,7 @@ void DBAbstractFilterViewPrivate::subTotalNewData(bool result, const QString &id
     }
     else
     {
-        le->setText(QObject::trUtf8("ERROR"));
+        le->setText(QObject::tr("ERROR"));
     }
     m_subTotalsFields.remove(id);
 }

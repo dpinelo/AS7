@@ -43,8 +43,8 @@ DBAbstractFilterView::DBAbstractFilterView(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->cbFastFilterValue->setVisible(false);
-    ui->deFastFilter1->setSpecialValueText(trUtf8("Seleccione fecha"));
-    ui->deFastFilter2->setSpecialValueText(trUtf8("Seleccione fecha"));
+    ui->deFastFilter1->setSpecialValueText(tr("Seleccione fecha"));
+    ui->deFastFilter2->setSpecialValueText(tr("Seleccione fecha"));
     ui->deFastFilter1->setDisplayFormat(CommonsFunctions::dateFormat());
     ui->deFastFilter2->setDisplayFormat(CommonsFunctions::dateFormat());
     ui->deFastFilter1->setDate(alephERPSettings->minimumDate());
@@ -102,7 +102,7 @@ void DBAbstractFilterView::setTableName (const QString &tableName)
         d->m_metadata = BeansFactory::metadataBean(tableName);
         if ( d->m_metadata == NULL )
         {
-            QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("Su aplicación no está bien configurada. Existen tablas de sistemas no creadas. Consulte con Aleph Sistemas de Información."));
+            QLogger::QLog_Error(AlephERP::stLogOther, tr("Su aplicación no está bien configurada. Existen tablas de sistemas no creadas. Consulte con Aleph Sistemas de Información."));
             return;
         }
         if ( !d->m_metadata->viewOnGrid().isEmpty() )
@@ -110,7 +110,7 @@ void DBAbstractFilterView::setTableName (const QString &tableName)
             d->m_metadata = BeansFactory::metadataBean(d->m_metadata->viewOnGrid());
             if ( d->m_metadata == NULL )
             {
-                QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("Su aplicación no está bien configurada. Existen tablas de sistemas no creadas. Consulte con Aleph Sistemas de Información."));
+                QLogger::QLog_Error(AlephERP::stLogOther, tr("Su aplicación no está bien configurada. Existen tablas de sistemas no creadas. Consulte con Aleph Sistemas de Información."));
                 return;
             }
         }
@@ -375,7 +375,7 @@ void DBAbstractFilterView::fastFilterByText()
     if ( ui->cbFastFilter->currentIndex() == -1 )
     {
         QMessageBox::warning(this,qApp->applicationName(),
-                             trUtf8(MSG_NO_COLUMN_SELECCIONADA), QMessageBox::Ok);
+                             tr(MSG_NO_COLUMN_SELECCIONADA), QMessageBox::Ok);
     }
     else
     {
@@ -435,7 +435,7 @@ void DBAbstractFilterView::fastFilterByNumbers()
     if ( ui->cbFastFilter->currentIndex() == -1 )
     {
         QMessageBox::warning(this,qApp->applicationName(),
-                             trUtf8(MSG_NO_COLUMN_SELECCIONADA), QMessageBox::Ok);
+                             tr(MSG_NO_COLUMN_SELECCIONADA), QMessageBox::Ok);
     }
     else
     {
@@ -809,7 +809,7 @@ void DBAbstractFilterView::prepareFilterControlsAndFilter()
 void DBAbstractFilterView::prepareFilterControlsByOperator()
 {
     clearFilter();
-    if ( ui->cbFastFilterOperators->currentText() == trUtf8("Entre") )
+    if ( ui->cbFastFilterOperators->currentText() == tr("Entre") )
     {
         ui->lblBetween->setVisible(true);
         ui->lblAnd->setVisible(true);

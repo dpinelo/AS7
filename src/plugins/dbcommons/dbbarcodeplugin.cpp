@@ -31,12 +31,12 @@ QIcon DBBarCodePlugin::icon() const
 
 QString DBBarCodePlugin::toolTip() const
 {
-    return trUtf8("Código de barras según valor de campo");
+    return tr("Código de barras según valor de campo");
 }
 
 QString DBBarCodePlugin::whatsThis() const
 {
-    return trUtf8("Código de barras según valor de campo");
+    return tr("Código de barras según valor de campo");
 }
 
 bool DBBarCodePlugin::isContainer() const

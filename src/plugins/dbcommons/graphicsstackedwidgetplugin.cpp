@@ -65,12 +65,12 @@ QIcon AERPStackedWidgetPlugin::icon() const
 
 QString AERPStackedWidgetPlugin::toolTip() const
 {
-    return trUtf8("Extensión de QStackedWidget con efectos visuales");
+    return tr("Extensión de QStackedWidget con efectos visuales");
 }
 
 QString AERPStackedWidgetPlugin::whatsThis() const
 {
-    return trUtf8("Extensión de QStackedWidget con efectos visuales");
+    return tr("Extensión de QStackedWidget con efectos visuales");
 }
 
 bool AERPStackedWidgetPlugin::isContainer() const

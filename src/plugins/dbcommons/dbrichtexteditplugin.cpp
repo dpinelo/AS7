@@ -48,12 +48,12 @@ QIcon DBRichTextEditPlugin::icon() const
 
 QString DBRichTextEditPlugin::toolTip() const
 {
-    return trUtf8("Editor WYSIWYG de código HTML");
+    return tr("Editor WYSIWYG de código HTML");
 }
 
 QString DBRichTextEditPlugin::whatsThis() const
 {
-    return trUtf8("Editor WYSIWYG de código HTML");
+    return tr("Editor WYSIWYG de código HTML");
 }
 
 bool DBRichTextEditPlugin::isContainer() const

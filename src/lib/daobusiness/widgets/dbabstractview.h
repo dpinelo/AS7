@@ -190,12 +190,12 @@ public:
     virtual QString configurationName();
 
     virtual void itemClicked(const QModelIndex &idx);
-    virtual void itemChecked(const QModelIndex &idx, bool value);
+    void itemChecked(const QModelIndex &idx, bool value);
 
     virtual void resetCursor();
 
     virtual void prepareColumns();
-    virtual void nextCellOnEnter(const QModelIndex &actualCell, const QModelIndex &nextCell);
+    void nextCellOnEnter(const QModelIndex &actualCell, const QModelIndex &nextCell);
 
     virtual void copy();
     virtual void paste();

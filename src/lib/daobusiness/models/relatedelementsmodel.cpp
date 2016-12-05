@@ -310,11 +310,11 @@ QVariant RelatedElementsModel::headerData(int section, Qt::Orientation orientati
     case Qt::DisplayRole:
         if ( section == 0 )
         {
-            return QObject::trUtf8("Elemento");
+            return QObject::tr("Elemento");
         }
         else
         {
-            return QObject::trUtf8("Descripción");
+            return QObject::tr("Descripción");
         }
         break;
 

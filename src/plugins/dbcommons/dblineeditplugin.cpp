@@ -49,12 +49,12 @@ QIcon DBLineEditPlugin::icon() const
 
 QString DBLineEditPlugin::toolTip() const
 {
-    return trUtf8("QLineEdit que lee de base de datos, interactuando a través de objetos BaseBean");
+    return tr("QLineEdit que lee de base de datos, interactuando a través de objetos BaseBean");
 }
 
 QString DBLineEditPlugin::whatsThis() const
 {
-    return trUtf8("QLineEdit que lee de base de datos, interactuando a través de objetos BaseBean");
+    return tr("QLineEdit que lee de base de datos, interactuando a través de objetos BaseBean");
 }
 
 bool DBLineEditPlugin::isContainer() const

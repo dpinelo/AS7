@@ -49,12 +49,12 @@ QIcon DBDateTimeEditPlugin::icon() const
 
 QString DBDateTimeEditPlugin::toolTip() const
 {
-    return trUtf8("QDateTime que lee de base de datos, interactuando a través de objetos BaseBean");
+    return tr("QDateTime que lee de base de datos, interactuando a través de objetos BaseBean");
 }
 
 QString DBDateTimeEditPlugin::whatsThis() const
 {
-    return trUtf8("QDateTime que lee de base de datos, interactuando a través de objetos BaseBean");
+    return tr("QDateTime que lee de base de datos, interactuando a través de objetos BaseBean");
 }
 
 bool DBDateTimeEditPlugin::isContainer() const

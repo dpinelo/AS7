@@ -87,27 +87,27 @@ void AERPScheduledJobsMetadataPrivate::setConfig()
         n = root.firstChildElement("userName");
         if ( !n.isNull() )
         {
-            m_userName = QObject::trUtf8(checkWildCards(n).toUtf8());
+            m_userName = QObject::tr(checkWildCards(n).toUtf8());
         }
         n = root.firstChildElement("roleName");
         if ( !n.isNull() )
         {
-            m_roleName = QObject::trUtf8(checkWildCards(n).toUtf8());
+            m_roleName = QObject::tr(checkWildCards(n).toUtf8());
         }
         n = root.firstChildElement("cronExpression");
         if ( !n.isNull() )
         {
-            m_cronExpression = QObject::trUtf8(checkWildCards(n).toUtf8());
+            m_cronExpression = QObject::tr(checkWildCards(n).toUtf8());
         }
         n = root.firstChildElement("databaseNotification");
         if ( !n.isNull() )
         {
-            m_databaseNotification = QObject::trUtf8(checkWildCards(n).toUtf8());
+            m_databaseNotification = QObject::tr(checkWildCards(n).toUtf8());
         }
         n = root.firstChildElement("code");
         if ( !n.isNull() )
         {
-            m_code = QObject::trUtf8(checkWildCards(n).toUtf8());
+            m_code = QObject::tr(checkWildCards(n).toUtf8());
         }
         n = root.firstChildElement("needsDatabaseConnection");
         if ( !n.isNull() )
@@ -118,7 +118,7 @@ void AERPScheduledJobsMetadataPrivate::setConfig()
     }
     else
     {
-        QMessageBox::critical(0, qApp->applicationName(), QObject::trUtf8("El archivo XML de sistema <b>%1</b> no es correcto. "
+        QMessageBox::critical(0, qApp->applicationName(), QObject::tr("El archivo XML de sistema <b>%1</b> no es correcto. "
                               "El programa no funcionará. Consulte con <i>Aleph Sistemas de Información</i>.").arg(m_name),
                               QMessageBox::Ok);
         QLogger::QLog_Error(AlephERP::stLogJob, QString::fromUtf8("-------------------------------------------------------------------------------------------------------"));

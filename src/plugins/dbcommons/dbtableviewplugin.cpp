@@ -49,12 +49,12 @@ QIcon DBTableViewPlugin::icon() const
 
 QString DBTableViewPlugin::toolTip() const
 {
-    return trUtf8("Extensión de QTableView para recoger la configuración de los BaseBean");
+    return tr("Extensión de QTableView para recoger la configuración de los BaseBean");
 }
 
 QString DBTableViewPlugin::whatsThis() const
 {
-    return trUtf8("Extensión de QTableView para recoger la configuración de los BaseBean");
+    return tr("Extensión de QTableView para recoger la configuración de los BaseBean");
 }
 
 bool DBTableViewPlugin::isContainer() const

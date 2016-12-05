@@ -245,7 +245,7 @@ void AERPBaseDialog::searchComboChanged(int index)
 
 void AERPBaseDialog::executeJsMethod()
 {
-    QString method = QInputDialog::getText(this, qApp->applicationName(), trUtf8("Indique el nombre del método JavaScript de este formulario a ejecutar"));
+    QString method = QInputDialog::getText(this, qApp->applicationName(), tr("Indique el nombre del método JavaScript de este formulario a ejecutar"));
     if ( !method.isEmpty() )
     {
         callQSMethod(method);

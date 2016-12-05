@@ -65,14 +65,14 @@ void AERPUserAccessRow::init()
         d->m_items = d->m_bean->access();
         if ( d->m_items.isEmpty() )
         {
-            QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error en el acceso al sistema de permisos por filas. ERROR: %1").arg(UserDAO::lastErrorMessage()), QMessageBox::Ok);
+            QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error en el acceso al sistema de permisos por filas. ERROR: %1").arg(UserDAO::lastErrorMessage()), QMessageBox::Ok);
             close();
             return;
         }
     }
     if (d->m_items.size() == 0)
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error en el acceso al sistema de permisos por filas. ERROR: %1").arg(UserDAO::lastErrorMessage()), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error en el acceso al sistema de permisos por filas. ERROR: %1").arg(UserDAO::lastErrorMessage()), QMessageBox::Ok);
         close();
         return;
     }
@@ -100,11 +100,11 @@ void AERPUserAccessRow::refreshTableWidget()
         {
             if ( d->m_items.size() == 1 )
             {
-                cell = new QTableWidgetItem(trUtf8("Todos los usuarios"));
+                cell = new QTableWidgetItem(tr("Todos los usuarios"));
             }
             else
             {
-                cell = new QTableWidgetItem(trUtf8("Resto de usuarios"));
+                cell = new QTableWidgetItem(tr("Resto de usuarios"));
             }
         }
         else
@@ -115,19 +115,19 @@ void AERPUserAccessRow::refreshTableWidget()
         QString accessText;
         if ( item.access().contains('r') )
         {
-            accessText = trUtf8("Lectura/Visualización");
+            accessText = tr("Lectura/Visualización");
             if ( item.access().contains('w') )
             {
-                accessText.append(", ").append(trUtf8("Edición/Modificación"));
+                accessText.append(", ").append(tr("Edición/Modificación"));
             }
             if ( item.access().contains('s') )
             {
-                accessText.append(", ").append(trUtf8("Seleccionable"));
+                accessText.append(", ").append(tr("Seleccionable"));
             }
         }
         else
         {
-            accessText = trUtf8("Sin acceso");
+            accessText = tr("Sin acceso");
         }
         cell = new QTableWidgetItem(accessText);
         ui->tableWidget->setItem(row, 2, cell);
@@ -173,7 +173,7 @@ void AERPUserAccessRow::editAccess()
     QList<QTableWidgetItem *> selectedItems = ui->tableWidget->selectedItems();
     if ( selectedItems.size() == 0 )
     {
-        QMessageBox::information(this, qApp->applicationName(), trUtf8("Debe seleccionar una línea a editar."), QMessageBox::Ok);
+        QMessageBox::information(this, qApp->applicationName(), tr("Debe seleccionar una línea a editar."), QMessageBox::Ok);
         return;
     }
     int row = selectedItems.at(0)->row();
@@ -197,7 +197,7 @@ void AERPUserAccessRow::removeAccess()
     QList<QTableWidgetItem *> selectedItems = ui->tableWidget->selectedItems();
     if ( selectedItems.size() == 0 )
     {
-        QMessageBox::information(this, qApp->applicationName(), trUtf8("Debe seleccionar una línea a editar."), QMessageBox::Ok);
+        QMessageBox::information(this, qApp->applicationName(), tr("Debe seleccionar una línea a editar."), QMessageBox::Ok);
         return;
     }
     int row = selectedItems.at(0)->row();
@@ -205,7 +205,7 @@ void AERPUserAccessRow::removeAccess()
     {
         if ( d->m_items.at(row).userName() == QStringLiteral("*") )
         {
-            QMessageBox::information(this, qApp->applicationName(), trUtf8("No es posible borrar esta línea. Siempre debe indicarse qué permisos tendrán el grupo genérico de usuarios."), QMessageBox::Ok);
+            QMessageBox::information(this, qApp->applicationName(), tr("No es posible borrar esta línea. Siempre debe indicarse qué permisos tendrán el grupo genérico de usuarios."), QMessageBox::Ok);
             return;
         }
         d->m_items.removeAt(row);
@@ -221,7 +221,7 @@ void AERPUserAccessRow::ok()
         d->m_bean->setAccess(d->m_items);
         if ( !UserDAO::updateUserRowAccess(d->m_bean) )
         {
-            QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error tratando de introducir los permisos. Error: %1").arg(UserDAO::lastErrorMessage()));
+            QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error tratando de introducir los permisos. Error: %1").arg(UserDAO::lastErrorMessage()));
         }
         else
         {
@@ -236,13 +236,13 @@ void AERPUserAccessRow::closeEvent(QCloseEvent *event)
 {
     if ( isWindowModified() )
     {
-        int ret = QMessageBox::question(this, qApp->applicationName(), trUtf8("¿Desea guardar los datos que ha modificado?"), QMessageBox::Yes | QMessageBox::No);
+        int ret = QMessageBox::question(this, qApp->applicationName(), tr("¿Desea guardar los datos que ha modificado?"), QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::Yes )
         {
             d->m_bean->setAccess(d->m_items);
             if ( !UserDAO::updateUserRowAccess(d->m_bean) )
             {
-                QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error tratando de introducir los permisos. Error: %1").arg(UserDAO::lastErrorMessage()));
+                QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error tratando de introducir los permisos. Error: %1").arg(UserDAO::lastErrorMessage()));
             }
             else
             {
