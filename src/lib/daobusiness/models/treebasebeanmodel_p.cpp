@@ -441,7 +441,7 @@ QString TreeBaseBeanModelPrivate::upperLevelUnderlyingSql()
             return sql;
         }
         QString relClausule = QString("(t%1.%2 = t%3.%4 %5)").
-                arg(QString(i),
+                arg(QString::number(i),
                     rel->childFieldName(),
                     QString(i-1),
                     rel->rootFieldName(),
@@ -464,7 +464,7 @@ QString TreeBaseBeanModelPrivate::upperLevelUnderlyingSql()
     QString lastLevelCount = lastLevelCountUnderlyingSql();
     from.replace(QStringLiteral("lastLevelUnderlying"), lastLevelCount);
     sql = QString("SELECT DISTINCT t%1.lastlevelcount, %2, %3 FROM ").
-            arg(QString(lastLevel),
+            arg(QString::number(lastLevel),
                 fields.join(", "),
                 dataFields.join(", "));
     sql.append(from).append(!filters.at(0).isEmpty() ? QString(" WHERE ").append(filters.at(0)) : "").
@@ -480,7 +480,7 @@ QStringList TreeBaseBeanModelPrivate::levelRetreivedFields(int level, const QStr
     {
         if ( (fld->isOnDb() || fld->serial()) && !fld->memo() )
         {
-            list << QString("%1.%2 AS vf%3%2").arg(prefix, fld->dbFieldName(), QString(level));
+            list << QString("%1.%2 AS vf%3%2").arg(prefix, fld->dbFieldName(), QString::number(level));
         }
     }
     return list;

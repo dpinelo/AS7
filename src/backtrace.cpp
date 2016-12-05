@@ -37,7 +37,7 @@ void createLogFileAndInitCrashVars(int signal = SIGABRT)
         qDebug() << "Fichero abierto.";
         lin = QString("** alephERP crashed after receive signal: %1 **\n\nDate/Time: %2\n")
             .arg(signal)
-            .arg(QDateTime::currentDateTime().toString(QString("yyyy-MM-dd hh:mm:ss")));
+            .arg(QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss"));
 
         lin += QString("Compilation Qt version: %1\nRunning Qt version: %2\n\n")
                  .arg(QT_VERSION_STR)

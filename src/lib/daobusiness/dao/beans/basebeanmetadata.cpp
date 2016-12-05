@@ -4400,7 +4400,9 @@ QString BaseBeanMetadata::sqlAlterColumnSetLength(AlephERP::CreationTableSqlOpti
     if ( f->type() == QVariant::String && f->length() > 0 )
     {
         sql = QString("ALTER TABLE %1 ALTER COLUMN %2 TYPE character varying(%3)").
-                arg(sqlTableName(dialect), dbFieldName, QString(f->length()));
+                arg(sqlTableName(dialect),
+                    dbFieldName,
+                    QString::number(f->length()));
     }
     return sql;
 }

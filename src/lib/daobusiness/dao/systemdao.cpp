@@ -958,7 +958,10 @@ bool SystemDAO::insertSystemObject(AERPSystemObject *systemObject, const QString
     qry->bindValue(":device", systemObject->deviceTypes().join(","));
     result = qry->exec();
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO::insertSystemObject: [%1]. INSERTANDO OBJETO EN BASE DE DATOS: [%2]. OBJETO: [%3]. VERSION: [%4]").
-                        arg(qry->lastQuery(), connectionName, systemObject->name(), QString(systemObject->version())));
+                        arg(qry->lastQuery(),
+                            connectionName,
+                            systemObject->name(),
+                            QString::number(systemObject->version())));
     if ( !result )
     {
         SystemDAO::writeDbMessages(qry.data());

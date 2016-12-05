@@ -1681,7 +1681,10 @@ QString DBField::sqlWhere(const QString &op, const QString &dialect)
 
     if ( d->m->type() == QVariant::Double )
     {
-        result = QString ("round(%1::numeric, %2) %3 %4").arg(sqlFieldName, QString(DB_DOUBLE_PRECISION), op, sqlValue(true, dialect));
+        result = QString ("round(%1::numeric, %2) %3 %4").arg(sqlFieldName,
+                                                              QString::number(DB_DOUBLE_PRECISION),
+                                                              op,
+                                                              sqlValue(true, dialect));
     }
     else
     {
@@ -2025,7 +2028,9 @@ QVariant DBFieldPrivate::calculateAggregateValue()
     q_ptr->restoreOverrideOnExecution();
     qint64 elapsed = timer.elapsed();
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBFieldPrivate::calculateAggregateValue: fieldName: %1.%2. Calculate Aggregate: [%3] ms").
-               arg(m_bean->metadata()->tableName(), m->dbFieldName(), QString::number(elapsed)));
+               arg(m_bean->metadata()->tableName(),
+                   m->dbFieldName(),
+                   QString::number(elapsed)));
     if ( elapsed > AlephERP::warningCalculatedTime )
     {
         QLogger::QLog_Info(AlephERP::stLogScript, "DBFieldPrivate::calculateAggregateValue: Ha tomado mucho tiempo!!!");
@@ -2301,7 +2306,9 @@ QVariant DBField::calculateCounter(const QString &connection, bool searchOnTrans
     restoreOverrideOnExecution();
     qint64 elapsed = timer.elapsed();
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBField::calculateCounter: fieldName: %1.%2. Calculate Aggregate: [%3] ms").
-               arg(d->m_bean->metadata()->tableName(), d->m->dbFieldName(), QString::number(elapsed)));
+               arg(d->m_bean->metadata()->tableName(),
+                   d->m->dbFieldName(),
+                   QString::number(elapsed)));
     if ( elapsed > AlephERP::warningCalculatedTime )
     {
         QLogger::QLog_Info(AlephERP::stLogScript, "DBField::calculateCounter: Ha tomado mucho tiempo!!!");

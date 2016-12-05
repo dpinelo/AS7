@@ -1710,7 +1710,10 @@ QVariant DBFieldMetadata::calculateValue(DBField *fld)
     fld->restoreOverrideOnExecution();
     qint64 elapsed = timer.elapsed();
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBFieldMetadata::calculateValue: fieldName: %1.%2. Calculate Value: [%3] Time: [%4] ms").
-               arg(fld->bean()->metadata()->tableName(), d->m_dbFieldName, data.toString(), QString::number(elapsed)));
+               arg(fld->bean()->metadata()->tableName(),
+                   d->m_dbFieldName,
+                   data.toString(),
+                   QString::number(elapsed)));
     if ( elapsed > AlephERP::warningCalculatedTime )
     {
         QLogger::QLog_Info(AlephERP::stLogScript, "DBFieldMetadata::calculateValue: Ha tomado mucho tiempo!!!");
