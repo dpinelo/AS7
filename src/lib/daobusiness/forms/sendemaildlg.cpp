@@ -177,7 +177,7 @@ SendEmailDlg::SendEmailDlg(BaseBeanPointer bean, QWidget* parent, Qt::WindowFlag
     QString from;
     if ( !AERPLoggedUser::instance()->userName().isEmpty() && !AERPLoggedUser::instance()->email().isEmpty() )
     {
-        from = QString("%1 <%2>").arg(AERPLoggedUser::instance()->name()).arg(AERPLoggedUser::instance()->email());
+        from = QString("%1 <%2>").arg(AERPLoggedUser::instance()->name(), AERPLoggedUser::instance()->email());
     }
     else if ( !AERPLoggedUser::instance()->email().isEmpty() )
     {
@@ -681,9 +681,7 @@ void SendEmailDlgPrivate::initCompleter ()
         // En el momento en el que el primer elemento de la lista ordenada sera por ejemplo, "ALM" y el último sea ""
         // el completer no es capaz de detectar la ordenación y no genera completado.
         QString sql = QString("SELECT * FROM (SELECT DISTINCT %1 || ' <' || %2 || '>' as column1 FROM %3 WHERE %2 <> '') AS FOO WHERE column1 <> '' ORDER BY column1 ASC").
-                      arg(m_contactModelDisplayField).
-                      arg(m_contactModelEmailField).
-                      arg(m->sqlTableName());
+                      arg(m_contactModelDisplayField, m_contactModelEmailField, m->sqlTableName());
         qDebug() << "SendEmailDlgPrivate::initCompleter: " << sql;
         m_completerModel->setQuery(sql);
 

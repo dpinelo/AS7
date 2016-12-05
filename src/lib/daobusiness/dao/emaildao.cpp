@@ -380,8 +380,8 @@ void EmailDAO::writeDbMessages(QSqlQuery *qry)
         }
         else
         {
-            m_lastErrorMessage = QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
-                                 arg(qry->lastError().databaseText());
+            m_lastErrorMessage = QString("Driver Error: %1\nDatabase Error: %2").
+                    arg(qry->lastError().driverText(), qry->lastError().databaseText());
         }
     }
     QLogger::QLog_Error(AlephERP::stLogOther, QString("EmailDAO: writeDbMessages: BBDD LastQuery: [%1]").arg(qry->lastQuery()));

@@ -212,7 +212,8 @@ void JSSystemScripts::run()
     }
     else
     {
-        QString error = QString("ERROR: %1.\nBacktrace: %2").arg(d->m_engine->lastMessage()).arg(d->m_engine->backTrace().join("\n"));
+        QString error = QString("ERROR: %1.\nBacktrace: %2").
+                arg(d->m_engine->lastMessage(), d->m_engine->backTrace().join("\n"));
         ui->textEdit->append(error);
     }
 }

@@ -180,7 +180,10 @@ BeanTreeItemPointer TreeBaseBeanModelPrivate::itemById(qlonglong id, const QStri
     QList<BeanTreeItemPointer> list;
     if ( tableName.isEmpty() )
     {
-        list =  m_itemsPerTable.values();
+        for (QList<BeanTreeItemPointer> itemList : m_itemsPerTable.values())
+        {
+            list.append(itemList);
+        }
     }
     else
     {

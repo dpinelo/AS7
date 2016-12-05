@@ -147,7 +147,7 @@ void Database::subscribeToDbNotifications(const QStringList &notifications, cons
         {
             if ( !db.driver()->subscribeToNotification(notification) )
             {
-                QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("Database:subscribeToDbNotifications: No pudo establecerse la suscripcion a la notificacion [%1] en la conexión [%2]").arg(notification).arg(connectionName));
+                QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("Database:subscribeToDbNotifications: No pudo establecerse la suscripcion a la notificacion [%1] en la conexión [%2]").arg(notification, connectionName));
             }
         }
     }

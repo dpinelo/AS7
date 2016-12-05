@@ -874,7 +874,7 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
         }
         if ( !systemObject->name().isEmpty() && (moduleId.isEmpty() || moduleId == systemObject->module()->id()) )
         {
-            QString path = QString("%1/%2").arg(initialPath).arg(systemObject->module()->id());
+            QString path = QString("%1/%2").arg(initialPath, systemObject->module()->id());
             QDir destinyPath(path);
             if ( !destinyPath.exists() )
             {
@@ -971,7 +971,7 @@ bool ModulesDAO::exportModules(const QDir &directory, const QString &moduleId)
         AERPSystemModule *module = BeansFactory::instance()->module(it.key());
         if ( module != NULL )
         {
-            QString path = QString("%1/%2").arg(initialPath).arg(it.key());
+            QString path = QString("%1/%2").arg(initialPath, it.key());
             QString fileName = QString ("%1/moduleMetadata.xml").arg(path);
             QFile file;
             file.setFileName(fileName);

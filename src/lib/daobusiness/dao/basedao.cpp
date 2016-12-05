@@ -148,8 +148,8 @@ bool BaseDAO::transaction(const QString &connection)
             }
             else
             {
-                m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").arg(db.lastError().driverText()).
-                                                 arg(db.lastError().databaseText()));
+                m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").
+                                                 arg(db.lastError().driverText(), db.lastError().databaseText()));
             }
             return false;
         }
@@ -187,8 +187,8 @@ bool BaseDAO::rollback(const QString &connection)
         }
         else
         {
-            m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").arg(db.lastError().driverText()).
-                                             arg(db.lastError().databaseText()));
+            m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").
+                                             arg(db.lastError().driverText(), db.lastError().databaseText()));
         }
         QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::rollback: ERROR: [%1]").arg(m_threadLastMessage.localData()));
         return false;
@@ -229,8 +229,8 @@ bool BaseDAO::commit(const QString &connection)
             }
             else
             {
-                m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").arg(db.lastError().driverText()).
-                                                 arg(db.lastError().databaseText()));
+                m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").
+                                                 arg(db.lastError().driverText(), db.lastError().databaseText()));
             }
         }
         QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::commit: ERROR: [%1]").arg(m_threadLastMessage.localData()));
@@ -395,7 +395,7 @@ void BaseDAO::appendToCachedBeans(const QString &tableName, const QString &sql, 
         content = m_cachedBeans.localData().value(tableName);
     }
     BaseBeanSharedPointer tmpBean = bean->clone();
-    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::appendToCachedBeans: Cacheando beans de [%1]  por la consulta: [%2]").arg(tableName).arg(sql));
+    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::appendToCachedBeans: Cacheando beans de [%1]  por la consulta: [%2]").arg(tableName, sql));
     // Clone no hace la copia de campos memos que no se hayan obtenido. Pero para cachear nos interesa
     // guardarlos, por lo que forzamos aquí su valor
     QList<DBField *> list = tmpBean->fields();
@@ -675,7 +675,7 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
         {
             sqlFields = QString("%1, ").arg(sqlFields);
         }
-        sqlFields = QString("%1%2").arg(sqlFields).arg(fld->dbFieldName());
+        sqlFields = QString("%1%2").arg(sqlFields, fld->dbFieldName());
     }
     QList<DBField *> pkFields = firstBean->pkFields();
     for ( DBField *fld : pkFields )
@@ -684,7 +684,7 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
         {
             sqlFields = QString("%1, ").arg(sqlFields);
         }
-        sqlFields = QString("%1%2").arg(sqlFields).arg(fld->metadata()->dbFieldName());
+        sqlFields = QString("%1%2").arg(sqlFields, fld->metadata()->dbFieldName());
     }
     for ( BaseBeanSharedPointer bean : list )
     {
@@ -697,16 +697,16 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
             {
                 temp = QString("%1 AND ").arg(temp);
             }
-            temp = QString("%1%2").arg(temp).arg(fld->sqlWhere("="));
+            temp = QString("%1%2").arg(temp, fld->sqlWhere("="));
         }
         temp = QString("%1)").arg(temp);
         if ( !sqlWhere.isEmpty() )
         {
             sqlWhere = QString("%1 OR ").arg(sqlWhere);
         }
-        sqlWhere = QString("%1%2").arg(sqlWhere).arg(temp);
+        sqlWhere = QString("%1%2").arg(sqlWhere, temp);
     }
-    sql = QString("SELECT %1 FROM %2 WHERE %3").arg(sqlFields).arg(firstBean->metadata()->sqlTableName()).arg(sqlWhere);
+    sql = QString("SELECT %1 FROM %2 WHERE %3").arg(sqlFields, firstBean->metadata()->sqlTableName(), sqlWhere);
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
     bool result = qry->prepare(sql);
@@ -806,7 +806,7 @@ bool BaseDAO::loadUserEnvVars(const QString &connection)
     }
     if ( !idRoles.isEmpty() )
     {
-        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_GROUP).arg(alephERPSettings->systemTablePrefix()).arg(idRoles);
+        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_GROUP).arg(alephERPSettings->systemTablePrefix(), idRoles);
         result = qry->prepare(sql);
         if ( result )
         {
@@ -829,13 +829,13 @@ bool BaseDAO::loadUserEnvVars(const QString &connection)
     // Ahora obtenemos las de usuario
     if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == QStringLiteral("true") )
     {
-        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_CI).arg(alephERPSettings->systemTablePrefix()).
-              arg(AERPLoggedUser::instance()->userName());
+        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_CI).
+                arg(alephERPSettings->systemTablePrefix(), AERPLoggedUser::instance()->userName());
     }
     else
     {
-        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER).arg(alephERPSettings->systemTablePrefix()).
-              arg(AERPLoggedUser::instance()->userName());
+        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER).
+                arg(alephERPSettings->systemTablePrefix(), AERPLoggedUser::instance()->userName());
     }
     result = qry->prepare(sql);
     if (result)
@@ -878,7 +878,7 @@ QVariant BaseDAO::loadUserEnvVar(const QString &userName, const QString &envVar,
     }
     if ( !idRoles.isEmpty() )
     {
-        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_GROUP_AND_VAR).arg(alephERPSettings->systemTablePrefix()).arg(idRoles).arg(envVar);
+        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_GROUP_AND_VAR).arg(alephERPSettings->systemTablePrefix(), idRoles, envVar);
         result = qry->prepare(sql);
         if ( result )
         {
@@ -893,13 +893,13 @@ QVariant BaseDAO::loadUserEnvVar(const QString &userName, const QString &envVar,
     // Ahora obtenemos las de usuario
     if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == QStringLiteral("true") )
     {
-        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_CI_AND_VAR).arg(alephERPSettings->systemTablePrefix()).
-              arg(userName).arg(envVar);
+        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_CI_AND_VAR).
+                arg(alephERPSettings->systemTablePrefix(), userName, envVar);
     }
     else
     {
-        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_AND_VAR).arg(alephERPSettings->systemTablePrefix()).
-              arg(userName).arg(envVar);
+        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_AND_VAR).
+                arg(alephERPSettings->systemTablePrefix(), userName, envVar);
     }
     result = qry->prepare(sql);
     if (result)
@@ -1125,18 +1125,18 @@ int BaseDAO::selectTableRecordCount(const QString &tableName, const QString &whe
         {
             QString sqlWhere;
             sql = QString("SELECT count(*) as column1 FROM %1 AS t1 LEFT JOIN %2_user_row_access AS t2 ON t1.oid = t2.recordoid WHERE ").
-                  arg(metadata->sqlTableName(connection)).arg(alephERPSettings->systemTablePrefix());
+                  arg(metadata->sqlTableName(connection), alephERPSettings->systemTablePrefix());
             if ( !where.isEmpty() )
             {
                 sqlWhere = QString("%1 AND ").arg(BaseDAO::proccessSqlToAddAlias(where, metadata, "t1"));
             }
-            sql = QString("%1 %2 %3").arg(sql).arg(sqlWhere).arg(BaseDAO::filterRowWhere(metadata, "t2"));
+            sql = QString("%1 %2 %3").arg(sql, sqlWhere, BaseDAO::filterRowWhere(metadata, "t2"));
         }
         else
         {
             if ( !where.isEmpty() )
             {
-                sql = QString("SELECT count(*) as column1 FROM %1 WHERE %2").arg(metadata->sqlTableName(connection)).arg(where);
+                sql = QString("SELECT count(*) as column1 FROM %1 WHERE %2").arg(metadata->sqlTableName(connection), where);
             }
             else
             {
