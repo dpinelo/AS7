@@ -31,14 +31,14 @@
 
 QString UserDAO::m_lastMessage;
 
-#define SQL_SELECT_USER "SELECT username, hash FROM %1_users WHERE username=:username"
-#define SQL_SELECT_USER_ROLES "SELECT t2.id, t2.nombre, t2.superadmin, t2.dbamode FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND username=:username"
+#define SQL_SELECT_USER "SELECT username, hash, write_history FROM %1_users WHERE username=:username"
+#define SQL_SELECT_USER_ROLES "SELECT t2.id, t2.nombre, t2.superadmin, t2.dbamode, t2.write_history FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND username=:username"
 #define SQL_SELECT_PERMISSIONS_BY_USER "SELECT tablename, permissions FROM %1_permissions WHERE username=:username"
 #define SQL_SELECT_PERMISSIONS_BY_ROL "SELECT tablename, permissions FROM %1_permissions WHERE id_rol=:id_rol"
 #define SQL_CHANGE_PASSWORD "UPDATE %1_users SET hash=:hash WHERE username=:username"
 
-#define SQL_SELECT_USER_CI "SELECT username, hash FROM %1_users WHERE upper(username)=upper(:username)"
-#define SQL_SELECT_USER_ROLES_CI "SELECT t2.id, t2.nombre, t2.superadmin, t2.dbamode FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND upper(username)=upper(:username)"
+#define SQL_SELECT_USER_CI "SELECT username, hash, write_history FROM %1_users WHERE upper(username)=upper(:username)"
+#define SQL_SELECT_USER_ROLES_CI "SELECT t2.id, t2.nombre, t2.superadmin, t2.dbamode, t2.write_history FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND upper(username)=upper(:username)"
 #define SQL_SELECT_PERMISSIONS_BY_USER_CI "SELECT tablename, permissions FROM %1_permissions WHERE upper(username)=upper(:username)"
 #define SQL_CHANGE_PASSWORD_CI "UPDATE %1_users SET hash=:hash WHERE upper(username)=upper(:username)"
 
@@ -246,6 +246,27 @@ bool UserDAO::changePassword (QString &userName, const QString &oldPassword, con
     return result;
 }
 
+bool UserDAO::userWriteHistory(const QString &userName)
+{
+    QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase()));
+    qry->prepare(QString("SELECT write_history FROM %1_users WHERE lower(username)=lower(:username)").arg(alephERPSettings->systemTablePrefix()));
+    qry->bindValue(":username", userName, QSql::In);
+
+    if ( qry->exec() )
+    {
+        QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("UserDAO::userWriteHistory: [%1]").arg(qry->lastQuery()));
+        if ( qry->first() )
+        {
+            return qry->value("write_history").toBool();
+        }
+    }
+    else
+    {
+        writeDbMessages(qry.data());
+    }
+    return true;
+}
+
 /**
  * @brief UserDAO::roles
  * Devuelve los roles asignados a un usuario
@@ -284,6 +305,7 @@ QList<AlephERP::RoleInfo> UserDAO::userRoles(const QString &userName)
             role.roleName = qry->value(1).toString();
             role.superAdmin = qry->value(2).toBool();
             role.dbaMode = qry->value(3).toBool();
+            role.writeHistory = qry->value(4).toBool();
             result.append(role);
         }
     }
@@ -379,6 +401,7 @@ QList<AlephERP::User> UserDAO::users()
                     AlephERP::Role rol;
                     rol.idRole = qry->record().value("id").toInt();
                     rol.roleName = qry->record().value("nombre").toString();
+                    rol.writeHistory = qry->record().value("write_history").toBool();
                     users[i].roles.append(rol);
                     previousUser = true;
                 }
@@ -390,6 +413,7 @@ QList<AlephERP::User> UserDAO::users()
                 AlephERP::Role rol;
                 rol.idRole = qry->record().value("id").toInt();
                 rol.roleName = qry->record().value("nombre").toString();
+                rol.writeHistory = qry->record().value("write_history").toBool();
                 user.roles.append(rol);
                 users.append(user);
             }
@@ -424,6 +448,7 @@ QList<AlephERP::Role> UserDAO::roles()
                 {
                     AlephERP::User user;
                     user.userName = qry->record().value("username").toString();
+                    user.writeHistory = qry->record().value("write_history").toBool();
                     roles[i].users.append(user);
                     previousRole = true;
                 }
@@ -433,8 +458,10 @@ QList<AlephERP::Role> UserDAO::roles()
                 AlephERP::Role role;
                 role.idRole = qry->record().value("id").toInt();
                 role.roleName = qry->record().value("nombre").toString();
+                role.writeHistory = qry->record().value("write_history").toBool();
                 AlephERP::User user;
                 user.userName = qry->record().value("username").toString();
+                user.writeHistory = qry->record().value("write_history").toBool();
                 role.users.append(user);
                 roles.append(role);
             }

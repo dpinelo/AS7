@@ -138,8 +138,6 @@ private:
 
     int m_reportsToShowCombobox;
 
-    bool m_userWritesHistory;
-
     QMap<QString, QVariant> m_scheduleMode;
     QMap<QString, QVariant> m_scheduleAdjustRow;
 
@@ -204,8 +202,6 @@ public:
     void setHttpTimeout(int value);
     bool allowSystemTray() const;
     void setAllowSystemTray(bool value);
-
-    bool userWritesHistory() const;
 
     int lastServer();
     void setLastServer(int id);

@@ -83,7 +83,7 @@ QString HistoryDAO::createData(BaseBean *bean)
 
 bool HistoryDAO::insertEntry(BaseBean *bean, const QString &idTransaction)
 {
-    if ( !alephERPSettings->userWritesHistory() ) {
+    if ( !AERPLoggedUser::instance()->userWritesHistory() ) {
         return true;
     }
 
@@ -117,7 +117,7 @@ bool HistoryDAO::insertEntry(BaseBean *bean, const QString &idTransaction)
 
 bool HistoryDAO::updateEntry(BaseBean *bean, const QString &idTransaction)
 {
-    if ( !alephERPSettings->userWritesHistory() ) {
+    if ( !AERPLoggedUser::instance()->userWritesHistory() ) {
         return true;
     }
 
@@ -151,7 +151,7 @@ bool HistoryDAO::updateEntry(BaseBean *bean, const QString &idTransaction)
 
 bool HistoryDAO::removeEntry(BaseBean *bean, const QString &idTransaction)
 {
-    if ( !alephERPSettings->userWritesHistory() ) {
+    if ( !AERPLoggedUser::instance()->userWritesHistory() ) {
         return true;
     }
 
@@ -234,7 +234,7 @@ QHash<QString, QVariant> HistoryDAO::lastEntry(BaseBean *bean, const QString &co
  */
 bool HistoryDAO::insertEntry(BaseBeanPointerList beans, const QString &idTransaction)
 {
-    if ( !alephERPSettings->userWritesHistory() ) {
+    if ( !AERPLoggedUser::instance()->userWritesHistory() ) {
         return true;
     }
 

@@ -409,6 +409,7 @@ public:
     {
         QString userName;
         QList<Role> roles;
+        bool writeHistory;
     };
 
     struct Role
@@ -417,6 +418,7 @@ public:
         QString roleName;
         bool superAdmin;
         bool dbaMode;
+        bool writeHistory;
         QList<User> users;
     };
 
@@ -426,6 +428,7 @@ public:
         QString roleName;
         bool superAdmin;
         bool dbaMode;
+        bool writeHistory;
     };
 
     struct HistoryItem

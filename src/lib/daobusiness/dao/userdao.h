@@ -54,6 +54,7 @@ public:
     static QList<AlephERP::RoleInfo> userRoles(const QString &userName);
     static QHash<QString, QVariant> metadataAccess(const QString &userName, const QList<AlephERP::RoleInfo> &roles);
     static bool changePassword (QString &userName, const QString &oldPassword, const QString &newPassword);
+    static bool userWriteHistory(const QString &userName);
 
     static bool setMetadataAccess(const QString &userName, const QString &tableName, const QString &metadataAccess);
     static bool createUser(const QString &userName, const QString &password);

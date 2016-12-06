@@ -2427,7 +2427,8 @@ void BaseDAO::writeDbMessages(QSqlQuery *qry)
 {
     if ( qry->lastError().databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
     {
-        m_threadLastMessage.setLocalData(qry->lastError().driverText());
+        QString error = qry->lastError().databaseText().replace(AlephERP::stDatabaseErrorPrefix, "");
+        m_threadLastMessage.setLocalData(error);
     }
     else
     {

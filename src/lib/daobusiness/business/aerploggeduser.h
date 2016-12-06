@@ -61,6 +61,7 @@ public:
     bool hasAnyRole(const QStringList &roles) const;
     bool isSuperAdmin() const;
     bool dbaMode() const;
+    bool userWritesHistory() const;
     bool checkMetadataAccess(QChar access, const QString &tableName);
 
     bool loadMetadataAccess();

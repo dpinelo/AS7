@@ -198,7 +198,7 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="13">
+      <item row="1" column="14">
        <widget class="QPushButton" name="pbRefresh">
         <property name="toolTip">
          <string>Refresca los datos del modelo actual...</string>
@@ -218,7 +218,7 @@
       <item row="1" column="0">
        <layout class="QHBoxLayout" name="hlBranchTree"/>
       </item>
-      <item row="1" column="14">
+      <item row="1" column="15">
        <widget class="QPushButton" name="pbSort">
         <property name="toolTip">
          <string>Ordenar por varios campos</string>
@@ -283,6 +283,17 @@ p, li { white-space: pre-wrap; }
         </property>
        </widget>
       </item>
+      <item row="1" column="13">
+       <widget class="QPushButton" name="pbSave">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="icon">
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/save.png</normaloff>:/generales/images/save.png</iconset>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -309,8 +320,8 @@ p, li { white-space: pre-wrap; }
  </tabstops>
  <resources>
   <include location="../resources/resources.qrc"/>
-  <include location="../resources/resources.qrc"/>
   <include location="../../../plugins/openrptplugin/openrpt/OpenRPT/images/OpenRPTWrtembed.qrc"/>
+  <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>

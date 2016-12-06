@@ -36,10 +36,11 @@ public:
     QList<AlephERP::RoleInfo> m_roles;
     QHash<QString, QVariant> m_metadataAccess;
     QString m_lastError;
+    bool m_writeHistory;
 
     AERPLoggedUserPrivate()
     {
-
+        m_writeHistory = true;
     }
 };
 
@@ -215,6 +216,11 @@ bool AERPLoggedUser::dbaMode() const
     return false;
 }
 
+bool AERPLoggedUser::userWritesHistory() const
+{
+    return d->m_writeHistory;
+}
+
 bool AERPLoggedUser::checkMetadataAccess(QChar access, const QString &tableName)
 {
     QMutexLocker lock(&mutex);
@@ -252,6 +258,7 @@ bool AERPLoggedUser::loadRoles()
 {
     QMutexLocker lock(&mutex);
     d->m_roles = UserDAO::userRoles(d->m_userName);
+    d->m_writeHistory = UserDAO::userWriteHistory(d->m_userName);
     if ( !UserDAO::lastErrorMessage().isEmpty() )
     {
         d->m_lastError = QObject::tr("Ha ocurrido un error en la conexión a la base de datos. No han podido cargarse los roles: \r\nERROR: %1.").arg(UserDAO::lastErrorMessage());

@@ -88,8 +88,6 @@
 
 #define KEY_PRESS_HUMAN_INTERVAL        "generales/keyPressHumanInterval"
 
-#define KEY_USER_WRITES_HISTORY         "generales/userWritesHistory"
-
 #define KEY_REPORTS_TO_SHOW_COMBOBOX    "generales/reportsToShowCombobox"
 
 #define FONT_SIZE_REFERENCE_REPORTS_POR_DEFECTO    10
@@ -153,7 +151,6 @@ AlephERPSettings::AlephERPSettings(QObject *parent) :
     m_modelsRefresh = true;
     m_reportsToShowCombobox = 8;
     m_lookAndFeelDark = false;
-    m_userWritesHistory = true;
     m_logLevel = QLogger::InfoLevel;
 #ifdef ALEPHERP_LOCALMODE
     m_secondsLoadBackground = 60 * 60;
@@ -311,8 +308,6 @@ void AlephERPSettings::init (void)
     m_logLevel = static_cast<QLogger::LogLevel>(m_settings->value(KEY_LOG_LEVEL, static_cast<int>(QLogger::InfoLevel)).toInt());
     m_allowSystemTray = m_settings->value(KEY_ALLOW_SYSTEM_TRAY, false).toBool();
     m_reportsToShowCombobox = m_settings->value(KEY_REPORTS_TO_SHOW_COMBOBOX, 8).toInt();
-
-    m_userWritesHistory = m_settings->value(KEY_USER_WRITES_HISTORY, true).toBool();
 
     m_humanKeyPressIntervalMsecs = m_settings->value(KEY_PRESS_HUMAN_INTERVAL, 100).toInt();
 
@@ -1104,11 +1099,6 @@ void AlephERPSettings::setAllowSystemTray(bool value)
 {
     QMutexLocker lock(&mutex);
     m_allowSystemTray = value;
-}
-
-bool AlephERPSettings::userWritesHistory() const
-{
-    return m_userWritesHistory;
 }
 
 int AlephERPSettings::lastServer()
