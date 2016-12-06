@@ -275,8 +275,8 @@ p, li { white-space: pre-wrap; }
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="../../../plugins/openrptplugin/openrpt/OpenRPT/images/OpenRPTWrtembed.qrc">
-          <normaloff>:/OpenRPT/icons/icons_24x24/crosstab_24x24.png</normaloff>:/OpenRPT/icons/icons_24x24/crosstab_24x24.png</iconset>
+         <iconset resource="../resources/resources.qrc">
+          <normaloff>:/generales/images/edit_edit.png</normaloff>:/generales/images/edit_edit.png</iconset>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -320,7 +320,6 @@ p, li { white-space: pre-wrap; }
  </tabstops>
  <resources>
   <include location="../resources/resources.qrc"/>
-  <include location="../../../plugins/openrptplugin/openrpt/OpenRPT/images/OpenRPTWrtembed.qrc"/>
   <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>

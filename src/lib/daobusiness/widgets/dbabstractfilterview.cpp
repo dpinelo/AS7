@@ -65,7 +65,8 @@ DBAbstractFilterView::DBAbstractFilterView(QWidget *parent) :
     connect (ui->leFastFilter, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
     connect (ui->leFastFilter1, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
     connect (ui->leFastFilter2, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
-    connect (ui->pbInlineEdit, SIGNAL(clicked(bool)), this, SIGNAL(inlineEdit(bool)));
+    connect (ui->pbInlineEdit, SIGNAL(clicked(bool)), this, SLOT(inlineEdit(bool)));
+    connect (ui->pbSave, SIGNAL(clicked(bool)), this, SLOT(saveInlineEdit()));
 
     ui->leFastFilter->installEventFilter(this);
 }
@@ -367,11 +368,17 @@ void DBAbstractFilterView::inlineEdit(bool enabled)
     if ( enabled )
     {
         tv->setSelectionBehavior(QAbstractItemView::SelectItems);
+        tv->setEditTriggers(QAbstractItemView::AllEditTriggers);
     }
     else
     {
         tv->setSelectionBehavior(QAbstractItemView::SelectRows);
     }
+}
+
+void DBAbstractFilterView::saveInlineEdit()
+{
+
 }
 
 /*!
@@ -902,6 +909,7 @@ void DBAbstractFilterView::init(bool initStrongFilter)
     d->m_itemView->setDragDropMode(QAbstractItemView::DragOnly);
     d->m_itemView->setDragEnabled(true);
     ui->pbInlineEdit->setVisible(d->m_metadata->editOnDbForm());
+    ui->pbSave->setVisible(d->m_metadata->editOnDbForm() && ui->pbInlineEdit->isChecked());
 
     d->addFieldsCombo();
 
