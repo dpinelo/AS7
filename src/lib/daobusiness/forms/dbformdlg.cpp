@@ -1004,6 +1004,11 @@ void DBFormDlg::edit()
 
 void DBFormDlg::editCalledFromTableView()
 {
+    // ¡¡OJO!! Si estamos en edición online, no abrimos nada
+    if ( d->m_itemView->isInlineEditMode() )
+    {
+        return;
+    }
     // Si se invoca desde el table view, debemos distinguir si hacemos edit o abrimos en modo visualización
     if ( ui->pbEdit->isVisible() )
     {

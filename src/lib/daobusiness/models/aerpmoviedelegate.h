@@ -20,14 +20,14 @@
 #ifndef AERPMOVIEDELEGATE_H
 #define AERPMOVIEDELEGATE_H
 
-#include "aerpitemdelegate.h"
+#include "aerpinlineedititemdelegate.h"
 #include <QtCore>
 
 /**
  * @brief The AERPMovieDelegate class
  * Permite mostrar películas (o GIFs animados) en un QAbstractItemView.
  */
-class AERPMovieDelegate : public AERPItemDelegate
+class AERPMovieDelegate : public AERPInlineEditItemDelegate
 {
     Q_OBJECT
 

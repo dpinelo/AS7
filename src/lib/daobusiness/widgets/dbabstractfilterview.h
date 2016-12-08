@@ -86,6 +86,7 @@ public:
     virtual DBAbstractViewInterface *itemViewIface();
 
     virtual bool isFrozenModel() const;
+    virtual bool isInlineEditMode() const;
 
     Q_INVOKABLE BaseBeanPointer selectedBean();
     Q_INVOKABLE void setSelectedBean(const BaseBeanSharedPointer &bean);
@@ -127,7 +128,7 @@ public slots:
     virtual void disableRestoreSaveState();
     virtual bool isRestoreSaveStateEnabled();
     virtual void reSort();
-    virtual void inlineEdit(bool enabled);
+    virtual void setInlineEdit(bool enabled);
     virtual void saveInlineEdit();
 
 signals:

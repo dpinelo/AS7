@@ -65,7 +65,7 @@ DBAbstractFilterView::DBAbstractFilterView(QWidget *parent) :
     connect (ui->leFastFilter, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
     connect (ui->leFastFilter1, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
     connect (ui->leFastFilter2, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
-    connect (ui->pbInlineEdit, SIGNAL(clicked(bool)), this, SLOT(inlineEdit(bool)));
+    connect (ui->pbInlineEdit, SIGNAL(clicked(bool)), this, SLOT(setInlineEdit(bool)));
     connect (ui->pbSave, SIGNAL(clicked(bool)), this, SLOT(saveInlineEdit()));
 
     ui->leFastFilter->installEventFilter(this);
@@ -358,17 +358,24 @@ void DBAbstractFilterView::reSort()
     }
 }
 
-void DBAbstractFilterView::inlineEdit(bool enabled)
+void DBAbstractFilterView::setInlineEdit(bool enabled)
 {
     QTableView *tv = qobject_cast<QTableView *>(d->m_itemView);
-    if ( tv == NULL )
+    if ( tv == NULL || d->m_model.isNull() )
     {
         return;
     }
+    ui->pbSave->setVisible(enabled);
     if ( enabled )
     {
+        d->m_model->freezeModel();
         tv->setSelectionBehavior(QAbstractItemView::SelectItems);
         tv->setEditTriggers(QAbstractItemView::AllEditTriggers);
+        QToolTip::showText(ui->pbInlineEdit->parentWidget()->mapToGlobal(ui->pbInlineEdit->pos()),
+                           ui->pbInlineEdit->toolTip(),
+                           ui->pbInlineEdit,
+                           QRect(),
+                           10 * 1000);
     }
     else
     {
@@ -378,7 +385,17 @@ void DBAbstractFilterView::inlineEdit(bool enabled)
 
 void DBAbstractFilterView::saveInlineEdit()
 {
-
+    if ( !isInlineEditMode() )
+    {
+        return;
+    }
+    if ( !d->m_model->commit() )
+    {
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             tr("Ha ocurrido un error al intentar consolidar los datos.\nError: %1").arg(d->m_model->lastErrorMessage()),
+                             QMessageBox::Ok);
+    }
 }
 
 /*!
@@ -908,8 +925,25 @@ void DBAbstractFilterView::init(bool initStrongFilter)
     d->m_itemView->setModel(d->m_modelFilter);
     d->m_itemView->setDragDropMode(QAbstractItemView::DragOnly);
     d->m_itemView->setDragEnabled(true);
+
     ui->pbInlineEdit->setVisible(d->m_metadata->editOnDbForm());
     ui->pbSave->setVisible(d->m_metadata->editOnDbForm() && ui->pbInlineEdit->isChecked());
+    QStringList fields;
+    QList<DBFieldMetadata *> fieldsMetadata = d->m_metadata->fields();
+    for (DBFieldMetadata *fld : fieldsMetadata)
+    {
+        if ( fld->editOnDbForm() )
+        {
+            fields << fld->fieldName();
+        }
+    }
+    QString toolTip = tr("Desde este momento podrá modificar directamente en la tabla un conjunto de\n "
+                         "columnas haciendo click directamente en la celda y editando en la misma celda\n. "
+                         "Deberá pulsar el botón de guardar para consolidar los cambios a base de datos, o bien\n "
+                         "si desea cancelar, haga click en este mismo botón para cancelar los cambios. \n"
+                         "Las columnas que podrá modificar son: %1").arg(fields.join(", "));
+    ui->pbInlineEdit->setToolTip(toolTip);
+    ui->pbInlineEdit->setWhatsThis(toolTip);
 
     d->addFieldsCombo();
 
@@ -1113,6 +1147,10 @@ void DBAbstractFilterView::freezeModel()
  */
 void DBAbstractFilterView::defrostModel()
 {
+    if ( isInlineEditMode() )
+    {
+        return;
+    }
     if ( d->m_model != NULL )
     {
         if ( d->m_model->isFrozenModel() )
@@ -1121,17 +1159,6 @@ void DBAbstractFilterView::defrostModel()
         }
         d->m_model->refresh();
     }
-    /*
-     * Este código tiene efectos fatales en la estabilidad del programa con modelos en árbol.
-     * Aparte, no tendría que se necesario: En caso de un refresco, el modelo emite dataChanged, y
-     * el filtro debería invalidarse solo
-     * */
-    /*
-    if ( d->m_modelFilter && alephERPSettings->modelsRefresh() )
-    {
-        d->m_modelFilter->invalidate();
-    }
-    */
 }
 
 void DBAbstractFilterView::resizeRowsToContents()
@@ -1205,6 +1232,11 @@ bool DBAbstractFilterView::isFrozenModel() const
         return d->m_model->isFrozenModel();
     }
     return false;
+}
+
+bool DBAbstractFilterView::isInlineEditMode() const
+{
+    return ui->pbInlineEdit->isVisible() && ui->pbInlineEdit->isChecked();
 }
 
 bool DBAbstractFilterView::eventFilter(QObject *sender, QEvent *event)

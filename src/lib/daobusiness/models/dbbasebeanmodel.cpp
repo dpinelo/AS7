@@ -1126,7 +1126,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
     return BaseBeanModel::data(item, role);
 }
 
-bool DBBaseBeanModel::setData(const QModelIndex &index, const QVariant & value, int role)
+bool DBBaseBeanModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if ( !index.isValid() || d->m_metadata == NULL || isLoadingData() )
     {
@@ -1171,6 +1171,14 @@ bool DBBaseBeanModel::setData(const QModelIndex &index, const QVariant & value, 
             {
                 fld->setValue(QDateTime::fromTime_t(value.toInt()));
             }
+        }
+    }
+    else if ( role == Qt::EditRole && !bean.isNull() )
+    {
+        DBField *fld = bean->field(index.column());
+        if ( fld != NULL )
+        {
+            fld->setValue(value);
         }
     }
     return true;

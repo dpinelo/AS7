@@ -64,7 +64,7 @@ void AERPCompleterHighlightDelegate::setReplaceWildCardCharacter(const QChar &c)
 
 void AERPCompleterHighlightDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 options = option;
+    QStyleOptionViewItem options = option;
     initStyleOption(&options, index);
 
     QStringList content = d->splitText(options.text);
@@ -73,7 +73,7 @@ void AERPCompleterHighlightDelegate::paint(QPainter *painter, const QStyleOption
 
     // Call this to get the focus rect and selection background.
     options.text = "";
-    options.viewItemPosition = QStyleOptionViewItemV4::Middle;
+    options.viewItemPosition = QStyleOptionViewItem::Middle;
     options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter, options.widget);
 
     QFont actualFont = options.font;
@@ -110,7 +110,7 @@ void AERPCompleterHighlightDelegate::paint(QPainter *painter, const QStyleOption
 
 QSize AERPCompleterHighlightDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QStyleOptionViewItemV4 options = option;
+    QStyleOptionViewItem options = option;
     initStyleOption(&options, index);
 
     QFont actualFont = options.font;

@@ -176,8 +176,7 @@ void DBTableView::showEvent(QShowEvent *event)
         {
             if ( !observer()->readOnly() && dataEditable() )
             {
-                setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked |
-                                QAbstractItemView::AnyKeyPressed | QAbstractItemView::EditKeyPressed);
+                setEditTriggers(QAbstractItemView::AllEditTriggers);
             }
         }
     }

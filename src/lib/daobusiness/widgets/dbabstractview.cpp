@@ -999,7 +999,7 @@ void DBAbstractViewInterface::prepareColumns()
             }
             if ( fld->behaviourOnInlineEdit().size() > 0 )
             {
-                AERPInlineEditItemDelegate *delegate = new AERPInlineEditItemDelegate(fld->behaviourOnInlineEdit().value("widgetOnEdit").toString(), m_thisWidget);
+                AERPInlineEditItemDelegate *delegate = new AERPInlineEditItemDelegate(m_thisWidget);
                 itemView->setItemDelegateForColumn(col, delegate);
             }
             i++;
