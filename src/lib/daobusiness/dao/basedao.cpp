@@ -2064,98 +2064,108 @@ bool BaseDAO::update(BaseBean *bean, const QString &idTransaction, const QString
 {
     QString sql, sqlFields, temp;
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
-    bool result = true;
 
     if ( bean == NULL )
     {
         return false;
     }
-    if ( bean->modified() )
+    bool result = true;
+    if ( !bean->modified() )
     {
-        QList<DBField *> fields = bean->fields();
-        for ( DBField *field : fields )
+        return result;
+    }
+    QList<DBField *> fields = bean->fields();
+    for ( DBField *field : fields )
+    {
+        // Los campos serial no se incluyen en los updates, asi como los que estan marcados como no modificados
+        if ( field->insertFieldOnUpdateSql(BaseBean::UPDATE) )
         {
-            // Los campos serial no se incluyen en los updates, asi como los que estan marcados como no modificados
-            if ( field->insertFieldOnUpdateSql(BaseBean::UPDATE) )
+            temp = QString("%1 = ?").arg(field->metadata()->dbFieldName());
+            if ( sqlFields.isEmpty() )
             {
-                temp = QString("%1 = ?").arg(field->metadata()->dbFieldName());
-                if ( sqlFields.isEmpty() )
-                {
-                    sqlFields = QString("%1").arg(temp);
-                }
-                else
-                {
-                    sqlFields = QString("%1, %2").arg(sqlFields, temp);
-                }
+                sqlFields = QString("%1").arg(temp);
+            }
+            else
+            {
+                sqlFields = QString("%1, %2").arg(sqlFields, temp);
             }
         }
-        // Puede ocurrir que se haya modificado los hijos del bean en la relación y no el bean. En ese caso,
-        // no se ejecuta nada, y pasamos a los beans
-        if ( !sqlFields.isEmpty() )
+    }
+    // Puede ocurrir que se haya modificado los hijos del bean en la relación y no el bean. En ese caso,
+    // no se ejecuta nada, y pasamos a los beans
+    if ( !sqlFields.isEmpty() )
+    {
+        QString sqlTableName = bean->metadata()->sqlTableName();
+        if ( bean->metadata()->dbObjectType() == AlephERP::View && bean->metadata()->updatableView() )
         {
-            sql = QString("UPDATE %1 SET %2 WHERE %3").
-                    arg(bean->metadata()->sqlTableName(), sqlFields, bean->sqlWherePk());
-            CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-            result = qry->prepare(sql);
+            BaseBeanMetadata *originalBean = BeansFactory::metadataBean(bean->metadata()->viewForTable());
+            if ( originalBean == NULL )
+            {
+                sqlTableName = originalBean->sqlTableName();
+            }
+        }
+        sql = QString("UPDATE %1 SET %2 WHERE %3").
+                arg(sqlTableName, sqlFields, bean->sqlWherePk());
+        CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+        result = qry->prepare(sql);
+        if ( result )
+        {
+            int i = 0;
+            for ( DBField *field : fields )
+            {
+                if ( field->insertFieldOnUpdateSql(BaseBean::UPDATE) )
+                {
+                    if ( field->metadata()->type() == QVariant::Pixmap )
+                    {
+                        QByteArray ba = field->value().toByteArray();
+                        qry->bindValue(i, ba.toBase64(), QSql::In);
+                    }
+                    else if ( field->metadata()->metadataTypeName() == QLatin1Literal("hash") )
+                    {
+                        QString data = field->value().toString();
+                        QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Sha3_512).toHex();
+                        qry->bindValue(i, hashValue, QSql::In);
+                    }
+                    else if ( field->hasM1Relation() || field->hasBrotherRelation() )
+                    {
+                        qry->bindValue(i, field->isEmpty() ? QVariant() : field->value(), QSql::In);
+                        QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").
+                                            arg(field->metadata()->dbFieldName(), field->value().toString()));
+                    }
+                    else
+                    {
+                        qry->bindValue(i, field->value(), QSql::In);
+                        QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").
+                                            arg(field->metadata()->dbFieldName(), field->value().toString()));
+                    }
+                    i++;
+                }
+            }
             if ( result )
             {
-                int i = 0;
-                for ( DBField *field : fields )
-                {
-                    if ( field->insertFieldOnUpdateSql(BaseBean::UPDATE) )
-                    {
-                        if ( field->metadata()->type() == QVariant::Pixmap )
-                        {
-                            QByteArray ba = field->value().toByteArray();
-                            qry->bindValue(i, ba.toBase64(), QSql::In);
-                        }
-                        else if ( field->metadata()->metadataTypeName() == QLatin1Literal("hash") )
-                        {
-                            QString data = field->value().toString();
-                            QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Sha3_512).toHex();
-                            qry->bindValue(i, hashValue, QSql::In);
-                        }
-                        else if ( field->hasM1Relation() || field->hasBrotherRelation() )
-                        {
-                            qry->bindValue(i, field->isEmpty() ? QVariant() : field->value(), QSql::In);
-                            QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").
-                                                arg(field->metadata()->dbFieldName(), field->value().toString()));
-                        }
-                        else
-                        {
-                            qry->bindValue(i, field->value(), QSql::In);
-                            QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").
-                                                arg(field->metadata()->dbFieldName(), field->value().toString()));
-                        }
-                        i++;
-                    }
-                }
-                if ( result )
-                {
-                    result = qry->exec();
-                }
+                result = qry->exec();
             }
-            CommonsFunctions::restoreOverrideCursor();
-            QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: [%1]").arg(qry->lastQuery()));
         }
-        if ( !result )
+        CommonsFunctions::restoreOverrideCursor();
+        QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: [%1]").arg(qry->lastQuery()));
+    }
+    if ( !result )
+    {
+        writeDbMessages(qry.data());
+        return false;
+    }
+    else
+    {
+        HistoryDAO::updateEntry(bean, idTransaction);
+        // Si es una tabla de elementos cacheados, limpiamos la cache
+        if ( bean->metadata()->isCached() )
         {
-            writeDbMessages(qry.data());
-            return false;
+            BaseDAO::cleanCachedDataIfRequired(bean->metadata()->tableName());
         }
-        else
-        {
-            HistoryDAO::updateEntry(bean, idTransaction);
-            // Si es una tabla de elementos cacheados, limpiamos la cache
-            if ( bean->metadata()->isCached() )
-            {
-                BaseDAO::cleanCachedDataIfRequired(bean->metadata()->tableName());
-            }
-            // Puede que haya campos que se calculen o tomen valor justo cuando la base de datos guarda
-            // el valor (porque tengan un trigger activado). Aseguramos tener el último valor
-            reloadFieldChangedAfterSave(bean);
-            reloadRelationsChangedAfterSave(bean);
-        }
+        // Puede que haya campos que se calculen o tomen valor justo cuando la base de datos guarda
+        // el valor (porque tengan un trigger activado). Aseguramos tener el último valor
+        reloadFieldChangedAfterSave(bean);
+        reloadRelationsChangedAfterSave(bean);
     }
     return result;
 }
@@ -2170,71 +2180,72 @@ bool BaseDAO::update(BaseBean *bean, const QString &idTransaction, const QString
  */
 bool BaseDAO::update(DBField *field, const QString &idTransaction, const QString &connectionName)
 {
-    QString sql;
-    QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
-    bool result = true;
 
     if ( field == NULL || field->bean().isNull() )
     {
         return false;
     }
 
-    if ( field->modified() && (field->overwrite() || !field->metadata()->serial()) )
+    bool result = true;
+    if ( ! (field->modified() && (field->overwrite() || !field->metadata()->serial())) )
     {
-        sql = QString("UPDATE %1 SET %2=:value WHERE %3").
-                arg(field->bean()->metadata()->tableName(), field->metadata()->dbFieldName(), field->bean()->sqlWherePk());
-        CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-        result = qry->prepare(sql);
-        if ( result )
+        return result;
+    }
+
+    QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
+    QString sql = QString("UPDATE %1 SET %2=:value WHERE %3").
+            arg(field->bean()->metadata()->tableName(), field->metadata()->dbFieldName(), field->bean()->sqlWherePk());
+    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+    result = qry->prepare(sql);
+    if ( result )
+    {
+        if ( field->metadata()->type() == QVariant::Pixmap )
         {
-            if ( field->metadata()->type() == QVariant::Pixmap )
-            {
-                QByteArray ba = field->value().toByteArray();
-                qry->bindValue(":value", ba.toBase64(), QSql::In);
-            }
-            else if ( field->metadata()->metadataTypeName() == QLatin1Literal("hash") )
-            {
-                QString data = field->value().toString();
-                QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Sha3_512).toHex();
-                qry->bindValue(":value", hashValue, QSql::In);
-            }
-            else if ( field->hasM1Relation() || field->hasBrotherRelation() )
-            {
-                qry->bindValue(":value", field->isEmpty() ? QVariant() : field->value(), QSql::In);
-                QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").
-                                    arg(field->metadata()->dbFieldName(), field->value().toString()));
-            }
-            else
-            {
-                qry->bindValue(":value", field->value(), QSql::In);
-                QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").
-                                    arg(field->metadata()->dbFieldName(), field->value().toString()));
-            }
-            if ( result )
-            {
-                result = qry->exec();
-            }
+            QByteArray ba = field->value().toByteArray();
+            qry->bindValue(":value", ba.toBase64(), QSql::In);
         }
-        CommonsFunctions::restoreOverrideCursor();
-        QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: [%1]").arg(qry->lastQuery()));
-        if ( !result )
+        else if ( field->metadata()->metadataTypeName() == QLatin1Literal("hash") )
         {
-            writeDbMessages(qry.data());
-            return false;
+            QString data = field->value().toString();
+            QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Sha3_512).toHex();
+            qry->bindValue(":value", hashValue, QSql::In);
+        }
+        else if ( field->hasM1Relation() || field->hasBrotherRelation() )
+        {
+            qry->bindValue(":value", field->isEmpty() ? QVariant() : field->value(), QSql::In);
+            QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").
+                                arg(field->metadata()->dbFieldName(), field->value().toString()));
         }
         else
         {
-            HistoryDAO::updateEntry(field->bean(), idTransaction);
-            // Si es una tabla de elementos cacheados, limpiamos la cache
-            if ( field->bean()->metadata()->isCached() )
-            {
-                BaseDAO::cleanCachedDataIfRequired(field->bean()->metadata()->tableName());
-            }
-            // Puede que haya campos que se calculen o tomen valor justo cuando la base de datos guarda
-            // el valor (porque tengan un trigger activado). Aseguramos tener el último valor
-            reloadFieldChangedAfterSave(field->bean());
-            reloadRelationsChangedAfterSave(field->bean());
+            qry->bindValue(":value", field->value(), QSql::In);
+            QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").
+                                arg(field->metadata()->dbFieldName(), field->value().toString()));
         }
+        if ( result )
+        {
+            result = qry->exec();
+        }
+    }
+    CommonsFunctions::restoreOverrideCursor();
+    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: [%1]").arg(qry->lastQuery()));
+    if ( !result )
+    {
+        writeDbMessages(qry.data());
+        return false;
+    }
+    else
+    {
+        HistoryDAO::updateEntry(field->bean(), idTransaction);
+        // Si es una tabla de elementos cacheados, limpiamos la cache
+        if ( field->bean()->metadata()->isCached() )
+        {
+            BaseDAO::cleanCachedDataIfRequired(field->bean()->metadata()->tableName());
+        }
+        // Puede que haya campos que se calculen o tomen valor justo cuando la base de datos guarda
+        // el valor (porque tengan un trigger activado). Aseguramos tener el último valor
+        reloadFieldChangedAfterSave(field->bean());
+        reloadRelationsChangedAfterSave(field->bean());
     }
     return result;
 }

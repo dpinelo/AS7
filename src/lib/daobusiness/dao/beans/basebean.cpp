@@ -1471,7 +1471,7 @@ void BaseBean::setDbState(BaseBean::DbBeanStates value)
 
 BaseBean::DbBeanStates BaseBean::dbState() const
 {
-    // Si el registro es una vista, jamás podrá estar modificado
+    // Si el registro es una vista, jamás podrá estar como "INSERT", ni para ser borrado.
     if ( d->m->dbObjectType() == AlephERP::View )
     {
         return BaseBean::UPDATE;
@@ -1511,7 +1511,7 @@ bool BaseBean::modified () const
         return false;
     }
     // Si el registro es una vista, jamás podrá estar modificado
-    if ( d->m->dbObjectType() == AlephERP::View )
+    if ( d->m->dbObjectType() == AlephERP::View && !d->m->updatableView() )
     {
         return false;
     }

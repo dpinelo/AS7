@@ -1454,6 +1454,11 @@ BaseBeanMetadata *DBBaseBeanModel::metadata() const
     return d->m_metadata;
 }
 
+QString DBBaseBeanModel::contextName() const
+{
+    return AlephERP::stModelContext;
+}
+
 /*!
   Busca en el modelo el indice QModelIndex del bean cuya primary key es value
 */
@@ -1567,6 +1572,10 @@ bool DBBaseBeanModel::commit()
     }
     bool r = AERPTransactionContext::instance()->commit(contextName);
     AERPTransactionContext::instance()->waitCommitToEnd(contextName);
+    if ( !r )
+    {
+        setLastErrorMessage(AERPTransactionContext::instance()->lastErrorMessage());
+    }
     return r;
 }
 

@@ -26,6 +26,7 @@
 #include "dao/beans/beansfactory.h"
 #include "dao/beans/dbfieldmetadata.h"
 #include "dao/backgrounddao.h"
+#include "forms/aerptransactioncontextprogressdlg.h"
 #include "models/filterbasebeanmodel.h"
 #include "models/basebeanmodel.h"
 #include "models/treebasebeanmodel.h"
@@ -389,6 +390,8 @@ void DBAbstractFilterView::saveInlineEdit()
     {
         return;
     }
+
+    AERPTransactionContextProgressDlg::showDialog(AlephERP::stModelContext, this);
     if ( !d->m_model->commit() )
     {
         QMessageBox::warning(this,

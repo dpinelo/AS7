@@ -89,6 +89,7 @@ public:
     bool hasBeenFetched(const QModelIndex &index);
 
     BaseBeanMetadata * metadata() const;
+    QString contextName() const;
 
     QModelIndex indexByPk(const QVariant &value);
 

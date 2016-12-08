@@ -255,8 +255,9 @@ bool AERPTransactionContext::addToContext(const QString &contextName, const Base
     {
         return false;
     }
-    // Las vistas, por defecto, no estarán dentro de una transacción
-    if ( bean->metadata()->dbObjectType() == AlephERP::NotValid || bean->metadata()->dbObjectType() == AlephERP::View )
+    // Las vistas, por defecto, no estarán dentro de una transacción, salvo que sean "updatables"
+    if ( bean->metadata()->dbObjectType() == AlephERP::NotValid ||
+         (bean->metadata()->dbObjectType() == AlephERP::View && !bean->metadata()->updatableView()))
     {
         return false;
     }
