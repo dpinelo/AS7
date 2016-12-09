@@ -859,7 +859,7 @@ bool DBBaseBeanModelPrivate::setValue(BaseBeanSharedPointer bean, const QModelIn
         }
         // Obtenemos el registro original, y es sobre él, sobre el que se aplicará la modificación y se agregará
         // al contexto.
-        beanToEdit = BeansFactory::originalQBean(bean);
+        beanToEdit = BeansFactory::instance()->originalQBean(bean.data());
         if ( beanToEdit.isNull() )
         {
             q_ptr->setLastErrorMessage(QObject::tr("No se ha podido obtener el registro original. La razón es: %1").arg(BaseDAO::lastErrorMessage()));
@@ -869,7 +869,7 @@ bool DBBaseBeanModelPrivate::setValue(BaseBeanSharedPointer bean, const QModelIn
         // ¿Está el bean en la transacción?
         if ( !m_originalBeansOnTransaction.contains(beanToEdit->dbOid()) )
         {
-            AERPTransactionContext::instance()->addToContext(q_ptr->contextName(), beanToEdit);
+            AERPTransactionContext::instance()->addToContext(q_ptr->contextName(), beanToEdit.data());
             m_originalBeansOnTransaction[beanToEdit->dbOid()] = beanToEdit;
         }
     }
@@ -877,6 +877,7 @@ bool DBBaseBeanModelPrivate::setValue(BaseBeanSharedPointer bean, const QModelIn
     {
         fld->setValue(value);
     }
+    return true;
 }
 
 void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
