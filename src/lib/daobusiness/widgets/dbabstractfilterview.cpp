@@ -386,12 +386,12 @@ void DBAbstractFilterView::setInlineEdit(bool enabled)
 
 void DBAbstractFilterView::saveInlineEdit()
 {
-    if ( !isInlineEditMode() )
+    if ( !isInlineEditMode() || d->m_model.isNull() )
     {
         return;
     }
 
-    AERPTransactionContextProgressDlg::showDialog(AlephERP::stModelContext, this);
+    AERPTransactionContextProgressDlg::showDialog(d->m_model->contextName(), this);
     if ( !d->m_model->commit() )
     {
         QMessageBox::warning(this,

@@ -99,9 +99,12 @@ public:
      * Nos permitirá saber qué filas se han borrado */
     BaseBeanSharedPointerList m_checkedUpdateBeans;
     bool m_workLoadingOnBackground;
-
+    /**
+     * Cuando este modelo edita vistas, aquí almacenamos los beans originales sobre los que se producirá el update. Esto se utiliza
+     * en el modo de edición inline
+     */
+    QHash<qlonglong, BaseBeanSharedPointer> m_originalBeansOnTransaction;
     DBBaseBeanModel *q_ptr;
-
     static QMutex m_mutex;
 
     DBBaseBeanModelPrivate(DBBaseBeanModel *qq) : q_ptr(qq)
@@ -135,6 +138,7 @@ public:
     bool stillBackgroundUpdatePetitions();
     void newBeanAvailableSetInRow(int modelRow, BaseBeanSharedPointer updateBean);
     void checkRefreshEnd();
+    bool setValue(BaseBeanSharedPointer bean, const QModelIndex &index, const QVariant &value);
 };
 
 QMutex DBBaseBeanModelPrivate::m_mutex(QMutex::Recursive);
@@ -832,6 +836,49 @@ void DBBaseBeanModelPrivate::checkRefreshEnd()
     }
 }
 
+bool DBBaseBeanModelPrivate::setValue(BaseBeanSharedPointer bean, const QModelIndex &index, const QVariant &value)
+{
+    if ( bean.isNull() )
+    {
+        return false;
+    }
+    DBField *fld = bean->field(index.column());
+    if ( fld == NULL )
+    {
+        return false;
+    }
+
+    // ¿El bean es una vista?
+    BaseBeanSharedPointer beanToEdit = bean;
+    if ( beanToEdit->metadata()->dbObjectType() == AlephERP::View )
+    {
+        if ( !beanToEdit->metadata()->updatableView() )
+        {
+            q_ptr->setLastErrorMessage(QObject::tr("El tipo de registro %1, no es una vista actualizable.").arg(beanToEdit->metadata()->alias()));
+            return false;
+        }
+        // Obtenemos el registro original, y es sobre él, sobre el que se aplicará la modificación y se agregará
+        // al contexto.
+        beanToEdit = BeansFactory::originalQBean(bean);
+        if ( beanToEdit.isNull() )
+        {
+            q_ptr->setLastErrorMessage(QObject::tr("No se ha podido obtener el registro original. La razón es: %1").arg(BaseDAO::lastErrorMessage()));
+            return false;
+        }
+        beanToEdit->setFieldValue(fld->metadata()->dbFieldName(), value);
+        // ¿Está el bean en la transacción?
+        if ( !m_originalBeansOnTransaction.contains(beanToEdit->dbOid()) )
+        {
+            AERPTransactionContext::instance()->addToContext(q_ptr->contextName(), beanToEdit);
+            m_originalBeansOnTransaction[beanToEdit->dbOid()] = beanToEdit;
+        }
+    }
+    else
+    {
+        fld->setValue(value);
+    }
+}
+
 void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
 {
     Q_UNUSED(result)
@@ -1161,25 +1208,22 @@ bool DBBaseBeanModel::setData(const QModelIndex &index, const QVariant &value, i
     else if ( (role == Qxt::ItemStartTimeRole || role == Qxt::ItemDurationRole) && !bean.isNull() )
     {
         DBField *fld = bean->fieldForRole(role);
-        if ( fld != NULL )
+        if ( fld == NULL )
         {
-            if ( role == Qxt::ItemDurationRole )
-            {
-                fld->setScheduleDurationValue(value.toInt());
-            }
-            else
-            {
-                fld->setValue(QDateTime::fromTime_t(value.toInt()));
-            }
+            return false;
+        }
+        if ( role == Qxt::ItemDurationRole )
+        {
+            fld->setScheduleDurationValue(value.toInt());
+        }
+        else
+        {
+            fld->setValue(QDateTime::fromTime_t(value.toInt()));
         }
     }
     else if ( role == Qt::EditRole && !bean.isNull() )
     {
-        DBField *fld = bean->field(index.column());
-        if ( fld != NULL )
-        {
-            fld->setValue(value);
-        }
+        return d->setValue(bean, index, value);
     }
     return true;
 }
@@ -1454,11 +1498,6 @@ BaseBeanMetadata *DBBaseBeanModel::metadata() const
     return d->m_metadata;
 }
 
-QString DBBaseBeanModel::contextName() const
-{
-    return AlephERP::stModelContext;
-}
-
 /*!
   Busca en el modelo el indice QModelIndex del bean cuya primary key es value
 */
@@ -1557,21 +1596,20 @@ bool DBBaseBeanModel::commit()
     }
     d->m_beansToBeDeleted.clear();
 
-    QString contextName = AlephERP::stModelContext;
     for ( int i = 0 ; i < d->m_vectorBean.size() ; i++ )
     {
         BaseBeanSharedPointer bean = d->m_vectorBean.at(i);
         if ( bean && bean->modified() )
         {
-            AERPTransactionContext::instance()->addToContext(contextName, bean.data());
+            AERPTransactionContext::instance()->addToContext(contextName(), bean.data());
         }
     }
-    if ( AERPTransactionContext::instance()->isContextEmpty(contextName) )
+    if ( AERPTransactionContext::instance()->isContextEmpty(contextName()) )
     {
         return true;
     }
-    bool r = AERPTransactionContext::instance()->commit(contextName);
-    AERPTransactionContext::instance()->waitCommitToEnd(contextName);
+    bool r = AERPTransactionContext::instance()->commit(contextName());
+    AERPTransactionContext::instance()->waitCommitToEnd(contextName());
     if ( !r )
     {
         setLastErrorMessage(AERPTransactionContext::instance()->lastErrorMessage());

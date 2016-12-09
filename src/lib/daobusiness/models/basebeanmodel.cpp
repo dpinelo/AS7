@@ -54,6 +54,7 @@ public:
     QList<DBFieldMetadata *> m_visibleFieldsMetadata;
     bool m_canEmitDataChanged;
     bool m_cancelExportToSpreadSheet;
+    QString m_modelContext;
 
     explicit BaseBeanModelPrivate(BaseBeanModel *qq) : q_ptr(qq)
     {
@@ -64,6 +65,7 @@ public:
         m_visibleFieldsFromMetadata = true;
         m_canEmitDataChanged = true;
         m_cancelExportToSpreadSheet = false;
+        m_modelContext = QUuid::createUuid().toString();
     }
 
     bool isFunction(int column);
@@ -1495,4 +1497,9 @@ QString BaseBeanModelPrivate::headerDataFunction(int column) const
         return QObject::tr("%1 - Incremental").arg(fld->fieldName());
     }
     return QString();
+}
+
+QString BaseBeanModel::contextName() const
+{
+    return d->m_modelContext;
 }

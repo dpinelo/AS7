@@ -834,6 +834,17 @@ void BaseBean::setFieldValue(int index, const QVariant &value)
     }
 }
 
+void BaseBean::setFieldValue(const QString &dbFieldName, const QVariant &value)
+{
+    for ( DBField *field : d->m_fields )
+    {
+        if ( field->metadata()->dbFieldName() == dbFieldName )
+        {
+            field->setValue(value);
+        }
+    }
+}
+
 void BaseBean::setFieldValueFromSqlRawData(const QString &dbFieldName, const QString &data)
 {
     for ( DBField *field : d->m_fields )
@@ -852,17 +863,6 @@ void BaseBean::setOverwriteFieldValue(const QString &dbFieldName, const QVariant
         if ( field->metadata()->dbFieldName() == dbFieldName )
         {
             field->setOverwriteValue(value);
-        }
-    }
-}
-
-void BaseBean::setFieldValue(const QString &dbFieldName, const QVariant &value)
-{
-    for ( DBField *field : d->m_fields )
-    {
-        if ( field->metadata()->dbFieldName() == dbFieldName )
-        {
-            field->setValue(value);
         }
     }
 }

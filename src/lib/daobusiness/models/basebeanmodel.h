@@ -145,6 +145,8 @@ public:
     virtual bool canEmitDataChanged() const;
     virtual bool setCanEmitDataChanged(bool value);
 
+    QString contextName() const;
+
 signals:
     /** Esta señal será útil para saber en qué momento el modelo entra en un estado de carga de datos,
      * por ejemplo interaccionando con la base de datos, de manera que se presente al usuario una ventana

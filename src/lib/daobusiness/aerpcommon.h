@@ -95,7 +95,6 @@ public:
     static const char * stMinimumDate;
     static const char * stDataEditable;
     static const char * stDeleteContext;
-    static const char * stModelContext;
     static const char * stJobsList;
     static const char * stDatabaseName;
     static const char * stDeleteLockNotification;

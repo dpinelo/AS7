@@ -70,7 +70,6 @@ const char * AlephERP::stNewLockNotification = "newlock";
 const char * AlephERP::stDeleteRowNotification = "deleteRecord";
 const char * AlephERP::stNoAccess = "No accesible";
 const char * AlephERP::stQmlNamespace = "es.alephsistemas.alepherp";
-const char * AlephERP::stModelContext = "ModelContext";
 const char * AlephERP::stTitle = "title";
 const char * AlephERP::stMimeDataAction = "alepherp/action";
 const char * AlephERP::stMimeDataToolButton = "alepherp/toolbutton";
