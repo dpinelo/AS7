@@ -852,11 +852,6 @@ bool DBBaseBeanModelPrivate::setValue(BaseBeanSharedPointer bean, const QModelIn
     BaseBeanSharedPointer beanToEdit = bean;
     if ( beanToEdit->metadata()->dbObjectType() == AlephERP::View )
     {
-        if ( !beanToEdit->metadata()->updatableView() )
-        {
-            q_ptr->setLastErrorMessage(QObject::tr("El tipo de registro %1, no es una vista actualizable.").arg(beanToEdit->metadata()->alias()));
-            return false;
-        }
         // Obtenemos el registro original, y es sobre él, sobre el que se aplicará la modificación y se agregará
         // al contexto.
         beanToEdit = BeansFactory::instance()->originalQBean(bean.data());

@@ -47,8 +47,8 @@ public:
         Silent			= 32,
         HighlightAll	= 64
     };
-
-    Q_DECLARE_FLAGS(Options, Option);
+    Q_ENUM(Option)
+    Q_DECLARE_FLAGS(Options, Option)
 
     QDocumentSearch(QEditor *e, const QString& f, Options opt, const QString& r = QString());
     ~QDocumentSearch();

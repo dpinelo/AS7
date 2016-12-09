@@ -42,8 +42,8 @@ public:
         KeepAnchor	= 1,
         ThroughWrap	= 2
     };
-
-    Q_DECLARE_FLAGS(MoveMode, MoveFlag);
+    Q_ENUM(MoveFlag)
+    Q_DECLARE_FLAGS(MoveMode, MoveFlag)
 
     enum MoveOperation
     {

@@ -117,10 +117,6 @@ class ALEPHERP_DLL_EXPORT BaseBeanMetadata : public QObject, public QScriptable
     /** Si este metadato representa una vista, se indica a qué tabla hace referencia esta vista. Este valor es
       * muy importante, si se quieren hacer ediciones de datos de vistas. */
     Q_PROPERTY(QString viewForTable READ viewForTable WRITE setViewForTable)
-    /** Es posible definir una vista como "updatable". Esto hará que el sistema, cuando se produzca un "bean->save"
-     * haga la actualización sobre el registro al que apunta. Es obligatorio tener OID, y responsabilidad de quien
-     * gestiona los metadatos el que se actualicen los datos que existen en la tabla original */
-    Q_PROPERTY(bool updatableView READ updatableView WRITE setUpdatableView)
     /** AlephERP trabajan intensivamente con el OID de base de datos. Cuando se utilizan vistas de base de datos, es interesante
      * saber si ésta provee el OID de la tabla referencia */
     Q_PROPERTY(bool viewProvidesOid READ viewProvidesOid WRITE setViewProvidesOid)
@@ -507,8 +503,6 @@ public:
     AERPSystemModule *module() const;
     QString viewForTable() const;
     void setViewForTable(const QString &query);
-    bool updatableView() const;
-    void setUpdatableView(bool value);
     void setViewOnGrid(const QString &query);
     QString viewOnGrid() const;
     bool viewProvidesOid() const;

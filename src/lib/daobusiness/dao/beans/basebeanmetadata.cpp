@@ -62,10 +62,6 @@ public:
     QString m_viewOnGrid;
     /** Si el metadato es una vista, este valor indica de qué tabla es vista */
     QString m_viewForTable;
-    /** Es posible definir una vista como "updatable". Esto hará que el sistema, cuando se produzca un "bean->save"
-     * haga la actualización sobre el registro al que apunta. Es obligatorio tener OID, y responsabilidad de quien
-     * gestiona los metadatos el que se actualicen los datos que existen en la tabla original */
-    bool m_updatableView;
     /** AlephERP trabajan intensivamente con el OID de base de datos. Cuando se utilizan vistas de base de datos, es interesante
      * saber si ésta provee el OID de la tabla referencia */
     bool m_viewProvidesOid;
@@ -307,7 +303,6 @@ public:
     explicit BaseBeanMetadataPrivate(BaseBeanMetadata *qq) : q_ptr(qq)
     {
         m_logicalDelete = false;
-        m_updatableView = false;
         m_isCached = false;
         m_showOnTree = false;
         m_showOnTreePreloadRecords = false;
@@ -590,16 +585,6 @@ QString BaseBeanMetadata::viewForTable() const
 void BaseBeanMetadata::setViewForTable(const QString &query)
 {
     d->m_viewForTable = query;
-}
-
-bool BaseBeanMetadata::updatableView() const
-{
-    return d->m_updatableView;
-}
-
-void BaseBeanMetadata::setUpdatableView(bool value)
-{
-    d->m_updatableView = value;
 }
 
 void BaseBeanMetadata::setViewOnGrid(const QString &query)
@@ -1550,11 +1535,6 @@ void BaseBeanMetadataPrivate::setConfig()
         if ( !n.isNull() )
         {
             m_viewForTable = checkWildCards(n);
-        }
-        n = root.firstChildElement("updatableView");
-        if ( !n.isNull() )
-        {
-            m_updatableView = (checkWildCards(n) == QLatin1String("true") ? true : false);
         }
         n = root.firstChildElement("viewOnGrid");
         if ( !n.isNull() )

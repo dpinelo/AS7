@@ -156,7 +156,9 @@ public:
          * se mostrará es la posibilidad de anexar o seleccionar otro registro existente */
         ExistingPrevious = 0x02
     };
+    Q_ENUM(WorkMode)
     Q_DECLARE_FLAGS(WorkModes, WorkMode)
+    Q_FLAG(WorkModes)
 
     /** Botones que serán visibles */
 #ifdef DELETE
@@ -182,7 +184,9 @@ public:
         RemoveExistingButton = 0x020,
         ExportSpreadSheetButton = 0x040
     };
+    Q_ENUM(Button)
     Q_DECLARE_FLAGS(Buttons, Button)
+    Q_FLAG(Buttons)
 
     virtual AlephERP::ObserverType observerType(BaseBean *)
     {
@@ -244,11 +248,6 @@ public:
     Q_INVOKABLE virtual void orderColumns(const QStringList &order);
     Q_INVOKABLE virtual void sortByColumn(const QString &field, Qt::SortOrder order = Qt::DescendingOrder);
     Q_INVOKABLE QPushButton *createPushButton(int position, const QString &text, const QString &toolTip = "", const QString &img = "", const QString &methodNameToInvokeOnClicked = "");
-
-    Q_FLAG(Buttons)
-    Q_ENUM(Button)
-    Q_FLAG(WorkModes)
-    Q_ENUM(WorkMode)
 
 public slots:
     virtual void setValue(const QVariant &value);

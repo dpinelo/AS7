@@ -1511,7 +1511,7 @@ bool BaseBean::modified () const
         return false;
     }
     // Si el registro es una vista, jamás podrá estar modificado
-    if ( d->m->dbObjectType() == AlephERP::View && !d->m->updatableView() )
+    if ( d->m->dbObjectType() == AlephERP::View )
     {
         return false;
     }

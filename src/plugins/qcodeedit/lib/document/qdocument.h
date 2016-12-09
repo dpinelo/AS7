@@ -106,7 +106,7 @@ public:
         ShowLeading		= 0x02,
         ShowTabs		= 0x04
     };
-
+    Q_ENUM(WhiteSpaceFlag)
     Q_DECLARE_FLAGS(WhiteSpaceMode, WhiteSpaceFlag)
 
     explicit QDocument(QObject *p = 0);

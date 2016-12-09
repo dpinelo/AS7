@@ -113,6 +113,7 @@ public:
         Documents = 0x1000,
         Help = 0x2000
     };
+    Q_ENUM(DBRecordButtonsFlag)
     Q_DECLARE_FLAGS (DBRecordButtons, DBRecordButtonsFlag)
 
 protected:

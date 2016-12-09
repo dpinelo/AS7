@@ -110,7 +110,7 @@ public:
 
         Accessible				= 0xfffff000
     };
-
+    Q_ENUM(EditFlag)
     Q_DECLARE_FLAGS(State, EditFlag)
 
     struct PlaceHolder

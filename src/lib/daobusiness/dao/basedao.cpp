@@ -2096,14 +2096,6 @@ bool BaseDAO::update(BaseBean *bean, const QString &idTransaction, const QString
     if ( !sqlFields.isEmpty() )
     {
         QString sqlTableName = bean->metadata()->sqlTableName();
-        if ( bean->metadata()->dbObjectType() == AlephERP::View && bean->metadata()->updatableView() )
-        {
-            BaseBeanMetadata *originalBean = BeansFactory::metadataBean(bean->metadata()->viewForTable());
-            if ( originalBean == NULL )
-            {
-                sqlTableName = originalBean->sqlTableName();
-            }
-        }
         sql = QString("UPDATE %1 SET %2 WHERE %3").
                 arg(sqlTableName, sqlFields, bean->sqlWherePk());
         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);

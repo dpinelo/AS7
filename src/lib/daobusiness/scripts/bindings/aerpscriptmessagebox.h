@@ -24,11 +24,7 @@
 #include <QtCore>
 #include <QtScript>
 #include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 
 
 /**
@@ -66,7 +62,7 @@ public:
         Reset              = 0x04000000,
         RestoreDefaults    = 0x08000000
     };
-
+    Q_ENUM(Button)
     Q_DECLARE_FLAGS(Buttons, Button)
 
     static QScriptValue toScriptValue(QScriptEngine *engine, AERPScriptMessageBox* const &in);
