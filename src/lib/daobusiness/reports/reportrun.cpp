@@ -850,10 +850,17 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
 
     QScopedPointer<QSqlQuery> qry(new QSqlQuery(Database::getQDatabase()));
     QScopedPointer<QSqlQuery> qryCount(new QSqlQuery(Database::getQDatabase()));
-    if ( !qry->prepare(sql) || ! qryCount->prepare(sqlCount) )
+    if ( !qry->prepare(sql) )
     {
         d->m_lastErrorMessage = tr("Ocurrió un error al preparar la consulta de exportación. \nEl error es: [%1][%2]").
                 arg(qry->lastError().databaseText(), qry->lastError().driverText());
+        QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
+        return false;
+    }
+    if ( !qryCount->prepare(sqlCount) )
+    {
+        d->m_lastErrorMessage = tr("Ocurrió un error al preparar la consulta de exportación. \nEl error es: [%1][%2]").
+                arg(qryCount->lastError().databaseText(), qryCount->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
         return false;
     }
