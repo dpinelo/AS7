@@ -143,7 +143,7 @@ public:
     QString tableName() const;
     QWidget *dbRecordsView() const;
 
-    BaseBeanPointer selectedBean();
+    BaseBeanPointer selectedBean(bool foceReloadIfNeeded = true);
 
     bool openSuccess();
     bool checkPermissionsToOpen();

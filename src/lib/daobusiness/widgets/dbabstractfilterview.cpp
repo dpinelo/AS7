@@ -1019,13 +1019,13 @@ void DBAbstractFilterView::init(bool initStrongFilter)
 /*!
   Esta función devuelve el bean actualmente seleccionado en el modelo.
   */
-BaseBeanPointer DBAbstractFilterView::selectedBean()
+BaseBeanPointer DBAbstractFilterView::selectedBean(bool foceReloadIfNeeded)
 {
     BaseBeanPointer bean;
     QModelIndex currentIndex = d->m_itemView->currentIndex();
     if ( currentIndex.isValid() && filterModel() )
     {
-        bean = filterModel()->bean(currentIndex).data();
+        bean = filterModel()->bean(currentIndex, foceReloadIfNeeded).data();
     }
     return bean;
 }

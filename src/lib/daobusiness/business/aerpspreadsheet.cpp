@@ -47,7 +47,7 @@ public:
     QHash<QString, AERPSpreadSheet::Type> m_columnTypes;
     QHash<QString, int> m_columnLength;
     QHash<QString, int> m_columnDecimalPlaces;
-    QList<AERPCell *> m_cells;
+    QHash<qlonglong, AERPCell *> m_cells;
     QStringList m_rows;
     QStringList m_columns;
     bool m_hasColumnNames;
@@ -469,7 +469,7 @@ int AERPSheet::columnCount()
 
 QList<AERPCell *> AERPSheet::cells() const
 {
-    return d->m_cells;
+    return d->m_cells.values();
 }
 
 QStringList AERPSheet::columnNames() const
@@ -524,36 +524,52 @@ QString AERPSpreadSheet::columnStringName(int column)
     return strColumn;
 }
 
+int AERPSpreadSheet::columnIndex(const QString &columnName)
+{
+    int column = 0;
+    if ( columnName.size() > 1 )
+    {
+        column = (QChar('Z').toLatin1() - QChar('A').toLatin1() + columnName.at(0).toLatin1() - QChar('A').toLatin1() + 1) +
+                 columnName.at(1).toLatin1() - QChar('A').toLatin1();
+    }
+    else
+    {
+        column += columnName.at(0).toLatin1() - QChar('A').toLatin1();
+    }
+    return column;
+}
+
+qlonglong AERPSpreadSheet::cellIndex(int row, const QString &column)
+{
+    return AERPSpreadSheet::cellIndex(row, AERPSpreadSheet::columnIndex(column));
+}
+
 AERPCell *AERPSheet::cell(int rowId, int columnId)
 {
-    for (AERPCell *cell : d->m_cells)
+    qlonglong cellIndex = AERPSpreadSheet::cellIndex(rowId, columnId);
+    if ( d->m_cells.contains(cellIndex) )
     {
-        if ( cell->rowIndex() == rowId && cell->columnIndex() == columnId )
-        {
-            return cell;
-        }
+        return d->m_cells.value(cellIndex);
     }
     return NULL;
 }
 
 AERPCell *AERPSheet::cell(const QString &row, const QString &column)
 {
-    for (AERPCell *cell : d->m_cells)
+    qlonglong cellIndex = AERPSpreadSheet::cellIndex(row.toInt() - 1, column);
+    if ( d->m_cells.contains(cellIndex) )
     {
-        if ( cell->column() == column && cell->row() == row )
-        return cell;
+        return d->m_cells.value(cellIndex);
     }
     return NULL;
 }
 
 AERPCell *AERPSheet::cell(int rowId, const QString &column)
 {
-    for (AERPCell *cell : d->m_cells)
+    qlonglong cellIndex = AERPSpreadSheet::cellIndex(rowId, column);
+    if ( d->m_cells.contains(cellIndex) )
     {
-        if ( cell->column() == column && cell->rowIndex() == rowId )
-        {
-            return cell;
-        }
+        return d->m_cells.value(cellIndex);
     }
     return NULL;
 }
@@ -570,6 +586,7 @@ AERPCell *AERPSheet::createCell(const QString &row, const QString &column, const
     AERPCell *actualCell = cell(row, column);
     if ( actualCell == NULL )
     {
+        qlonglong cellIndex = AERPSpreadSheet::cellIndex(row.toInt() - 1, column);
         AERPCell *c = new AERPCell(this);
         // Este orden es muy importante.
         if ( !d->m_columns.contains(column) )
@@ -582,7 +599,7 @@ AERPCell *AERPSheet::createCell(const QString &row, const QString &column, const
         }
         c->setRow(row);
         c->setColumn(column);
-        d->m_cells.append(c);
+        d->m_cells[cellIndex] = c;
         c->setValue(value);
         return c;
     }
@@ -591,6 +608,7 @@ AERPCell *AERPSheet::createCell(const QString &row, const QString &column, const
 
 AERPCell *AERPSheet::createCellWithoutCheck(const QString &row, const QString &column, const QVariant value)
 {
+    qlonglong cellIndex = AERPSpreadSheet::cellIndex(row.toInt() - 1, column);
     AERPCell *c = new AERPCell(this);
     // Este orden es muy importante.
     if ( !d->m_columns.contains(column) )
@@ -603,7 +621,7 @@ AERPCell *AERPSheet::createCellWithoutCheck(const QString &row, const QString &c
     }
     c->setRow(row);
     c->setColumn(column);
-    d->m_cells.append(c);
+    d->m_cells[cellIndex] = c;
     c->setValue(value);
     return c;
 }

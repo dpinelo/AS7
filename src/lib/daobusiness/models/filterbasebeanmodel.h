@@ -105,8 +105,8 @@ public:
     bool forceToLoadBeans() const;
     void setForceToLoadBeans(bool value);
 
-    BaseBeanSharedPointer bean (int row);
-    BaseBeanSharedPointer bean (const QModelIndex &index);
+    BaseBeanSharedPointer bean (int row, bool foceReloadIfNeeded = true);
+    BaseBeanSharedPointer bean (const QModelIndex &index, bool foceReloadIfNeeded = true);
     BaseBeanSharedPointer beanToBeEdited (const QModelIndex &index);
     QModelIndex indexByPk(const QVariant &pk);
     BaseBeanSharedPointerList beans(const QModelIndexList &list);

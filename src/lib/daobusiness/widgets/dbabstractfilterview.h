@@ -88,7 +88,7 @@ public:
     virtual bool isFrozenModel() const;
     virtual bool isInlineEditMode() const;
 
-    Q_INVOKABLE BaseBeanPointer selectedBean();
+    Q_INVOKABLE BaseBeanPointer selectedBean(bool foceReloadIfNeeded = true);
     Q_INVOKABLE void setSelectedBean(const BaseBeanSharedPointer &bean);
     Q_INVOKABLE QVariant filterValue(const QString &dbfieldName);
 

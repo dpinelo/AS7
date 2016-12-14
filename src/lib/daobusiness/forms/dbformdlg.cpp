@@ -760,13 +760,13 @@ QWidget *DBFormDlg::dbRecordsView() const
     return qobject_cast<QWidget *>(d->m_itemView);
 }
 
-BaseBeanPointer DBFormDlg::selectedBean()
+BaseBeanPointer DBFormDlg::selectedBean(bool foceReloadIfNeeded)
 {
     if ( d->m_metadata == NULL )
     {
         return BaseBeanPointer ();
     }
-    return d->m_itemView->selectedBean();
+    return d->m_itemView->selectedBean(foceReloadIfNeeded);
 }
 
 BaseBeanPointer DBFormDlg::nextBean()
@@ -2206,7 +2206,7 @@ void DBFormDlg::showOrHideRelatedElements()
 
 void DBFormDlg::availableButtonsFromBean()
 {
-    BaseBeanPointer bean = selectedBean();
+    BaseBeanPointer bean = selectedBean(false);
     if ( bean.isNull() )
     {
         return;
@@ -2217,6 +2217,11 @@ void DBFormDlg::availableButtonsFromBean()
 
 void DBFormDlg::setBeanOnRelatedWidget()
 {
+    // Si no están visibles los elementos relacionados, no hacemos nada
+    if ( !d->m_mainWindow->isVisibleRelatedWidget() )
+    {
+        return;
+    }
     if ( d->m_metadata->canHaveRelatedElements() ||
          d->m_metadata->showSomeRelationOnRelatedElementsModel() ||
          d->m_metadata->canSendEmail() ||

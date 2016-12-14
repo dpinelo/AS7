@@ -825,7 +825,7 @@ void FilterBaseBeanModel::resetInternalData()
     clearAcceptedRows();
 }
 
-BaseBeanSharedPointer FilterBaseBeanModel::bean (const QModelIndex &index)
+BaseBeanSharedPointer FilterBaseBeanModel::bean(const QModelIndex &index, bool foceReloadIfNeeded)
 {
     if ( index.isValid() )
     {
@@ -833,7 +833,7 @@ BaseBeanSharedPointer FilterBaseBeanModel::bean (const QModelIndex &index)
         BaseBeanModel *model = qobject_cast<BaseBeanModel *>(sourceModel());
         if ( model != NULL )
         {
-            return model->bean(sourceIdx);
+            return model->bean(sourceIdx, foceReloadIfNeeded);
         }
     }
     return BaseBeanSharedPointer();
@@ -1090,10 +1090,10 @@ void FilterBaseBeanModel::setLinkColumns(const QStringList &columns)
     }
 }
 
-BaseBeanSharedPointer FilterBaseBeanModel::bean(int row)
+BaseBeanSharedPointer FilterBaseBeanModel::bean(int row, bool foceReloadIfNeeded)
 {
     QModelIndex idx = index(row, 0);
-    return bean(idx);
+    return bean(idx, foceReloadIfNeeded);
 }
 
 /*!

@@ -779,7 +779,7 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
     {
         return;
     }
-    BaseBeanSharedPointer bean = filterModel()->bean(idx);
+    BaseBeanSharedPointer bean = filterModel()->bean(idx, false);
     if ( bean.isNull() )
     {
         return;

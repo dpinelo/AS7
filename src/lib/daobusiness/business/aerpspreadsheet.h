@@ -91,6 +91,12 @@ public:
     static QVariant::Type qtypeForAERPVariantType(Type type);
     static Type aerptypeQVariantType(QVariant::Type type);
     static QString columnStringName(int column);
+    static int columnIndex(const QString &columnName);
+    static qlonglong cellIndex(int row, const QString &column);
+    inline static qlonglong cellIndex(int row, int column)
+    {
+        return (row * 1000) + column;
+    }
 
     QString lastMessage() const;
     void setLastMessage(const QString &value);
