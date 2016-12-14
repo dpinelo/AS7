@@ -183,7 +183,7 @@ void BackgroundDAOWorker::run()
             if ( r )
             {
                 int row = 0;
-                foreach (BaseBeanSharedPointer bean, list)
+                for (BaseBeanSharedPointer bean : list)
                 {
                     if ( select.destiny )
                     {
@@ -214,7 +214,7 @@ BaseBeanSelect BackgroundDAOPrivate::requestOnQueue(const QString &tableName,
                                                     int numRows,
                                                     int offset)
 {
-    foreach (const BaseBeanSelect &sel, m_requestedSelects)
+    for (const BaseBeanSelect &sel : m_requestedSelects)
     {
         if (sel.tableName == tableName && sel.where == where && sel.order == order && sel.numRows == numRows && sel.offset == offset)
         {

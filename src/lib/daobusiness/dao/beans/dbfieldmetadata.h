@@ -42,6 +42,15 @@ class ALEPHERP_DLL_EXPORT DBFieldMetadata : public QObject, public QScriptable
     friend class BaseBeanMetadata;
     friend class BaseBeanMetadataPrivate;
 
+public:
+    enum SpecialType {
+        None = 0,
+        Email = 1,
+        Html = 2,
+        UrlWeb = 3
+    };
+    Q_ENUM(SpecialType)
+
     /** Número cardinal que identifica al field */
     Q_PROPERTY(int index READ index WRITE setIndex)
     /** Nombre en base de datos de la columna donde se almacena el dato. Es el nombre interno con el que se accede al campo.
@@ -172,10 +181,10 @@ class ALEPHERP_DLL_EXPORT DBFieldMetadata : public QObject, public QScriptable
       El cálculo de esos campos se realiza mediante el script que almacena esta variable
       */
     Q_PROPERTY(QString script READ script WRITE setScript)
-    /** Si el campo es un String, indicará si almacena código HTML */
-    Q_PROPERTY(bool html READ html WRITE setHtml)
-    /** Indica si el campo almacena una dirección de correo electrónico. */
-    Q_PROPERTY(bool email READ email WRITE setEmail)
+    /**
+      Tipos especiales de datos (ejemplo, HTML, mail...)
+      */
+    Q_PROPERTY(SpecialType specialType READ specialType WRITE setSpecialType)
     /** Valor por defecto del campo (en casos numéricos, directamente un número) o expresión (en caso de fechas,
      * si defaultValue es igual a "now" se aplicará el instante de tiempo o fecha actual */
     Q_PROPERTY(QVariant defaultValue READ defaultValue WRITE setDefaultValue)
@@ -380,12 +389,10 @@ public:
     QString fieldNameScript() const;
     void setFieldNameScript(const QString &name);
     bool readOnly() const;
-    bool html() const;
-    void setHtml(bool html);
+    SpecialType specialType() const;
+    void setSpecialType(SpecialType value);
     bool coordinates() const;
     void setCoordinates(bool value);
-    bool email() const;
-    void setEmail(bool email);
     bool debug() const;
     void setDebug(bool value);
     bool onInitDebug();
@@ -589,6 +596,7 @@ public:
 
 Q_DECLARE_METATYPE(DBFieldMetadata*)
 Q_DECLARE_METATYPE(QList<DBFieldMetadata *>)
+Q_DECLARE_METATYPE(DBFieldMetadata::SpecialType)
 Q_SCRIPT_DECLARE_QMETAOBJECT(DBFieldMetadata, QObject*)
 
 #endif // DBFIELDMETADATA_H

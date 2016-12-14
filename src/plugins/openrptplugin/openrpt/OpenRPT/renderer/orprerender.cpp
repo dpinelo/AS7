@@ -816,7 +816,7 @@ qreal ORPreRenderPrivate::renderSection(const ORSectionData & sectionData)
                                 DBFieldMetadata *field = bean->field(parts.at(1));
                                 if ( field != NULL )
                                 {
-                                    html = field->html();
+                                    html = field->specialType() == DBFieldMetadata::Html;
                                 }
                             }
                         }

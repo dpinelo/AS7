@@ -2114,17 +2114,21 @@ void BaseBeanMetadataPrivate::setConfig()
                     StringExpression exp = readStringExpression(e);
                     field->setBuiltInStringExpression(exp);
                 }
-                else if ( e.tagName() == QLatin1String("html") )
+                else if ( e.tagName() == QLatin1String("html") && elementText == QLatin1String("true") )
                 {
-                    field->setHtml((elementText == QLatin1String("true") ? true : false));
+                    field->setSpecialType(DBFieldMetadata::Html);
+                }
+                else if ( e.tagName() == QLatin1String("url") && elementText == QLatin1String("true") )
+                {
+                    field->setSpecialType(DBFieldMetadata::UrlWeb);
                 }
                 else if ( e.tagName() == QLatin1String("coordinates") )
                 {
                     field->setCoordinates((elementText == QLatin1String("true") ? true : false));
                 }
-                else if ( e.tagName() == QLatin1String("email") )
+                else if ( e.tagName() == QLatin1String("email") && elementText == QLatin1String("true") )
                 {
-                    field->setEmail(elementText == QLatin1String("true") ? true : false);
+                    field->setSpecialType(DBFieldMetadata::Email);
                 }
                 else if ( e.tagName() == QLatin1String("scriptDefaultValue") )
                 {

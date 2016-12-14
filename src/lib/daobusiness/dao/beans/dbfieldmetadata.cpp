@@ -109,10 +109,6 @@ public:
     /** Tipo de operación de agregado que se realiza. Puede ser suma (sum), media (avg), cuenta (count)... */
     QString m_aggregateOperation;
     bool m_coordinates;
-    /** Si el campo es un String, indicará si almacena código HTML */
-    bool m_html;
-    /** Indica si el campo almacena una dirección de correo electrónico, lo que permitirá el envío de los mismos */
-    bool m_email;
     /** Script a ejecutar para obtener el default value */
     QString m_scriptDefaultValue;
     BuiltInExpressionDef m_builtInExpressionDefaultValue;
@@ -240,6 +236,7 @@ public:
     bool m_upperCase;
     bool m_noSpaces;
     bool m_editOnDbForm;
+    DBFieldMetadata::SpecialType m_specialType;
 
     QStringList m_dependOnFieldsToCalc;
 
@@ -259,7 +256,6 @@ public:
         m_calculatedSaveOnDB = false;
         m_calculatedConnectToChildModifications = false;
         m_calculatedOnlyOnInsert = false;
-        m_html = false;
         m_coordinates = false;
         m_visibleGrid = true;
         m_debug = false;
@@ -276,7 +272,6 @@ public:
         m_showDefault = false;
         m_hasDefaultValue = false;
         m_engine = NULL;
-        m_email = false;
         m_orderField = false;
         m_scheduleStartTime = false;
         m_scheduleDuration = false;
@@ -288,6 +283,7 @@ public:
         m_noSpaces = false;
         m_calculatedOrder = 0;
         m_editOnDbForm = false;
+        m_specialType = DBFieldMetadata::None;
     }
 
     QString fieldName();
@@ -656,14 +652,14 @@ bool DBFieldMetadata::readOnly() const
     return false;
 }
 
-bool DBFieldMetadata::html() const
+DBFieldMetadata::SpecialType DBFieldMetadata::specialType() const
 {
-    return d->m_html;
+    return d->m_specialType;
 }
 
-void DBFieldMetadata::setHtml(bool value)
+void DBFieldMetadata::setSpecialType(DBFieldMetadata::SpecialType value)
 {
-    d->m_html = value;
+    d->m_specialType = value;
 }
 
 bool DBFieldMetadata::coordinates() const
@@ -678,16 +674,6 @@ void DBFieldMetadata::setCoordinates(bool value)
     {
         d->m_type = QVariant::String;
     }
-}
-
-bool DBFieldMetadata::email() const
-{
-    return d->m_email;
-}
-
-void DBFieldMetadata::setEmail(bool email)
-{
-    d->m_email = email;
 }
 
 bool DBFieldMetadata::debug() const

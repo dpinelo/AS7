@@ -390,7 +390,7 @@ QVariant BaseBeanModel::data(DBField *field, const QModelIndex &item, int role) 
         {
             font.setUnderline(true);
         }
-        else if ( fldMetadata->email() )
+        else if ( fldMetadata->specialType() == DBFieldMetadata::Email )
         {
             font.setUnderline(true);
         }
@@ -449,7 +449,7 @@ QVariant BaseBeanModel::data(DBField *field, const QModelIndex &item, int role) 
         {
             return QBrush(Qt::blue);
         }
-        else if ( fldMetadata->email() )
+        else if ( fldMetadata->specialType() == DBFieldMetadata::Email )
         {
             return QBrush(Qt::blue);
         }
@@ -534,7 +534,8 @@ QVariant BaseBeanModel::data(DBField *field, const QModelIndex &item, int role) 
         {
             return static_cast<int>(Qt::PointingHandCursor);
         }
-        else if ( fldMetadata->email() )
+        else if ( fldMetadata->specialType() == DBFieldMetadata::Email ||
+                  fldMetadata->specialType() == DBFieldMetadata::UrlWeb )
         {
             return static_cast<int>(Qt::PointingHandCursor);
         }

@@ -854,7 +854,7 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
         {
             return static_cast<int>(Qt::PointingHandCursor);
         }
-        else if ( field != NULL && field->email() )
+        else if ( field != NULL && field->specialType() == DBFieldMetadata::Email )
         {
             return static_cast<int>(Qt::PointingHandCursor);
         }
@@ -884,7 +884,8 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
             {
                 font.setUnderline(true);
             }
-            else if ( field->email() )
+            else if ( field->specialType() == DBFieldMetadata::Email ||
+                      fldMetadata->specialType() == DBFieldMetadata::UrlWeb  )
             {
                 font.setUnderline(true);
             }
@@ -924,7 +925,7 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
             {
                 return QBrush(Qt::blue);
             }
-            else if ( field->email() )
+            else if ( field->specialType() == DBFieldMetadata::Email )
             {
                 return QBrush(Qt::blue);
             }

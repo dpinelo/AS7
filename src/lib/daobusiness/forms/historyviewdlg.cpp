@@ -76,7 +76,7 @@ HistoryViewDlg::HistoryViewDlg(const QString &tableName, const QString &pKey, QW
         {
             if ( !d->m_bean->field(i)->metadata()->serial() )
             {
-                if ( d->m_bean->field(i)->metadata()->html() )
+                if ( d->m_bean->field(i)->metadata()->specialType() == DBFieldMetadata::Html )
                 {
                     ui->treeView->setItemDelegateForRow(row, d->m_htmlDelegate);
                 }

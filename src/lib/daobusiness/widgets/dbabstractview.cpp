@@ -989,7 +989,7 @@ void DBAbstractViewInterface::prepareColumns()
         foreach ( DBFieldMetadata *fld, list )
         {
             int col = header->visualIndex(i);
-            if ( fld->html() )
+            if ( fld->specialType() == DBFieldMetadata::Html )
             {
                 itemView->setItemDelegateForColumn(col, m_htmlDelegate);
             }

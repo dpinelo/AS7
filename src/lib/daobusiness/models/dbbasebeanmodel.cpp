@@ -402,8 +402,9 @@ void DBBaseBeanModelPrivate::extractOrder()
 
 void DBBaseBeanModelPrivate::resetModel()
 {
+    int oldRowCount = m_rowCount;
     clearBackgroundQueries();
-    if ( m_rowCount > 0 )
+    if ( oldRowCount > 0 )
     {
         q_ptr->beginRemoveRows(QModelIndex(), 0, m_rowCount-1);
     }
@@ -423,7 +424,7 @@ void DBBaseBeanModelPrivate::resetModel()
     m_beansFetched.clear();
     m_vectorBean.clear();
     m_tableVectorBean.clear();
-    if ( m_rowCount > 0 )
+    if ( oldRowCount > 0 )
     {
         q_ptr->endRemoveRows();
     }
