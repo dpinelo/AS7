@@ -790,6 +790,27 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
     {
         return;
     }
+    // Si es una URL, abrimos el navegador
+    if ( fld->metadata()->specialType() == DBFieldMetadata::UrlWeb && fld->value().isValid() )
+    {
+        QUrl url(fld->value().toString());
+        if ( !fld->value().toString().startsWith("http") )
+        {
+            url = QUrl(QString("http://%1").arg(fld->value().toString()));
+        }
+        QDesktopServices::openUrl(url);
+        return;
+    }
+    if ( fld->metadata()->specialType() == DBFieldMetadata::Email && fld->value().isValid() )
+    {
+        QUrl url(fld->value().toString());
+        if ( !fld->value().toString().startsWith("mailto") )
+        {
+            url = QUrl(QString("mailto://%1").arg(fld->value().toString()));
+        }
+        QDesktopServices::openUrl(url);
+        return;
+    }
     AlephERP::FormOpenType openType;
     if ( !fld->metadata()->link() && !filterModel()->isLinkColumn(idx) )
     {

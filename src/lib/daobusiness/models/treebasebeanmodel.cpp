@@ -885,7 +885,7 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
                 font.setUnderline(true);
             }
             else if ( field->specialType() == DBFieldMetadata::Email ||
-                      fldMetadata->specialType() == DBFieldMetadata::UrlWeb  )
+                      field->specialType() == DBFieldMetadata::UrlWeb  )
             {
                 font.setUnderline(true);
             }
