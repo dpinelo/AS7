@@ -1450,6 +1450,11 @@ BaseBeanSharedPointer DBBaseBeanModel::beanToBeEdited(const QModelIndex &index)
                     beanOriginal = BaseDAO::selectByPk(b->pkValue(), originalTableName);
                     if ( beanOriginal.isNull() )
                     {
+                        if ( BaseDAO::lastErrorMessage().isEmpty() )
+                        {
+                            QLogger::QLog_Error(AlephERP::stLogDB,
+                                                tr("DBBaseBeanModel::beanToBeEdited: ERROR: %1").arg(BaseDAO::lastErrorMessage()));
+                        }
                         beanOriginal = BeansFactory::instance()->newQBaseBean(originalTableName);
                     }
                 }
