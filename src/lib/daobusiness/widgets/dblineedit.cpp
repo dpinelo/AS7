@@ -70,7 +70,7 @@ public:
     QString m_autoCompleteTableNameFilter;
     QString m_autoCompleteColumnToSave;
     QString m_autoCompleteColumnSaved;
-    int m_autoCompleteLengthStart { 2 };
+    int m_autoCompleteLengthStart { 0 };
     /** El objeto de autocompletado */
     QPointer<QCompleter> m_completer;
     /** Modelo del autocompletado */
