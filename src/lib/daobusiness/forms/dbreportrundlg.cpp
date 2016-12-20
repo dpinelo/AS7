@@ -147,6 +147,16 @@ void DBReportRunDlg::rbReportSelected(bool value)
             d->setupMainWidget();
             d->showAvailableButtons();
             d->setDefaultValueParemeters();
+            if ( d->m_run->metadata() )
+            {
+                ui->gbPreview->setVisible(!d->m_run->metadata()->exportSql().isEmpty());
+                ui->pbPreviewData->setVisible(!d->m_run->metadata()->exportSql().isEmpty());
+            }
+            else
+            {
+                ui->gbPreview->setVisible(false);
+                ui->pbPreviewData->setVisible(false);
+            }
         }
     }
 }
@@ -220,9 +230,6 @@ bool DBReportRunDlg::init()
     connect (ui->pbSpreadSheet, SIGNAL(clicked()), this, SLOT(exportToSpreadSheet()));
     connect( ui->pbPreviewData, SIGNAL(clicked()), this, SLOT(previewData()));
     connect (d->m_run, SIGNAL(canExecuteReport(bool)), this, SLOT(enableButtons()));
-
-    ui->gbPreview->setVisible(!d->m_run->metadata()->exportSql().isEmpty());
-    ui->pbPreviewData->setVisible(!d->m_run->metadata()->exportSql().isEmpty());
 
     installEventFilters();
 
