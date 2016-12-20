@@ -1625,15 +1625,18 @@ void DBLineEditPrivate::setPartialCompleter()
             return;
         }
         QString order = m_autoCompleteColumn + QString(" ASC");
-        QString where = QString("(%1) AND %2 LIKE '%3%%'").
-                arg(relations.first()->sqlRelationWhere(),
-                    fld->dbFieldName(),
+        QString where = QString("%1 LIKE '%2%%'").
+                arg(fld->dbFieldName(),
                     text);
+        if ( !relations.first()->sqlRelationWhere().isEmpty() )
+        {
+            where = where.prepend(QString("(%1) AND ").arg(relations.first()->sqlRelationWhere()));
+        }
         dbBaseBeanModel->setWhere(where, order);
     }
     else if ( m_autoComplete.testFlag(AlephERP::ValuesFromThisField) )
     {
-        AERPQueryModel *aerpQueryModel = qobject_cast<AERPQueryModel *>(m_completerBeanModel);
+        AERPQueryModel *aerpQueryModel = qobject_cast<AERPQueryModel *>(m_completerModel);
         if ( aerpQueryModel == Q_NULLPTR )
         {
             return;
@@ -1649,10 +1652,13 @@ void DBLineEditPrivate::setPartialCompleter()
     {
         DBBaseBeanModel *dbBaseBeanModel = qobject_cast<DBBaseBeanModel *>(m_completerBeanModel);
         QString order = m_autoCompleteColumn + QString(" ASC");
-        QString where = QString("(%1) AND %2 LIKE '%3%%'").
-                arg(m_autoCompleteTableNameFilter,
-                    fld->dbFieldName(),
+        QString where = QString("%1 LIKE '%2%%'").
+                arg(fld->dbFieldName(),
                     text);
+        if ( !m_autoCompleteTableNameFilter.isEmpty() )
+        {
+            where = where.prepend(QString("(%1) AND ").arg(m_autoCompleteTableNameFilter));
+        }
         dbBaseBeanModel->setWhere(where, order);
     }
 
