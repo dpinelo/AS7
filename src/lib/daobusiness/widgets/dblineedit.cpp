@@ -163,16 +163,17 @@ bool DBLineEdit::replacePointWithCharacter() const
 void DBLineEdit::setReplacePointWithCharacter(bool value)
 {
     d->m_replacePointWithCharacter = value;
-    if ( !d->m_completerDelegate.isNull() )
+    if ( d->m_completerDelegate.isNull() )
     {
-        if ( d->m_replacePointWithCharacter )
-        {
-            d->m_completerDelegate->setReplaceWildCardCharacter(d->m_replacePointCharacter);
-        }
-        else
-        {
-            d->m_completerDelegate->setReplaceWildCardCharacter(QChar());
-        }
+        return;
+    }
+    if ( d->m_replacePointWithCharacter )
+    {
+        d->m_completerDelegate->setReplaceWildCardCharacter(d->m_replacePointCharacter);
+    }
+    else
+    {
+        d->m_completerDelegate->setReplaceWildCardCharacter(QChar());
     }
 }
 
@@ -184,16 +185,17 @@ QChar DBLineEdit::replacePointCharacter() const
 void DBLineEdit::setReplacePointCharacter(const QChar &character)
 {
     d->m_replacePointCharacter = character;
-    if ( !d->m_completerDelegate.isNull() )
+    if ( d->m_completerDelegate.isNull() )
     {
-        if ( d->m_replacePointWithCharacter )
-        {
-            d->m_completerDelegate->setReplaceWildCardCharacter(d->m_replacePointCharacter);
-        }
-        else
-        {
-            d->m_completerDelegate->setReplaceWildCardCharacter(QChar());
-        }
+        return;
+    }
+    if ( d->m_replacePointWithCharacter )
+    {
+        d->m_completerDelegate->setReplaceWildCardCharacter(d->m_replacePointCharacter);
+    }
+    else
+    {
+        d->m_completerDelegate->setReplaceWildCardCharacter(QChar());
     }
 }
 
@@ -377,17 +379,18 @@ void DBLineEdit::executeScriptAfterChooseFromCompleter()
 {
     QWidget *obj = dynamic_cast<QWidget *>(this);
     AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(obj);
-    if ( thisForm != NULL )
+    if ( thisForm == NULL )
     {
-        if ( d->m_scriptAfterChooseFromCompleter.isEmpty() )
-        {
-            QString scriptName = QString("%1AfterChooseFromCompleter").arg(obj->objectName());
-            thisForm->callQSMethod(scriptName);
-        }
-        else
-        {
-            thisForm->callMethod(d->m_scriptAfterChooseFromCompleter);
-        }
+        return;
+    }
+    if ( d->m_scriptAfterChooseFromCompleter.isEmpty() )
+    {
+        QString scriptName = QString("%1AfterChooseFromCompleter").arg(obj->objectName());
+        thisForm->callQSMethod(scriptName);
+    }
+    else
+    {
+        thisForm->callMethod(d->m_scriptAfterChooseFromCompleter);
     }
 }
 
@@ -465,70 +468,81 @@ void DBLineEdit::itemActivatedOnCompleterModel(const QModelIndex &idx)
     {
         return;
     }
-    if ( (d->m_autoComplete.testFlag(AlephERP::ValuesFromRelation) || d->m_autoComplete.testFlag(AlephERP::ValuesFromTableWithNoRelation)) && !d->m_completerModel.isNull() )
+    if ( d->m_completerModel.isNull() )
     {
-        FilterBaseBeanModel *mdl = qobject_cast<FilterBaseBeanModel *>(d->m_completerModel);
-        QAbstractProxyModel *proxyModel = qobject_cast<QAbstractProxyModel *>(d->m_completer->completionModel());
-        if ( mdl != NULL && proxyModel != NULL)
+        return;
+    }
+    if ( !d->m_autoComplete.testFlag(AlephERP::ValuesFromRelation) &&
+         !d->m_autoComplete.testFlag(AlephERP::ValuesFromTableWithNoRelation) )
+    {
+        return;
+    }
+    FilterBaseBeanModel *mdl = qobject_cast<FilterBaseBeanModel *>(d->m_completerModel);
+    QAbstractProxyModel *proxyModel = qobject_cast<QAbstractProxyModel *>(d->m_completer->completionModel());
+    if ( mdl == NULL || proxyModel == NULL )
+    {
+        executeScriptAfterChooseFromCompleter();
+        return;
+    }
+
+    QModelIndex sourceIdx = proxyModel->mapToSource(idx);
+    d->m_completerBaseBean = mdl->bean(sourceIdx);
+    BaseBean *formBean = beanFromContainer();
+    QAbstractProxyModel *completionModel = qobject_cast<QAbstractProxyModel *>(d->m_completer->completionModel());
+    if ( formBean == NULL || completionModel == NULL )
+    {
+        executeScriptAfterChooseFromCompleter();
+        return;
+    }
+    BaseBeanSharedPointer beanSelectedOnCompleter = mdl->bean(sourceIdx);
+    if ( beanSelectedOnCompleter.isNull() || observer() == NULL )
+    {
+        executeScriptAfterChooseFromCompleter();
+        return;
+    }
+    setCompleterSelectedBean(beanSelectedOnCompleter);
+    DBField *fld = qobject_cast<DBField *> (observer()->entity());
+    if ( fld == NULL )
+    {
+        executeScriptAfterChooseFromCompleter();
+        return;
+    }
+    if ( d->m_autoComplete.testFlag(AlephERP::UpdateOwnerFieldBean) )
+    {
+        if ( fld != NULL && fld->bean() != NULL )
         {
-            QModelIndex sourceIdx = proxyModel->mapToSource(idx);
-            d->m_completerBaseBean = mdl->bean(sourceIdx);
-            if ( d->m_autoComplete.testFlag(AlephERP::ValuesFromRelation) )
+            QStringList parts = m_fieldName.split(".");
+            if ( parts.size() == 2 )
             {
-                BaseBean *formBean = beanFromContainer();
-                QAbstractProxyModel *completionModel = qobject_cast<QAbstractProxyModel *>(d->m_completer->completionModel());
-                if ( formBean != NULL && completionModel != NULL )
+                DBRelation *rel = formBean->relation(parts.at(0));
+                if ( rel != NULL )
                 {
-                    QModelIndex sourceIdx = completionModel->mapToSource(idx);
-                    BaseBeanSharedPointer beanSelectedOnCompleter = mdl->bean(sourceIdx);
-                    if ( !beanSelectedOnCompleter.isNull() && observer() != NULL )
+                    DBField *destFld = formBean->field(rel->metadata()->rootFieldName());
+                    if ( destFld != NULL )
                     {
-                        setCompleterSelectedBean(beanSelectedOnCompleter);
-                        DBField *fld = qobject_cast<DBField *> (observer()->entity());
-                        if ( fld != NULL )
-                        {
-                            if ( d->m_autoComplete.testFlag(AlephERP::UpdateOwnerFieldBean) )
-                            {
-                                if ( fld != NULL && fld->bean() != NULL )
-                                {
-                                    QStringList parts = m_fieldName.split(".");
-                                    if ( parts.size() == 2 )
-                                    {
-                                        DBRelation *rel = formBean->relation(parts.at(0));
-                                        if ( rel != NULL )
-                                        {
-                                            DBField *destFld = formBean->field(rel->metadata()->rootFieldName());
-                                            if ( destFld != NULL )
-                                            {
-                                                bool blockSignalsState = destFld->blockSignals(true);
-                                                destFld->setValue(beanSelectedOnCompleter->fieldValue(rel->metadata()->childFieldName()));
-                                                destFld->blockSignals(blockSignalsState);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                QList<DBRelation *> rels = fld->relations(AlephERP::ManyToOne);
-                                if ( rels.size() > 0 )
-                                {
-                                    QVariant selectedValue = beanSelectedOnCompleter->fieldValue(rels.at(0)->metadata()->childFieldName());
-                                    emit valueEdited(selectedValue);
-                                }
-                                else
-                                {
-                                    QLogger::QLog_Debug(AlephERP::stLogOther,
-                                                        QString("DBLineEdit::itemActivatedOnCompleterModel: El field [%1] ] no tiene relaciones definidas. No se puede autocompletar").arg(fld->metadata()->dbFieldName()));
-                                }
-                            }
-                        }
+                        bool blockSignalsState = destFld->blockSignals(true);
+                        destFld->setValue(beanSelectedOnCompleter->fieldValue(rel->metadata()->childFieldName()));
+                        destFld->blockSignals(blockSignalsState);
                     }
                 }
             }
         }
-        executeScriptAfterChooseFromCompleter();
     }
+    else
+    {
+        QList<DBRelation *> rels = fld->relations(AlephERP::ManyToOne);
+        if ( rels.size() > 0 )
+        {
+            QVariant selectedValue = beanSelectedOnCompleter->fieldValue(rels.at(0)->metadata()->childFieldName());
+            emit valueEdited(selectedValue);
+        }
+        else
+        {
+            QLogger::QLog_Debug(AlephERP::stLogOther,
+                                QString("DBLineEdit::itemActivatedOnCompleterModel: El field [%1] no tiene relaciones definidas. No se puede autocompletar").arg(fld->metadata()->dbFieldName()));
+        }
+    }
+    executeScriptAfterChooseFromCompleter();
 }
 
 void DBLineEdit::showRecalculateButton()
@@ -882,10 +896,7 @@ bool DBLineEdit::eventFilter(QObject *watched, QEvent *event)
     {
         if ( watched == this )
         {
-            if ( d->m_autoCompleteLengthStart > 0 )
-            {
-                d->setPartialCompleter();
-            }
+            d->setPartialCompleter();
             // Si es un código de barras, debemos capturar la pulsación de la tecla finalizadora y tratarla...
             // Vaya a ser que sea el terminador. Y además, evitamos que se propage
             if ( m_barCodeReaderAllowed && !m_barCodeEndString.isEmpty() )
@@ -1190,7 +1201,7 @@ void DBLineEditPrivate::initCompleter()
     {
         // Se hace porque así garantizamos que setModel borrará un modelo previo.
         m_completerModel->setParent(m_completer);
-        if ( m_autoCompleteLengthStart > 0 )
+        if ( m_autoCompleteLengthStart == 0 )
         {
             m_completer->setModel(m_completerModel);
         }
