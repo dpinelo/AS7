@@ -19,11 +19,7 @@
  ***************************************************************************/
 #include <QtGlobal>
 #include <QtXml>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include <QtCore>
 #include <QtScript>
 #ifdef ALEPHERP_DEVTOOLS
@@ -1239,6 +1235,14 @@ void DBFormDlg::insertChild()
                     }
                     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
                     QPointer<DBRecordDlg> dlg = new DBRecordDlg(bean, AlephERP::Insert, true, this);
+                    if ( !d->uiDbNewRecordForSelectedRow().isEmpty() )
+                    {
+                        dlg->setUiCode(d->uiDbNewRecordForSelectedRow());
+                    }
+                    if ( !d->qsDbNewRecordForSelectedRow().isEmpty() )
+                    {
+                        dlg->setQsCode(d->qsDbNewRecordForSelectedRow());
+                    }
                     CommonsFunctions::restoreOverrideCursor();
                     if ( dlg->openSuccess() && dlg->init() )
                     {
@@ -2281,6 +2285,14 @@ void DBFormDlg::view()
         dlg = new DBRecordDlg(bean, openType, true);
     }
     CommonsFunctions::restoreOverrideCursor();
+    if ( !d->uiDbRecordForSelectedRow().isEmpty() )
+    {
+        dlg->setUiCode(d->uiDbRecordForSelectedRow());
+    }
+    if ( !d->qsDbRecordForSelectedRow().isEmpty() )
+    {
+        dlg->setQsCode(d->qsDbRecordForSelectedRow());
+    }
     if ( dlg->openSuccess() && dlg->init() )
     {
         OpenedRecords::instance()->registerRecord(bean, dlg);
