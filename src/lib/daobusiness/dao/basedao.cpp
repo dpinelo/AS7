@@ -321,7 +321,7 @@ void BaseDAO::appendToCachedQuerys(const QString &tableName, const QString &sql,
         BaseBeanSharedPointer tmpBean = bean->clone();
         // Clone no hace la copia de campos memos que no se hayan obtenido. Pero para cachear nos interesa
         // guardarlos, por lo que forzamos aquí su valor. Para un mejor rendimiento, los campos memos, los leemos en batch
-        QList<DBField *> list = tmpBean->fields();
+        const QList<DBField *> list = tmpBean->fields();
         for ( DBField *fld : list )
         {
             if ( fld->metadata()->calculated() || fld->metadata()->memo() )
@@ -398,7 +398,7 @@ void BaseDAO::appendToCachedBeans(const QString &tableName, const QString &sql, 
     QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::appendToCachedBeans: Cacheando beans de [%1]  por la consulta: [%2]").arg(tableName, sql));
     // Clone no hace la copia de campos memos que no se hayan obtenido. Pero para cachear nos interesa
     // guardarlos, por lo que forzamos aquí su valor
-    QList<DBField *> list = tmpBean->fields();
+    const QList<DBField *> list = tmpBean->fields();
     for ( DBField *fld : list )
     {
         if ( fld->metadata()->calculated() || fld->metadata()->memo() )
@@ -655,7 +655,7 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
         return;
     }
     QList<DBFieldMetadata *> fldMemos;
-    QList<DBField *> listFields = firstBean->fields();
+    const QList<DBField *> listFields = firstBean->fields();
     for ( DBField * fld : listFields )
     {
         if ( fld->metadata()->memo() )
@@ -1253,7 +1253,7 @@ bool BaseDAO::selectFirst(BaseBean *bean, const QString &where, const QString &o
         // el que se llame a obtener campos memo (no obtenidos en el bean clonado que devuelve getContent). Esto se
         // hace por eficiencia
         BaseBeanSharedPointer bCached = BaseDAO::getContentCachedBean(bean->metadata()->tableName(), sql, false);
-        QList<DBField *> fields = bCached->fields();
+        const QList<DBField *> fields = bCached->fields();
         bean->setAccess(bCached->access());
         for ( DBField * fld : fields )
         {
@@ -1518,7 +1518,7 @@ bool BaseDAO::selectByPk(const QVariant &id, BaseBean *bean, const QString &conn
     if ( bean->metadata()->isCached() && BaseDAO::isBeanCached(bean->metadata()->tableName(), sql) )
     {
         BaseBeanSharedPointer bCached = BaseDAO::getContentCachedBean(bean->metadata()->tableName(), sql, false);
-        QList<DBField *> fields = bCached->fields();
+        const QList<DBField *> fields = bCached->fields();
         bean->setAccess(bCached->access());
         for ( DBField * fld : fields )
         {
@@ -1615,7 +1615,7 @@ bool BaseDAO::selectByOid(qlonglong oid, BaseBean *bean, const QString &connecti
     if ( bean->metadata()->isCached() && BaseDAO::isBeanCached(bean->metadata()->tableName(), sql) )
     {
         BaseBeanSharedPointer bCached = BaseDAO::getContentCachedBean(bean->metadata()->tableName(), sql, false);
-        QList<DBField *> fields = bCached->fields();
+        const QList<DBField *> fields = bCached->fields();
         bean->setAccess(bCached->access());
         for ( DBField * fld : fields )
         {
@@ -1935,7 +1935,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
     // para lo cual, debemos primero construir un INSERT del tipo:
     // INSERT INTO tabla (field1, field2, field3) VALUES(?, ?,?);
 
-    QList<DBField *> fields = bean->fields();
+    const QList<DBField *> fields = bean->fields();
     for ( DBField *field : fields )
     {
         if ( field->insertFieldOnUpdateSql(BaseBean::INSERT) )
@@ -2060,7 +2060,9 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
 /*!
   Construye y ejecuta una sentencia SQL UPDATE a partir de la metainformación de BaseBean y de sus valores.
   */
-bool BaseDAO::update(BaseBean *bean, const QString &idTransaction, const QString &connectionName)
+bool BaseDAO::update(BaseBean *bean,
+                     const QString &idTransaction,
+                     const QString &connectionName)
 {
     QString sql, sqlFields, temp;
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
@@ -2074,7 +2076,7 @@ bool BaseDAO::update(BaseBean *bean, const QString &idTransaction, const QString
     {
         return result;
     }
-    QList<DBField *> fields = bean->fields();
+    const QList<DBField *> fields = bean->fields();
     for ( DBField *field : fields )
     {
         // Los campos serial no se incluyen en los updates, asi como los que estan marcados como no modificados
@@ -2156,8 +2158,11 @@ bool BaseDAO::update(BaseBean *bean, const QString &idTransaction, const QString
         }
         // Puede que haya campos que se calculen o tomen valor justo cuando la base de datos guarda
         // el valor (porque tengan un trigger activado). Aseguramos tener el último valor
-        reloadFieldChangedAfterSave(bean);
-        reloadRelationsChangedAfterSave(bean);
+        if ( idTransaction.isEmpty() )
+        {
+            reloadFieldChangedAfterSave(bean);
+            reloadRelationsChangedAfterSave(bean);
+        }
     }
     return result;
 }
@@ -2853,7 +2858,7 @@ bool BaseDAO::copyBaseBean(const BaseBeanPointer &orig, const BaseBeanPointer &d
         return false;
     }
     dest->setAccess(orig->access());
-    QList<DBField *> flds = orig->fields();
+    const QList<DBField *> flds = orig->fields();
     bool blockSignalState = dest->blockSignals(true);
     for ( DBField *fld : flds )
     {
@@ -2901,7 +2906,7 @@ bool BaseDAO::copyBaseBean(const BaseBeanPointer &orig, const BaseBeanPointer &d
   */
 void BaseDAO::readSerialValuesAfterInsert(BaseBean *bean, qlonglong oid, const QString &connectionName)
 {
-    QList<DBField *> fields = bean->fields();
+    const QList<DBField *> fields = bean->fields();
     QString whereWithoutOid, whereWithOid, sql;
 
     // Consulta general para obtener serial (sin tener en cuenta oid)
@@ -2983,8 +2988,8 @@ bool BaseDAO::reloadBeanFromDB(const BaseBeanPointer &bean, const QString &conne
     {
         return false;
     }
-    QList<DBField *> fldsOrig = bean->fields();
-    QList<DBField *> fldsRead = copy->fields();
+    const QList<DBField *> fldsOrig = bean->fields();
+    const QList<DBField *> fldsRead = copy->fields();
     for ( int i = 0 ; i < fldsOrig.size() ; i++ )
     {
         if ( !fldsOrig.at(i)->metadata()->memo() )
@@ -3048,7 +3053,7 @@ bool BaseDAO::reloadBeansFromDB(const BaseBeanPointerList &list, const QString &
             {
                 if ( !beanOrig.isNull() && beanOrig->pkEqual(beanCopy->pkValue()) )
                 {
-                    QList<DBField *> fldOrigs = beanOrig->fields();
+                    const QList<DBField *> fldOrigs = beanOrig->fields();
                     for (DBField *fldOrig : fldOrigs)
                     {
                         if ( !fldOrig->metadata()->memo() )
@@ -3080,7 +3085,7 @@ bool BaseDAO::reloadFieldChangedAfterSave(BaseBean *bean, const QString &connect
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
     QList<DBFieldMetadata *> fieldsMetadata;
     QList<DBField *> fields;
-    QList<DBField *> beanFields = bean->fields();
+    const QList<DBField *> beanFields = bean->fields();
     for ( DBField *fld : beanFields )
     {
         if ( fld->metadata()->reloadFromDBAfterSave() )

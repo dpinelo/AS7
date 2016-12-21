@@ -620,7 +620,7 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
             {
                 InspectorTreeItem *rootField = new InspectorTreeItem(bean, QObject::tr("Fields"), "", item, q_ptr);
                 item->appendChild(rootField);
-                foreach (DBField *fld, bean->fields())
+                for (DBField *fld : bean->fields())
                 {
                     InspectorTreeItem *itemField = new InspectorTreeItem(fld, fld->metadata()->dbFieldName(), "displayValue", rootField, q_ptr);
                     rootField->appendChild(itemField);

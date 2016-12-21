@@ -493,7 +493,7 @@ BaseBeanSharedPointer TreeBaseBeanModelPrivate::loadBean(QSqlRecord rec, int lev
     if ( b )
     {
         b->blockAllSignals(true);
-        foreach (DBField *fld, b->fields())
+        for (DBField *fld : b->fields())
         {
             QString dbFieldName = QString("vf%1%2").arg(level).arg(fld->metadata()->dbFieldName());
             fld->setInternalValue(rec.value(dbFieldName));
@@ -796,7 +796,7 @@ void TreeBaseBeanModelPrivate::replaceBean(BeanTreeItemPointer item, BaseBeanSha
         // Sólo emitimos la señal, si ha cambiado
         if ( item->bean() )
         {
-            foreach (DBField *fld, item->bean()->fields())
+            for (DBField *fld : item->bean()->fields())
             {
                 if ( fld->metadata()->visibleGrid() )
                 {

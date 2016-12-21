@@ -1231,7 +1231,7 @@ QMimeData *BaseBeanModel::mimeData(const QModelIndexList &indexes) const
                         text = text.append("\n");
                         firstRow = false;
                     }
-                    foreach (DBField *fld, b->fields())
+                    for (DBField *fld : b->fields())
                     {
                         if ( fld->metadata()->visibleGrid() )
                         {

@@ -3677,7 +3677,7 @@ QScriptValue BaseBean::duplicate()
         BaseBean *copyBean = BeansFactory::instance()->newBaseBean(d->m->tableName());
         d->copy(copyBean);
         // Los campos seriales se resetean
-        QList<DBField *> copyBeanFields = copyBean->fields();
+        const QList<DBField *> copyBeanFields = copyBean->fields();
         for (DBField *fld : copyBeanFields)
         {
             if ( fld->metadata()->serial() )
@@ -3901,7 +3901,7 @@ void BaseBean::copyValues(BaseBeanPointer otherBean, bool saveValues)
         backupValues();
     }
     QStringList fieldNames;
-    QList<DBField *> otherFields = otherBean->fields();
+    const QList<DBField *> otherFields = otherBean->fields();
     for (DBField *fld : otherFields)
     {
         fieldNames << fld->metadata()->dbFieldName();
@@ -4009,7 +4009,7 @@ void BaseBean::deepCopyValues(BaseBeanPointer otherBean, const QStringList &rela
                     BaseBeanSharedPointer newBean = thisRel->newChild();
                     // Importante no incluir en la lista de valores a copiar el del idservicio
                     QStringList fieldNames;
-                    QList<DBField *> newBeanFields = newBean->fields();
+                    const QList<DBField *> newBeanFields = newBean->fields();
                     for (DBField *fld : newBeanFields)
                     {
                         if ( fld->metadata()->dbFieldName() != thisRel->metadata()->childFieldName() )

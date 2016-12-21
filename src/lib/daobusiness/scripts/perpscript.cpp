@@ -1419,7 +1419,7 @@ void AERPScriptQsObject::connectFieldsToScriptMembers(BaseBean *bean)
     {
         return;
     }
-    foreach ( DBField *fld, bean->fields() )
+    for ( DBField *fld : bean->fields() )
     {
         QString memberName = QString("%1ValueModified").arg(fld->metadata()->dbFieldName());
         QScriptValue member = d->m_createObject.property(memberName);
@@ -1441,7 +1441,7 @@ void AERPScriptQsObject::disconnectFieldsFromScriptMembers(BaseBean *bean)
     {
         return;
     }
-    foreach ( DBField *fld, bean->fields() )
+    for ( DBField *fld : bean->fields() )
     {
         QString memberName = QString("%1ValueModified").arg(fld->metadata()->dbFieldName());
         QScriptValue member = d->m_createObject.property(memberName);

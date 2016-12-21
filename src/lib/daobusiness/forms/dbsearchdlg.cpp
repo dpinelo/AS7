@@ -529,7 +529,7 @@ void DBSearchDlg::showEvent(QShowEvent *event)
     }
     // Esto es necesario para permitir que haya dos controles que compartan mismo fieldName pero diferentes
     // values y nos permita simular un between
-    foreach (DBField *fld, d->m_templateBean->fields())
+    for (DBField *fld : d->m_templateBean->fields())
     {
         fld->disconnect(SIGNAL(valueModified(QVariant)));
     }

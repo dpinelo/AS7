@@ -710,7 +710,7 @@ void DBRelation::connections(const BaseBeanPointer &child)
     // en los hijos, y buscar un recálculo. Esto sólo ocurre para campos calculados
     if ( !ownerBean().isNull() )
     {
-        QList<DBField *> fields = ownerBean()->fields();
+        const QList<DBField *> fields = ownerBean()->fields();
         for ( DBField *fld : fields )
         {
             if ( fld->metadata()->calculated() && fld->metadata()->calculatedConnectToChildModifications() )
@@ -951,7 +951,7 @@ void DBRelation::childFieldBeanModified(const QString &fieldName, const QVariant
     {
         d->emitFieldChildModified(sender, fieldName, value);
     }
-    QList<DBField *> list = ownerBean()->fields();
+    const QList<DBField *> list = ownerBean()->fields();
     for ( DBField *fld : list )
     {
         AggregateCalc aggregateCalc = fld->metadata()->aggregateCalc();

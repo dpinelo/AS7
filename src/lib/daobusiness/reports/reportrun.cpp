@@ -402,7 +402,7 @@ QVariantMap ReportRunPrivate::buildParameterBindingForBean(BaseBeanPointer bean)
     AERPMultiStringMap parameterBinding = m_metadata->parameterBinding();
     if ( !bean.isNull() )
     {
-        foreach (DBField *fld, bean->fields())
+        for (DBField *fld : bean->fields())
         {
             if ( parameterBinding.contains(fld->metadata()->dbFieldName()) )
             {

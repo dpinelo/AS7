@@ -49,8 +49,8 @@ QString HistoryDAO::createData(BaseBean *bean)
     QString result;
 
     result = QString("<data>");
-    QList<DBField *> flds = bean->fields();
-    foreach ( DBField *fld, flds )
+    const QList<DBField *> flds = bean->fields();
+    for ( DBField *fld : flds )
     {
         if ( fld->metadata()->isOnDb() )
         {

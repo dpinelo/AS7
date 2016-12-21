@@ -363,7 +363,7 @@ void DBRelationPrivate::updateChildren(BaseBean *father, QList<BaseBean *> &stac
         return;
     }
     // Actualizamos los controles asociados a los fields de este bean padre
-    QList<DBField *> flds = father->fields();
+    const QList<DBField *> flds = father->fields();
     stackList.append(father);
     foreach ( DBField *fld, flds )
     {

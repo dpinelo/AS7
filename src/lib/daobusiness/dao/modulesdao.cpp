@@ -1250,7 +1250,7 @@ bool ModulesDAO::exportData(const QList<BaseBeanMetadata *> metadatasToExport, c
                     out << "    <record>\n";
                     emit exportDataTableProgress(systemObject->name(), count);
                     emit exportDataTableProgress(count);
-                    foreach (DBField *fld, bean->fields())
+                    for (DBField *fld : bean->fields())
                     {
                         if ( fld->metadata()->isOnDb() )
                         {

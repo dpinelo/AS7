@@ -97,7 +97,7 @@ bool BaseBeanValidator::validate()
         return false;
     }
 
-    QList<DBField *> fields = d->m_bean->fields();
+    const QList<DBField *> fields = d->m_bean->fields();
     bool result = true;
 
     d->m_message.clear();
@@ -202,7 +202,7 @@ bool BaseBeanValidatorPrivate::checkUniqueCompound()
     QString where;
     QStringList fieldNames;
 
-    foreach (DBField *fld, m_bean->fields())
+    for (DBField *fld : m_bean->fields())
     {
         if ( fld->metadata()->uniqueCompound() )
         {

@@ -116,7 +116,7 @@ int BeanTreeItem::columnCount() const
     {
         // Devolvemos el número de campos visibles
         int count = 0;
-        foreach ( DBField *fld, d->m_bean->fields() )
+        for ( DBField *fld : d->m_bean->fields() )
         {
             if ( fld->metadata()->visibleGrid() )
             {
@@ -140,7 +140,7 @@ QVariant BeanTreeItem::data(int iColumn) const
     if ( d->m_bean != NULL )
     {
         int count = -1;
-        foreach ( DBField *fld, d->m_bean->fields() )
+        for ( DBField *fld : d->m_bean->fields() )
         {
             if ( fld->metadata()->visibleGrid() )
             {
