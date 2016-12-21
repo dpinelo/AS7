@@ -56,7 +56,7 @@ private:
 public:
     virtual ~DBFieldObserver();
 
-    bool readOnly();
+    bool readOnly() const;
 
     void installWidget(QObject *widget);
     virtual AlephERP::ObserverType type()

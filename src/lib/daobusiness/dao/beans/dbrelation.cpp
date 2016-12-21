@@ -53,7 +53,7 @@ DBRelation::~DBRelation()
   Indica si los hijos de esta relación se han cargado en memoria.
   Si el bean root se está creando de nuevo, siempre tiene los hijos cargados
   */
-bool DBRelation::childrenLoaded()
+bool DBRelation::childrenLoaded() const
 {
     if ( d->m->type() == DBRelationMetadata::ONE_TO_MANY ||
          d->m->type() == DBRelationMetadata::ONE_TO_ONE )
@@ -73,7 +73,7 @@ bool DBRelation::childrenLoaded()
 /*!
   Indica si algún hijo ha sido modificado
   */
-bool DBRelation::childrenModified()
+bool DBRelation::childrenModified() const
 {
     return d->m_childrenModified;
 }
@@ -302,7 +302,7 @@ BaseBeanPointer DBRelation::childByFilter(const QString &filter, bool includeToB
   actividades.id_categoria = 2
   Es decir, mira sobre campos padres
   */
-BaseBeanPointerList DBRelation::childrenByFilter(const QString &filter, const QString &order, bool includeToBeDeleted)
+const BaseBeanPointerList DBRelation::childrenByFilter(const QString &filter, const QString &order, bool includeToBeDeleted)
 {
     QString cacheKey = d->cacheKey(filter, order, includeToBeDeleted, false);
     if ( d->isOnCache(cacheKey) )
@@ -616,7 +616,7 @@ void DBRelation::loadFather()
     father(true);
 }
 
-BaseBeanPointerList DBRelation::internalChildren()
+const BaseBeanPointerList DBRelation::internalChildren() const
 {
     BaseBeanPointerList list;
     if ( d->m->type() == DBRelationMetadata::MANY_TO_ONE )
@@ -1233,7 +1233,7 @@ void DBRelation::deleteChildByObjectName(const QString &objectName)
   Devuelve únicamente los children que han sido modificados (por ello no realizará ningún tipo de consulta
   a base de datos). Es una función muy útil para actualizaciones en cascada
   */
-BaseBeanPointerList DBRelation::modifiedChildren()
+const BaseBeanPointerList DBRelation::modifiedChildren() const
 {
     BaseBeanPointerList list;
     if ( d->children().isEmpty() )
@@ -1265,7 +1265,7 @@ BaseBeanPointerList DBRelation::modifiedChildren()
   se va a ella a obtenerlos. Teóricamente, podemos devolver esta lísta porque se compone
   de punteros QSharedPointer, y el puntero se comparte de forma segura.
   */
-BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeDeleted, bool includeOtherChildren)
+const BaseBeanPointerList DBRelation::children(const QString &order, bool includeToBeDeleted, bool includeOtherChildren)
 {
     QMutexLocker lock(&d->m_mutex);
 
@@ -1696,7 +1696,7 @@ bool DBRelation::brotherSetted()
 
 /** Devuelve sólo aquellas referencias de hijos compartido (esto excluye a todos los otros otherChilds).
  Esta función se utiliza para aquellos objetos que necesitan trabajar con los hijos de esta relación */
-QVector<BaseBeanSharedPointer> DBRelation::sharedChildren(const QString &order)
+const QVector<BaseBeanSharedPointer> DBRelation::sharedChildren(const QString &order)
 {
     QString cacheKey = d->cacheKey("", order, true, false);
 
@@ -1823,7 +1823,7 @@ void DBRelation::setFilter(const QString &filter)
   Con esta función se obtiene el sql necesario para encontrar los beans children que
   dependen del bean root, a partir de las columnas de base de datos definidas para ello
   */
-QString DBRelation::fetchChildSqlWhere (const QString &aliasChild)
+QString DBRelation::fetchChildSqlWhere (const QString &aliasChild) const
 {
     QString sql, alias;
     if ( !aliasChild.isEmpty() )
@@ -1845,7 +1845,7 @@ QString DBRelation::fetchChildSqlWhere (const QString &aliasChild)
     return sql;
 }
 
-QString DBRelation::fetchFatherSqlWhere(const QString &aliasRoot)
+QString DBRelation::fetchFatherSqlWhere(const QString &aliasRoot) const
 {
     QString sql, alias;
     if ( !aliasRoot.isEmpty() )
@@ -1905,7 +1905,7 @@ QString DBRelation::sqlRelationWhere()
 /*!
   Devuelve el alias con el que esta tabla aparecerá en las sql
   */
-QString DBRelation::sqlChildTableAlias()
+QString DBRelation::sqlChildTableAlias() const
 {
     QString result;
 
@@ -1931,7 +1931,7 @@ QString DBRelation::sqlChildTableAlias()
 /*!
  DBField del que depende la relación. Es la key master de la que se obtienen el resto
 */
-DBField * DBRelation::masterField()
+DBField * DBRelation::masterField() const
 {
     DBField *fld = NULL;
     if ( !ownerBean().isNull() )
@@ -2083,7 +2083,7 @@ bool DBRelation::loadChildrenOnBackground(const QString &order)
     return true;
 }
 
-void DBRelation::availableBeans(QString id, int offset, BaseBeanSharedPointerList beans)
+void DBRelation::availableBeans(QString id, int offset, const BaseBeanSharedPointerList &beans)
 {
     QMutexLocker lock(&d->m_mutex);
     // Veamos si ya se había pedido previamente obtener esa posición
@@ -2146,7 +2146,7 @@ void DBRelation::backgroundQueryExecuted(QString id, bool result)
     }
 }
 
-bool DBRelation::loadingOnBackground()
+bool DBRelation::loadingOnBackground() const
 {
     return !d->m_backgroundPetition.isEmpty();
 }

@@ -751,7 +751,7 @@ public:
 
     void createInternalConnections(BaseBean *bean);
 
-    QList<DBFieldMetadata *> counterFields(const QString &field);
+    const QList<DBFieldMetadata *> counterFields(const QString &field) const;
 
     static QScriptValue toScriptValue(QScriptEngine *engine, BaseBeanMetadata * const &in);
     static void fromScriptValue(const QScriptValue &object, BaseBeanMetadata * &out);

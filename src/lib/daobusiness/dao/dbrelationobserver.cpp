@@ -107,7 +107,7 @@ void DBRelationObserver::uninstallWidget(QObject *widget)
     }
 }
 
-bool DBRelationObserver::readOnly()
+bool DBRelationObserver::readOnly() const
 {
     DBRelation *rel = qobject_cast<DBRelation *> (m_entity);
     if ( rel == NULL )

@@ -94,7 +94,7 @@ public:
     explicit AbstractObserver(DBObject *m_entity);
     virtual ~AbstractObserver();
 
-    QObject *entity();
+    QObject *entity() const;
     virtual void setEntity(QObject *obj);
 
     /*!
@@ -106,9 +106,9 @@ public:
     virtual void uninstallWidget(QObject *widget);
     virtual AlephERP::ObserverType type() = 0;
 
-    QList<QPointer<QObject> > viewWidgets();
+    const QList<QPointer<QObject> > viewWidgets() const;
 
-    virtual	bool readOnly() = 0;
+    virtual	bool readOnly() const = 0;
 
 protected slots:
     virtual void widgetToBeDestroyed(QObject *widget);

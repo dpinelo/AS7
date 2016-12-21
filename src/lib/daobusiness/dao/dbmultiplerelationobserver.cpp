@@ -63,7 +63,7 @@ QStringList DBMultipleRelationObserver::pathList()
     return d->m_path.split(".");
 }
 
-QList<DBObject *> DBMultipleRelationObserver::entities()
+const QList<DBObject *> DBMultipleRelationObserver::entities()
 {
     if ( d->m_firstAncestor.isNull() )
     {
@@ -88,7 +88,7 @@ QList<DBObject *> DBMultipleRelationObserver::entities()
     return result;
 }
 
-bool DBMultipleRelationObserver::readOnly()
+bool DBMultipleRelationObserver::readOnly() const
 {
     return true;
 }

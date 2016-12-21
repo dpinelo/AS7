@@ -63,7 +63,7 @@ protected:
 
     AlephERP::DBCriticalMethodsExecuting restoreOverrideOnExecution();
     void setOnExecution(AlephERP::DBCriticalMethodsExecuting value);
-    bool isExecuting(AlephERP::DBCriticalMethodsExecuting script);
+    bool isExecuting(AlephERP::DBCriticalMethodsExecuting script) const;
 
 public:
     explicit DBObject(QObject *parent = 0);

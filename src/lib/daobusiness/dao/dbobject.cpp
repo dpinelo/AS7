@@ -117,7 +117,7 @@ void DBObject::setOnExecution(AlephERP::DBCriticalMethodsExecuting value)
     m_executingStack.push(value);
 }
 
-bool DBObject::isExecuting(AlephERP::DBCriticalMethodsExecuting script)
+bool DBObject::isExecuting(AlephERP::DBCriticalMethodsExecuting script) const
 {
     return m_executingStack.contains(script);
 }

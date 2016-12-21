@@ -50,9 +50,9 @@ public:
 
     BaseBean *firstAncestor();
     QStringList pathList();
-    QList<DBObject *> entities();
+    const QList<DBObject *> entities();
 
-    virtual bool readOnly();
+    virtual bool readOnly() const;
     virtual AlephERP::ObserverType type()
     {
         return AlephERP::DbMultipleRelation;

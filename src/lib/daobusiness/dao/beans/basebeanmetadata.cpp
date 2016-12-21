@@ -4661,7 +4661,7 @@ void BaseBeanMetadata::createInternalConnections(BaseBean *bean)
  * @param field
  * @return
  */
-QList<DBFieldMetadata *> BaseBeanMetadata::counterFields(const QString &field)
+const QList<DBFieldMetadata *> BaseBeanMetadata::counterFields(const QString &field) const
 {
     QList<DBFieldMetadata *> list;
     foreach (DBFieldMetadata *fld, d->m_fields)

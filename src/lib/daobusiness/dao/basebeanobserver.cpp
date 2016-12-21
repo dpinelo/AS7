@@ -101,7 +101,7 @@ void BaseBeanObserver::setWindowModified(bool value)
     }
 }
 
-bool BaseBeanObserver::readOnly()
+bool BaseBeanObserver::readOnly() const
 {
     BaseBean *bean = qobject_cast<BaseBean *> (entity());
     if ( bean == NULL )

@@ -132,20 +132,20 @@ public:
 
     int isOnRemovedChildren(BaseBeanSharedPointer bean);
     static bool haveToSearchOnDatabase(DBField *fld);
-    void addOtherChildren(BaseBeanPointerList list);
+    void addOtherChildren(const BaseBeanPointerList &list);
     void addOtherChild(BaseBeanPointer child);
 
     static QString cacheKey(const QString &filter, const QString &order, bool includeToBeDeleted, bool includeOtherChildren);
     bool isOnSharedCache(const QString &key);
     bool isOnCache(const QString &key);
-    BaseBeanSharedPointerList sharedCache(const QString &key);
-    BaseBeanPointerList cache(const QString &key);
+    const BaseBeanSharedPointerList sharedCache(const QString &key) const;
+    const BaseBeanPointerList cache(const QString &key) const;
     void clearCache();
-    void addToCache(const QString &key, BaseBeanSharedPointerList list);
-    void addToCache(const QString &key, BaseBeanPointerList list);
+    void addToCache(const QString &key, const BaseBeanSharedPointerList &list);
+    void addToCache(const QString &key, const BaseBeanPointerList &list);
 
     int childrenSize() const;
-    QVector<BaseBeanSharedPointer> children() const;
+    const QVector<BaseBeanSharedPointer> children() const;
     BaseBeanSharedPointer childrenAt(int idx);
     void childrenClear();
     void childrenResize(int newSize);
@@ -155,7 +155,7 @@ public:
     void childrenSet(int pos, BaseBeanSharedPointer bean);
 
     int otherChildrenSize() const;
-    BaseBeanPointerList otherChildren() const;
+    const BaseBeanPointerList otherChildren() const;
     BaseBeanPointer otherChildrenAt(int idx);
     void otherChildrenClear();
     void otherChildrenAppend(BaseBeanPointer bean);

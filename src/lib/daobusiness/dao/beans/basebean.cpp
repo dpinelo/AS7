@@ -111,7 +111,7 @@ public:
     void emitRelatedElementModified(RelatedElementPointer el);
     void copy(BaseBean *copyBean);
     void removeRelatedElement(RelatedElementPointer element);
-    bool checkAccess(QChar access);
+    bool checkAccess(QChar access) const;
 };
 
 BaseBeanPrivate::BaseBeanPrivate(BaseBean *qq) :
@@ -455,7 +455,7 @@ BaseBean::~BaseBean()
  * Inicializa la estructura básica del bean o registro de base de datos. Puede establecer los valores por defecto
  * y también asignar los padres de las relaciones M1
  */
-void BaseBean::init(BaseBeanMetadata *m, bool hastToSetDefaultValue, BaseBeanPointerList fatherBeans)
+void BaseBean::init(BaseBeanMetadata *m, bool hastToSetDefaultValue, const BaseBeanPointerList &fatherBeans)
 {
     QMutexLocker lock(&d->m_mutex);
     d->m = m;
@@ -672,7 +672,7 @@ DBRelation *BaseBean::newRelation(DBRelationMetadata *m)
     return rel;
 }
 
-QList<DBField *> BaseBean::fields() const
+const QList<DBField *> BaseBean::fields() const
 {
     return d->m_fields;
 }
@@ -690,7 +690,7 @@ QVariantMap BaseBean::fieldsMap() const
 /*!
   Conjunto de todas las relaciones del basebean. Pueden ser relaciones con hijos o con padres
   */
-QList<DBRelation *> BaseBean::relations(AlephERP::RelationTypes type) const
+const QList<DBRelation *> BaseBean::relations(AlephERP::RelationTypes type) const
 {
     if ( type.testFlag(AlephERP::All) )
     {
@@ -744,7 +744,7 @@ int BaseBean::relationIndex(const QString &relationName)
 /*!
   Devuelve los hijos de la relación dada. Busca el objeto relation, y obtiene directamente los hijos
   */
-BaseBeanPointerList BaseBean::relationChildren(const QString &relationName, const QString &order, bool includeToBeDeleted)
+const BaseBeanPointerList BaseBean::relationChildren(const QString &relationName, const QString &order, bool includeToBeDeleted)
 {
     DBRelation *rel = relation(relationName);
     if ( rel != NULL )
@@ -785,7 +785,7 @@ BaseBeanPointer BaseBean::relationChildByField(const QString &relationName, cons
   Devuelve los hijos de la relación \a relationName según un filtro elaborado en \a filter
   y ordenados según \a order
   */
-BaseBeanPointerList BaseBean::relationChildrenByFilter(const QString &relationName, const QString &filter, const QString &order, bool includeToBeDeleted)
+const BaseBeanPointerList BaseBean::relationChildrenByFilter(const QString &relationName, const QString &filter, const QString &order, bool includeToBeDeleted)
 {
     BaseBeanPointerList beans;
     DBRelation *rel = relation(relationName);
@@ -936,7 +936,7 @@ DBField *BaseBean::field(const QString &dbFieldName)
     return field;
 }
 
-DBField * BaseBean::field(int index)
+DBField * BaseBean::field(int index) const
 {
     if ( index < 0 || index >= d->m_fields.size() )
     {
@@ -948,7 +948,7 @@ DBField * BaseBean::field(int index)
 /**
   Devuelve todos aquellos campos que componen la primaryKey
   */
-QList<DBField *> BaseBean::pkFields()
+const QList<DBField *> BaseBean::pkFields() const
 {
     QList<DBField *> fields;
     for ( int i = 0 ; i < d->m_fields.size() ; i++ )
@@ -965,7 +965,7 @@ QList<DBField *> BaseBean::pkFields()
     return fields;
 }
 
-int BaseBean::fieldIndex(const QString &dbFieldName)
+int BaseBean::fieldIndex(const QString &dbFieldName) const
 {
     int index = -1;
     for ( int i = 0 ; i < d->m_fields.size() ; i++ )
@@ -1076,7 +1076,7 @@ QString BaseBean::fatherDisplayFieldValue(const QString &relationName, const QSt
 /*!
   Devuelve el valor del campo dbFieldName
   */
-QVariant BaseBean::fieldValue(int dbField)
+QVariant BaseBean::fieldValue(int dbField) const
 {
     if ( dbField > -1 && dbField < d->m_fields.size() )
     {
@@ -1114,7 +1114,7 @@ QVariant BaseBean::fieldValue(const QString &dbFieldName)
     return value;
 }
 
-bool  BaseBean::isFieldEmpty(const QString &dbFieldName)
+bool BaseBean::isFieldEmpty(const QString &dbFieldName)
 {
     if ( dbFieldName.isEmpty() )
     {
@@ -1131,7 +1131,7 @@ bool  BaseBean::isFieldEmpty(const QString &dbFieldName)
     return fld->isEmpty();
 }
 
-QPixmap BaseBean::pixmapFieldValue(int dbField)
+QPixmap BaseBean::pixmapFieldValue(int dbField) const
 {
     QPixmap pixmap;
     DBField *fld = field(dbField);
@@ -1335,7 +1335,7 @@ QString BaseBean::sqlWherePk()
     return where;
 }
 
-QVariant BaseBean::pkValue()
+QVariant BaseBean::pkValue() const
 {
     QVariantMap pkValues;
     QList<DBField *> pk = pkFields();
@@ -1350,7 +1350,7 @@ QVariant BaseBean::pkValue()
     return pkValues;
 }
 
-QVariantList BaseBean::pkListValue()
+const QVariantList BaseBean::pkListValue() const
 {
     QVariantList list;
     QList<DBField *> pk = pkFields();
@@ -2656,7 +2656,7 @@ RelatedElementPointer BaseBean::newRelatedElement(AlephERP::RelatedElementTypes 
     return element;
 }
 
-AERPUserRowAccessList BaseBean::access()
+AERPUserRowAccessList BaseBean::access() const
 {
     return d->m_access;
 }
@@ -2678,12 +2678,12 @@ void BaseBean::appendAccess(const AERPUserRowAccess &item)
  * Devuelve true si el presente usuario tiene permisos para acceder a esta fila
  * @return
  */
-bool BaseBean::checkAccess(QChar access)
+bool BaseBean::checkAccess(QChar access) const
 {
     return d->checkAccess(access);
 }
 
-bool BaseBeanPrivate::checkAccess(QChar access)
+bool BaseBeanPrivate::checkAccess(QChar access) const
 {
     if ( AERPLoggedUser::instance()->isSuperAdmin() )
     {
@@ -2977,7 +2977,7 @@ RelatedElementPointer BaseBean::newRelatedElement(AERPDocMngmntDocument *doc, co
  * Devuelve los elementos relacionados. No devuelve los marcados para ser borrados.
  * @return
  */
-RelatedElementPointerList BaseBean::getRelatedElements(AlephERP::RelatedElementTypes type, AlephERP::RelatedElementCardinalities cardinality, bool includeToBeDelete)
+const RelatedElementPointerList BaseBean::getRelatedElements(AlephERP::RelatedElementTypes type, AlephERP::RelatedElementCardinalities cardinality, bool includeToBeDelete)
 {
     QMutexLocker lock(&d->m_mutex);
     RelatedElementPointerList elements;
@@ -3946,7 +3946,7 @@ void BaseBean::copyValues(BaseBeanPointer otherBean, const QStringList &fields)
  * @param otherBean
  * @param relationNames
  */
-void BaseBean::copyRelationChildren(BaseBeanPointer otherBean, QStringList &relationNames)
+void BaseBean::copyRelationChildren(BaseBeanPointer otherBean, const QStringList &relationNames)
 {
     QMutexLocker lock(&d->m_mutex);
     for (const QString &relationName : relationNames)
@@ -4034,7 +4034,7 @@ void BaseBean::deepCopyValues(BaseBeanPointer otherBean, const QStringList &rela
  * fields que se almacenan en base de datos (ya que los calculados vendrán de una relación entre estos)
  * @return
  */
-QString BaseBean::hash(bool useRawValue)
+QString BaseBean::hash(bool useRawValue) const
 {
     QString totalData;
     for ( DBField *fld : d->m_fields )
@@ -4055,7 +4055,7 @@ QString BaseBean::hash(bool useRawValue)
  * Esta función es análoga a la anterior \a hash pero utiliza valores sin procesar
  * y no fuerza a obtener ningún campo (como los memo que se solicitan bajo demanda)
  */
-QString BaseBean::rawHash()
+QString BaseBean::rawHash() const
 {
     QString totalData;
     for ( DBField *fld : d->m_fields )
@@ -4106,7 +4106,7 @@ QStringList BaseBean::repositoryKeywords() const
  * @param field
  * @return
  */
-QList<DBField *> BaseBean::counterFields(const QString &fld)
+const QList<DBField *> BaseBean::counterFields(const QString &fld)
 {
     QList<DBFieldMetadata *> mList = d->m->counterFields(fld);
     QList<DBField *> list;

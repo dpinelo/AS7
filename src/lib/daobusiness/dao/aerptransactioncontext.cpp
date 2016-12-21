@@ -67,7 +67,7 @@ public:
 
     void addBean(const BaseBeanPointer &bean)
     {
-        foreach (BaseBeanPointer b, m_list)
+        for (BaseBeanPointer b : m_list)
         {
             if ( b.isNull() )
             {
@@ -80,7 +80,7 @@ public:
             {
                 return;
             }
-            foreach (BaseBeanPointer b, m_list)
+            for (BaseBeanPointer b : m_list)
             {
                 if ( !b.isNull() && b->objectName() == bean->objectName() )
                 {
@@ -93,7 +93,7 @@ public:
 
     bool removeBean(const BaseBeanPointer &bean)
     {
-        foreach (BaseBeanPointer b, m_list)
+        for (BaseBeanPointer b : m_list)
         {
             if ( b.isNull() )
             {
@@ -134,7 +134,7 @@ public:
         return m_afterSqls;
     }
 
-    QList<BaseBeanPointer> list() const
+    const QList<BaseBeanPointer> list() const
     {
         return m_list;
     }
@@ -161,7 +161,7 @@ public:
         {
             return true;
         }
-        foreach (BaseBeanPointer beanInList, m_list)
+        for (BaseBeanPointer beanInList : m_list)
         {
             if ( !beanInList.isNull() && !bean.isNull() && beanInList.data()->objectName() == bean.data()->objectName() )
             {
@@ -206,9 +206,9 @@ public:
     }
 
     bool doPrepareTransaction(const QString &contextName);
-    BaseBeanPointerList doOrderForTransaction(const QString &contextName);
+    const BaseBeanPointerList doOrderForTransaction(const QString &contextName);
     bool doValidationForTransaction(const BaseBeanPointerList &list);
-    BaseBeanPointerList orderBeansForTransaction(const QString &contextName);
+    const BaseBeanPointerList orderBeansForTransaction(const QString &contextName);
     void buildBeansStatePreviousCommit(const QList<BaseBeanPointer> &list);
 };
 
@@ -269,7 +269,7 @@ bool AERPTransactionContext::addToContext(const QString &contextName, const Base
     }
     // Recorremos todos los beans agregados para comprobar que no está previamente agregado
     QList<BaseBeanPointer> list = beansOnContext(contextName);
-    foreach(BaseBeanPointer b, list)
+    for(BaseBeanPointer b : list)
     {
         if ( !b.isNull() && b->objectName() == bean->objectName() )
         {
@@ -298,7 +298,7 @@ bool AERPTransactionContext::addToContext(const QString &contextName, const Base
     connect(bean.data(), SIGNAL(beanModified(BaseBean*,bool)), this, SLOT(emitBeanModified(BaseBean*,bool)));
 
     // Si tiene campos con contadores, registramos el valor que tengan calculado
-    foreach(DBField *fld, bean->fields())
+    for(DBField *fld : bean->fields())
     {
         if ( fld->metadata()->hasCounterDefinition() && fld->hasBeenCalculated() )
         {
@@ -308,14 +308,15 @@ bool AERPTransactionContext::addToContext(const QString &contextName, const Base
 
     // Si tiene hijos que están cargados, se añaden al contexto. Los que se vayan cargando sólos se irán agregando
     // autónomamente a la transacción.
-    foreach(DBRelation *relation, bean->relations(AlephERP::OneToMany | AlephERP::OneToOne | AlephERP::ManyToOne))
+    const QList<DBRelation *> relations = bean->relations(AlephERP::OneToMany | AlephERP::OneToOne | AlephERP::ManyToOne);
+    for(DBRelation *relation : relations)
     {
         // Obtener los hijos no debe en este caso de desencadenar ningún tipo de proceso. Por eso accedemos a ellos
         // con la estructura interna.
         bool previousState = bean->blockAllSignals(true);
         BaseBeanPointerList list = relation->internalChildren();
         bean->blockAllSignals(previousState);
-        foreach (BaseBeanPointer child, list)
+        for (BaseBeanPointer child : list)
         {
             if ( !child.isNull() )
             {
@@ -328,8 +329,8 @@ bool AERPTransactionContext::addToContext(const QString &contextName, const Base
     // Si además, tiene relaciones, éstas también se agregan al contexto
     if ( bean->relatedElementsLoaded() )
     {
-        RelatedElementPointerList elements = bean->getRelatedElements(AlephERP::Record, AlephERP::PointToChild, true);
-        foreach (RelatedElementPointer element, elements)
+        const RelatedElementPointerList elements = bean->getRelatedElements(AlephERP::Record, AlephERP::PointToChild, true);
+        for (RelatedElementPointer element : elements)
         {
             if ( !element.isNull() && element->relatedIsLoaded() && !element->relatedBean().isNull() && element->relatedBean()->objectName() != bean->objectName() )
             {
@@ -387,22 +388,19 @@ bool AERPTransactionContext::discardFromContext(const BaseBeanPointer &bean, boo
         disconnect(bean.data(), SLOT(emitBeanModified(BaseBean*,bool)));
 
         // Eliminamos del contexto los hijos o padres de este bean que estuviesen relacionados
-        QList<DBRelation *> relations;
+        AlephERP::RelationTypes flags = AlephERP::OneToMany | AlephERP::OneToOne;
         if ( includeFatherBeansOnDiscard )
         {
-            relations = bean.data()->relations(AlephERP::OneToMany | AlephERP::OneToOne | AlephERP::ManyToOne);
+            flags |= AlephERP::ManyToOne;
         }
-        else
-        {
-            relations = bean.data()->relations(AlephERP::OneToMany | AlephERP::OneToOne);
-        }
-        foreach(DBRelation *relation, relations)
+        const QList<DBRelation *> relations = bean.data()->relations(flags);
+        for(DBRelation *relation : relations)
         {
             // Obtener los hijos no debe en este caso de desencadenar ningún tipo de proceso.
             bool previousState = bean->blockAllSignals(true);
-            BaseBeanPointerList list = relation->internalChildren();
+            const BaseBeanPointerList list = relation->internalChildren();
             bean->blockAllSignals(previousState);
-            foreach (BaseBeanPointer child, list)
+            for (BaseBeanPointer child : list)
             {
                 if ( !child.isNull() )
                 {
@@ -438,7 +436,7 @@ bool AERPTransactionContext::discardContext(const QString &contextName)
         QLogger::QLog_Info(AlephERP::stLogDB, QString("AERPTransactionContext::discard: No existe el contexto: [%1]").arg(contextName));
         return false;
     }
-    foreach (BaseBeanPointer bean, d->m_contextObjects[contextName]->list())
+    for (BaseBeanPointer bean : d->m_contextObjects[contextName]->list())
     {
         if ( !bean.isNull() )
         {
@@ -505,7 +503,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     }
 
     emit orderingInited(contextName, d->m_contextObjects[contextName]->list().size());
-    BaseBeanPointerList list = d->doOrderForTransaction(contextName);
+    const BaseBeanPointerList list = d->doOrderForTransaction(contextName);
     emit orderingFinished(contextName);
     if ( list.isEmpty() )
     {
@@ -539,7 +537,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     }
 
     // Ejecutamos las SQL Previas
-    foreach (const QString &sql, d->m_contextObjects[contextName]->previousSql())
+    for (const QString &sql : d->m_contextObjects[contextName]->previousSql())
     {
         if ( !BaseDAO::execute(sql) )
         {
@@ -553,7 +551,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     }
 
     // Guardamos los objetos del contexto
-    foreach (BaseBeanPointer bean, list)
+    for (BaseBeanPointer bean : list)
     {
         if ( d->m_cancel[contextName] )
         {
@@ -590,7 +588,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     }
     // Ahora almacenamos todos los elementos relacionados de ese bean. Lo hacemos aquí ya que así nos garantizamos que todo bean relacionado
     // que haya podido crearse, quede guardado.
-    foreach (BaseBeanPointer bean, list)
+    for (BaseBeanPointer bean : list)
     {
         if ( !bean.isNull() && bean->modifiedRelatedElements() && bean->countRelatedElements(AlephERP::NoneAll, AlephERP::PointToChild, true) > 0 )
         {
@@ -600,7 +598,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
 
     // Las relaciones 1 a 1 tienen un tratamiento especial, y es que debemos asegurar que ambos registros se han guardado, para entonces, ajustar
     // los valores de los campos
-    foreach (BaseBeanPointer bean, list)
+    for (BaseBeanPointer bean : list)
     {
         if ( !saveOneToOneIds(bean, contextName) )
         {
@@ -614,7 +612,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     }
 
     // Ejecutamos las SQL Finales
-    foreach (const QString &sql, d->m_contextObjects[contextName]->finalsSql())
+    for (const QString &sql : d->m_contextObjects[contextName]->finalsSql())
     {
         if ( !BaseDAO::execute(sql) )
         {
@@ -643,7 +641,7 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     // registros, cambien datos o tengan columnas calculadas... Esto implica un decremento en el rendimiento en accesos lentos
     // pero da seguridad en la integridad de datos.
     BaseDAO::reloadBeansFromDB(beansSaved);
-    foreach (BaseBeanPointer bean, beansSaved)
+    for (BaseBeanPointer bean : beansSaved)
     {
         // Tras una transacción y como puede haber triggers deferred, es necesario recargar los datos de ellos
         if ( bean )
@@ -695,7 +693,7 @@ bool AERPTransactionContextPrivate::doPrepareTransaction(const QString &contextN
     while ( firstList.size() != m_contextObjects[contextName]->list().size() )
     {
         firstList = m_contextObjects[contextName]->list();
-        foreach (BaseBeanPointer bean, firstList)
+        for (BaseBeanPointer bean : firstList)
         {
             emit q_ptr->workingWithBean(bean);
             if ( !bean.isNull() && bean->modified() && AERPListContainsBean<BaseBeanPointerList>(proccesedBeans, bean) == -1 )
@@ -749,10 +747,10 @@ bool AERPTransactionContextPrivate::doPrepareTransaction(const QString &contextN
  * @return
  * Devuelve una lista ordenada de los registros en la transacción. Utilizará topological sort para ello.
  */
-BaseBeanPointerList AERPTransactionContextPrivate::doOrderForTransaction(const QString &contextName)
+const BaseBeanPointerList AERPTransactionContextPrivate::doOrderForTransaction(const QString &contextName)
 {
     // El orden en el que se hace el commit es muy importante, y debe tener en cuenta las relaciones 1->M y demás.
-    BaseBeanPointerList list = orderBeansForTransaction(contextName);
+    const BaseBeanPointerList list = orderBeansForTransaction(contextName);
     if ( list.size() == 0 )
     {
         return list;
@@ -760,14 +758,14 @@ BaseBeanPointerList AERPTransactionContextPrivate::doOrderForTransaction(const Q
 
     // Algo de debug
     QLogger::QLog_Info(AlephERP::stLogDB, QObject::tr("----- INFORMACIÓN DE TRANSACCIÓN ----"));
-    foreach (BaseBeanPointer bean, list)
+    for (BaseBeanPointer bean : list)
     {
         QLogger::QLog_Info(AlephERP::stLogDB,
                            QObject::tr("Bean: %1. [%2] Estado: %3. OID: %4").arg(bean->metadata()->alias(),
                                                                                  bean->objectName(),
                                                                                  bean->dbStateDisplayName(),
                                                                                  QString::number(bean->dbOid())));
-        foreach (DBField *fld, bean->fields())
+        for (DBField *fld : bean->fields())
         {
             QLogger::QLog_Debug(AlephERP::stLogDB,
                                 QObject::tr("   %1: [%2]").
@@ -790,7 +788,7 @@ bool AERPTransactionContextPrivate::doValidationForTransaction(const BaseBeanPoi
 {
     // Vamos a validar con las reglas internas
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPTransactionContext::commit: Se va a proceder a guardar los beans de las transacción. El número de beans a guardar es de: [%1]").arg(list.size()));
-    foreach (BaseBeanPointer bean, list)
+    for (BaseBeanPointer bean : list)
     {
         // Asegurémosnos de que los campos están adecuadamente calculados
         bean->recalculateCalculatedFields();
@@ -819,8 +817,8 @@ bool AERPTransactionContext::saveOneToOneIds(BaseBeanPointer bean, const QString
     {
         return true;
     }
-    QList<DBRelation *> rels = bean->relations(AlephERP::OneToOne);
-    foreach (DBRelation *rel, rels)
+    const QList<DBRelation *> rels = bean->relations(AlephERP::OneToOne);
+    for (DBRelation *rel : rels)
     {
         if ( !rel->internalBrother().isNull() &&
              rel->internalBrother()->dbState() != BaseBean::TO_BE_DELETED &&
@@ -895,8 +893,8 @@ bool AERPTransactionContext::rollback(const QString &contextName)
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastError);
         return false;
     }
-    QList<BaseBeanPointer> list = d->m_contextObjects[contextName]->list();
-    foreach (BaseBeanPointer bean, list)
+    const QList<BaseBeanPointer> list = d->m_contextObjects[contextName]->list();
+    for (BaseBeanPointer bean : list)
     {
         if ( !bean.isNull() )
         {
@@ -983,7 +981,7 @@ QString AERPTransactionContext::database() const
     return d->m_database;
 }
 
-BaseBeanPointerList AERPTransactionContext::beansOnContext(const QString &contextName)
+const BaseBeanPointerList AERPTransactionContext::beansOnContext(const QString &contextName) const
 {
     if ( !d->m_contextObjects.contains(contextName) )
     {
@@ -993,7 +991,7 @@ BaseBeanPointerList AERPTransactionContext::beansOnContext(const QString &contex
     return d->m_contextObjects[contextName]->list();
 }
 
-BaseBeanPointerList AERPTransactionContext::beansOrderedToPersist(const QString &contextName)
+const BaseBeanPointerList AERPTransactionContext::beansOrderedToPersist(const QString &contextName) const
 {
     BaseBeanPointerList list;
     if ( d->doPrepareTransaction(contextName) )
@@ -1012,7 +1010,8 @@ BaseBeanPointerList AERPTransactionContext::beansOrderedToPersist(const QString 
  */
 bool AERPTransactionContext::isDirty(const QString &contextName)
 {
-    foreach (BaseBeanPointer bean, beansOnContext(contextName))
+    QList<BaseBeanPointer> list = beansOnContext(contextName);
+    for (BaseBeanPointer bean : list)
     {
         if ( !bean.isNull() && bean->modified() )
         {
@@ -1025,7 +1024,7 @@ bool AERPTransactionContext::isDirty(const QString &contextName)
 bool AERPTransactionContext::isOnTransaction(BaseBeanPointer bean)
 {
     QList<BaseBeanPointer> beans = AERPTransactionContext::instance()->beansOnContext(bean->actualContext());
-    foreach (BaseBeanPointer b, beans)
+    for (BaseBeanPointer b : beans)
     {
         if ( bean->dbState() == BaseBean::INSERT )
         {
@@ -1140,7 +1139,7 @@ void AERPTransactionContext::emitBeanModified(BaseBean *bean, bool modified)
  * ordenación de los mismos.
  * @return
  */
-BaseBeanPointerList AERPTransactionContextPrivate::orderBeansForTransaction(const QString &contextName)
+const BaseBeanPointerList AERPTransactionContextPrivate::orderBeansForTransaction(const QString &contextName)
 {
     // TODO: Hay que ver el caso en el que los beans dependan de otro de su misma tabla!!!
     BaseBeanPointerList orderedBeans;
@@ -1156,10 +1155,10 @@ BaseBeanPointerList AERPTransactionContextPrivate::orderBeansForTransaction(cons
 
     // Vamos a construir el grafo. Para ello recorremos todos los beans, y examinamos las relaciones o
     // Si la tienen, y el registro está en el contexto, se añade al grafo
-    foreach (BaseBeanPointer bean, beansOnContext)
+    for (BaseBeanPointer bean : beansOnContext)
     {
-        QList<DBRelation *> relations = bean->relations(AlephERP::ManyToOne);
-        foreach (DBRelation *rel, relations)
+        const QList<DBRelation *> relationsManyToOne = bean->relations(AlephERP::ManyToOne);
+        for (DBRelation *rel : relationsManyToOne)
         {
             if ( rel->isFatherLoaded() )
             {
@@ -1177,8 +1176,8 @@ BaseBeanPointerList AERPTransactionContextPrivate::orderBeansForTransaction(cons
                 }
             }
         }
-        relations = bean->relations(AlephERP::OneToOne);
-        foreach (DBRelation *rel, relations)
+        const QList<DBRelation *> relationsOneToOne = bean->relations(AlephERP::OneToOne);
+        for (DBRelation *rel : relationsOneToOne)
         {
             BaseBeanPointer brother = rel->brother();
             if ( brother && brother->actualContext() == contextName )
@@ -1193,39 +1192,38 @@ BaseBeanPointerList AERPTransactionContextPrivate::orderBeansForTransaction(cons
                 graph.addEdge(bean->property(graphIndexProperty).toInt(), brother->property(graphIndexProperty).toInt());
             }
         }
-        relations = bean->relations(AlephERP::OneToMany);
-        foreach (DBRelation *rel, relations)
+        const QList<DBRelation *> relationsOneToMany = bean->relations(AlephERP::OneToMany);
+        for (DBRelation *rel : relationsOneToMany)
         {
-            BaseBeanPointerList children;
             // Si no se han obtenido los hijos cuando llegamos a la transacción... ¡¡es que no hay que obtenerlos!!
             if ( bean->dbState() == BaseBean::INSERT ||
                  rel->childrenLoaded() )
             {
-                children = rel->children();
-            }
-            foreach (BaseBeanPointer child, children)
-            {
-                if ( child->actualContext() == contextName )
+                const BaseBeanPointerList children = rel->children();
+                for (BaseBeanPointer child : children)
                 {
-                    QLogger::QLog_Debug(AlephERP::stLogDB,
-                                        QString("AERPTransactionContextPrivate::orderBeansForTransaction: Camino del grafo [%1] [%2] [%3] [%4]").
-                                        arg(bean->metadata()->tableName()).
-                                        arg(bean->property(graphIndexProperty).toInt()).
-                                        arg(child->metadata()->tableName()).
-                                        arg(child->property(graphIndexProperty).toInt())
-                                        );
-                    graph.addEdge(bean->property(graphIndexProperty).toInt(), child->property(graphIndexProperty).toInt());
+                    if ( child->actualContext() == contextName )
+                    {
+                        QLogger::QLog_Debug(AlephERP::stLogDB,
+                                            QString("AERPTransactionContextPrivate::orderBeansForTransaction: Camino del grafo [%1] [%2] [%3] [%4]").
+                                            arg(bean->metadata()->tableName()).
+                                            arg(bean->property(graphIndexProperty).toInt()).
+                                            arg(child->metadata()->tableName()).
+                                            arg(child->property(graphIndexProperty).toInt())
+                                            );
+                        graph.addEdge(bean->property(graphIndexProperty).toInt(), child->property(graphIndexProperty).toInt());
+                    }
                 }
             }
         }
     }
     // Se realiza la ordenación topológica
-    QList<int> indexOrdered = graph.topologicalSort();
+    const QList<int> indexOrdered = graph.topologicalSort();
 
-    foreach(int graphId, indexOrdered)
+    for(int graphId : indexOrdered)
     {
         // Busquemos el bean en el contexto, y agregémoslo
-        foreach (BaseBeanPointer bean, beansOnContext)
+        for (BaseBeanPointer bean : beansOnContext)
         {
             if ( bean && bean->property(graphIndexProperty).toInt() == graphId )
             {
@@ -1257,12 +1255,13 @@ BaseBeanPointerList AERPTransactionContextPrivate::orderBeansForTransaction(cons
 void AERPTransactionContextPrivate::buildBeansStatePreviousCommit(const QList<BaseBeanPointer> &list)
 {
     m_beansStatePreviousCommit.clear();
-    foreach (BaseBeanPointer bean, list)
+    for (BaseBeanPointer bean : list)
     {
         BaseBeanStatePreviousCommit data;
         data.bean = bean;
         data.dbState = bean->dbState();
-        foreach (DBField *fld, bean->fields())
+        const QList<DBField *> fields = bean->fields();
+        for (DBField *fld : fields)
         {
             data.fieldsModifiedState[fld->dbFieldName()] = fld->modified();
         }

@@ -58,7 +58,7 @@ private:
     BaseBeanObserverPrivate *d;
     Q_DECLARE_PRIVATE(BaseBeanObserver)
 
-    bool readOnly();
+    bool readOnly() const;
     virtual AlephERP::ObserverType type()
     {
         return AlephERP::BaseBean;

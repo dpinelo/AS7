@@ -34,7 +34,7 @@ public:
     void addEdge(int v, int w);
 
     // prints a Topological Sort of the complete graph
-    QList<int> topologicalSort();
+    const QList<int> topologicalSort();
 };
 
 #endif // GRAPH_H
