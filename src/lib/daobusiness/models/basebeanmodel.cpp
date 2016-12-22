@@ -1253,31 +1253,6 @@ QMimeData *BaseBeanModel::mimeData(const QModelIndexList &indexes) const
     return mimeData;
 }
 
-/**
- * @brief BaseBeanModel::scheduleData
- * Si el modelo presenta datos en una vista de tipo calendario, aquí se pretratan los datos
- * @param idx
- * @param role
- * @return
- */
-QVariant BaseBeanModel::scheduleData(const QModelIndex &idx, int role)
-{
-    if ( role != Qxt::ItemDurationRole && role != Qxt::ItemStartTimeRole )
-    {
-        return QVariant();
-    }
-    /*
-    if ( role == Qxt::ItemStartTimeRole ) {
-           QDateTime time = field->value().toDateTime();
-           return time.toTime_t();
-       } else if ( role == Qxt::ItemDurationRole ) {
-           return field->value().toInt();
-       }
-       */
-    return QVariant();
-}
-
-
 bool BaseBeanModel::exportToSpreadSheet(QAbstractItemModel *model, BaseBeanMetadata *m, const QString &file, const QString &type)
 {
     if ( !m )

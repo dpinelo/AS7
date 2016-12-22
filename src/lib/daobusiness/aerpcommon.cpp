@@ -118,6 +118,7 @@ const char * AlephERP::stInactive = "debaja";
 const char * AlephERP::stDatabaseErrorPrefix = "AERPERROR:";
 const char * AlephERP::stQsFunction = "qsFunction";
 const char * AlephERP::stAddToThisForm = "addToThisForm";
+const char * AlephERP::stRowColor = "rowcolor";
 
 #ifdef ALEPHERP_DEVTOOLS
 const char * AlephERP::stWebInspector = "aerpWebInspector";

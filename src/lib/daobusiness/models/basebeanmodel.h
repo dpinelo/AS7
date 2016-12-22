@@ -129,8 +129,6 @@ public:
 
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
 
-    virtual QVariant scheduleData(const QModelIndex &idx, int role);
-
     bool exportToSpreadSheet(QAbstractItemModel *model, BaseBeanMetadata *m, const QString &file, const QString &type);
 
     virtual int totalRecordCount() const;

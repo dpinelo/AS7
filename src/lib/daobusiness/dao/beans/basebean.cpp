@@ -998,6 +998,11 @@ bool BaseBean::modifiedRelatedElements() const
 
 QColor BaseBean::rowColor()
 {
+    DBField *fldColor = field(AlephERP::stRowColor);
+    if ( fldColor != NULL )
+    {
+        return QColor(fldColor->value().toString());
+    }
     return d->m->rowColorScriptExecute(this);
 }
 

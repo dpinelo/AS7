@@ -53,7 +53,7 @@ public:
     void setEmail(const QString &value);
     QString name() const;
     void setName(const QString &value);
-    QList<AlephERP::RoleInfo> roles() const;
+    const QList<AlephERP::RoleInfo> roles() const;
     bool hasRole(const QString &roleName) const;
     bool hasRole(int idRole) const;
     bool hasOnlyRole(const QString &roleName) const;

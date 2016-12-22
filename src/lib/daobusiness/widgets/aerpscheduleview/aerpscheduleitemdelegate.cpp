@@ -59,7 +59,6 @@ AERPScheduleItemDelegate::~AERPScheduleItemDelegate()
  */
 void AERPScheduleItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-
     const AERPStyleOptionScheduleViewItem *agendaOption = qstyleoption_cast<const AERPStyleOptionScheduleViewItem *>(&option);
     if (!agendaOption)
     {

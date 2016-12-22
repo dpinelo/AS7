@@ -365,7 +365,8 @@ QList<DBField *> BaseBeanMetadataPrivate::m_fieldsInvolvedOnCalc;
 
 void BaseBeanMetadata::consolidateTemp()
 {
-    foreach (DBFieldMetadata *f, d->m_fields) {
+    for (DBFieldMetadata *f : d->m_fields)
+    {
         f->consolidateTemp();
     }
 }
@@ -405,7 +406,7 @@ void BaseBeanMetadata::setCanNavigate(bool value)
     d->m_canNavigate = value;
 }
 
-QString BaseBeanMetadata::sqlTableName(const QString &dialect)
+QString BaseBeanMetadata::sqlTableName(const QString &dialect) const
 {
     QString dbDialect;
     if ( dialect.isEmpty() )
@@ -622,7 +623,7 @@ void BaseBeanMetadata::setItemsFilterColumn(const QList<QHash<QString, QString> 
     d->m_itemsFilterColumn = alias;
 }
 
-QList<QHash<QString, QString> > BaseBeanMetadata::itemsFilterColumn() const
+const QList<QHash<QString, QString> > BaseBeanMetadata::itemsFilterColumn() const
 {
     return d->m_itemsFilterColumn;
 }
@@ -828,7 +829,7 @@ void BaseBeanMetadata::setCanHaveRelatedDocuments(bool value)
     d->m_canHaveRelatedDocuments = value;
 }
 
-QList<AlephERP::RelatedElementsContentToBeDeleted> BaseBeanMetadata::relatedElementsContentToBeDelete() const
+const QList<AlephERP::RelatedElementsContentToBeDeleted> BaseBeanMetadata::relatedElementsContentToBeDelete() const
 {
     return d->m_relatedElementsContentToBeDelete;
 }
@@ -858,7 +859,7 @@ void BaseBeanMetadata::setRepositoryKeywordsScript(const QString &value)
     d->m_repositoryKeywordsScript = value;
 }
 
-AssociatedFunctionsPointerList BaseBeanMetadata::associatedScripts() const
+const AssociatedFunctionsPointerList BaseBeanMetadata::associatedScripts() const
 {
     return d->m_associatedFunctions;
 }
@@ -875,7 +876,7 @@ void BaseBeanMetadata::setAssociatedScripts(const AssociatedFunctionsPointerList
  */
 QScriptProgram BaseBeanMetadata::associatedScriptProgram(const QString &functionName)
 {
-    foreach (AssociatedFunctions *associatedScript, d->m_associatedFunctions)
+    for (AssociatedFunctions *associatedScript : d->m_associatedFunctions)
     {
         if ( associatedScript->functions.contains(functionName) )
         {
@@ -898,7 +899,7 @@ QScriptProgram BaseBeanMetadata::associatedScriptProgram(const QString &function
     return QScriptProgram();
 }
 
-InternalConnectionList BaseBeanMetadata::internalConnections() const
+const InternalConnectionList BaseBeanMetadata::internalConnections() const
 {
     return d->m_internalConnections;
 }
@@ -928,7 +929,7 @@ void BaseBeanMetadata::setToStringType(const QString &value)
     d->m_toStringType = value;
 }
 
-HashStringList BaseBeanMetadata::infoSubTotals() const
+const HashStringList BaseBeanMetadata::infoSubTotals() const
 {
     return d->m_infoSubTotals;
 }
@@ -1069,7 +1070,7 @@ void BaseBeanMetadata::setBeforeSaveScript(const QString &value)
     d->m_beforeSaveScript = value;
 }
 
-QString BaseBeanMetadata::afterSaveScript()
+QString BaseBeanMetadata::afterSaveScript() const
 {
     return d->m_afterSaveScript;
 }
@@ -1097,7 +1098,7 @@ void BaseBeanMetadata::setDefaultVisualizationField(const QString &value)
     d->m_defaultVisualizationField = value;
 }
 
-QList<EnvVarDefinition> BaseBeanMetadata::envVars() const
+const QList<EnvVarDefinition> BaseBeanMetadata::envVars() const
 {
     return d->m_envVars;
 }
@@ -1107,7 +1108,7 @@ void BaseBeanMetadataPrivate::addSqlPart(const QString &clause, const QString &v
     m_sql[clause] = value;
 }
 
-QHash<QString, QString> BaseBeanMetadata::sql() const
+const QHash<QString, QString> BaseBeanMetadata::sql() const
 {
     return d->m_sql;
 }
@@ -1117,12 +1118,12 @@ QString BaseBeanMetadata::xml() const
     return d->m_xml;
 }
 
-QList<DBFieldMetadata *> BaseBeanMetadata::fields()
+const QList<DBFieldMetadata *> BaseBeanMetadata::fields() const
 {
     return d->m_fields;
 }
 
-QStringList BaseBeanMetadata::dbFieldNames() const
+const QStringList BaseBeanMetadata::dbFieldNames() const
 {
     QStringList lst;
     for (DBFieldMetadata *fld : d->m_fields)
@@ -1150,7 +1151,7 @@ int BaseBeanMetadata::countSerialFields()
     return count;
 }
 
-QList<DBRelationMetadata *> BaseBeanMetadata::relations(AlephERP::RelationTypes type)
+const QList<DBRelationMetadata *> BaseBeanMetadata::relations(AlephERP::RelationTypes type) const
 {
     if ( type == AlephERP::All )
     {
@@ -1215,7 +1216,7 @@ void BaseBeanMetadata::setShowOnTreePreloadRecords(bool value)
     d->m_showOnTreePreloadRecords = value;
 }
 
-QVariantList BaseBeanMetadata::treeDefinitions ()
+const QVariantList BaseBeanMetadata::treeDefinitions() const
 {
     return d->m_treeDefinitions;
 }
@@ -1230,7 +1231,7 @@ QString BaseBeanMetadata::uiDbRecord() const
     return d->getValueForRole(d->m_uiDbRecord);
 }
 
-QHash<QString, QString> BaseBeanMetadata::uiDbRecordForRoles() const
+const QHash<QString, QString> BaseBeanMetadata::uiDbRecordForRoles() const
 {
     return d->m_uiDbRecord;
 }
@@ -1245,7 +1246,7 @@ QString BaseBeanMetadata::uiNewDbRecord() const
     return d->getValueForRole(d->m_uiNewDbRecord);
 }
 
-QHash<QString, QString> BaseBeanMetadata::uiNewDbRecordForRoles() const
+const QHash<QString, QString> BaseBeanMetadata::uiNewDbRecordForRoles() const
 {
     return d->m_uiNewDbRecord;
 }
@@ -1260,7 +1261,7 @@ QString BaseBeanMetadata::uiWizard() const
     return d->getValueForRole(d->m_uiWizard);
 }
 
-QHash<QString, QString> BaseBeanMetadata::uiWizardForRoles() const
+const QHash<QString, QString> BaseBeanMetadata::uiWizardForRoles() const
 {
     return d->m_uiWizard;
 }
@@ -1275,7 +1276,7 @@ QString BaseBeanMetadata::qmlDbRecord() const
     return d->getValueForRole(d->m_qmlDbRecord);
 }
 
-QHash<QString, QString> BaseBeanMetadata::qmlDbRecordForRoles() const
+const QHash<QString, QString> BaseBeanMetadata::qmlDbRecordForRoles() const
 {
     return d->m_qmlDbRecord;
 }
@@ -1290,7 +1291,7 @@ QString BaseBeanMetadata::qmlNewDbRecord() const
     return d->getValueForRole(d->m_qmlNewDbRecord);
 }
 
-QHash<QString, QString> BaseBeanMetadata::qmlNewDbRecordForRoles() const
+const QHash<QString, QString> BaseBeanMetadata::qmlNewDbRecordForRoles() const
 {
     return d->m_qmlNewDbRecord;
 }
@@ -1305,7 +1306,7 @@ QString BaseBeanMetadata::qsDbRecord() const
     return d->getValueForRole(d->m_qsDbRecord);
 }
 
-QHash<QString, QString> BaseBeanMetadata::qsDbRecordForRoles() const
+const QHash<QString, QString> BaseBeanMetadata::qsDbRecordForRoles() const
 {
     return d->m_qsDbRecord;
 }
@@ -1320,7 +1321,7 @@ QString BaseBeanMetadata::qsNewDbRecord() const
     return d->getValueForRole(d->m_qsNewDbRecord);
 }
 
-QHash<QString, QString> BaseBeanMetadata::qsNewDbRecordForRoles() const
+const QHash<QString, QString> BaseBeanMetadata::qsNewDbRecordForRoles() const
 {
     return d->m_qsNewDbRecord;
 }
@@ -1415,7 +1416,7 @@ void BaseBeanMetadata::setQsDbForm(const QHash<QString, QString> &value)
     d->m_qsDbForm = value;
 }
 
-QString BaseBeanMetadata::accessibleRule()
+QString BaseBeanMetadata::accessibleRule() const
 {
     return d->m_accessible;
 }
@@ -1425,7 +1426,7 @@ void BaseBeanMetadata::setAccessibleRule(const QString &value)
     d->m_accessible = value;
 }
 
-QString BaseBeanMetadata::additionalFilter()
+QString BaseBeanMetadata::additionalFilter() const
 {
     return d->m_additionalFilter;
 }
@@ -3049,7 +3050,7 @@ void BaseBeanMetadataPrivate::readEnvVarsFilter(const QDomElement &e)
 /**
   Devuelve todos aquellos campos que componen la primaryKey
   */
-QList<DBFieldMetadata *> BaseBeanMetadata::pkFields ()
+const QList<DBFieldMetadata *> BaseBeanMetadata::pkFields() const
 {
     QList<DBFieldMetadata *> fields;
     for ( int i = 0 ; i < d->m_fields.size() ; i++ )
@@ -3096,7 +3097,7 @@ DBFieldMetadata * BaseBeanMetadata::field(const QString &dbFieldName)
     return field;
 }
 
-DBFieldMetadata * BaseBeanMetadata::field(int index)
+DBFieldMetadata * BaseBeanMetadata::field(int index) const
 {
     if ( index < 0 || index >= d->m_fields.size() )
     {
@@ -3125,16 +3126,16 @@ int BaseBeanMetadata::fieldIndex(const QString &dbFieldName)
 /*!
  Proporciona una claúsula where para la primary key de este bean. En list van los valores
 */
-QString BaseBeanMetadata::pkWhere(const QVariantMap &map)
+QString BaseBeanMetadata::pkWhere(const QVariantMap &map) const
 {
     QString where;
 
-    QList<DBFieldMetadata *> pk = pkFields();
+    const QList<DBFieldMetadata *> pk = pkFields();
     if ( pk.isEmpty() )
     {
         return where;
     }
-    foreach ( DBFieldMetadata *fld, pk )
+    for ( DBFieldMetadata *fld : pk )
     {
         if ( where.isEmpty() )
         {
@@ -3153,15 +3154,15 @@ QString BaseBeanMetadata::pkWhere(const QVariantMap &map)
  * Devuelve la parte ORDER a incluir en una sentencia SQL con esta primary key
  * @return
  */
-QString BaseBeanMetadata::pkOrder()
+QString BaseBeanMetadata::pkOrder() const
 {
     QString order;
-    QList<DBFieldMetadata *> pk = pkFields();
+    const QList<DBFieldMetadata *> pk = pkFields();
     if ( pk.isEmpty() )
     {
         return order;
     }
-    foreach ( DBFieldMetadata *fld, pk )
+    for ( DBFieldMetadata *fld : pk )
     {
         if ( order.isEmpty() )
         {
@@ -3179,16 +3180,16 @@ QString BaseBeanMetadata::pkOrder()
  * @brief BaseBeanMetadata::pkSelect Devuelve un string, con los campos que componen la primary key separados por ,
  * @return
  */
-QString BaseBeanMetadata::sqlSelectPk()
+QString BaseBeanMetadata::sqlSelectPk() const
 {
     QString sql;
 
-    QList<DBFieldMetadata *> pk = pkFields();
+    const QList<DBFieldMetadata *> pk = pkFields();
     if ( pk.isEmpty() )
     {
         return sql;
     }
-    foreach ( DBFieldMetadata *fld, pk )
+    for ( DBFieldMetadata *fld : pk )
     {
         if ( sql.isEmpty() )
         {
@@ -3207,11 +3208,11 @@ QString BaseBeanMetadata::sqlSelectPk()
  * Indica si este bean es un registro
  * @return
  */
-bool BaseBeanMetadata::isScheduleValid()
+bool BaseBeanMetadata::isScheduleValid() const
 {
     bool foundStartTime = false;
     bool foundDuration = false;
-    foreach (DBFieldMetadata *fld, d->m_fields)
+    for (DBFieldMetadata *fld : d->m_fields)
     {
         if ( fld->scheduleStartTime() )
         {
@@ -3225,7 +3226,7 @@ bool BaseBeanMetadata::isScheduleValid()
     return (foundStartTime && foundDuration);
 }
 
-DBRelationMetadata * BaseBeanMetadata::relation(const QString &relationName)
+DBRelationMetadata * BaseBeanMetadata::relation(const QString &relationName) const
 {
     DBRelationMetadata *rel = NULL;
     for ( int i = 0 ; i < d->m_relations.size() ; i++ )
@@ -3249,7 +3250,7 @@ DBRelationMetadata * BaseBeanMetadata::relation(const QString &relationName)
  * @return
  * Útil para agregar un prefijo a las campos en SQL
  */
-QString BaseBeanMetadata::processToIncludePrefix(const QString &initialWhere, const QString &prefixTemplate)
+QString BaseBeanMetadata::processToIncludePrefix(const QString &initialWhere, const QString &prefixTemplate) const
 {
     if ( prefixTemplate.isEmpty() )
     {
@@ -3263,7 +3264,7 @@ QString BaseBeanMetadata::processToIncludePrefix(const QString &initialWhere, co
     {
         prefix.append(".");
     }
-    foreach (DBFieldMetadata *f, fields())
+    for (DBFieldMetadata *f : fields())
     {
         QRegExp exp(QString("%1[\\s=)]").arg(f->dbFieldName()));
         int pos = 0;
@@ -3315,7 +3316,7 @@ QString BaseBeanMetadata::processWhereSqlToIncludeEnvVars(const QString &initial
 
     QMultiMap<QString, QVariant> multipleFieldsEntry;
 
-    foreach ( const EnvVarDefinition &mEnvVar, d->m_envVars )
+    for ( const EnvVarDefinition &mEnvVar : d->m_envVars )
     {
         QVariant envVarValue = envVars.contains(mEnvVar.varName) ? envVars.value(mEnvVar.varName) : QVariant(QVariant::Invalid);
         if ( envVarValue.isValid() && !envVarValue.isNull() && (envVarValue.type() != QVariant::String || !envVarValue.toString().isEmpty()) )
@@ -3324,7 +3325,7 @@ QString BaseBeanMetadata::processWhereSqlToIncludeEnvVars(const QString &initial
             if ( fld != NULL )
             {
                 bool found = false;
-                foreach (const QString &initialWherePart, initialWhereParts)
+                for (const QString &initialWherePart : initialWhereParts)
                 {
                     if ( initialWherePart.contains(fld->dbFieldName(), Qt::CaseInsensitive) )
                     {
@@ -3407,10 +3408,10 @@ QString BaseBeanMetadata::processWhereSqlToIncludeEnvVars(const QString &initial
  * @return
  * Extrae los campos de este bean que se encuentran en la sentencia pasada
  */
-QStringList BaseBeanMetadata::fieldsOnSqlClausule(const QString &clausule)
+const QStringList BaseBeanMetadata::fieldsOnSqlClausule(const QString &clausule) const
 {
     QStringList result;
-    foreach (DBFieldMetadata *fld, fields())
+    for (DBFieldMetadata *fld : fields())
     {
         QString exp = QString("%1[\\s=)]").arg(fld->dbFieldName());
         if ( clausule.contains(QRegExp(exp, Qt::CaseInsensitive)) )
@@ -3425,7 +3426,7 @@ int BaseBeanMetadataPrivate::countEnvVarForOneField(const QString &fieldName)
 {
     int count = 0;
 
-    foreach (const EnvVarDefinition &mEnvVar, m_envVars)
+    for (const EnvVarDefinition &mEnvVar : m_envVars)
     {
         if ( mEnvVar.fieldName == fieldName )
         {
@@ -3574,7 +3575,7 @@ void BaseBeanMetadataPrivate::readFormsConfigNames(const QDomElement &root)
 
 QString BaseBeanMetadataPrivate::getValueForRole(const QHash<QString, QString> &values)
 {
-    foreach (const AlephERP::RoleInfo &role, AERPLoggedUser::instance()->roles())
+    for (const AlephERP::RoleInfo &role : AERPLoggedUser::instance()->roles())
     {
         if (values.contains(role.roleName))
         {
@@ -3672,7 +3673,7 @@ QString BaseBeanMetadata::toStringExecute(BaseBean *b)
     }
     else
     {
-        foreach(DBField *fld, b->fields())
+        for(DBField *fld : b->fields())
         {
             if ( fld->metadata()->showDefault() )
             {
@@ -3691,7 +3692,7 @@ QString BaseBeanMetadata::toStringExecute(BaseBean *b)
     return result;
 }
 
-QStringList BaseBeanMetadata::repositoryKeywordsScriptExecute(BaseBean *b)
+const QStringList BaseBeanMetadata::repositoryKeywordsScriptExecute(BaseBean *b)
 {
     QStringList list;
     if ( b != NULL && !d->m_repositoryKeywordsScript.isEmpty() )
@@ -3977,7 +3978,7 @@ void BaseBeanMetadataPrivate::loadAssociatedScripts()
     bool debugBackup, onInitDebugBackup;
     debugBackup = m_engine->debug();
     onInitDebugBackup = m_engine->onInitDebug();
-    foreach (AssociatedFunctions *item, m_associatedFunctions)
+    for (AssociatedFunctions *item : m_associatedFunctions)
     {
         if ( BeansFactory::systemScripts.contains(item->scriptFileName) )
         {
@@ -4117,10 +4118,10 @@ void BaseBeanMetadataPrivate::readScheduledData(const QDomElement &e)
  * Devuelve el listado de funciones (los nombres) del script asociado al bean
  * @return
  */
-QStringList BaseBeanMetadata::associatedScriptFunctions()
+const QStringList BaseBeanMetadata::associatedScriptFunctions() const
 {
     QStringList functions;
-    foreach (AssociatedFunctions *item, d->m_associatedFunctions)
+    for (AssociatedFunctions *item : d->m_associatedFunctions)
     {
         functions.append(item->functions);
     }
@@ -4129,7 +4130,7 @@ QStringList BaseBeanMetadata::associatedScriptFunctions()
 
 QString BaseBeanMetadata::associatedScript(const QString &functionName)
 {
-    foreach (AssociatedFunctions *item, d->m_associatedFunctions)
+    for (AssociatedFunctions *item : d->m_associatedFunctions)
     {
         if ( item->functions.contains(functionName) )
         {
@@ -4215,7 +4216,7 @@ QString BaseBeanMetadata::sqlCreateTable(AlephERP::CreationTableSqlOptions optio
     QString fieldsSql;
     AlephERP::CreationTableSqlOptions optionsForColumn = options;
 
-    foreach ( DBFieldMetadata *field, fields() )
+    for ( DBFieldMetadata *field : fields() )
     {
         if ( field->isOnDb() )
         {
@@ -4268,7 +4269,7 @@ QString BaseBeanMetadata::sqlCreateTable(AlephERP::CreationTableSqlOptions optio
     {
         QString pkeySql;
         bool isSerial = false;
-        foreach ( DBFieldMetadata *field, pkFields() )
+        for ( DBFieldMetadata *field : pkFields() )
         {
             isSerial = isSerial | field->serial();
             if ( !pkeySql.isEmpty() )
@@ -4320,10 +4321,10 @@ QString BaseBeanMetadata::sqlCreateTable(AlephERP::CreationTableSqlOptions optio
  * @param dialect
  * @return
  */
-QStringList BaseBeanMetadata::sqlForeignKeys(AlephERP::CreationTableSqlOptions options, const QString &dialect)
+const QStringList BaseBeanMetadata::sqlForeignKeys(AlephERP::CreationTableSqlOptions options, const QString &dialect) const
 {
     QStringList ddl;
-    foreach ( DBRelationMetadata *rel, d->m_relations )
+    for ( DBRelationMetadata *rel : d->m_relations )
     {
         ddl.append(rel->sqlForeignKey(options, dialect));
     }
@@ -4339,7 +4340,7 @@ QString BaseBeanMetadata::sqlCreateIndexes(AlephERP::CreationTableSqlOptions opt
 {
     Q_UNUSED(dialect)
     QString sql;
-    foreach ( DBFieldMetadata *fld, d->m_fields )
+    for ( DBFieldMetadata *fld : d->m_fields )
     {
         bool createIndex = false;
         if ( options.testFlag(AlephERP::CreateIndexOnRelationColumns) )
@@ -4382,14 +4383,14 @@ QString BaseBeanMetadata::sqlAddColumn(AlephERP::CreationTableSqlOptions options
     return sql;
 }
 
-QString BaseBeanMetadata::sqlDropColumn(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect)
+QString BaseBeanMetadata::sqlDropColumn(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect) const
 {
     Q_UNUSED(options)
     QString sql = QString("ALTER TABLE %1 DROP COLUMN %2").arg(sqlTableName(dialect), dbFieldName);
     return sql;
 }
 
-QString BaseBeanMetadata::sqlMakeNotNull(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect)
+QString BaseBeanMetadata::sqlMakeNotNull(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect) const
 {
     Q_UNUSED(options)
     QString sql = QString("ALTER TABLE %1 ALTER COLUMN %2 SET NOT NULL").arg(sqlTableName(dialect), dbFieldName);
@@ -4419,7 +4420,7 @@ QString BaseBeanMetadata::sqlAlterColumnSetLength(AlephERP::CreationTableSqlOpti
  * @param dialect
  * @return
  */
-QStringList BaseBeanMetadata::sqlAditional(AlephERP::CreationTableSqlOptions options, const QString &dialect)
+const QStringList BaseBeanMetadata::sqlAditional(AlephERP::CreationTableSqlOptions options, const QString &dialect) const
 {
     Q_UNUSED(options)
     QStringList sqls;
@@ -4581,7 +4582,7 @@ QString BaseBeanMetadataPrivate::checkWildCards(QDomElement &element)
 
 void BaseBeanMetadata::createInternalConnections(BaseBean *bean)
 {
-    foreach (const InternalConnection &conn, d->m_internalConnections)
+    for (const InternalConnection &conn : d->m_internalConnections)
     {
         QList<QObject *> senders;
         QString tmp = conn.senderQs.trimmed();
@@ -4610,13 +4611,13 @@ void BaseBeanMetadata::createInternalConnections(BaseBean *bean)
         {
             senders = d->senders(conn.senderQs, bean);
         }
-        foreach (QObject *obj, senders)
+        for (QObject *obj : senders)
         {
-            foreach (const ConnectionAction &action, conn.actions)
+            for (const ConnectionAction &action : conn.actions)
             {
                 if ( !action.signalAction.isEmpty() )
                 {
-                    foreach (const QString &slotName, action.slotsAction )
+                    for (const QString &slotName : action.slotsAction )
                     {
                         QByteArray baSlotName = slotName.toLocal8Bit();
                         QVariant qsFunctionPointer = bean->property(baSlotName.constData());
@@ -4664,7 +4665,7 @@ void BaseBeanMetadata::createInternalConnections(BaseBean *bean)
 const QList<DBFieldMetadata *> BaseBeanMetadata::counterFields(const QString &field) const
 {
     QList<DBFieldMetadata *> list;
-    foreach (DBFieldMetadata *fld, d->m_fields)
+    for (DBFieldMetadata *fld : d->m_fields)
     {
         if ( fld->hasCounterDefinition() && fld->dbFieldName() != field )
         {
@@ -5025,7 +5026,7 @@ void BaseBeanMetadata::registerRecalculateFields(const QString &fieldToRecalcula
 {
     if ( d->m_fieldsNecessaryToCalculate.contains(fieldToRecalculate) )
     {
-        foreach (const QString &fieldOnCalc, fieldsOnCalc)
+        for (const QString &fieldOnCalc : fieldsOnCalc)
         {
             if ( !d->m_fieldsNecessaryToCalculate.value(fieldToRecalculate).contains(fieldOnCalc) )
             {
@@ -5049,7 +5050,7 @@ void BaseBeanMetadata::buildFieldsCalculatedRelations()
 
     QLogger::QLog_Debug(AlephERP::stLogScript, QString("BaseBeanMetadata::buildFieldsCalculatedRelations: Generando estructura de relaciones de: [%1]").arg(d->m_tableName));
 
-    foreach (DBField *fld, b->fields())
+    for (DBField *fld : b->fields())
     {
         if ( fld->metadata()->calculated() )
         {
@@ -5060,7 +5061,7 @@ void BaseBeanMetadata::buildFieldsCalculatedRelations()
             BaseBeanMetadata::endRegisterFieldsInvolvedOnCalc();
 
             QStringList fieldsInvolvedNames;
-            foreach (DBField *fieldInvolved, fieldsInvolved)
+            for (DBField *fieldInvolved : fieldsInvolved)
             {
                 if ( fieldInvolved->metadata()->dbFieldName() != fld->metadata()->dbFieldName() || fieldInvolved->bean()->metadata()->tableName() != d->m_tableName )
                 {

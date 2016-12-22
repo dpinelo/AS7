@@ -109,7 +109,7 @@ void AERPLoggedUser::setName(const QString &value)
     d->m_name = value;
 }
 
-QList<AlephERP::RoleInfo> AERPLoggedUser::roles() const
+const QList<AlephERP::RoleInfo> AERPLoggedUser::roles() const
 {
     return d->m_roles;
 }

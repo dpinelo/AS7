@@ -882,7 +882,7 @@ void DBFormDlg::showEvent(QShowEvent *ev)
     {
         // Importante hacerlo aquí ya que sabemos seguro que se ha inicializado los items.
         connect (d->m_itemView->itemView(), SIGNAL(enterPressedOnValidIndex(QModelIndex)), this, SLOT(editCalledFromTableView()));
-        connect (d->m_itemView->itemView(), SIGNAL(doubleClickOnValidIndex(const QModelIndex&)), this, SLOT(editCalledFromTableView()));
+        connect (d->m_itemView->itemView(), SIGNAL(doubleClickOnValidIndex(QModelIndex)), this, SLOT(editCalledFromTableView()));
         connect (d->m_itemView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(availableButtonsFromBean()));
         connect (d->m_itemView->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), this, SLOT(setBeanOnRelatedWidget()));
         connect (d->m_itemView->itemView(), SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));

@@ -89,7 +89,7 @@ public:
     QVector<QRect>      geometry() const;
 
 Q_SIGNALS:
-    void                geometryChanged(AERPScheduleInternalItem * item , QVector<QRect> oldGeometry);
+    void                geometryChanged(AERPScheduleInternalItem *item , QVector<QRect> oldGeometry);
 
 public:
     bool m_moving;

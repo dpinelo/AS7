@@ -116,6 +116,7 @@ void DBScheduleView::setInitRange(const QDate &value)
 
 void DBScheduleView::setViewMode(const AERPScheduleView::ViewMode mode)
 {
+    AERPScheduleView::setViewMode(mode);
     if ( mode == AERPScheduleView::DayView )
     {
         d->setupRangeModelToToday();
@@ -128,7 +129,6 @@ void DBScheduleView::setViewMode(const AERPScheduleView::ViewMode mode)
     {
         d->setupRangeModelToActualMonth();
     }
-    AERPScheduleView::setViewMode(mode);
 }
 
 void DBScheduleView::setRelationName(const QString &name)
@@ -176,18 +176,19 @@ void DBScheduleView::setAdjustToVisualSize(bool value)
 
 void DBScheduleView::showEvent(QShowEvent *event)
 {
-    if ( !this->m_externalModel )
+    if ( this->m_externalModel )
     {
-        DBBaseWidget::showEvent(event);
-        if ( !property(AlephERP::stInited).toBool() )
-        {
-            init(true);
-            setProperty(AlephERP::stInited, true);
-        }
+        return;
+    }
+    DBBaseWidget::showEvent(event);
+    if ( !property(AlephERP::stInited).toBool() )
+    {
+        init(true);
+        setProperty(AlephERP::stInited, true);
     }
 }
 
-void DBScheduleView::keyPressEvent ( QKeyEvent * event )
+void DBScheduleView::keyPressEvent(QKeyEvent * event)
 {
     QModelIndex index;
 
@@ -204,7 +205,7 @@ void DBScheduleView::keyPressEvent ( QKeyEvent * event )
     AERPScheduleView::keyPressEvent(event);
 }
 
-void DBScheduleView::mouseDoubleClickEvent (QMouseEvent * event)
+void DBScheduleView::mouseDoubleClickEvent(QMouseEvent * event)
 {
     QModelIndex index;
 
