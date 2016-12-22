@@ -1318,34 +1318,35 @@ QString DBFieldMetadata::ddlCreationTable(const AlephERP::CreationTableSqlOption
     QString ddl = QString("%1 %2 %3").arg(d->m_dbFieldName, databaseType(dialect), notNull);
     QString references;
 
-    if ( options.testFlag(AlephERP::WithForeignKeys) && options.testFlag(AlephERP::ForeignKeysOnTableCreation) )
+    if ( !options.testFlag(AlephERP::WithForeignKeys) || !options.testFlag(AlephERP::ForeignKeysOnTableCreation) )
     {
-        foreach ( DBRelationMetadata *rel, d->m_relations )
+        return ddl;
+    }
+    for ( DBRelationMetadata *rel : d->m_relations )
+    {
+        if ( rel->type() == DBRelationMetadata::MANY_TO_ONE )
         {
-            if ( rel->type() == DBRelationMetadata::MANY_TO_ONE )
+            // Además, la tabla relacionada, DEBE existir
+            BaseBeanMetadata *related = BeansFactory::metadataBean(rel->tableName());
+            if ( related != NULL )
             {
-                // Además, la tabla relacionada, DEBE existir
-                BaseBeanMetadata *related = BeansFactory::metadataBean(rel->tableName());
-                if ( related != NULL )
+                QString deleteCascade;
+                if ( rel->deleteCascade() )
                 {
-                    QString deleteCascade;
-                    if ( rel->deleteCascade() )
-                    {
-                        deleteCascade = " on delete cascade";
-                    }
-                    references = QString("references %1(%2) on update cascade%3").
-                                 arg(rel->tableName(), rel->childFieldName(), deleteCascade);
+                    deleteCascade = " on delete cascade";
                 }
-                else
-                {
-                    qDebug() << "DBFieldMetadata::ddlCreationTable: No existe la tabla: [" << rel->tableName() << "]";
-                }
+                references = QString("references %1(%2) on update cascade%3").
+                             arg(rel->tableName(), rel->childFieldName(), deleteCascade);
+            }
+            else
+            {
+                qDebug() << "DBFieldMetadata::ddlCreationTable: No existe la tabla: [" << rel->tableName() << "]";
             }
         }
-        if ( !references.isEmpty() )
-        {
-            ddl = QString("%1 %2").arg(ddl, references);
-        }
+    }
+    if ( !references.isEmpty() )
+    {
+        ddl = QString("%1 %2").arg(ddl, references);
     }
     return ddl;
 }
@@ -1357,7 +1358,7 @@ QList<DBRelationMetadata *> DBFieldMetadata::relations(const AlephERP::RelationT
         return d->m_relations;
     }
     QList<DBRelationMetadata *> rels;
-    foreach ( DBRelationMetadata *rel, d->m_relations )
+    for ( DBRelationMetadata *rel : d->m_relations )
     {
         if ( type.testFlag(AlephERP::OneToMany) && rel->type() == DBRelationMetadata::ONE_TO_MANY )
         {

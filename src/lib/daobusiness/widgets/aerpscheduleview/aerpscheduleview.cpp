@@ -691,7 +691,7 @@ void AERPScheduleView::mouseMoveEvent(QMouseEvent * e)
     }
 }
 
-void AERPScheduleView::mouseDoubleClickEvent (QMouseEvent * e)
+void AERPScheduleView::mouseDoubleClickEvent(QMouseEvent * e)
 {
     AERPScheduleInternalItem *item = qxt_d().internalItemAt(mapFromViewport(e->pos()));
     if ( item != NULL && selectionModel() )
