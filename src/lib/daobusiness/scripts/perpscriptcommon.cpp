@@ -2322,9 +2322,13 @@ double AERPScriptCommon::getDouble(const QScriptValue &parent, const QString &la
     }
 }
 
-QString AERPScriptCommon::getText(const QString &label)
+QString AERPScriptCommon::getText(const QString &label, const QString &defaultValue)
 {
-    return QInputDialog::getText(0, qApp->applicationName(), label);
+    return QInputDialog::getText(0,
+                                 qApp->applicationName(),
+                                 label,
+                                 QLineEdit::Normal,
+                                 defaultValue);
 }
 
 QScriptValue AERPScriptCommon::getDate(const QString &label, const QDate &defaultDate)

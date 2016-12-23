@@ -576,33 +576,50 @@ AERPCell *AERPSheet::cell(int rowId, const QString &column)
 
 AERPCell *AERPSheet::createCell(int row, int column, const QVariant value)
 {
-    QString strRow(row);
+    QString strRow = QString::number(row);
     QString strColumn = AERPSpreadSheet::columnStringName(column);
     return createCell(strRow, strColumn, value);
+}
+
+AERPCell *AERPSheet::createCell(int row, const QString &column, const QVariant value)
+{
+    QString strRow = QString::number(row);
+    return createCell(strRow, column, value);
 }
 
 AERPCell *AERPSheet::createCell(const QString &row, const QString &column, const QVariant value)
 {
     AERPCell *actualCell = cell(row, column);
-    if ( actualCell == NULL )
+    if ( actualCell != NULL )
     {
-        qlonglong cellIndex = AERPSpreadSheet::cellIndex(row.toInt() - 1, column);
-        AERPCell *c = new AERPCell(this);
-        // Este orden es muy importante.
-        if ( !d->m_columns.contains(column) )
-        {
-            d->m_columns.append(column);
-        }
-        if ( !d->m_rows.contains(row) )
-        {
-            d->m_rows.append(row);
-        }
-        c->setRow(row);
-        c->setColumn(column);
-        d->m_cells[cellIndex] = c;
-        c->setValue(value);
-        return c;
+        return actualCell;
     }
+    bool ok;
+    int iRow = row.toInt(&ok);
+    if ( !ok )
+    {
+        AERPSpreadSheet *spreadSheet = qobject_cast<AERPSpreadSheet *>(parent());
+        if ( spreadSheet )
+        {
+            spreadSheet->setLastMessage(tr("No ha sido posible traducir %1 a un integer.").arg(row));
+        }
+        return NULL;
+    }
+    qlonglong cellIndex = AERPSpreadSheet::cellIndex(iRow - 1, column);
+    actualCell = new AERPCell(this);
+    // Este orden es muy importante.
+    if ( !d->m_columns.contains(column) )
+    {
+        d->m_columns.append(column);
+    }
+    if ( !d->m_rows.contains(row) )
+    {
+        d->m_rows.append(row);
+    }
+    actualCell->setRow(row);
+    actualCell->setColumn(column);
+    d->m_cells[cellIndex] = actualCell;
+    actualCell->setValue(value);
     return actualCell;
 }
 

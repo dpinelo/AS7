@@ -174,6 +174,7 @@ public slots:
     AERPCell *cell(const QString &row, const QString &column);
     AERPCell *cell(int rowId, const QString &column);
     AERPCell *createCell(int row, int column, const QVariant value = QVariant());
+    AERPCell *createCell(int row, const QString &column, const QVariant value = QVariant());
     AERPCell *createCell(const QString &row, const QString &column, const QVariant value = QVariant());
     AERPCell *createCellWithoutCheck(const QString &row, const QString &column, const QVariant value = QVariant());
     QVariant cellValue(int rowId, int columnId);
