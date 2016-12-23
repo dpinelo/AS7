@@ -926,12 +926,15 @@ DBField *BaseBean::field(const QString &dbFieldName)
             }
         }
     }
-    if ( field == NULL &&
-         !dbFieldName.isEmpty() &&
-         dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
-         dbFieldName != QLatin1String(AlephERP::stInactive) )
+    if ( field == NULL )
     {
-        QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::field: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+         if ( !dbFieldName.isEmpty() &&
+               dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+               dbFieldName != QLatin1String(AlephERP::stInactive) &&
+               dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::field: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        }
     }
     return field;
 }
@@ -976,12 +979,15 @@ int BaseBean::fieldIndex(const QString &dbFieldName) const
             break;
         }
     }
-    if ( index == -1 &&
-         !dbFieldName.isEmpty() &&
-         dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
-         dbFieldName != QLatin1String(AlephERP::stInactive) )
+    if ( index == -1 )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldIndex: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        if ( !dbFieldName.isEmpty() &&
+              dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+              dbFieldName != QLatin1String(AlephERP::stInactive) &&
+              dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldIndex: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        }
     }
     return index;
 }
@@ -1107,7 +1113,8 @@ QVariant BaseBean::fieldValue(const QString &dbFieldName)
     {
         if ( !dbFieldName.isEmpty() &&
              dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
-             dbFieldName != QLatin1String(AlephERP::stInactive) )
+             dbFieldName != QLatin1String(AlephERP::stInactive) &&
+             dbFieldName != QLatin1String(AlephERP::stRowColor) )
         {
             QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
         }
@@ -1126,12 +1133,16 @@ bool BaseBean::isFieldEmpty(const QString &dbFieldName)
         return true;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL ||
-         dbFieldName.isEmpty() ||
-         dbFieldName == QLatin1String("editable") )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::isFieldEmpty: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
-        return true;
+        if ( !dbFieldName.isEmpty() &&
+              dbFieldName != QLatin1String(AlephERP::stInactive) &&
+              dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+              dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::isFieldEmpty: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+            return true;
+        }
     }
     return fld->isEmpty();
 }
@@ -1183,11 +1194,15 @@ QString BaseBean::displayFieldValue(const QString & dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL ||
-         dbFieldName.isEmpty() ||
-         dbFieldName == QLatin1String("editable") )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::displayFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        if ( !dbFieldName.isEmpty() &&
+              dbFieldName != QLatin1String(AlephERP::stInactive) &&
+              dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+              dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::displayFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        }
     }
     else
     {
@@ -1221,11 +1236,15 @@ QString BaseBean::sqlFieldValue(const QString & dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL ||
-         dbFieldName.isEmpty() ||
-         dbFieldName == QLatin1String("editable") )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::sqlFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        if ( !dbFieldName.isEmpty() &&
+             dbFieldName != QLatin1String(AlephERP::stInactive) &&
+             dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+             dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::sqlFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        }
     }
     else
     {
@@ -1246,11 +1265,15 @@ QString BaseBean::toolTipField(const QString &dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL ||
-         dbFieldName.isEmpty() ||
-         dbFieldName == QLatin1String("editable") )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::toolTipField: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+         if ( !dbFieldName.isEmpty() &&
+               dbFieldName != QLatin1String(AlephERP::stInactive) &&
+               dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+               dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::toolTipField: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        }
     }
     else
     {
@@ -1279,11 +1302,15 @@ QVariant BaseBean::defaultFieldValue(const QString &dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL ||
-         dbFieldName.isEmpty() ||
-         dbFieldName == QLatin1String("editable") )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::defaultFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+         if ( !dbFieldName.isEmpty() &&
+               dbFieldName != QLatin1String(AlephERP::stInactive) &&
+               dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+               dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::defaultFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        }
     }
     else
     {
@@ -1300,11 +1327,15 @@ QString BaseBean::sqlWhere(const QString &fieldName, const QString &op)
 {
     QString sql;
     DBField *fld = field(fieldName);
-    if ( fld == NULL ||
-         fieldName.isEmpty() ||
-         fieldName == "editable" )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::sqlWhere: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), fieldName));
+         if ( !fieldName.isEmpty() &&
+               fieldName != QLatin1String(AlephERP::stInactive) &&
+               fieldName != QLatin1String(AlephERP::stFieldEditable) &&
+               fieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::sqlWhere: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), fieldName));
+        }
     }
     else
     {
