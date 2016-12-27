@@ -407,7 +407,7 @@ void AERPScriptDialog::newRecordDlg()
         if ( d->m_selectedBean.isNull() )
         {
             QMessageBox::warning(d->m_parentWidget, qApp->applicationName(),
-                                 trUtf8("Ha ocurrido un error leyendo todos los datos a modificar. No es posible la modificac\303\263n del registro."),
+                                 tr("Ha ocurrido un error leyendo todos los datos a modificar. No es posible la modificac\303\263n del registro."),
                                  QMessageBox::Ok);
             return;
         }

@@ -97,9 +97,9 @@ public:
 
     virtual bool canShowCheckBoxes() const;
     virtual void setCanShowCheckBoxes(bool value);
-    virtual QModelIndexList checkedItems();
-    virtual void setCheckedItems(QModelIndexList list, bool checked = true);
-    virtual void setCheckedItem(QModelIndex index, bool checked = true);
+    virtual QModelIndexList checkedItems(const QModelIndex &idx = QModelIndex());
+    virtual void setCheckedItems(const QModelIndexList &list, bool checked = true);
+    virtual void setCheckedItem(const QModelIndex &index, bool checked = true);
     virtual void setCheckedItem(int row, bool checked = true);
     virtual void checkAllItems(bool checked = true);
     virtual void setCheckColumns(const QStringList &fieldNames);
@@ -129,8 +129,6 @@ public:
 
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
 
-    virtual QVariant scheduleData(const QModelIndex &idx, int role);
-
     bool exportToSpreadSheet(QAbstractItemModel *model, BaseBeanMetadata *m, const QString &file, const QString &type);
 
     virtual int totalRecordCount() const;
@@ -145,6 +143,8 @@ public:
     virtual bool canEmitDataChanged() const;
     virtual bool setCanEmitDataChanged(bool value);
 
+    QString contextName() const;
+
 signals:
     /** Esta señal será útil para saber en qué momento el modelo entra en un estado de carga de datos,
      * por ejemplo interaccionando con la base de datos, de manera que se presente al usuario una ventana
@@ -157,6 +157,7 @@ signals:
     void rowProcessed(int row);
     void initRefresh();
     void endRefresh();
+    void itemChecked(QModelIndex,bool);
 
 public slots:
     virtual void refresh(bool force = false) = 0;
@@ -167,6 +168,7 @@ public slots:
     /** Misma explicación para el método revert */
     virtual void rollback();
     virtual bool exportToSpreadSheet(const QString &file, const QString &type);
+    virtual void cancelExportToSpreadSheet();
 
 protected slots:
     virtual void stopReloading();

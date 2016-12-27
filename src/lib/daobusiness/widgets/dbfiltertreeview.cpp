@@ -234,7 +234,7 @@ void DBFilterTreeView::createBranchFilterWidget()
             {
                 QLineEdit *filterEdit = new QLineEdit(frame);
                 d->m_lineEditsBranchFilter.append(filterEdit);
-                QLabel *filterLabel = new QLabel(trUtf8("Filtro para %1").arg(m->alias()), frame);
+                QLabel *filterLabel = new QLabel(tr("Filtro para %1").arg(m->alias()), frame);
                 filterEdit->resize(200, filterEdit->height());
                 width = filterLabel->width() + filterEdit->width() + 20;
                 height += filterEdit->height() + 5;

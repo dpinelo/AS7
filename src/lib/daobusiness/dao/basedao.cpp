@@ -148,8 +148,8 @@ bool BaseDAO::transaction(const QString &connection)
             }
             else
             {
-                m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").arg(db.lastError().driverText()).
-                                                 arg(db.lastError().databaseText()));
+                m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").
+                                                 arg(db.lastError().driverText(), db.lastError().databaseText()));
             }
             return false;
         }
@@ -187,8 +187,8 @@ bool BaseDAO::rollback(const QString &connection)
         }
         else
         {
-            m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").arg(db.lastError().driverText()).
-                                             arg(db.lastError().databaseText()));
+            m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").
+                                             arg(db.lastError().driverText(), db.lastError().databaseText()));
         }
         QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::rollback: ERROR: [%1]").arg(m_threadLastMessage.localData()));
         return false;
@@ -229,8 +229,8 @@ bool BaseDAO::commit(const QString &connection)
             }
             else
             {
-                m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").arg(db.lastError().driverText()).
-                                                 arg(db.lastError().databaseText()));
+                m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").
+                                                 arg(db.lastError().driverText(), db.lastError().databaseText()));
             }
         }
         QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::commit: ERROR: [%1]").arg(m_threadLastMessage.localData()));
@@ -316,12 +316,13 @@ void BaseDAO::appendToCachedQuerys(const QString &tableName, const QString &sql,
     // Ojo: Guardamos un clon del bean creado, ya que si no, éste podría destruirse previamente
     BaseBeanSharedPointerList temp;
     BaseDAO::preloadMemoFields(list, connection);
-    foreach (BaseBeanSharedPointer bean, list)
+    for (BaseBeanSharedPointer bean : list)
     {
         BaseBeanSharedPointer tmpBean = bean->clone();
         // Clone no hace la copia de campos memos que no se hayan obtenido. Pero para cachear nos interesa
         // guardarlos, por lo que forzamos aquí su valor. Para un mejor rendimiento, los campos memos, los leemos en batch
-        foreach ( DBField *fld, tmpBean->fields() )
+        const QList<DBField *> list = tmpBean->fields();
+        for ( DBField *fld : list )
         {
             if ( fld->metadata()->calculated() || fld->metadata()->memo() )
             {
@@ -394,10 +395,11 @@ void BaseDAO::appendToCachedBeans(const QString &tableName, const QString &sql, 
         content = m_cachedBeans.localData().value(tableName);
     }
     BaseBeanSharedPointer tmpBean = bean->clone();
-    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::appendToCachedBeans: Cacheando beans de [%1]  por la consulta: [%2]").arg(tableName).arg(sql));
+    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::appendToCachedBeans: Cacheando beans de [%1]  por la consulta: [%2]").arg(tableName, sql));
     // Clone no hace la copia de campos memos que no se hayan obtenido. Pero para cachear nos interesa
     // guardarlos, por lo que forzamos aquí su valor
-    foreach ( DBField *fld, tmpBean->fields() )
+    const QList<DBField *> list = tmpBean->fields();
+    for ( DBField *fld : list )
     {
         if ( fld->metadata()->calculated() || fld->metadata()->memo() )
         {
@@ -421,7 +423,8 @@ BaseBeanSharedPointerList BaseDAO::getContentCachedQuery(const QString &tableNam
             BaseBeanSharedPointerList temp;
             if ( getCopies )
             {
-                foreach (BaseBeanSharedPointer bean, content->hashCachedBeans[sql])
+                BaseBeanSharedPointerList list = content->hashCachedBeans[sql];
+                for (BaseBeanSharedPointer bean : list)
                 {
                     temp.append(bean->clone());
                 }
@@ -652,7 +655,8 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
         return;
     }
     QList<DBFieldMetadata *> fldMemos;
-    foreach ( DBField * fld, firstBean->fields() )
+    const QList<DBField *> listFields = firstBean->fields();
+    for ( DBField * fld : listFields )
     {
         if ( fld->metadata()->memo() )
         {
@@ -665,43 +669,44 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
         return;
     }
     // Empezamos a construir la consulta
-    foreach ( DBFieldMetadata *fld, fldMemos )
+    for ( DBFieldMetadata *fld : fldMemos )
     {
         if ( !sqlFields.isEmpty() )
         {
             sqlFields = QString("%1, ").arg(sqlFields);
         }
-        sqlFields = QString("%1%2").arg(sqlFields).arg(fld->dbFieldName());
+        sqlFields = QString("%1%2").arg(sqlFields, fld->dbFieldName());
     }
-    foreach ( DBField *fld, firstBean->pkFields() )
+    QList<DBField *> pkFields = firstBean->pkFields();
+    for ( DBField *fld : pkFields )
     {
         if ( !sqlFields.isEmpty() )
         {
             sqlFields = QString("%1, ").arg(sqlFields);
         }
-        sqlFields = QString("%1%2").arg(sqlFields).arg(fld->metadata()->dbFieldName());
+        sqlFields = QString("%1%2").arg(sqlFields, fld->metadata()->dbFieldName());
     }
-    foreach ( BaseBeanSharedPointer bean, list )
+    for ( BaseBeanSharedPointer bean : list )
     {
         QList<DBField *> pkFields = bean->pkFields();
         QString temp;
         temp = QString("(");
-        foreach ( DBField *fld, pkFields )
+        for ( DBField *fld : pkFields )
         {
             if ( temp != "(" )
             {
                 temp = QString("%1 AND ").arg(temp);
             }
-            temp = QString("%1%2").arg(temp).arg(fld->sqlWhere("="));
+            temp = QString("%1%2").arg(temp, fld->sqlWhere("="));
         }
         temp = QString("%1)").arg(temp);
         if ( !sqlWhere.isEmpty() )
         {
             sqlWhere = QString("%1 OR ").arg(sqlWhere);
         }
-        sqlWhere = QString("%1%2").arg(sqlWhere).arg(temp);
+        sqlWhere = QString("%1%2").arg(sqlWhere, temp);
     }
-    sql = QString("SELECT %1 FROM %2 WHERE %3").arg(sqlFields).arg(firstBean->metadata()->sqlTableName()).arg(sqlWhere);
+    sql = QString("SELECT %1 FROM %2 WHERE %3").arg(sqlFields, firstBean->metadata()->sqlTableName(), sqlWhere);
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
     bool result = qry->prepare(sql);
@@ -715,18 +720,18 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
         while ( qry->next() )
         {
             int i = 0;
-            foreach ( BaseBeanSharedPointer bean, list )
+            for ( BaseBeanSharedPointer bean : list )
             {
                 bool equal = true;
                 QList<DBField *> pkFields = bean->pkFields();
-                foreach ( DBField *fld, pkFields )
+                for ( DBField *fld : pkFields )
                 {
                     equal = equal & ( fld->value() == qry->value(memoIndex.size() + i));
                 }
                 if ( equal )
                 {
                     int qryIndex = 0;
-                    foreach ( int memoIdx, memoIndex )
+                    for ( int memoIdx : memoIndex )
                     {
                         DBField *fld = bean->field(memoIdx);
                         if ( fld != NULL )
@@ -791,7 +796,7 @@ bool BaseDAO::loadUserEnvVars(const QString &connection)
     QList<AlephERP::RoleInfo> userRoles = AERPLoggedUser::instance()->roles();
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
-    foreach ( const AlephERP::RoleInfo &userRole, userRoles )
+    for ( const AlephERP::RoleInfo &userRole : userRoles )
     {
         if ( !idRoles.isEmpty() )
         {
@@ -801,7 +806,7 @@ bool BaseDAO::loadUserEnvVars(const QString &connection)
     }
     if ( !idRoles.isEmpty() )
     {
-        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_GROUP).arg(alephERPSettings->systemTablePrefix()).arg(idRoles);
+        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_GROUP).arg(alephERPSettings->systemTablePrefix(), idRoles);
         result = qry->prepare(sql);
         if ( result )
         {
@@ -824,13 +829,13 @@ bool BaseDAO::loadUserEnvVars(const QString &connection)
     // Ahora obtenemos las de usuario
     if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == QStringLiteral("true") )
     {
-        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_CI).arg(alephERPSettings->systemTablePrefix()).
-              arg(AERPLoggedUser::instance()->userName());
+        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_CI).
+                arg(alephERPSettings->systemTablePrefix(), AERPLoggedUser::instance()->userName());
     }
     else
     {
-        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER).arg(alephERPSettings->systemTablePrefix()).
-              arg(AERPLoggedUser::instance()->userName());
+        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER).
+                arg(alephERPSettings->systemTablePrefix(), AERPLoggedUser::instance()->userName());
     }
     result = qry->prepare(sql);
     if (result)
@@ -863,7 +868,7 @@ QVariant BaseDAO::loadUserEnvVar(const QString &userName, const QString &envVar,
     QList<AlephERP::RoleInfo> userRoles = UserDAO::userRoles(userName);
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
-    foreach ( const AlephERP::RoleInfo &userRole, userRoles )
+    for ( const AlephERP::RoleInfo &userRole : userRoles )
     {
         if ( !idRoles.isEmpty() )
         {
@@ -873,7 +878,7 @@ QVariant BaseDAO::loadUserEnvVar(const QString &userName, const QString &envVar,
     }
     if ( !idRoles.isEmpty() )
     {
-        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_GROUP_AND_VAR).arg(alephERPSettings->systemTablePrefix()).arg(idRoles).arg(envVar);
+        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_GROUP_AND_VAR).arg(alephERPSettings->systemTablePrefix(), idRoles, envVar);
         result = qry->prepare(sql);
         if ( result )
         {
@@ -888,13 +893,13 @@ QVariant BaseDAO::loadUserEnvVar(const QString &userName, const QString &envVar,
     // Ahora obtenemos las de usuario
     if ( EnvVars::instance()->var(AlephERP::stUserNameCaseInsensitive) == QStringLiteral("true") )
     {
-        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_CI_AND_VAR).arg(alephERPSettings->systemTablePrefix()).
-              arg(userName).arg(envVar);
+        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_CI_AND_VAR).
+                arg(alephERPSettings->systemTablePrefix(), userName, envVar);
     }
     else
     {
-        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_AND_VAR).arg(alephERPSettings->systemTablePrefix()).
-              arg(userName).arg(envVar);
+        sql = QString(SQL_SELECT_SYSTEM_ENVVARS_BY_USER_AND_VAR).
+                arg(alephERPSettings->systemTablePrefix(), userName, envVar);
     }
     result = qry->prepare(sql);
     if (result)
@@ -1120,18 +1125,18 @@ int BaseDAO::selectTableRecordCount(const QString &tableName, const QString &whe
         {
             QString sqlWhere;
             sql = QString("SELECT count(*) as column1 FROM %1 AS t1 LEFT JOIN %2_user_row_access AS t2 ON t1.oid = t2.recordoid WHERE ").
-                  arg(metadata->sqlTableName(connection)).arg(alephERPSettings->systemTablePrefix());
+                  arg(metadata->sqlTableName(connection), alephERPSettings->systemTablePrefix());
             if ( !where.isEmpty() )
             {
                 sqlWhere = QString("%1 AND ").arg(BaseDAO::proccessSqlToAddAlias(where, metadata, "t1"));
             }
-            sql = QString("%1 %2 %3").arg(sql).arg(sqlWhere).arg(BaseDAO::filterRowWhere(metadata, "t2"));
+            sql = QString("%1 %2 %3").arg(sql, sqlWhere, BaseDAO::filterRowWhere(metadata, "t2"));
         }
         else
         {
             if ( !where.isEmpty() )
             {
-                sql = QString("SELECT count(*) as column1 FROM %1 WHERE %2").arg(metadata->sqlTableName(connection)).arg(where);
+                sql = QString("SELECT count(*) as column1 FROM %1 WHERE %2").arg(metadata->sqlTableName(connection), where);
             }
             else
             {
@@ -1248,9 +1253,9 @@ bool BaseDAO::selectFirst(BaseBean *bean, const QString &where, const QString &o
         // el que se llame a obtener campos memo (no obtenidos en el bean clonado que devuelve getContent). Esto se
         // hace por eficiencia
         BaseBeanSharedPointer bCached = BaseDAO::getContentCachedBean(bean->metadata()->tableName(), sql, false);
-        QList<DBField *> fields = bCached->fields();
+        const QList<DBField *> fields = bCached->fields();
         bean->setAccess(bCached->access());
-        foreach ( DBField * fld, fields )
+        for ( DBField * fld : fields )
         {
             bean->setInternalFieldValue(fld->metadata()->dbFieldName(), fld->rawValue(), true);
             bean->setOldValue(fld->metadata()->dbFieldName(), fld->rawValue());
@@ -1346,7 +1351,7 @@ bool BaseDAO::selectSeveralByPk(BaseBeanSharedPointerList &beans, const QVariant
     {
         return false;
     }
-    foreach ( QVariant id, list )
+    for ( QVariant id : list )
     {
         QVariantMap pkValues = id.toMap();
         if ( !whereSql.isEmpty() )
@@ -1355,12 +1360,12 @@ bool BaseDAO::selectSeveralByPk(BaseBeanSharedPointerList &beans, const QVariant
         }
         if ( pk.size() == 1 && pkValues.contains(pk.at(0)->dbFieldName()) )
         {
-            whereSql = QString("%1 %2").arg(whereSql).arg(pk.at(0)->sqlWhere("=", pkValues.value(pk.at(0)->dbFieldName())));
+            whereSql = QString("%1 %2").arg(whereSql, pk.at(0)->sqlWhere("=", pkValues.value(pk.at(0)->dbFieldName())));
         }
         else
         {
             QString temp;
-            foreach ( DBFieldMetadata *field, pk )
+            for ( DBFieldMetadata *field : pk )
             {
                 if ( pkValues.contains(field->dbFieldName()))
                 {
@@ -1368,10 +1373,10 @@ bool BaseDAO::selectSeveralByPk(BaseBeanSharedPointerList &beans, const QVariant
                     {
                         temp = QString("%1 AND ").arg(temp);
                     }
-                    temp = QString("%1%2").arg(temp).arg(field->sqlWhere("=", pkValues.value(field->dbFieldName())));
+                    temp = QString("%1%2").arg(temp, field->sqlWhere("=", pkValues.value(field->dbFieldName())));
                 }
             }
-            whereSql = QString("%1(%2)").arg(whereSql).arg(temp);
+            whereSql = QString("%1(%2)").arg(whereSql, temp);
         }
     }
     sql = buildSqlSelect(metadata, whereSql, QString(""));
@@ -1467,7 +1472,7 @@ bool BaseDAO::selectByPk(const QVariant &id, BaseBean *bean, const QString &conn
     if ( pk.size() > 1 )
     {
         QVariantMap pkValues = id.toMap();
-        foreach ( DBField *fld, pk )
+        for ( DBField *fld : pk )
         {
             if ( pkValues.contains(fld->metadata()->dbFieldName()))
             {
@@ -1513,9 +1518,9 @@ bool BaseDAO::selectByPk(const QVariant &id, BaseBean *bean, const QString &conn
     if ( bean->metadata()->isCached() && BaseDAO::isBeanCached(bean->metadata()->tableName(), sql) )
     {
         BaseBeanSharedPointer bCached = BaseDAO::getContentCachedBean(bean->metadata()->tableName(), sql, false);
-        QList<DBField *> fields = bCached->fields();
+        const QList<DBField *> fields = bCached->fields();
         bean->setAccess(bCached->access());
-        foreach ( DBField * fld, fields )
+        for ( DBField * fld : fields )
         {
             bean->setInternalFieldValue(fld->metadata()->dbFieldName(), fld->rawValue(), true);
             bean->setOldValue(fld->metadata()->dbFieldName(), fld->rawValue());
@@ -1610,9 +1615,9 @@ bool BaseDAO::selectByOid(qlonglong oid, BaseBean *bean, const QString &connecti
     if ( bean->metadata()->isCached() && BaseDAO::isBeanCached(bean->metadata()->tableName(), sql) )
     {
         BaseBeanSharedPointer bCached = BaseDAO::getContentCachedBean(bean->metadata()->tableName(), sql, false);
-        QList<DBField *> fields = bCached->fields();
+        const QList<DBField *> fields = bCached->fields();
         bean->setAccess(bCached->access());
-        foreach ( DBField * fld, fields )
+        for ( DBField * fld : fields )
         {
             bean->setInternalFieldValue(fld->metadata()->dbFieldName(), fld->rawValue(), true);
             bean->setOldValue(fld->metadata()->dbFieldName(), fld->rawValue());
@@ -1704,7 +1709,7 @@ QString BaseDAO::sqlSelectFieldsClausule(const QList<DBFieldMetadata *> &fields,
     QString sqlFields;
 
     // Construimos ahora la zona del select, a partir de los fields pasados
-    foreach ( DBFieldMetadata *field, fields )
+    for ( DBFieldMetadata *field : fields )
     {
         if ( field->isOnDb() && !field->memo() )
         {
@@ -1716,18 +1721,18 @@ QString BaseDAO::sqlSelectFieldsClausule(const QList<DBFieldMetadata *> &fields,
                 }
                 else
                 {
-                    sqlFields = QString("%1.%2").arg(alias).arg(field->dbFieldName());
+                    sqlFields = QString("%1.%2").arg(alias, field->dbFieldName());
                 }
             }
             else
             {
                 if ( alias.isEmpty() )
                 {
-                    sqlFields = QString("%1, %2").arg(sqlFields).arg(field->dbFieldName());
+                    sqlFields = QString("%1, %2").arg(sqlFields, field->dbFieldName());
                 }
                 else
                 {
-                    sqlFields = QString("%1, %2.%3").arg(sqlFields).arg(alias).arg(field->dbFieldName());
+                    sqlFields = QString("%1, %2.%3").arg(sqlFields, alias, field->dbFieldName());
                 }
             }
         }
@@ -1753,7 +1758,7 @@ QString BaseDAO::sqlSelectFieldsClausule(const QList<DBFieldMetadata *> &fields,
             }
             else
             {
-                sqlFields = QString("%1, %2.oid").arg(sqlFields).arg(alias);
+                sqlFields = QString("%1, %2.oid").arg(sqlFields, alias);
             }
         }
     }
@@ -1812,23 +1817,21 @@ QString BaseDAO::buildSqlSelect(BaseBeanMetadata *metadata, const QString &where
     {
         sqlFields = sqlSelectFieldsClausule(metadata->fields(), includeOid, "t1");
         sql = QString("SELECT DISTINCT %1 FROM %2 AS t1 LEFT JOIN %3_user_row_access AS t2 ON t1.oid = t2.recordoid").
-              arg(sqlFields).
-              arg(metadata->sqlTableName(driverConnection)).
-              arg(alephERPSettings->systemTablePrefix());
+              arg(sqlFields, metadata->sqlTableName(driverConnection), alephERPSettings->systemTablePrefix());
         if ( !sqlWhere.isEmpty() )
         {
             sqlWhere = QString("(%1) AND ").arg(BaseDAO::proccessSqlToAddAlias(sqlWhere, metadata, "t1"));
         }
-        sqlWhere = QString("%1 %2").arg(sqlWhere).arg(BaseDAO::filterRowWhere(metadata, "t2"));
+        sqlWhere = QString("%1 %2").arg(sqlWhere, BaseDAO::filterRowWhere(metadata, "t2"));
     }
     else
     {
         sqlFields = sqlSelectFieldsClausule(metadata->fields(), includeOid);
-        sql = QString("SELECT DISTINCT %1 FROM %2").arg(sqlFields).arg(metadata->sqlTableName(driverConnection));
+        sql = QString("SELECT DISTINCT %1 FROM %2").arg(sqlFields, metadata->sqlTableName(driverConnection));
     }
     if ( !sqlWhere.isEmpty() )
     {
-        sql = QString("%1 WHERE %2").arg(sql).arg(sqlWhere);
+        sql = QString("%1 WHERE %2").arg(sql, sqlWhere);
     }
     if ( !order.isEmpty() )
     {
@@ -1846,7 +1849,7 @@ QString BaseDAO::buildSqlSelect(const QList<DBFieldMetadata *> &fields, const QH
     QString sqlFields = sqlSelectFieldsClausule (fields, false);
     if ( xmlSql.contains(QStringLiteral("FROM")) )
     {
-        sql = QString("SELECT DISTINCT %1 FROM %2").arg(sqlFields).arg(xmlSql.value("FROM"));
+        sql = QString("SELECT DISTINCT %1 FROM %2").arg(sqlFields, xmlSql.value("FROM"));
     }
     if ( xmlSql.contains(QStringLiteral("WHERE")) )
     {
@@ -1932,8 +1935,8 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
     // para lo cual, debemos primero construir un INSERT del tipo:
     // INSERT INTO tabla (field1, field2, field3) VALUES(?, ?,?);
 
-    QList<DBField *> fields = bean->fields();
-    foreach ( DBField *field, fields )
+    const QList<DBField *> fields = bean->fields();
+    for ( DBField *field : fields )
     {
         if ( field->insertFieldOnUpdateSql(BaseBean::INSERT) )
         {
@@ -1944,7 +1947,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
             }
             else
             {
-                sqlFields = QString("%1, %2").arg(sqlFields).arg(field->metadata()->dbFieldName());
+                sqlFields = QString("%1, %2").arg(sqlFields, field->metadata()->dbFieldName());
             }
             if ( sqlValues.isEmpty() )
             {
@@ -1956,13 +1959,13 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
             }
         }
     }
-    sql = QString("INSERT INTO %1 (%2) VALUES (%3)").arg(bean->metadata()->sqlTableName()).arg(sqlFields).arg(sqlValues);
+    sql = QString("INSERT INTO %1 (%2) VALUES (%3)").arg(bean->metadata()->sqlTableName(), sqlFields, sqlValues);
     if ( Database::getQDatabase(connectionName).driverName() == QStringLiteral("QPSQL") )
     {
         // Vamos a utilizar una opción muy ventajosa de PostgreSQL
         QStringList pkFieldNames;
         pkFieldNames << "oid";
-        foreach (DBField *fld, pkFields)
+        for (DBField *fld : pkFields)
         {
             pkFieldNames.append(fld->metadata()->dbFieldName());
         }
@@ -1973,7 +1976,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
     if ( result )
     {
         int i = 0;
-        foreach ( DBField *field, fields )
+        for ( DBField *field : fields )
         {
             if ( field->insertFieldOnUpdateSql(BaseBean::INSERT) )
             {
@@ -1981,23 +1984,26 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
                 {
                     QByteArray ba = field->value().toByteArray();
                     qry->bindValue(i, ba.toBase64(), QSql::In);
-                    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::insert: bindValue: [%1]: [%2]").arg(field->metadata()->dbFieldName()).arg(field->value().toString()));
+                    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::insert: bindValue: [%1]: [%2]").
+                                        arg(field->metadata()->dbFieldName(), field->value().toString()));
                 }
-                else if ( field->metadata()->metadataTypeName() == QLatin1Literal("password") )
+                else if ( field->metadata()->metadataTypeName() == QLatin1Literal("hash") )
                 {
                     QString data = field->value().toString();
-                    QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Md5).toHex();
+                    QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Sha3_512).toHex();
                     qry->bindValue(i, hashValue, QSql::In);
                 }
                 else if ( field->hasM1Relation() || field->hasBrotherRelation() )
                 {
                     qry->bindValue(i, field->isEmpty() ? QVariant() : field->value(), QSql::In);
-                    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::insert: bindValue: [%1]: [%2]").arg(field->metadata()->dbFieldName()).arg(field->value().toString()));
+                    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::insert: bindValue: [%1]: [%2]").
+                                        arg(field->metadata()->dbFieldName(), field->value().toString()));
                 }
                 else
                 {
                     qry->bindValue(i, field->value(), QSql::In);
-                    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::insert: bindValue: [%1]: [%2]").arg(field->metadata()->dbFieldName()).arg(field->value().toString()));
+                    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::insert: bindValue: [%1]: [%2]").
+                                        arg(field->metadata()->dbFieldName(), field->value().toString()));
                 }
                 i++;
             }
@@ -2024,7 +2030,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
         if ( Database::getQDatabase(connectionName).driverName() == QStringLiteral("QPSQL") )
         {
             qry->first();
-            foreach (DBField *fld, pkFields)
+            for (DBField *fld : pkFields)
             {
                 fld->setInternalValue(qry->record().value(fld->metadata()->dbFieldName()), true, false);
             }
@@ -2054,97 +2060,106 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
 /*!
   Construye y ejecuta una sentencia SQL UPDATE a partir de la metainformación de BaseBean y de sus valores.
   */
-bool BaseDAO::update(BaseBean *bean, const QString &idTransaction, const QString &connectionName)
+bool BaseDAO::update(BaseBean *bean,
+                     const QString &idTransaction,
+                     const QString &connectionName)
 {
     QString sql, sqlFields, temp;
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
-    bool result = true;
 
     if ( bean == NULL )
     {
         return false;
     }
-    if ( bean->modified() )
+    bool result = true;
+    if ( !bean->modified() )
     {
-        QList<DBField *> fields = bean->fields();
-        foreach ( DBField *field, fields )
+        return result;
+    }
+    const QList<DBField *> fields = bean->fields();
+    for ( DBField *field : fields )
+    {
+        // Los campos serial no se incluyen en los updates, asi como los que estan marcados como no modificados
+        if ( field->insertFieldOnUpdateSql(BaseBean::UPDATE) )
         {
-            // Los campos serial no se incluyen en los updates, asi como los que estan marcados como no modificados
-            if ( field->insertFieldOnUpdateSql(BaseBean::UPDATE) )
+            temp = QString("%1 = ?").arg(field->metadata()->dbFieldName());
+            if ( sqlFields.isEmpty() )
             {
-                temp = QString("%1 = ?").arg(field->metadata()->dbFieldName());
-                if ( sqlFields.isEmpty() )
-                {
-                    sqlFields = QString("%1").arg(temp);
-                }
-                else
-                {
-                    sqlFields = QString("%1, %2").arg(sqlFields).arg(temp);
-                }
+                sqlFields = QString("%1").arg(temp);
+            }
+            else
+            {
+                sqlFields = QString("%1, %2").arg(sqlFields, temp);
             }
         }
-        // Puede ocurrir que se haya modificado los hijos del bean en la relación y no el bean. En ese caso,
-        // no se ejecuta nada, y pasamos a los beans
-        if ( !sqlFields.isEmpty() )
+    }
+    // Puede ocurrir que se haya modificado los hijos del bean en la relación y no el bean. En ese caso,
+    // no se ejecuta nada, y pasamos a los beans
+    if ( !sqlFields.isEmpty() )
+    {
+        QString sqlTableName = bean->metadata()->sqlTableName();
+        sql = QString("UPDATE %1 SET %2 WHERE %3").
+                arg(sqlTableName, sqlFields, bean->sqlWherePk());
+        CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+        result = qry->prepare(sql);
+        if ( result )
         {
-            sql = QString("UPDATE %1 SET %2 WHERE %3").arg(bean->metadata()->sqlTableName()).
-                  arg(sqlFields).arg(bean->sqlWherePk());
-            CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-            result = qry->prepare(sql);
+            int i = 0;
+            for ( DBField *field : fields )
+            {
+                if ( field->insertFieldOnUpdateSql(BaseBean::UPDATE) )
+                {
+                    if ( field->metadata()->type() == QVariant::Pixmap )
+                    {
+                        QByteArray ba = field->value().toByteArray();
+                        qry->bindValue(i, ba.toBase64(), QSql::In);
+                    }
+                    else if ( field->metadata()->metadataTypeName() == QLatin1Literal("hash") )
+                    {
+                        QString data = field->value().toString();
+                        QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Sha3_512).toHex();
+                        qry->bindValue(i, hashValue, QSql::In);
+                    }
+                    else if ( field->hasM1Relation() || field->hasBrotherRelation() )
+                    {
+                        qry->bindValue(i, field->isEmpty() ? QVariant() : field->value(), QSql::In);
+                        QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").
+                                            arg(field->metadata()->dbFieldName(), field->value().toString()));
+                    }
+                    else
+                    {
+                        qry->bindValue(i, field->value(), QSql::In);
+                        QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").
+                                            arg(field->metadata()->dbFieldName(), field->value().toString()));
+                    }
+                    i++;
+                }
+            }
             if ( result )
             {
-                int i = 0;
-                foreach ( DBField *field, fields )
-                {
-                    if ( field->insertFieldOnUpdateSql(BaseBean::UPDATE) )
-                    {
-                        if ( field->metadata()->type() == QVariant::Pixmap )
-                        {
-                            QByteArray ba = field->value().toByteArray();
-                            qry->bindValue(i, ba.toBase64(), QSql::In);
-                        }
-                        else if ( field->metadata()->metadataTypeName() == QLatin1Literal("password") )
-                        {
-                            QString data = field->value().toString();
-                            QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Md5).toHex();
-                            qry->bindValue(i, hashValue, QSql::In);
-                        }
-                        else if ( field->hasM1Relation() || field->hasBrotherRelation() )
-                        {
-                            qry->bindValue(i, field->isEmpty() ? QVariant() : field->value(), QSql::In);
-                            QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").arg(field->metadata()->dbFieldName()).arg(field->value().toString()));
-                        }
-                        else
-                        {
-                            qry->bindValue(i, field->value(), QSql::In);
-                            QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").arg(field->metadata()->dbFieldName()).arg(field->value().toString()));
-                        }
-                        i++;
-                    }
-                }
-                if ( result )
-                {
-                    result = qry->exec();
-                }
+                result = qry->exec();
             }
-            CommonsFunctions::restoreOverrideCursor();
-            QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: [%1]").arg(qry->lastQuery()));
         }
-        if ( !result )
+        CommonsFunctions::restoreOverrideCursor();
+        QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: [%1]").arg(qry->lastQuery()));
+    }
+    if ( !result )
+    {
+        writeDbMessages(qry.data());
+        return false;
+    }
+    else
+    {
+        HistoryDAO::updateEntry(bean, idTransaction);
+        // Si es una tabla de elementos cacheados, limpiamos la cache
+        if ( bean->metadata()->isCached() )
         {
-            writeDbMessages(qry.data());
-            return false;
+            BaseDAO::cleanCachedDataIfRequired(bean->metadata()->tableName());
         }
-        else
+        // Puede que haya campos que se calculen o tomen valor justo cuando la base de datos guarda
+        // el valor (porque tengan un trigger activado). Aseguramos tener el último valor
+        if ( idTransaction.isEmpty() )
         {
-            HistoryDAO::updateEntry(bean, idTransaction);
-            // Si es una tabla de elementos cacheados, limpiamos la cache
-            if ( bean->metadata()->isCached() )
-            {
-                BaseDAO::cleanCachedDataIfRequired(bean->metadata()->tableName());
-            }
-            // Puede que haya campos que se calculen o tomen valor justo cuando la base de datos guarda
-            // el valor (porque tengan un trigger activado). Aseguramos tener el último valor
             reloadFieldChangedAfterSave(bean);
             reloadRelationsChangedAfterSave(bean);
         }
@@ -2162,71 +2177,72 @@ bool BaseDAO::update(BaseBean *bean, const QString &idTransaction, const QString
  */
 bool BaseDAO::update(DBField *field, const QString &idTransaction, const QString &connectionName)
 {
-    QString sql;
-    QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
-    bool result = true;
 
     if ( field == NULL || field->bean().isNull() )
     {
         return false;
     }
 
-    if ( field->modified() && (field->overwrite() || !field->metadata()->serial()) )
+    bool result = true;
+    if ( ! (field->modified() && (field->overwrite() || !field->metadata()->serial())) )
     {
-        sql = QString("UPDATE %1 SET %2=:value WHERE %3").
-                arg(field->bean()->metadata()->tableName()).
-                arg(field->metadata()->dbFieldName()).
-                arg(field->bean()->sqlWherePk());
-        CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-        result = qry->prepare(sql);
-        if ( result )
+        return result;
+    }
+
+    QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
+    QString sql = QString("UPDATE %1 SET %2=:value WHERE %3").
+            arg(field->bean()->metadata()->tableName(), field->metadata()->dbFieldName(), field->bean()->sqlWherePk());
+    CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+    result = qry->prepare(sql);
+    if ( result )
+    {
+        if ( field->metadata()->type() == QVariant::Pixmap )
         {
-            if ( field->metadata()->type() == QVariant::Pixmap )
-            {
-                QByteArray ba = field->value().toByteArray();
-                qry->bindValue(":value", ba.toBase64(), QSql::In);
-            }
-            else if ( field->metadata()->metadataTypeName() == QLatin1Literal("password") )
-            {
-                QString data = field->value().toString();
-                QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Md5).toHex();
-                qry->bindValue(":value", hashValue, QSql::In);
-            }
-            else if ( field->hasM1Relation() || field->hasBrotherRelation() )
-            {
-                qry->bindValue(":value", field->isEmpty() ? QVariant() : field->value(), QSql::In);
-                QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").arg(field->metadata()->dbFieldName()).arg(field->value().toString()));
-            }
-            else
-            {
-                qry->bindValue(":value", field->value(), QSql::In);
-                QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").arg(field->metadata()->dbFieldName()).arg(field->value().toString()));
-            }
-            if ( result )
-            {
-                result = qry->exec();
-            }
+            QByteArray ba = field->value().toByteArray();
+            qry->bindValue(":value", ba.toBase64(), QSql::In);
         }
-        CommonsFunctions::restoreOverrideCursor();
-        QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: [%1]").arg(qry->lastQuery()));
-        if ( !result )
+        else if ( field->metadata()->metadataTypeName() == QLatin1Literal("hash") )
         {
-            writeDbMessages(qry.data());
-            return false;
+            QString data = field->value().toString();
+            QString hashValue = QCryptographicHash::hash(data.toLatin1(), QCryptographicHash::Sha3_512).toHex();
+            qry->bindValue(":value", hashValue, QSql::In);
+        }
+        else if ( field->hasM1Relation() || field->hasBrotherRelation() )
+        {
+            qry->bindValue(":value", field->isEmpty() ? QVariant() : field->value(), QSql::In);
+            QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").
+                                arg(field->metadata()->dbFieldName(), field->value().toString()));
         }
         else
         {
-            HistoryDAO::updateEntry(field->bean(), idTransaction);
-            // Si es una tabla de elementos cacheados, limpiamos la cache
-            if ( field->bean()->metadata()->isCached() )
-            {
-                BaseDAO::cleanCachedDataIfRequired(field->bean()->metadata()->tableName());
-            }
-            // Puede que haya campos que se calculen o tomen valor justo cuando la base de datos guarda
-            // el valor (porque tengan un trigger activado). Aseguramos tener el último valor
-            reloadFieldChangedAfterSave(field->bean());
-            reloadRelationsChangedAfterSave(field->bean());
+            qry->bindValue(":value", field->value(), QSql::In);
+            QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: bindValue: [%1]: [%2]").
+                                arg(field->metadata()->dbFieldName(), field->value().toString()));
         }
+        if ( result )
+        {
+            result = qry->exec();
+        }
+    }
+    CommonsFunctions::restoreOverrideCursor();
+    QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::update: [%1]").arg(qry->lastQuery()));
+    if ( !result )
+    {
+        writeDbMessages(qry.data());
+        return false;
+    }
+    else
+    {
+        HistoryDAO::updateEntry(field->bean(), idTransaction);
+        // Si es una tabla de elementos cacheados, limpiamos la cache
+        if ( field->bean()->metadata()->isCached() )
+        {
+            BaseDAO::cleanCachedDataIfRequired(field->bean()->metadata()->tableName());
+        }
+        // Puede que haya campos que se calculen o tomen valor justo cuando la base de datos guarda
+        // el valor (porque tengan un trigger activado). Aseguramos tener el último valor
+        reloadFieldChangedAfterSave(field->bean());
+        reloadRelationsChangedAfterSave(field->bean());
     }
     return result;
 }
@@ -2247,25 +2263,25 @@ bool BaseDAO::remove(BaseBean *bean, const QString &idTransaction, const QString
 
     // Vamos a eliminar todas las referencias a hijos con relaciones en cascada.
     QList<DBRelation *> rels = bean->relations(AlephERP::OneToMany | AlephERP::OneToOne);
-    foreach ( DBRelation *rel, rels )
+    for ( DBRelation *rel : rels )
     {
         if ( rel->metadata()->avoidDeleteIfIsReferenced() && rel->childrenCount() > 0 )
         {
             BaseBeanMetadata *relatedTable = BeansFactory::metadataBean(rel->metadata()->tableName());
-            m_threadLastMessage.setLocalData(trUtf8("El registro de la tabla <b>%1</b> (<i>%2</i>) no puede ser borrado ya que se encuentra "
+            m_threadLastMessage.setLocalData(tr("El registro de la tabla <b>%1</b> (<i>%2</i>) no puede ser borrado ya que se encuentra "
                                                     "relacionado con la tabla: <b>%3</b> (<i>%4</i>) y en esta tabla aún existen registros "
                                                     "que pertenecen a la tabla <b>%1</b>.").
-                                             arg(bean->metadata()->alias()).
-                                             arg(bean->metadata()->sqlTableName()).
-                                             arg(relatedTable != NULL ? relatedTable->alias() : "").
-                                             arg(rel->metadata()->sqlTableName()));
+                                             arg(bean->metadata()->alias(),
+                                                 bean->metadata()->sqlTableName(),
+                                                 relatedTable != NULL ? relatedTable->alias() : "",
+                                                 rel->metadata()->sqlTableName()));
             QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::remove: [%1]").arg(m_threadLastMessage.localData()));
             return false;
         }
         if ( rel->metadata()->deleteCascade() && !rel->metadata()->dbReferentialIntegrity() )
         {
             BaseBeanPointerList children = rel->children();
-            foreach ( BaseBeanPointer child, children )
+            for ( BaseBeanPointer child : children )
             {
                 if ( !child.isNull() && !BaseDAO::remove(child.data(), idTransaction) )
                 {
@@ -2298,19 +2314,19 @@ bool BaseDAO::remove(BaseBean *bean, const QString &idTransaction, const QString
     {
         if ( bean->metadata()->field("is_deleted") == NULL )
         {
-            m_threadLastMessage.setLocalData(trUtf8("El registro de la tabla %1 está marcado para tener un borrado lógico. "
+            m_threadLastMessage.setLocalData(tr("El registro de la tabla %1 está marcado para tener un borrado lógico. "
                                                     "Sin embargo no se ha definido una columna is_deleted en la definición de la tabla.").
                                              arg(bean->metadata()->sqlTableName()));
             QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::remove: [%1]").arg(m_threadLastMessage.localData()));
             return false;
         }
-        sql = QString("UPDATE %1 SET is_deleted = true WHERE %2").arg(bean->metadata()->sqlTableName()).
-              arg(bean->sqlWherePk());
+        sql = QString("UPDATE %1 SET is_deleted = true WHERE %2").
+                arg(bean->metadata()->sqlTableName(), bean->sqlWherePk());
     }
     else
     {
-        sql = QString("DELETE FROM %1 WHERE %2").arg(bean->metadata()->sqlTableName()).
-              arg(bean->sqlWherePk());
+        sql = QString("DELETE FROM %1 WHERE %2").
+                arg(bean->metadata()->sqlTableName(), bean->sqlWherePk());
     }
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     result = qry->prepare(sql);
@@ -2367,8 +2383,7 @@ bool BaseDAO::removeReference(BaseBean *bean, DBRelation *relation, const QStrin
     }
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
     QString sql = QString("UPDATE %1 SET %2=null WHERE %2=:id").
-                  arg(relation->metadata()->tableName()).
-                  arg(relation->metadata()->childFieldName());
+                  arg(relation->metadata()->tableName(), relation->metadata()->childFieldName());
     if ( !qry->prepare(sql) )
     {
         writeDbMessages(qry.data());
@@ -2376,7 +2391,7 @@ bool BaseDAO::removeReference(BaseBean *bean, DBRelation *relation, const QStrin
     }
     qry->bindValue(":id", bean->fieldValue(relation->metadata()->rootFieldName()));
     QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::removeReference: [%1] [%2]").
-                        arg(sql).arg(bean->fieldValue(relation->metadata()->rootFieldName()).toString()));
+                        arg(sql, bean->fieldValue(relation->metadata()->rootFieldName()).toString()));
     if ( !qry->exec() )
     {
         writeDbMessages(qry.data());
@@ -2388,7 +2403,7 @@ bool BaseDAO::removeReference(BaseBean *bean, DBRelation *relation, const QStrin
 bool BaseDAO::updateBrothersFieldKey(BaseBean *bean, const QString &idTransaction, const QString &connectionName)
 {
     QList<DBRelation *> rels = bean->relations(AlephERP::OneToOne);
-    foreach (DBRelation *rel, rels)
+    for (DBRelation *rel : rels)
     {
         DBField *fld = bean->field(rel->metadata()->rootFieldName());
         if ( fld != NULL && (fld->metadata()->serial() || fld->metadata()->unique()) )
@@ -2420,7 +2435,8 @@ void BaseDAO::writeDbMessages(QSqlQuery *qry)
 {
     if ( qry->lastError().databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
     {
-        m_threadLastMessage.setLocalData(qry->lastError().driverText());
+        QString error = qry->lastError().databaseText().replace(AlephERP::stDatabaseErrorPrefix, "");
+        m_threadLastMessage.setLocalData(error);
     }
     else
     {
@@ -2431,8 +2447,7 @@ void BaseDAO::writeDbMessages(QSqlQuery *qry)
         else
         {
             m_threadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").
-                                             arg(qry->lastError().driverText()).
-                                             arg(qry->lastError().databaseText()));
+                                             arg(qry->lastError().driverText(), qry->lastError().databaseText()));
         }
     }
     QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("BaseDAO: writeDbMessages: BBDD LastQuery: [%1]").arg(qry->lastQuery()));
@@ -2565,14 +2580,9 @@ int BaseDAO::newLock (const QString &tableName, const QString &userName, const Q
     }
     QString pkSerialize = serializePk(pk);
     QString sqlCheck = QString("SELECT count(*) as column1 FROM %1_locks WHERE tablename = '%2' AND pk_serialize = '%3'").
-            arg(alephERPSettings->systemTablePrefix()).
-            arg(tableName).
-            arg(pkSerialize);
+            arg(alephERPSettings->systemTablePrefix(), tableName, pkSerialize);
     QString sql = QString("INSERT INTO %1_locks (tablename, username, pk_serialize) VALUES ('%2', '%3', '%4')").
-            arg(alephERPSettings->systemTablePrefix()).
-            arg(tableName).
-            arg(userName).
-            arg(pkSerialize);
+            arg(alephERPSettings->systemTablePrefix(), tableName, userName, pkSerialize);
     QString sqlId = QString("SELECT MAX (id) FROM %1_locks").arg(alephERPSettings->systemTablePrefix());
     QVariant vId, count;
     int id = -1;
@@ -2747,15 +2757,15 @@ QString BaseDAO::serializePk(const QVariant &pk)
         }
         else if ( pkIterator.value().type() == QVariant::String )
         {
-            result.append(QString("%1: \"%2\"").arg(pkIterator.key()).arg(pkIterator.value().toString()));
+            result.append(QString("%1: \"%2\"").arg(pkIterator.key(), pkIterator.value().toString()));
         }
         else if ( pkIterator.value().type() == QVariant::Date )
         {
-            result.append(QString("%1: %2").arg(pkIterator.key()).arg(pkIterator.value().toDate().toString("YYYY-MM-DD")));
+            result.append(QString("%1: %2").arg(pkIterator.key(), pkIterator.value().toDate().toString("YYYY-MM-DD")));
         }
         else if ( pkIterator.value().type() == QVariant::DateTime )
         {
-            result.append(QString("%1: %2").arg(pkIterator.key()).arg(pkIterator.value().toDate().toString("YYYY-MM-DD HH:mm:ss")));
+            result.append(QString("%1: %2").arg(pkIterator.key(), pkIterator.value().toDate().toString("YYYY-MM-DD HH:mm:ss")));
         }
     }
     return result;
@@ -2770,7 +2780,7 @@ QString BaseDAO::serializePk(const QVariant &pk)
 QString BaseDAO::serializedPkToSqlWhere(const QString &pkey)
 {
     QString sql;
-    foreach ( QString pkeyPart, pkey.split(';') )
+    for ( const QString &pkeyPart : pkey.split(';') )
     {
         if ( !sql.isEmpty() )
         {
@@ -2782,7 +2792,7 @@ QString BaseDAO::serializedPkToSqlWhere(const QString &pkey)
             QString column = parts.at(0);
             QString value = parts.at(1).trimmed();
             value = value.replace("\"", "'");
-            sql = QString ("%1%2 = %3").arg(sql).arg(column).arg(value);
+            sql = QString ("%1%2 = %3").arg(sql, column, value);
         }
     }
     return sql;
@@ -2791,8 +2801,8 @@ QString BaseDAO::serializedPkToSqlWhere(const QString &pkey)
 bool BaseDAO::selectField(DBField *fld, const QString &connectionName)
 {
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
-    QString sql = QString("SELECT %1 FROM %2 WHERE %3").arg(fld->metadata()->dbFieldName()).
-                  arg(fld->bean()->metadata()->sqlTableName()).arg(fld->bean()->sqlWherePk());
+    QString sql = QString("SELECT %1 FROM %2 WHERE %3").
+            arg(fld->metadata()->dbFieldName(), fld->bean()->metadata()->sqlTableName(), fld->bean()->sqlWherePk());
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     bool result = qry->exec(sql);
     QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::selectField: [%1]").arg(sql));
@@ -2828,7 +2838,7 @@ bool BaseDAO::copyBaseBean(const BaseBeanPointer &orig, const BaseBeanPointer &d
         return false;
     }
     QList<DBRelation *> rels = orig->relations();
-    foreach ( DBRelation *rel, rels )
+    for ( DBRelation *rel : rels )
     {
         if ( rel->metadata()->includeOnCopy() )
         {
@@ -2848,9 +2858,9 @@ bool BaseDAO::copyBaseBean(const BaseBeanPointer &orig, const BaseBeanPointer &d
         return false;
     }
     dest->setAccess(orig->access());
-    QList<DBField *> flds = orig->fields();
+    const QList<DBField *> flds = orig->fields();
     bool blockSignalState = dest->blockSignals(true);
-    foreach ( DBField *fld, flds )
+    for ( DBField *fld : flds )
     {
         if ( !fld->metadata()->calculated() && !fld->metadata()->serial() && !fld->metadata()->primaryKey() && !fld->metadata()->hasCounterDefinition() )
         {
@@ -2869,14 +2879,14 @@ bool BaseDAO::copyBaseBean(const BaseBeanPointer &orig, const BaseBeanPointer &d
     {
         return false;
     }
-    foreach ( QString relation, relationsChildrenToCopy )
+    for ( QString relation : relationsChildrenToCopy )
     {
         DBRelation *rel = orig->relation(relation);
         DBRelation *relDest = dest->relation(rel->metadata()->tableName());
         if ( relDest != NULL && rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
         {
             BaseBeanPointerList children = rel->children();
-            foreach ( BaseBeanPointer child, children )
+            for ( BaseBeanPointer child : children )
             {
                 BaseBeanSharedPointer childDest = relDest->newChild();
                 if ( !copyBaseBean(child.data(), childDest.data()) )
@@ -2896,13 +2906,13 @@ bool BaseDAO::copyBaseBean(const BaseBeanPointer &orig, const BaseBeanPointer &d
   */
 void BaseDAO::readSerialValuesAfterInsert(BaseBean *bean, qlonglong oid, const QString &connectionName)
 {
-    QList<DBField *> fields = bean->fields();
+    const QList<DBField *> fields = bean->fields();
     QString whereWithoutOid, whereWithOid, sql;
 
     // Consulta general para obtener serial (sin tener en cuenta oid)
     if ( oid == -1 )
     {
-        foreach ( DBField *field, fields )
+        for ( DBField *field : fields )
         {
             if ( field->insertFieldOnUpdateSql(BaseBean::INSERT) )
             {
@@ -2913,17 +2923,17 @@ void BaseDAO::readSerialValuesAfterInsert(BaseBean *bean, qlonglong oid, const Q
                     {
                         whereWithoutOid = QString("%1 AND ").arg(whereWithoutOid);
                     }
-                    whereWithoutOid = QString("%1%2").arg(whereWithoutOid).arg(field->sqlWhere("="));
+                    whereWithoutOid = QString("%1%2").arg(whereWithoutOid, field->sqlWhere("="));
                 }
             }
         }
-        foreach ( DBField *field, fields )
+        for ( DBField *field : fields )
         {
             if ( field->metadata()->serial() )
             {
                 QVariant value;
-                sql = QString("SELECT %1 as column1 FROM %2 WHERE %3").arg(field->metadata()->dbFieldName()).
-                      arg(bean->metadata()->sqlTableName()).arg(whereWithoutOid);
+                sql = QString("SELECT %1 as column1 FROM %2 WHERE %3").
+                        arg(field->metadata()->dbFieldName(), bean->metadata()->sqlTableName(), whereWithoutOid);
                 QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::readSerialValuesAfterInsert: [%1]").arg(sql));
                 if ( !BaseDAO::execute(sql, value, connectionName) || !value.isValid() )
                 {
@@ -2942,13 +2952,13 @@ void BaseDAO::readSerialValuesAfterInsert(BaseBean *bean, qlonglong oid, const Q
         // Tenemos OID, lo asignamos a registro
         bean->setDbOid(oid);
         whereWithOid = QString("oid = %1").arg(oid);
-        foreach ( DBField *field, fields )
+        for ( DBField *field : fields )
         {
             if ( field->metadata()->serial() )
             {
                 QVariant value;
-                sql = QString("SELECT %1 as column1 FROM %2 WHERE %3").arg(field->metadata()->dbFieldName()).
-                      arg(bean->metadata()->sqlTableName()).arg(whereWithOid);
+                sql = QString("SELECT %1 as column1 FROM %2 WHERE %3").
+                        arg(field->metadata()->dbFieldName(), bean->metadata()->sqlTableName(), whereWithOid);
                 QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("BaseDAO::readSerialValuesAfterInsert: [%1]").arg(sql));
                 if ( !BaseDAO::execute(sql, value, connectionName) || !value.isValid() )
                 {
@@ -2978,8 +2988,8 @@ bool BaseDAO::reloadBeanFromDB(const BaseBeanPointer &bean, const QString &conne
     {
         return false;
     }
-    QList<DBField *> fldsOrig = bean->fields();
-    QList<DBField *> fldsRead = copy->fields();
+    const QList<DBField *> fldsOrig = bean->fields();
+    const QList<DBField *> fldsRead = copy->fields();
     for ( int i = 0 ; i < fldsOrig.size() ; i++ )
     {
         if ( !fldsOrig.at(i)->metadata()->memo() )
@@ -2990,7 +3000,7 @@ bool BaseDAO::reloadBeanFromDB(const BaseBeanPointer &bean, const QString &conne
             }
         }
     }
-    foreach ( DBRelation *rel, bean->relations() )
+    for ( DBRelation *rel : bean->relations() )
     {
         rel->unloadChildren();
     }
@@ -3013,7 +3023,7 @@ bool BaseDAO::reloadBeansFromDB(const BaseBeanPointerList &list, const QString &
         return true;
     }
 
-    foreach ( BaseBeanPointer bean, list )
+    for ( BaseBeanPointer bean : list )
     {
         if ( !bean.isNull() )
         {
@@ -3024,8 +3034,11 @@ bool BaseDAO::reloadBeansFromDB(const BaseBeanPointerList &list, const QString &
             ids[bean->metadata()->tableName()].append(bean->pkValue());
         }
     }
-    foreach (const QString &tableName, ids.keys())
+    QHashIterator<QString, QVariantList> it(ids);
+    while (it.hasNext())
     {
+         it.next();
+        const QString &tableName = it.key();
         BaseBeanSharedPointerList copies;
         if ( !BaseDAO::selectSeveralByPk(copies,
                                          ids[tableName],
@@ -3034,13 +3047,14 @@ bool BaseDAO::reloadBeansFromDB(const BaseBeanPointerList &list, const QString &
         {
             return false;
         }
-        foreach ( BaseBeanSharedPointer beanCopy, copies )
+        for ( BaseBeanSharedPointer beanCopy : copies )
         {
-            foreach ( BaseBeanPointer beanOrig, list )
+            for ( BaseBeanPointer beanOrig : list )
             {
                 if ( !beanOrig.isNull() && beanOrig->pkEqual(beanCopy->pkValue()) )
                 {
-                    foreach (DBField *fldOrig, beanOrig->fields())
+                    const QList<DBField *> fldOrigs = beanOrig->fields();
+                    for (DBField *fldOrig : fldOrigs)
                     {
                         if ( !fldOrig->metadata()->memo() )
                         {
@@ -3071,7 +3085,8 @@ bool BaseDAO::reloadFieldChangedAfterSave(BaseBean *bean, const QString &connect
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
     QList<DBFieldMetadata *> fieldsMetadata;
     QList<DBField *> fields;
-    foreach ( DBField *fld, bean->fields() )
+    const QList<DBField *> beanFields = bean->fields();
+    for ( DBField *fld : beanFields )
     {
         if ( fld->metadata()->reloadFromDBAfterSave() )
         {
@@ -3094,7 +3109,7 @@ bool BaseDAO::reloadFieldChangedAfterSave(BaseBean *bean, const QString &connect
     }
     QString sqlFields = sqlSelectFieldsClausule(fieldsMetadata, includeOid);
     QString sql = QString("SELECT %1 FROM %2 ").arg(sqlFields, bean->metadata()->sqlTableName());
-    sql = QString("%1 WHERE %2").arg(sql).arg(bean->sqlWherePk());
+    sql = QString("%1 WHERE %2").arg(sql, bean->sqlWherePk());
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     if (!qry->prepare(sql))
     {
@@ -3112,7 +3127,7 @@ bool BaseDAO::reloadFieldChangedAfterSave(BaseBean *bean, const QString &connect
         int i = 0;
         result = true;
         bool blockSignalState = bean->blockSignals(true);
-        foreach ( DBField *fld, fields )
+        for ( DBField *fld : fields )
         {
             fld->setInternalValue(qry->value(i), true, false);
             fld->sync();
@@ -3130,7 +3145,8 @@ bool BaseDAO::reloadRelationsChangedAfterSave(BaseBean *bean)
     {
         return false;
     }
-    foreach (DBRelation *relation, bean->relations())
+    QList<DBRelation *> relations = bean->relations();
+    for (DBRelation *relation : relations)
     {
         if ( relation->metadata()->reloadFromDBAfterSave() )
         {
@@ -3198,7 +3214,7 @@ QString BaseDAO::filterRowWhere(BaseBeanMetadata *metadata, const QString &alias
 {
     QString idRoleSql;
     QList<AlephERP::RoleInfo> userRoles = AERPLoggedUser::instance()->roles();
-    foreach (const AlephERP::RoleInfo &rol, userRoles)
+    for (const AlephERP::RoleInfo &rol : userRoles)
     {
         if ( !idRoleSql.isEmpty() )
         {
@@ -3210,10 +3226,7 @@ QString BaseDAO::filterRowWhere(BaseBeanMetadata *metadata, const QString &alias
                                "(%1.accessmode LIKE '%r%' OR %1.accessmode IS NULL) AND "
                                "( ( %1.username='%3' OR %1.username='*' OR %1.id_rol IN (%4) ) OR "
                                "(%1.username IS NULL AND %1.id_rol IS NULL) )").
-                       arg(alias).
-                       arg(metadata->tableName()).
-                       arg(AERPLoggedUser::instance()->userName()).
-                       arg(idRoleSql);
+                       arg(alias, metadata->tableName(), AERPLoggedUser::instance()->userName(), idRoleSql);
     return sqlWhere;
 }
 
@@ -3223,13 +3236,13 @@ QString BaseDAO::proccessSqlToAddAlias(const QString &sql, BaseBeanMetadata *met
     QString result = sql;
     QString uniqueString = QUuid::createUuid().toString();
     // Procesamos la claúsula where para añadir el alias
-    foreach (DBFieldMetadata *fld, fields)
+    for (DBFieldMetadata *fld : fields)
     {
         QRegExp regExp(QString("%1[^a-zA-Z]").arg(fld->dbFieldName()));
         int idx = regExp.indexIn(result);
         while (idx != -1)
         {
-            result = result.replace(idx, fld->dbFieldName().size(), QString("%1.%2").arg(alias).arg(uniqueString));
+            result = result.replace(idx, fld->dbFieldName().size(), QString("%1.%2").arg(alias, uniqueString));
             idx = regExp.indexIn(result);
         }
         result = result.replace(uniqueString, fld->dbFieldName());
@@ -3258,12 +3271,13 @@ bool BaseDAO::alterTableForForeignKeys(const QString &connectionName)
     {
         qry.prepare("SELECT 1 FROM RDB$TRIGGERS WHERE RDB$TRIGGER_NAME = :foreign_key_name");
     }
-    foreach ( BaseBeanMetadata *metadata, BeansFactory::metadataBeans )
+    for ( BaseBeanMetadata *metadata : BeansFactory::metadataBeans )
     {
         if ( metadata->dbObjectType() == AlephERP::Table )
         {
             BaseDAO::transaction(connectionName);
-            foreach (DBRelationMetadata *rel, metadata->relations(AlephERP::All))
+            QList<DBRelationMetadata *> relations = metadata->relations(AlephERP::All);
+            for (DBRelationMetadata *rel : relations)
             {
                 bool exists = false;
                 // Vamos a ver si la regla de integridad referencial existe ya o no. Si existe no la creamos.

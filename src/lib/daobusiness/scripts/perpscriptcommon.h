@@ -37,7 +37,6 @@ class BaseBeanMetadata;
 class AERPScriptCommon : public QObject, public QScriptable
 {
     Q_OBJECT
-    Q_ENUMS(DatesInterval)
 
     Q_PROPERTY(QString lastError READ lastError)
 
@@ -58,6 +57,7 @@ public:
         MONTHS = 16,
         YEARS = 32
     };
+    Q_ENUM(DatesInterval)
 
     void setPropertiesForScriptObject(QScriptValue &obj);
 
@@ -231,7 +231,7 @@ public:
     Q_INVOKABLE int getInt(const QString &label, int value = 0, int cancelValue = 0,  int min = -2147483647, int max = 2147483647);
     Q_INVOKABLE double getDouble(const QString &label, double value = 0, double cancelValue = 0, double min = -2147483647, double max = 2147483647, int decimals = 2);
     Q_INVOKABLE double getDouble(const QScriptValue &parent, const QString &label, double value = 0, double cancelValue = 0, double min = -2147483647, double max = 2147483647, int decimals = 2);
-    Q_INVOKABLE QString getText(const QString & label);
+    Q_INVOKABLE QString getText(const QString & label, const QString &defaultValue = QString());
     Q_INVOKABLE QScriptValue getDate(const QString &label, const QDate &defaultDate = QDate::currentDate());
     Q_INVOKABLE QScriptValue getDateTime(const QString &label, const QDateTime &defaultDateTime = QDateTime::currentDateTime());
     Q_INVOKABLE QScriptValue chooseItemFromArray(const QString &label, const QScriptValue &list);
@@ -276,6 +276,8 @@ public:
                                                     const QString &order = "",
                                                     const QString &label = "",
                                                     bool userEnvVars = true);
+    Q_INVOKABLE QScriptValue chooseRecordsFromDBSearch(const QString &tableName,
+                                                       const QString &where = "");
     Q_INVOKABLE QScriptValue chooseRecordFromTable(const QString &tableName,
                                                    const QString &where = "",
                                                    const QString &order = "",

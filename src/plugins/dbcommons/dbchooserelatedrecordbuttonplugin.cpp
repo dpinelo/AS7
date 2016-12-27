@@ -64,12 +64,12 @@ QIcon DBChooseRelatedRecordButtonPlugin::icon() const
 
 QString DBChooseRelatedRecordButtonPlugin::toolTip() const
 {
-    return trUtf8("PushButton que genera una asociación del registro actual con el elegido por el usuario.");
+    return tr("PushButton que genera una asociación del registro actual con el elegido por el usuario.");
 }
 
 QString DBChooseRelatedRecordButtonPlugin::whatsThis() const
 {
-    return trUtf8("PushButton que genera una asociación del registro actual con el elegido por el usuario.");
+    return tr("PushButton que genera una asociación del registro actual con el elegido por el usuario.");
 }
 
 bool DBChooseRelatedRecordButtonPlugin::isContainer() const

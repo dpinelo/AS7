@@ -254,7 +254,7 @@ void DBTreeView::setTableNames(const QString &value)
     d->m_tableNames = value;
 }
 
-QString DBTreeView::visibleColumns()
+QString DBTreeView::visibleColumns() const
 {
     return d->m_visibleColumns;
 }
@@ -307,7 +307,7 @@ void DBTreeView::setItemCheckBox(bool value)
             {
                 if ( i < tables.size() )
                 {
-                    checkColumns.append(QString("%1.%2").arg(tables.at(i)).arg(fields.at(i)));
+                    checkColumns.append(QString("%1.%2").arg(tables.at(i), fields.at(i)));
                 }
                 else
                 {
@@ -577,8 +577,9 @@ void DBTreeView::paintEvent(QPaintEvent *event)
     QTreeView::paintEvent(event);
 }
 
-void DBTreeView::init()
+bool DBTreeView::init(bool onShowEvent)
 {
+    Q_UNUSED(onShowEvent)
     hideAnimation();
     if ( automaticName() )
     {
@@ -624,6 +625,7 @@ void DBTreeView::init()
             spanRow();
         }
     }
+    return true;
 }
 
 BaseBeanSharedPointer DBTreeView::selectedBean()
@@ -1053,7 +1055,7 @@ void DBTreeView::populateAllModel()
              sourceModel->metadata() &&
              sourceModel->metadata()->showOnTreePreloadRecords() )
         {
-            d->m_progressDialog->setLabelText(trUtf8("Carga de '%1'").arg(sourceModel->metadata()->alias()));
+            d->m_progressDialog->setLabelText(tr("Carga de '%1'").arg(sourceModel->metadata()->alias()));
             QObject::connect(sourceModel, SIGNAL(populateAllModel(int)), d->m_progressDialog.data(), SLOT(setMaximum(int)));
             QObject::connect(sourceModel, SIGNAL(populateAllModelProgress(int)), d->m_progressDialog.data(), SLOT(setValue(int)));
         }

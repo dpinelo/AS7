@@ -43,7 +43,6 @@ class LoginDlgPrivate;
 class ALEPHERP_DLL_EXPORT LoginDlg : public QDialog
 {
     Q_OBJECT
-    Q_ENUMS(CloseTypes)
 
 public:
     explicit LoginDlg(QWidget *parent = 0);
@@ -55,7 +54,6 @@ public:
     QList<QVariant> roles();
 
 protected:
-    virtual void showEvent(QShowEvent *event);
     virtual bool eventFilter (QObject *target, QEvent *event);
 
 protected slots:

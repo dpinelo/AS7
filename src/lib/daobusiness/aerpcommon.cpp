@@ -70,7 +70,6 @@ const char * AlephERP::stNewLockNotification = "newlock";
 const char * AlephERP::stDeleteRowNotification = "deleteRecord";
 const char * AlephERP::stNoAccess = "No accesible";
 const char * AlephERP::stQmlNamespace = "es.alephsistemas.alepherp";
-const char * AlephERP::stModelContext = "ModelContext";
 const char * AlephERP::stTitle = "title";
 const char * AlephERP::stMimeDataAction = "alepherp/action";
 const char * AlephERP::stMimeDataToolButton = "alepherp/toolbutton";
@@ -119,6 +118,7 @@ const char * AlephERP::stInactive = "debaja";
 const char * AlephERP::stDatabaseErrorPrefix = "AERPERROR:";
 const char * AlephERP::stQsFunction = "qsFunction";
 const char * AlephERP::stAddToThisForm = "addToThisForm";
+const char * AlephERP::stRowColor = "rowcolor";
 
 #ifdef ALEPHERP_DEVTOOLS
 const char * AlephERP::stWebInspector = "aerpWebInspector";

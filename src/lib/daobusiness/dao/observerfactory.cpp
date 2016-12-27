@@ -154,7 +154,7 @@ AbstractObserver *ObserverFactory::installDBFieldObserver(DBBaseWidget *baseWidg
         }
         else
         {
-            QList<DBObject *> lstObj = bean->navigateThrough(baseWidget->fieldName(), baseWidget->relationFilter());
+            const QList<DBObject *> lstObj = bean->navigateThrough(baseWidget->fieldName(), baseWidget->relationFilter());
             if ( lstObj.size() > 0 )
             {
                 fld = qobject_cast<DBField *>(lstObj.at(0));
@@ -242,7 +242,7 @@ AbstractObserver *ObserverFactory::installDBRelationObserver(DBBaseWidget *baseW
         }
         else
         {
-            QList<DBObject *> relations = bean->navigateThrough(baseWidget->relationName(), baseWidget->relationFilter());
+            const QList<DBObject *> relations = bean->navigateThrough(baseWidget->relationName(), baseWidget->relationFilter());
             if ( relations.size() == 0 )
             {
                 DBObject *obj = bean->navigateThroughProperties(baseWidget->relationName());
@@ -302,7 +302,7 @@ AbstractObserver::~AbstractObserver()
     observerToBeDestroyed();
 }
 
-QObject * AbstractObserver::entity()
+QObject * AbstractObserver::entity() const
 {
     if ( m_entity.isNull() )
     {
@@ -317,7 +317,7 @@ void AbstractObserver::setEntity(QObject *obj)
     connect(m_entity.data(), SIGNAL(destroyed()), this, SLOT(observerToBeDestroyed()));
 }
 
-QList<QPointer<QObject> > AbstractObserver::viewWidgets()
+const QList<QPointer<QObject> > AbstractObserver::viewWidgets() const
 {
     return m_viewWidgets;
 }

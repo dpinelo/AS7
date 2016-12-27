@@ -199,31 +199,31 @@ QVariant AERPScheduleViewHeaderModel::headerData(int section, Qt::Orientation or
             {
                 if ( (section + 1) == Qt::Sunday )
                 {
-                    return trUtf8("Domingo");
+                    return tr("Domingo");
                 }
                 else if ( (section + 1) == Qt::Monday )
                 {
-                    return trUtf8("Lunes");
+                    return tr("Lunes");
                 }
                 else if ( (section + 1) == Qt::Tuesday )
                 {
-                    return trUtf8("Martes");
+                    return tr("Martes");
                 }
                 else if ( (section + 1) == Qt::Wednesday)
                 {
-                    return trUtf8("Miércoles");
+                    return tr("Miércoles");
                 }
                 else if ( (section + 1) == Qt::Thursday)
                 {
-                    return trUtf8("Jueves");
+                    return tr("Jueves");
                 }
                 else if ( (section + 1) == Qt::Friday )
                 {
-                    return trUtf8("Viernes");
+                    return tr("Viernes");
                 }
                 else if ( (section + 1) == Qt::Saturday )
                 {
-                    return trUtf8("Sábado");
+                    return tr("Sábado");
                 }
             }
         }
@@ -247,7 +247,7 @@ QVariant AERPScheduleViewHeaderModel::headerData(int section, Qt::Orientation or
                 QDateTime rowStartTime = firstRowStartTime.addDays(weekOffset * 7);
                 if ( rowStartTime.time().hour() == 0 && rowStartTime.time().minute() == 0 )
                 {
-                    return trUtf8("Semana %1").arg(rowStartTime.date().weekNumber());
+                    return tr("Semana %1").arg(rowStartTime.date().weekNumber());
                 }
             }
         }

@@ -79,7 +79,7 @@ public:
     virtual void setCheckFatherCheckChildrens(bool value);
     virtual bool checkFatherCheckChildrens();
     virtual QModelIndexList checkedItems(const QModelIndex &idx = QModelIndex());
-    virtual void setCheckedItems(QModelIndexList list, bool checked = true);
+    virtual void setCheckedItems(const QModelIndexList &list, bool checked = true);
     virtual void setCheckedItem(const QModelIndex &idx, bool checked = true);
     virtual void setCheckedItem(int row, bool checked = true);
     virtual void checkAllItems(bool checked = true);

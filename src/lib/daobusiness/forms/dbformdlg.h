@@ -135,6 +135,7 @@ public:
         ViewButton = 0x2000,
         ExportSpreadSheet = 0x4000
     };
+    Q_ENUM(DBFormButton)
     Q_DECLARE_FLAGS(DBFormButtons, DBFormButton)
 
     DBFormButtons visibleButtons() const;
@@ -142,7 +143,7 @@ public:
     QString tableName() const;
     QWidget *dbRecordsView() const;
 
-    BaseBeanPointer selectedBean();
+    BaseBeanPointer selectedBean(bool foceReloadIfNeeded = true);
 
     bool openSuccess();
     bool checkPermissionsToOpen();

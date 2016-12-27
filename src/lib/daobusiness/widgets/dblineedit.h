@@ -80,6 +80,8 @@ class ALEPHERP_DLL_EXPORT DBLineEdit : public QLineEdit, public DBBaseWidget
     Q_PROPERTY (QString autoCompleteVisibleFields READ autoCompleteVisibleFields WRITE setAutoCompleteVisibleFields DESIGNABLE enableAutoCompleteVisibleFieldsOnDesigner)
     /** Posible filtro para el caso de que se autocomplete con una tabla */
     Q_PROPERTY (QString autoCompleteTableNameFilter READ autoCompleteTableNameFilter WRITE setAutoCompleteTableNameFilter DESIGNABLE enableAutoCompleteTableNameOnDesigner)
+    /** Posible filtro para el caso de que se autocomplete con una tabla */
+    Q_PROPERTY (int autoCompleteLengthStart READ autoCompleteLengthStart WRITE setAutoCompleteLengthStart DESIGNABLE enableAutoCompleteTableNameOnDesigner)
     /** Si el control se utiliza para obtener un valor de otra tabla (por ejemplo un ID de una tabla externa que se edita a través
     de un valor más legible) este será el valor de la columna de la tabla externa. Por ejemplo, se utiliza la referencia de artículo
     para actualizar el ID de artículo, aquí se utilizaría "id" de la tabla artículo */
@@ -199,6 +201,8 @@ public:
     virtual void setAutoCompleteColumnToSave(const QString &value);
     virtual QString autoCompleteColumnSaved() const;
     virtual void setAutoCompleteColumnSaved(const QString &value);
+    virtual int autoCompleteLengthStart() const;
+    virtual void setAutoCompleteLengthStart(int value);
     virtual QString scriptAfterChooseFromCompleter() const;
     virtual void setScriptAfterChooseFromCompleter(const QString &value);
     virtual BaseBeanSharedPointer completerSelectedBean() const;

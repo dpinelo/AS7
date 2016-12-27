@@ -21,14 +21,9 @@
 #define CONFIGURACION_H
 
 #include <QtCore>
-#if QT_VERSION <= 0x050000
-#include <QtGui>
-#endif
-#if QT_VERSION > 0x050000
 #include <QtWidgets/QTableView>
 #include <QtWidgets/QTreeView>
 #include <QtWidgets/QMainWindow>
-#endif
 
 #include <alepherpglobal.h>
 #include "qlogger.h"
@@ -143,8 +138,6 @@ private:
 
     int m_reportsToShowCombobox;
 
-    bool m_userWritesHistory;
-
     QMap<QString, QVariant> m_scheduleMode;
     QMap<QString, QVariant> m_scheduleAdjustRow;
 
@@ -170,7 +163,7 @@ private:
     QString m_mainCloudServer;
 #endif
 
-    void init (void);
+    void init(void);
 
 public:
     explicit AlephERPSettings(QObject *parent = 0);
@@ -190,36 +183,25 @@ public:
 
     bool firstUse() const;
 
-    void setDbServer (const QString& theValue);
     QString dbServer() const;
-    void setDbUser (const QString& theValue);
     QString dbUser() const;
-    void setDbPassword (const QString& theValue);
     QString dbPassword() const;
-    void setDbName (const QString& theValue);
     QString dbName() const;
     int dbPort() const;
-    void setDbPort (int theValue);
-    void setDbSchema (const QString& theValue);
     QString dbSchema() const;
-    void setConnectionType (const QString& theValue);
     QString connectionType() const;
-    void setDsnODBC (const QString& theValue);
     QString dsnODBC() const;
     QString systemTablePrefix() const;
-    void setSystemTablePrefix (const QString &value);
     QString fileSystemEncoding() const;
-    void setSileSystemEncoding (const QString &value);
     QString connectOptions();
-    void setConnectOptions(const QString &value);
     QString cloudProtocol();
-    void setCloudProtocol(const QString &value);
+
+    QString computerUUID();
+
     int httpTimeout();
     void setHttpTimeout(int value);
     bool allowSystemTray() const;
     void setAllowSystemTray(bool value);
-
-    bool userWritesHistory() const;
 
     int lastServer();
     void setLastServer(int id);
@@ -231,10 +213,6 @@ public:
 
     QString reportEngine() const;
     void setReportEngine(const QString &value);
-
-    QString licenseKey();
-    void setLicenseKey(const QString &value);
-    QString computerUUID();
 
     int timeBetweenReloads();
     void setTimeBetweenReloads(int time);
@@ -273,6 +251,8 @@ public:
 
     void saveTreeViewExpandedState(const QStringList &list, const QString &treeViewWidgetName);
     QStringList restoreTreeViewExpandedState(const QString &treeViewWidgetName);
+
+    void loadServerOptions(int id);
 
 #ifdef ALEPHERP_QSCISCINTILLA
     QFont codeFont() const;

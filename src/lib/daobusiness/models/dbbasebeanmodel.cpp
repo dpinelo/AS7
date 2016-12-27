@@ -99,9 +99,12 @@ public:
      * Nos permitirá saber qué filas se han borrado */
     BaseBeanSharedPointerList m_checkedUpdateBeans;
     bool m_workLoadingOnBackground;
-
+    /**
+     * Cuando este modelo edita vistas, aquí almacenamos los beans originales sobre los que se producirá el update. Esto se utiliza
+     * en el modo de edición inline
+     */
+    QHash<qlonglong, BaseBeanSharedPointer> m_originalBeansOnTransaction;
     DBBaseBeanModel *q_ptr;
-
     static QMutex m_mutex;
 
     DBBaseBeanModelPrivate(DBBaseBeanModel *qq) : q_ptr(qq)
@@ -135,6 +138,7 @@ public:
     bool stillBackgroundUpdatePetitions();
     void newBeanAvailableSetInRow(int modelRow, BaseBeanSharedPointer updateBean);
     void checkRefreshEnd();
+    bool setValue(BaseBeanSharedPointer bean, const QModelIndex &index, const QVariant &value);
 };
 
 QMutex DBBaseBeanModelPrivate::m_mutex(QMutex::Recursive);
@@ -398,8 +402,9 @@ void DBBaseBeanModelPrivate::extractOrder()
 
 void DBBaseBeanModelPrivate::resetModel()
 {
+    int oldRowCount = m_rowCount;
     clearBackgroundQueries();
-    if ( m_rowCount > 0 )
+    if ( oldRowCount > 0 )
     {
         q_ptr->beginRemoveRows(QModelIndex(), 0, m_rowCount-1);
     }
@@ -419,7 +424,7 @@ void DBBaseBeanModelPrivate::resetModel()
     m_beansFetched.clear();
     m_vectorBean.clear();
     m_tableVectorBean.clear();
-    if ( m_rowCount > 0 )
+    if ( oldRowCount > 0 )
     {
         q_ptr->endRemoveRows();
     }
@@ -832,6 +837,45 @@ void DBBaseBeanModelPrivate::checkRefreshEnd()
     }
 }
 
+bool DBBaseBeanModelPrivate::setValue(BaseBeanSharedPointer bean, const QModelIndex &index, const QVariant &value)
+{
+    if ( bean.isNull() )
+    {
+        return false;
+    }
+    DBField *fld = bean->field(index.column());
+    if ( fld == NULL )
+    {
+        return false;
+    }
+
+    // ¿El bean es una vista?
+    BaseBeanSharedPointer beanToEdit = bean;
+    if ( beanToEdit->metadata()->dbObjectType() == AlephERP::View )
+    {
+        // Obtenemos el registro original, y es sobre él, sobre el que se aplicará la modificación y se agregará
+        // al contexto.
+        beanToEdit = BeansFactory::instance()->originalQBean(bean.data());
+        if ( beanToEdit.isNull() )
+        {
+            q_ptr->setLastErrorMessage(QObject::tr("No se ha podido obtener el registro original. La razón es: %1").arg(BaseDAO::lastErrorMessage()));
+            return false;
+        }
+        beanToEdit->setFieldValue(fld->metadata()->dbFieldName(), value);
+        // ¿Está el bean en la transacción?
+        if ( !m_originalBeansOnTransaction.contains(beanToEdit->dbOid()) )
+        {
+            AERPTransactionContext::instance()->addToContext(q_ptr->contextName(), beanToEdit.data());
+            m_originalBeansOnTransaction[beanToEdit->dbOid()] = beanToEdit;
+        }
+    }
+    else
+    {
+        fld->setValue(value);
+    }
+    return true;
+}
+
 void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
 {
     Q_UNUSED(result)
@@ -879,7 +923,7 @@ void DBBaseBeanModel::backgroundQueryExecuted(QString id, bool result)
                     d->m_checkedUpdateBeans.clear();
                     d->m_lastReload.first = QDateTime::currentDateTime();
                     d->m_lastReload.second = true;
-                    QLogger::QLog_Debug(AlephERP::stLogOther, trUtf8("DBBaseBeanModel::backgroundQueryExecuted: Finalizó el refresco en background."));
+                    QLogger::QLog_Debug(AlephERP::stLogOther, tr("DBBaseBeanModel::backgroundQueryExecuted: Finalizó el refresco en background."));
                 }
                 d->m_beansPetitions.removeAt(i);
             }
@@ -950,6 +994,10 @@ Qt::ItemFlags DBBaseBeanModel::flags(const QModelIndex & index) const
     {
         flags = Qt::ItemIsEnabled;
     }
+    if ( field->editOnDbForm() )
+    {
+        flags = flags | Qt::ItemIsEditable;
+    }
     if ( field->type() == QVariant::Bool || BaseBeanModel::checkColumns().contains(field->dbFieldName()))
     {
         flags = flags | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
@@ -979,15 +1027,15 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
     }
     if ( role == AlephERP::InsertRowTextRole )
     {
-        return trUtf8("Insertar registro '%1").arg(d->m_metadata->alias());
+        return tr("Insertar registro '%1").arg(d->m_metadata->alias());
     }
     if ( role == AlephERP::EditRowTextRole )
     {
-        return trUtf8("Editar registro '%1'").arg(d->m_metadata->alias());
+        return tr("Editar registro '%1'").arg(d->m_metadata->alias());
     }
     if ( role == AlephERP::DeleteRowTextRole )
     {
-        return trUtf8("Eliminar registro '%1'").arg(d->m_metadata->alias());
+        return tr("Eliminar registro '%1'").arg(d->m_metadata->alias());
     }
     if ( !item.isValid() )
     {
@@ -1122,7 +1170,7 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
     return BaseBeanModel::data(item, role);
 }
 
-bool DBBaseBeanModel::setData ( const QModelIndex & index, const QVariant & value, int role )
+bool DBBaseBeanModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if ( !index.isValid() || d->m_metadata == NULL || isLoadingData() )
     {
@@ -1152,21 +1200,27 @@ bool DBBaseBeanModel::setData ( const QModelIndex & index, const QVariant & valu
         {
             emit dataChanged(index, index);
         }
+        emit itemChecked(index, (v == Qt::Checked));
     }
     else if ( (role == Qxt::ItemStartTimeRole || role == Qxt::ItemDurationRole) && !bean.isNull() )
     {
         DBField *fld = bean->fieldForRole(role);
-        if ( fld != NULL )
+        if ( fld == NULL )
         {
-            if ( role == Qxt::ItemDurationRole )
-            {
-                fld->setScheduleDurationValue(value.toInt());
-            }
-            else
-            {
-                fld->setValue(QDateTime::fromTime_t(value.toInt()));
-            }
+            return false;
         }
+        if ( role == Qxt::ItemDurationRole )
+        {
+            fld->setScheduleDurationValue(value.toInt());
+        }
+        else
+        {
+            fld->setValue(QDateTime::fromTime_t(value.toInt()));
+        }
+    }
+    else if ( role == Qt::EditRole && !bean.isNull() )
+    {
+        return d->setValue(bean, index, value);
     }
     return true;
 }
@@ -1396,6 +1450,11 @@ BaseBeanSharedPointer DBBaseBeanModel::beanToBeEdited(const QModelIndex &index)
                     beanOriginal = BaseDAO::selectByPk(b->pkValue(), originalTableName);
                     if ( beanOriginal.isNull() )
                     {
+                        if ( BaseDAO::lastErrorMessage().isEmpty() )
+                        {
+                            QLogger::QLog_Error(AlephERP::stLogDB,
+                                                tr("DBBaseBeanModel::beanToBeEdited: ERROR: %1").arg(BaseDAO::lastErrorMessage()));
+                        }
                         beanOriginal = BeansFactory::instance()->newQBaseBean(originalTableName);
                     }
                 }
@@ -1539,21 +1598,24 @@ bool DBBaseBeanModel::commit()
     }
     d->m_beansToBeDeleted.clear();
 
-    QString contextName = AlephERP::stModelContext;
     for ( int i = 0 ; i < d->m_vectorBean.size() ; i++ )
     {
         BaseBeanSharedPointer bean = d->m_vectorBean.at(i);
         if ( bean && bean->modified() )
         {
-            AERPTransactionContext::instance()->addToContext(contextName, bean.data());
+            AERPTransactionContext::instance()->addToContext(contextName(), bean.data());
         }
     }
-    if ( AERPTransactionContext::instance()->isContextEmpty(contextName) )
+    if ( AERPTransactionContext::instance()->isContextEmpty(contextName()) )
     {
         return true;
     }
-    bool r = AERPTransactionContext::instance()->commit(contextName);
-    AERPTransactionContext::instance()->waitCommitToEnd(contextName);
+    bool r = AERPTransactionContext::instance()->commit(contextName());
+    AERPTransactionContext::instance()->waitCommitToEnd(contextName());
+    if ( !r )
+    {
+        setLastErrorMessage(AERPTransactionContext::instance()->lastErrorMessage());
+    }
     return r;
 }
 

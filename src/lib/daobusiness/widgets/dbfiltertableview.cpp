@@ -97,7 +97,7 @@ void DBFilterTableView::init(bool initStrongFilter)
     setSourceModel(model);
 
     DBAbstractFilterView::init(initStrongFilter);    
-    setStatusTip(trUtf8("Existen un total de %1 registros").arg(alephERPSettings->locale()->toString(model->rowCount())));
+    setStatusTip(tr("Existen un total de %1 registros").arg(alephERPSettings->locale()->toString(model->rowCount())));
     calculateSubTotals();
 }
 

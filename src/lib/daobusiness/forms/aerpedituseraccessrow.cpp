@@ -209,7 +209,7 @@ void AERPEditUserAccessRow::closeEvent(QCloseEvent * event)
     alephERPSettings->saveDimensionForm(this);
     if ( isWindowModified() )
     {
-        int ret = QMessageBox::question(this, qApp->applicationName(), trUtf8("¿Desea cerrar el formulario sin guardar los datos?"), QMessageBox::Yes | QMessageBox::No);
+        int ret = QMessageBox::question(this, qApp->applicationName(), tr("¿Desea cerrar el formulario sin guardar los datos?"), QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::No )
         {
             event->ignore();

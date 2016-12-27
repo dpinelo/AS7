@@ -19,11 +19,7 @@
  ***************************************************************************/
 #include <QtCore>
 #include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include <QtSql>
 
 #include <globales.h>
@@ -54,7 +50,7 @@ public:
     {
         m_initialServer = -1;
         m_model = NULL;
-        m_capsOnMessage = QObject::trUtf8("La tecla de bloqueo de mayúsculas se encuentra activada.");
+        m_capsOnMessage = QObject::tr("La tecla de bloqueo de mayúsculas se encuentra activada.");
         openServerDatabase();
     }
 
@@ -97,7 +93,7 @@ LoginDlg::LoginDlg(QWidget *parent) :
     }
     ui->lblImage->setPixmap(pixmap);
 
-    QString version = trUtf8("<html><head/><body><p align=\"right\"><span style=\"font-size:6pt;\">Versión: <strong>%1</strong></span></p></body></html>").arg(QString(ALEPHERP_REVISION));
+    QString version = tr("<html><head/><body><p align=\"right\"><span style=\"font-size:6pt;\">Versión: <strong>%1</strong></span></p></body></html>").arg(QString(ALEPHERP_REVISION));
     ui->lblVersion->setText(version);
 
     connect (ui->pbOk, SIGNAL(clicked()), this, SLOT(okClicked()));
@@ -110,7 +106,7 @@ LoginDlg::LoginDlg(QWidget *parent) :
     if ( !d->m_db.isOpen() || !d->m_db.isValid() )
     {
         QMessageBox::warning(this, qApp->applicationName(),
-                             trUtf8("Ha ocurrido un error en el acceso a la base de datos de servidores. No es posible iniciar la aplicación."), QMessageBox::Ok);
+                             tr("Ha ocurrido un error en el acceso a la base de datos de servidores. No es posible iniciar la aplicación."), QMessageBox::Ok);
         close();
         return;
     }
@@ -122,43 +118,36 @@ LoginDlg::LoginDlg(QWidget *parent) :
         ui->txtUserName->setText(alephERPSettings->lastLoggedUser());
         ui->txtPassword->setFocus();
     }
-    if ( !alephERPSettings->advancedUser() )
+    d->m_model = new QSqlTableModel(this, d->m_db);
+    d->m_model->setTable("alepherp_servers");
+    d->m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
+    d->m_model->setSort(1, Qt::AscendingOrder);
+    d->m_model->select();
+    ui->cbServers->setModel(d->m_model);
+    ui->cbServers->setModelColumn(1);
+    d->m_initialServer = alephERPSettings->lastServer();
+    for ( int row = 0 ; row < d->m_model->rowCount() ; row++ )
     {
-        ui->gbServer->setVisible(false);
-    }
-    else
-    {
-        d->m_model = new QSqlTableModel(this, d->m_db);
-        d->m_model->setTable("alepherp_servers");
-        d->m_model->setEditStrategy(QSqlTableModel::OnManualSubmit);
-        d->m_model->setSort(1, Qt::AscendingOrder);
-        d->m_model->select();
-        ui->cbServers->setModel(d->m_model);
-        ui->cbServers->setModelColumn(1);
-        d->m_initialServer = alephERPSettings->lastServer();
-        for ( int row = 0 ; row < d->m_model->rowCount() ; row++ )
+        if ( d->m_model->record(row).value("id").toInt() == d->m_initialServer )
         {
-            if ( d->m_model->record(row).value("id").toInt() == d->m_initialServer )
-            {
-                ui->cbServers->setCurrentIndex(row);
-            }
+            ui->cbServers->setCurrentIndex(row);
         }
-        connect (ui->pbAdd, SIGNAL(clicked()), this, SLOT(addServer()));
-        connect (ui->pbEdit, SIGNAL(clicked()), this, SLOT(editServer()));
-        connect (ui->pbRemove, SIGNAL(clicked()), this, SLOT(removeServer()));
-        if ( d->m_model->rowCount() == 0 )
+    }
+    connect (ui->pbAdd, SIGNAL(clicked()), this, SLOT(addServer()));
+    connect (ui->pbEdit, SIGNAL(clicked()), this, SLOT(editServer()));
+    connect (ui->pbRemove, SIGNAL(clicked()), this, SLOT(removeServer()));
+    if ( d->m_model->rowCount() == 0 )
+    {
+        QMessageBox::warning(this, qApp->applicationName(),
+                             tr("Debe crear un nuevo servidor al que conectarse"), QMessageBox::Ok);
+        addServer();
+        if ( d->m_model->rowCount() > 0 )
         {
-            QMessageBox::warning(this, qApp->applicationName(),
-                                 trUtf8("Debe crear un nuevo servidor al que conectarse"), QMessageBox::Ok);
-            addServer();
-            if ( d->m_model->rowCount() > 0 )
-            {
-                ui->cbServers->setCurrentIndex(0);
-            }
+            ui->cbServers->setCurrentIndex(0);
         }
     }
 
-    setWindowTitle(trUtf8("%1 - Acceso").arg(qApp->applicationName()));
+    setWindowTitle(tr("%1 - Acceso").arg(qApp->applicationName()));
 }
 
 LoginDlg::~LoginDlg()
@@ -171,19 +160,16 @@ void LoginDlg::okClicked()
 {
     if ( ui->txtUserName->text().isEmpty() )
     {
-        QMessageBox::information(this, qApp->applicationName(), QObject::trUtf8("Debe introducir un nombre de usuario."), QMessageBox::Ok);
+        QMessageBox::information(this, qApp->applicationName(), QObject::tr("Debe introducir un nombre de usuario."), QMessageBox::Ok);
         return;
     }
 
-    if ( alephERPSettings->advancedUser() )
+    if ( ui->cbServers->currentIndex() == -1 )
     {
-        if ( ui->cbServers->currentIndex() == -1 )
-        {
-            QMessageBox::warning(this, qApp->applicationName(), trUtf8("Debe seleccionar un servidor al que conectarse"), QMessageBox::Ok);
-            return;
-        }
-        setConnectOptions(ui->cbServers->currentIndex());
+        QMessageBox::warning(this, qApp->applicationName(), tr("Debe seleccionar un servidor al que conectarse"), QMessageBox::Ok);
+        return;
     }
+    setConnectOptions(ui->cbServers->currentIndex());
 
     d->m_userName = ui->txtUserName->text();
     d->m_password = ui->txtPassword->text();
@@ -200,14 +186,14 @@ void LoginDlg::addServer()
     d->m_model->setData(idx, "alepherp");
     idx = d->m_model->index(rowCount, d->m_model->record().indexOf("scheme"));
     d->m_model->setData(idx, "public");
-    dlg->setCurrentIndex(d->m_model->index(rowCount, 0));
+    dlg->setCurrentIndex(d->m_model->index(rowCount, 0), true);
     dlg->setWindowModality(Qt::WindowModal);
     dlg->exec();
     if ( dlg->userClickOk() )
     {
         if ( !d->m_model->submitAll() )
         {
-            QMessageBox::warning(this,qApp->applicationName(), trUtf8("Se ha producido un error guardando el nuevo servidor.\nERROR: ").arg(d->m_model->lastError().text()), QMessageBox::Ok);
+            QMessageBox::warning(this,qApp->applicationName(), tr("Se ha producido un error guardando el nuevo servidor.\nERROR: ").arg(d->m_model->lastError().text()), QMessageBox::Ok);
         }
         else
         {
@@ -225,7 +211,7 @@ void LoginDlg::editServer()
 {
     int row = ui->cbServers->currentIndex();
     QScopedPointer<AERPEditConnectOptionsDlg> dlg (new AERPEditConnectOptionsDlg(d->m_model, this));
-    dlg->setCurrentIndex(d->m_model->index(row, 0));
+    dlg->setCurrentIndex(d->m_model->index(row, 0), false);
     dlg->setWindowModality(Qt::WindowModal);
     dlg->exec();
     if ( dlg->userClickOk() )
@@ -241,7 +227,7 @@ void LoginDlg::editServer()
 
 void LoginDlg::removeServer()
 {
-    int ret = QMessageBox::question(this,qApp->applicationName(), trUtf8("¿Está seguro de querer borrar el servidor?"), QMessageBox::Yes | QMessageBox::No);
+    int ret = QMessageBox::question(this,qApp->applicationName(), tr("¿Está seguro de querer borrar el servidor?"), QMessageBox::Yes | QMessageBox::No);
     if ( ret == QMessageBox::Yes )
     {
         d->m_model->removeRow(ui->cbServers->currentIndex());
@@ -252,19 +238,8 @@ void LoginDlg::removeServer()
 
 void LoginDlg::setConnectOptions(int idx)
 {
+    alephERPSettings->loadServerOptions(d->m_model->record(idx).value("id").toInt());
     alephERPSettings->setLastServer(d->m_model->record(idx).value("id").toInt());
-    alephERPSettings->setCloudProtocol(d->m_model->record(idx).value("cloud_protocol").toString());
-    alephERPSettings->setConnectionType(d->m_model->record(idx).value("type").toString());
-    alephERPSettings->setConnectOptions(d->m_model->record(idx).value("options").toString());
-    alephERPSettings->setDbName(d->m_model->record(idx).value("database").toString());
-    alephERPSettings->setDbSchema(d->m_model->record(idx).value("scheme").toString());
-    alephERPSettings->setDbServer(d->m_model->record(idx).value("server").toString());
-    alephERPSettings->setDsnODBC(d->m_model->record(idx).value("dsn").toString());
-    alephERPSettings->setDbPassword(d->m_model->record(idx).value("password").toString());
-    alephERPSettings->setDbPort(d->m_model->record(idx).value("port").toInt());
-    alephERPSettings->setDbUser(d->m_model->record(idx).value("user").toString());
-    alephERPSettings->setSystemTablePrefix(d->m_model->record(idx).value("table_prefix").toString());
-    alephERPSettings->setLicenseKey(d->m_model->record(idx).value("license_key").toString());
     alephERPSettings->save();
 }
 
@@ -292,15 +267,6 @@ QString LoginDlg::password() const
 QString LoginDlg::selectedServer() const
 {
     return d->m_server;
-}
-
-void LoginDlg::showEvent(QShowEvent *event)
-{
-    if ( !alephERPSettings->advancedUser() )
-    {
-        resize(width(), 50);
-        event->accept();
-    }
 }
 
 /*!

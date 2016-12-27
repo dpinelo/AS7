@@ -158,8 +158,8 @@ void OpenRPTScriptObjectPrivate::fileOpen()
     QFile file(filename);
     if (!doc.setContent(&file, &errMsg, &errLine, &errColm))
     {
-        QMessageBox::critical(m_widget, QObject::trUtf8("Error Cargando archivo"),
-                              QObject::trUtf8("Existe un error abriendo el archivo %1."
+        QMessageBox::critical(m_widget, QObject::tr("Error Cargando archivo"),
+                              QObject::tr("Existe un error abriendo el archivo %1."
                                               "\n\n%2 en la línea %3 columna %4.")
                               .arg(filename).arg(errMsg).arg(errLine).arg(errColm), QMessageBox::Ok );
         return;
@@ -168,8 +168,8 @@ void OpenRPTScriptObjectPrivate::fileOpen()
     QDomElement root = doc.documentElement();
     if(root.tagName() != "report")
     {
-        QMessageBox::critical(m_widget, QObject::trUtf8("Archivo no válido"),
-                              QObject::trUtf8("El archivo %1 no parece ser un archivo válido."
+        QMessageBox::critical(m_widget, QObject::tr("Archivo no válido"),
+                              QObject::tr("El archivo %1 no parece ser un archivo válido."
                                               "\n\nEl nodo raíz no es de tipo 'report'.").arg(filename), QMessageBox::Ok );
         return;
     }

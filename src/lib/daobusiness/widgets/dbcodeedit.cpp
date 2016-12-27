@@ -136,58 +136,58 @@ DBCodeEdit::DBCodeEdit(QWidget *parent) :
     d->m_editToolbar = new QToolBar(this);
     d->m_editToolbar->setIconSize(QSize(16, 16));
 
-    d->m_actionCopy = new QAction(QIcon(":/actions/actions/copy.png"), trUtf8("Copiar"), this);
+    d->m_actionCopy = new QAction(QIcon(":/actions/actions/copy.png"), tr("Copiar"), this);
     d->m_actionCopy->setEnabled(false);
     d->m_editToolbar->addAction(d->m_actionCopy);
 
-    d->m_actionCut = new QAction(QIcon(":/actions/actions/cut.png"), trUtf8("Cortar"), this);
+    d->m_actionCut = new QAction(QIcon(":/actions/actions/cut.png"), tr("Cortar"), this);
     d->m_actionCut->setEnabled(false);
     d->m_editToolbar->addAction(d->m_actionCut);
 
-    d->m_actionPaste = new QAction(QIcon(":/actions/actions/paste.png"), trUtf8("Pegar"), this);
+    d->m_actionPaste = new QAction(QIcon(":/actions/actions/paste.png"), tr("Pegar"), this);
     d->m_editToolbar->addAction(d->m_actionPaste);
 
-    d->m_actionUndo = new QAction(QIcon(":/actions/actions/undo.png"), trUtf8("Deshacer"), this);
+    d->m_actionUndo = new QAction(QIcon(":/actions/actions/undo.png"), tr("Deshacer"), this);
     d->m_actionUndo->setEnabled(false);
     d->m_editToolbar->addAction(d->m_actionUndo);
 
-    d->m_actionRedo = new QAction(QIcon(":/actions/actions/redo.png"), trUtf8("Rehacer"), this);
+    d->m_actionRedo = new QAction(QIcon(":/actions/actions/redo.png"), tr("Rehacer"), this);
     d->m_actionRedo->setEnabled(false);
     d->m_editToolbar->addAction(d->m_actionRedo);
 
     d->m_editToolbar->addSeparator();
 
-    QLabel *lblSearch = new QLabel(trUtf8("  &Buscar... "), this);
+    QLabel *lblSearch = new QLabel(tr("  &Buscar... "), this);
     d->m_editToolbar->addWidget(lblSearch);
 
     d->m_leSearch = new QLineEdit(this);
     d->m_editToolbar->addWidget(d->m_leSearch);
 
     d->m_chkRegExp = new QCheckBox(this);
-    d->m_chkRegExp->setText(trUtf8("Expresión regular"));
+    d->m_chkRegExp->setText(tr("Expresión regular"));
     d->m_editToolbar->addWidget(d->m_chkRegExp);
 
     lblSearch->setBuddy(d->m_leSearch);
 
-    QAction *actionSearch = new QAction(QIcon(":/actions/actions/search.png"), trUtf8("Buscar (Ctrl+F)"), this);
+    QAction *actionSearch = new QAction(QIcon(":/actions/actions/search.png"), tr("Buscar (Ctrl+F)"), this);
     actionSearch->setShortcut(QKeySequence("Ctrl+F"));
     d->m_editToolbar->addAction(actionSearch);
 
-    QAction *actionSearchFirst = new QAction(QIcon(":/actions/actions/up.png"), trUtf8("Ir a primera ocurrencia"), this);
+    QAction *actionSearchFirst = new QAction(QIcon(":/actions/actions/up.png"), tr("Ir a primera ocurrencia"), this);
     d->m_editToolbar->addAction(actionSearchFirst);
 
-    QAction *actionSearchPrevious = new QAction(QIcon(":/actions/actions/previous.png"), trUtf8("Ir a ocurrencia anterior (Ctrl+P)"), this);
+    QAction *actionSearchPrevious = new QAction(QIcon(":/actions/actions/previous.png"), tr("Ir a ocurrencia anterior (Ctrl+P)"), this);
     actionSearchPrevious->setShortcut(QKeySequence("Ctrl+P"));
     d->m_editToolbar->addAction(actionSearchPrevious);
 
-    QAction *actionSearchNext = new QAction(QIcon(":/actions/actions/next.png"), trUtf8("Ir a siguiente ocurrencia (Ctrl+N)"), this);
+    QAction *actionSearchNext = new QAction(QIcon(":/actions/actions/next.png"), tr("Ir a siguiente ocurrencia (Ctrl+N)"), this);
     actionSearchNext->setShortcut(QKeySequence("Ctrl+N"));
     d->m_editToolbar->addAction(actionSearchNext);
 
-    QAction *actionSearchLast = new QAction(QIcon(":/actions/actions/down.png"), trUtf8("Ir a última anterior"), this);
+    QAction *actionSearchLast = new QAction(QIcon(":/actions/actions/down.png"), tr("Ir a última anterior"), this);
     d->m_editToolbar->addAction(actionSearchLast);
 
-    QLabel *lblReplace = new QLabel(trUtf8("  &Reemplazar con... "), this);
+    QLabel *lblReplace = new QLabel(tr("  &Reemplazar con... "), this);
     d->m_editToolbar->addWidget(lblReplace);
 
     d->m_leReplace = new QLineEdit(this);
@@ -195,14 +195,14 @@ DBCodeEdit::DBCodeEdit(QWidget *parent) :
     lblReplace->setBuddy(d->m_leReplace);
     d->m_editToolbar->addWidget(d->m_leReplace);
 
-    d->m_actionReplace = new QAction(QIcon(":/actions/actions/reload.png"), trUtf8("Reemplazar (Ctrl+R)"), this);
+    d->m_actionReplace = new QAction(QIcon(":/actions/actions/reload.png"), tr("Reemplazar (Ctrl+R)"), this);
     d->m_actionReplace->setShortcut(QKeySequence("Ctrl+R"));
     d->m_editToolbar->addAction(d->m_actionReplace);
     d->m_actionReplace->setEnabled(false);
 
     d->m_editToolbar->addSeparator();
 
-    QLabel *lblGotoLine = new QLabel(trUtf8("  Ir a &Línea "), this);
+    QLabel *lblGotoLine = new QLabel(tr("  Ir a &Línea "), this);
     d->m_editToolbar->addWidget(lblGotoLine);
     d->m_leGotoLine = new QLineEdit(this);
     d->m_leGotoLine->setMaximumWidth(50);
@@ -227,7 +227,7 @@ DBCodeEdit::DBCodeEdit(QWidget *parent) :
     d->m_textEdit->setMarginWidth(1, str);
     d->initHighlightingStyle(SEARCH_HIGHLIGHT, Qt::darkMagenta);
 
-    QAction *actionSelectFont = new QAction(QIcon(":/generales/images/fonttruetype.png"), trUtf8("Seleccionar fuente..."), this);
+    QAction *actionSelectFont = new QAction(QIcon(":/generales/images/fonttruetype.png"), tr("Seleccionar fuente..."), this);
     d->m_editToolbar->addAction(actionSelectFont);
 
     connect(d->m_actionPaste, SIGNAL(triggered()), d->m_textEdit, SLOT(paste()));

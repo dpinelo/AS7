@@ -36,10 +36,11 @@ public:
     QList<AlephERP::RoleInfo> m_roles;
     QHash<QString, QVariant> m_metadataAccess;
     QString m_lastError;
+    bool m_writeHistory;
 
     AERPLoggedUserPrivate()
     {
-
+        m_writeHistory = true;
     }
 };
 
@@ -108,7 +109,7 @@ void AERPLoggedUser::setName(const QString &value)
     d->m_name = value;
 }
 
-QList<AlephERP::RoleInfo> AERPLoggedUser::roles() const
+const QList<AlephERP::RoleInfo> AERPLoggedUser::roles() const
 {
     return d->m_roles;
 }
@@ -124,7 +125,7 @@ bool AERPLoggedUser::hasRole(const QString &roleName) const
     {
         return true;
     }
-    foreach (const AlephERP::RoleInfo &info, d->m_roles)
+    for (const AlephERP::RoleInfo &info : d->m_roles)
     {
         if ( roleName == info.roleName )
         {
@@ -137,7 +138,7 @@ bool AERPLoggedUser::hasRole(const QString &roleName) const
 bool AERPLoggedUser::hasRole(int idRole) const
 {
     QMutexLocker lock(&mutex);
-    foreach (const AlephERP::RoleInfo &info, d->m_roles)
+    for (const AlephERP::RoleInfo &info : d->m_roles)
     {
         if ( idRole == info.idRole )
         {
@@ -178,7 +179,7 @@ bool AERPLoggedUser::hasOnlyRole(int idRole) const
 bool AERPLoggedUser::hasAnyRole(const QStringList &roles) const
 {
     bool hasRole = false;
-    foreach (const QString &rol, roles)
+    for (const QString &rol : roles)
     {
         if ( AERPLoggedUser::instance()->hasRole(rol) )
         {
@@ -192,7 +193,7 @@ bool AERPLoggedUser::hasAnyRole(const QStringList &roles) const
 bool AERPLoggedUser::isSuperAdmin() const
 {
     QMutexLocker lock(&mutex);
-    foreach(const AlephERP::RoleInfo &info, d->m_roles)
+    for (const AlephERP::RoleInfo &info : d->m_roles)
     {
         if ( info.superAdmin )
         {
@@ -205,7 +206,7 @@ bool AERPLoggedUser::isSuperAdmin() const
 bool AERPLoggedUser::dbaMode() const
 {
     QMutexLocker lock(&mutex);
-    foreach(const AlephERP::RoleInfo &info, d->m_roles)
+    for (const AlephERP::RoleInfo &info : d->m_roles)
     {
         if ( info.dbaMode )
         {
@@ -213,6 +214,11 @@ bool AERPLoggedUser::dbaMode() const
         }
     }
     return false;
+}
+
+bool AERPLoggedUser::userWritesHistory() const
+{
+    return d->m_writeHistory;
 }
 
 bool AERPLoggedUser::checkMetadataAccess(QChar access, const QString &tableName)
@@ -235,11 +241,11 @@ bool AERPLoggedUser::loadMetadataAccess()
     while (it.hasNext())
     {
         it.next();
-        QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPLoggedUser::loadMetadataAccess: [%1]: [%2]").arg(it.key()).arg(it.value().toString()));
+        QLogger::QLog_Debug(AlephERP::stLogDB, QString("AERPLoggedUser::loadMetadataAccess: [%1]: [%2]").arg(it.key(), it.value().toString()));
     }
     if ( !UserDAO::lastErrorMessage().isEmpty() )
     {
-        d->m_lastError = trUtf8("No se han podido leer los permisos del usuario. "
+        d->m_lastError = tr("No se han podido leer los permisos del usuario. "
                                 "Ha ocurrido un error en la ejecución de la consulta. \n"
                                 "El error es: %1"
                                ).arg(UserDAO::lastErrorMessage());
@@ -252,9 +258,10 @@ bool AERPLoggedUser::loadRoles()
 {
     QMutexLocker lock(&mutex);
     d->m_roles = UserDAO::userRoles(d->m_userName);
+    d->m_writeHistory = UserDAO::userWriteHistory(d->m_userName);
     if ( !UserDAO::lastErrorMessage().isEmpty() )
     {
-        d->m_lastError = QObject::trUtf8("Ha ocurrido un error en la conexión a la base de datos. No han podido cargarse los roles: \r\nERROR: %1.").arg(UserDAO::lastErrorMessage());
+        d->m_lastError = QObject::tr("Ha ocurrido un error en la conexión a la base de datos. No han podido cargarse los roles: \r\nERROR: %1.").arg(UserDAO::lastErrorMessage());
         return false;
     }
     return true;

@@ -80,6 +80,7 @@ public slots:
     bool preview();
     void enableButtons();
     bool exportToSpreadSheet();
+    void previewData();
 };
 
 Q_DECLARE_METATYPE(DBReportRunDlg*)

@@ -47,7 +47,7 @@ public:
     QHash<QString, AERPSpreadSheet::Type> m_columnTypes;
     QHash<QString, int> m_columnLength;
     QHash<QString, int> m_columnDecimalPlaces;
-    QList<AERPCell *> m_cells;
+    QHash<qlonglong, AERPCell *> m_cells;
     QStringList m_rows;
     QStringList m_columns;
     bool m_hasColumnNames;
@@ -229,10 +229,10 @@ void AERPSpreadSheet::loadPlugins()
     QStringList plugins = pluginDir.entryList(QStringList() << QString("*.so"), QDir::Files);
 #endif
 
-    foreach (const QString &pluginFile, plugins)
+    for (const QString &pluginFile : plugins)
     {
         AERPSpreadSheetIface *iface = NULL;
-        QString pathPluginFile = QString("%1/%2").arg(pluginDirPath).arg(pluginFile);
+        QString pathPluginFile = QString("%1/%2").arg(pluginDirPath, pluginFile);
 
         // Este comando puede dar "not real memory leaks" en valgrind. La razón, se puede encontrar aquí:
         // https://bugreports.qt-project.org/browse/QTBUG-25279
@@ -243,8 +243,8 @@ void AERPSpreadSheet::loadPlugins()
             if ( !pluginLoader->load() )
             {
                 CommonsFunctions::restoreOverrideCursor();
-                qDebug() << trUtf8("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
-                        arg(pathPluginFile).arg(pluginLoader->errorString());
+                qDebug() << tr("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
+                        arg(pathPluginFile, pluginLoader->errorString());
             }
             else
             {
@@ -252,7 +252,7 @@ void AERPSpreadSheet::loadPlugins()
                 CommonsFunctions::restoreOverrideCursor();
                 if ( !iface )
                 {
-                    qDebug() << trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pathPluginFile);
+                    qDebug() << tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pathPluginFile);
                 }
                 else
                 {
@@ -266,7 +266,7 @@ void AERPSpreadSheet::loadPlugins()
             CommonsFunctions::restoreOverrideCursor();
             if ( !iface )
             {
-                qDebug() << QObject::trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pathPluginFile);
+                qDebug() << QObject::tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pathPluginFile);
             }
             else
             {
@@ -291,13 +291,13 @@ AERPSpreadSheet *AERPSpreadSheet::openSpreadSheet(const QString &file, const QSt
     {
         AERPSpreadSheet::loadPlugins();
     }
-    foreach (AERPSpreadSheetIface *iface, AERPSpreadSheet::m_ifaces)
+    for (AERPSpreadSheetIface *iface : AERPSpreadSheet::m_ifaces)
     {
         if ( iface->type() == fileType )
         {
             if ( !iface->wasInited() && !iface->init() )
             {
-                qDebug () << trUtf8("AERPSpreadSheet::openSpreadSheet: No se ha podido inicializar el driver. Error: [%1]").arg(iface->lastMessage());
+                qDebug () << tr("AERPSpreadSheet::openSpreadSheet: No se ha podido inicializar el driver. Error: [%1]").arg(iface->lastMessage());
                 return NULL;
             }
             return iface->openFile(file, init, offset);
@@ -335,7 +335,7 @@ bool AERPSpreadSheet::appCanWriteToSomeFile()
     {
         AERPSpreadSheet::loadPlugins();
     }
-    foreach (AERPSpreadSheetIface *iface, AERPSpreadSheet::m_ifaces)
+    for (AERPSpreadSheetIface *iface : AERPSpreadSheet::m_ifaces)
     {
         if ( iface->canWriteFiles() )
         {
@@ -376,7 +376,8 @@ AERPSheet *AERPSpreadSheet::sheet(const QString &value)
 
 AERPSheet *AERPSpreadSheet::sheet(int index)
 {
-    foreach (AERPSheet *sheet, d->m_sheets.values())
+    QList<AERPSheet *> list = d->m_sheets.values();
+    for (AERPSheet *sheet : list)
     {
         if ( sheet->index() == index )
         {
@@ -398,12 +399,13 @@ bool AERPSpreadSheet::saveAs(const QString &path, const QString &typeToSave)
 
     if ( type.isEmpty() )
     {
-        d->m_lastMessage = trUtf8("Debe especificar un tipo.");
+        d->m_lastMessage = tr("Debe especificar un tipo.");
         return false;
     }
     QScopedPointer<AERPSpreadSheet> spread(new AERPSpreadSheet());
     AERPSpreadSheetIface *iface = NULL;
-    foreach (AERPSpreadSheetIface *i, AERPSpreadSheet::ifaces())
+    QList<AERPSpreadSheetIface *> list = AERPSpreadSheet::ifaces();
+    for (AERPSpreadSheetIface *i : list)
     {
         if ( i->type() == type )
         {
@@ -413,12 +415,12 @@ bool AERPSpreadSheet::saveAs(const QString &path, const QString &typeToSave)
     }
     if ( iface == NULL )
     {
-        d->m_lastMessage = trUtf8("Tipo desconocido.");
+        d->m_lastMessage = tr("Tipo desconocido.");
         return false;
     }
     if ( !iface->canWriteFiles() )
     {
-        d->m_lastMessage = trUtf8("No es posible escribir en este tipo.");
+        d->m_lastMessage = tr("No es posible escribir en este tipo.");
         return false;
     }
     return iface->writeFile(this, file);
@@ -467,7 +469,7 @@ int AERPSheet::columnCount()
 
 QList<AERPCell *> AERPSheet::cells() const
 {
-    return d->m_cells;
+    return d->m_cells.values();
 }
 
 QStringList AERPSheet::columnNames() const
@@ -477,7 +479,7 @@ QStringList AERPSheet::columnNames() const
         return d->m_columns;
     }
     QStringList temp;
-    foreach (const QString &col, d->m_columns)
+    for (const QString &col : d->m_columns)
     {
         temp.append(d->m_columnNames[col]);
     }
@@ -522,69 +524,123 @@ QString AERPSpreadSheet::columnStringName(int column)
     return strColumn;
 }
 
+int AERPSpreadSheet::columnIndex(const QString &columnName)
+{
+    int column = 0;
+    if ( columnName.size() > 1 )
+    {
+        column = (QChar('Z').toLatin1() - QChar('A').toLatin1() + columnName.at(0).toLatin1() - QChar('A').toLatin1() + 1) +
+                 columnName.at(1).toLatin1() - QChar('A').toLatin1();
+    }
+    else
+    {
+        column += columnName.at(0).toLatin1() - QChar('A').toLatin1();
+    }
+    return column;
+}
+
+qlonglong AERPSpreadSheet::cellIndex(int row, const QString &column)
+{
+    return AERPSpreadSheet::cellIndex(row, AERPSpreadSheet::columnIndex(column));
+}
+
 AERPCell *AERPSheet::cell(int rowId, int columnId)
 {
-    foreach (AERPCell *cell, d->m_cells)
+    qlonglong cellIndex = AERPSpreadSheet::cellIndex(rowId, columnId);
+    if ( d->m_cells.contains(cellIndex) )
     {
-        if ( cell->rowIndex() == rowId && cell->columnIndex() == columnId )
-        {
-            return cell;
-        }
+        return d->m_cells.value(cellIndex);
     }
     return NULL;
 }
 
 AERPCell *AERPSheet::cell(const QString &row, const QString &column)
 {
-    foreach (AERPCell *cell, d->m_cells)
+    qlonglong cellIndex = AERPSpreadSheet::cellIndex(row.toInt() - 1, column);
+    if ( d->m_cells.contains(cellIndex) )
     {
-        if ( cell->column() == column && cell->row() == row )
-        return cell;
+        return d->m_cells.value(cellIndex);
     }
     return NULL;
 }
 
 AERPCell *AERPSheet::cell(int rowId, const QString &column)
 {
-    foreach (AERPCell *cell, d->m_cells)
+    qlonglong cellIndex = AERPSpreadSheet::cellIndex(rowId, column);
+    if ( d->m_cells.contains(cellIndex) )
     {
-        if ( cell->column() == column && cell->rowIndex() == rowId )
-        {
-            return cell;
-        }
+        return d->m_cells.value(cellIndex);
     }
     return NULL;
 }
 
 AERPCell *AERPSheet::createCell(int row, int column, const QVariant value)
 {
-    QString strRow(row);
+    QString strRow = QString::number(row);
     QString strColumn = AERPSpreadSheet::columnStringName(column);
     return createCell(strRow, strColumn, value);
+}
+
+AERPCell *AERPSheet::createCell(int row, const QString &column, const QVariant value)
+{
+    QString strRow = QString::number(row);
+    return createCell(strRow, column, value);
 }
 
 AERPCell *AERPSheet::createCell(const QString &row, const QString &column, const QVariant value)
 {
     AERPCell *actualCell = cell(row, column);
-    if ( actualCell == NULL )
-   {
-        AERPCell *c = new AERPCell(this);
-        // Este orden es muy importante.
-        if ( !d->m_columns.contains(column) )
-        {
-            d->m_columns.append(column);
-        }
-        if ( !d->m_rows.contains(row) )
-        {
-            d->m_rows.append(row);
-        }
-        c->setRow(row);
-        c->setColumn(column);
-        d->m_cells.append(c);
-        c->setValue(value);
-        return c;
+    if ( actualCell != NULL )
+    {
+        return actualCell;
     }
+    bool ok;
+    int iRow = row.toInt(&ok);
+    if ( !ok )
+    {
+        AERPSpreadSheet *spreadSheet = qobject_cast<AERPSpreadSheet *>(parent());
+        if ( spreadSheet )
+        {
+            spreadSheet->setLastMessage(tr("No ha sido posible traducir %1 a un integer.").arg(row));
+        }
+        return NULL;
+    }
+    qlonglong cellIndex = AERPSpreadSheet::cellIndex(iRow - 1, column);
+    actualCell = new AERPCell(this);
+    // Este orden es muy importante.
+    if ( !d->m_columns.contains(column) )
+    {
+        d->m_columns.append(column);
+    }
+    if ( !d->m_rows.contains(row) )
+    {
+        d->m_rows.append(row);
+    }
+    actualCell->setRow(row);
+    actualCell->setColumn(column);
+    d->m_cells[cellIndex] = actualCell;
+    actualCell->setValue(value);
     return actualCell;
+}
+
+AERPCell *AERPSheet::createCellWithoutCheck(const QString &row, const QString &column, const QVariant value)
+{
+    qlonglong cellIndex = AERPSpreadSheet::cellIndex(row.toInt() - 1, column);
+    AERPCell *c = new AERPCell(this);
+    // Este orden es muy importante.
+    if ( !d->m_columns.contains(column) )
+    {
+        d->m_columns.append(column);
+    }
+    if ( !d->m_rows.contains(row) )
+    {
+        d->m_rows.append(row);
+    }
+    c->setRow(row);
+    c->setColumn(column);
+    d->m_cells[cellIndex] = c;
+    c->setValue(value);
+    return c;
 }
 
 QVariant AERPSheet::cellValue(int rowId, int columnId)
@@ -1097,7 +1153,6 @@ void AERPCell::fromScriptValue(const QScriptValue &object, AERPCell *&out)
 AERPSpreadSheetUtil::AERPSpreadSheetUtil(QObject *parent) :
     QObject(parent)
 {
-    m_operationCanceled = false;
 }
 
 AERPSpreadSheetUtil::~AERPSpreadSheetUtil()
@@ -1115,11 +1170,6 @@ AERPSpreadSheetUtil *AERPSpreadSheetUtil::instance()
     return singleton;
 }
 
-void AERPSpreadSheetUtil::operationCanceled()
-{
-    m_operationCanceled = true;
-}
-
 void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QWidget *uiParent)
 {
     if ( filterModel == NULL )
@@ -1133,7 +1183,8 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
     }
     QStringList displayTypes;
 
-    foreach (AERPSpreadSheetIface *iface, AERPSpreadSheet::ifaces())
+    QList<AERPSpreadSheetIface *> list = AERPSpreadSheet::ifaces();
+    for (AERPSpreadSheetIface *iface : list)
     {
         if ( iface->canWriteFiles() )
         {
@@ -1144,7 +1195,7 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
     bool ok;
     QString displayType = QInputDialog::getItem(uiParent,
                                                 qApp->applicationName(),
-                                                trUtf8("Seleccione el formato al que desea exportar la información."),
+                                                tr("Seleccione el formato al que desea exportar la información."),
                                                 displayTypes,
                                                 0,
                                                 false,
@@ -1155,14 +1206,15 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
     }
 
     QString writeTo = QFileDialog::getExistingDirectory(uiParent,
-                                                        trUtf8("Seleccione el directorio en el que guardar los datos"),
+                                                        tr("Seleccione el directorio en el que guardar los datos"),
                                                         QDir::homePath());
     if ( writeTo.isEmpty() )
     {
         return;
     }
     AERPSpreadSheetIface *iface = NULL;
-    foreach (AERPSpreadSheetIface *i, AERPSpreadSheet::ifaces())
+    QList<AERPSpreadSheetIface *> listIfaces = AERPSpreadSheet::ifaces();
+    for (AERPSpreadSheetIface *i : listIfaces)
     {
         if ( i->displayType() == displayType )
         {
@@ -1174,7 +1226,7 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
     {
         QMessageBox::warning(uiParent,
                              qApp->applicationName(),
-                             trUtf8("Ha ocurrido un error exportando los datos. \nNo tiene configurado ningún plugin."));
+                             tr("Ha ocurrido un error exportando los datos. \nNo tiene configurado ningún plugin."));
         return;
     }
     writeTo.append("/").
@@ -1185,13 +1237,12 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
             append(iface->type());
 
     QProgressDialog dlg;
-    m_operationCanceled = false;
     dlg.setMaximum(filterModel->rowCount());
     dlg.setMinimum(0);
-    dlg.setLabelText(trUtf8("Exportando información... Por favor, espere."));
-    dlg.setWindowTitle(trUtf8("%1 - Exportando datos").arg(qApp->applicationName()));
+    dlg.setLabelText(tr("Exportando información... Por favor, espere."));
+    dlg.setWindowTitle(tr("%1 - Exportando datos").arg(qApp->applicationName()));
     dlg.setWindowModality(Qt::WindowModal);
-    connect(&dlg, SIGNAL(canceled()), this, SLOT(operationCanceled()));
+    connect(&dlg, SIGNAL(canceled()), filterModel, SLOT(cancelExportToSpreadSheet()));
     connect(filterModel, SIGNAL(rowProcessed(int)), &dlg, SLOT(setValue(int)));
     dlg.show();
     qApp->processEvents();
@@ -1203,6 +1254,6 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
     {
         QMessageBox::warning(uiParent,
                              qApp->applicationName(),
-                             trUtf8("Ha ocurrido un error exportando los datos. \nEl error es: %1").arg(filterModel->lastErrorMessage()));
+                             tr("Ha ocurrido un error exportando los datos. \nEl error es: %1").arg(filterModel->lastErrorMessage()));
     }
 }

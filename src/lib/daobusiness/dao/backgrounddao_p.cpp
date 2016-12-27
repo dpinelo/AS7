@@ -146,7 +146,7 @@ void BackgroundDAOWorker::run()
             bool r = query.exec(m_programmedQuerys.at(0));
             if ( !r )
             {
-                QString err = QString("BackgroundDAOThread::run: ERROR: [%1] [%2]").arg(query.lastError().databaseText()).arg(query.lastError().driverText());
+                QString err = QString("BackgroundDAOThread::run: ERROR: [%1] [%2]").arg(query.lastError().databaseText(), query.lastError().driverText());
                 m_errors[m_programmedIds.at(0)] = err;
                 QLogger::QLog_Error(AlephERP::stLogDB, err);
             }
@@ -183,7 +183,7 @@ void BackgroundDAOWorker::run()
             if ( r )
             {
                 int row = 0;
-                foreach (BaseBeanSharedPointer bean, list)
+                for (BaseBeanSharedPointer bean : list)
                 {
                     if ( select.destiny )
                     {
@@ -214,7 +214,7 @@ BaseBeanSelect BackgroundDAOPrivate::requestOnQueue(const QString &tableName,
                                                     int numRows,
                                                     int offset)
 {
-    foreach (const BaseBeanSelect &sel, m_requestedSelects)
+    for (const BaseBeanSelect &sel : m_requestedSelects)
     {
         if (sel.tableName == tableName && sel.where == where && sel.order == order && sel.numRows == numRows && sel.offset == offset)
         {

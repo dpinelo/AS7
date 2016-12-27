@@ -73,7 +73,7 @@ void AERPScriptEditDlg::save()
 
     if ( !AERPScriptEngine::checkForErrorOnQS(ui->txtScript->value().toString(), error, line) )
     {
-        QString message = trUtf8("El script contienen un error.<br/>Línea: <strong>%1</strong><br/>Error: <font color='red'>%2</font><br>¿Desea guardarlo aún asi?").arg(line).arg(error);
+        QString message = tr("El script contienen un error.<br/>Línea: <strong>%1</strong><br/>Error: <font color='red'>%2</font><br>¿Desea guardarlo aún asi?").arg(line).arg(error);
         int ret = QMessageBox::question(this,qApp->applicationName(), message, QMessageBox::Yes  | QMessageBox::No );
         if ( ret == QMessageBox::No )
         {
@@ -92,7 +92,7 @@ void AERPScriptEditDlg::save()
     if ( !result )
     {
         qDebug() << "AERPScriptEditDlg::save: " << BaseDAO::lastErrorMessage();
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("No se pudo actualizar el script."), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("No se pudo actualizar el script."), QMessageBox::Ok);
     }
     else
     {

@@ -104,6 +104,9 @@ DBTableView::DBTableView (QWidget * parent) :
     m_header->installEventFilter(m_eventForwarder);
     connect(m_eventForwarder, SIGNAL(entered()), this, SLOT(resetCursor()));
     verticalHeader()->installEventFilter(m_eventForwarder);
+
+    QShortcut *s = new QShortcut(QKeySequence(tr("Ctrl+e")), this);
+    connect(s, SIGNAL(activated()), this, SLOT(editCurrentCell()));
 }
 
 DBTableView::~DBTableView()
@@ -131,7 +134,7 @@ void DBTableView::setRelationName(const QString &name)
     m_relationName = name;
     if ( automaticName() )
     {
-        setObjectName (configurationName());
+        setObjectName(configurationName());
     }
 }
 
@@ -140,7 +143,7 @@ void DBTableView::setTableName(const QString &name)
     m_tableName = name;
     if ( automaticName() )
     {
-        setObjectName (configurationName());
+        setObjectName(configurationName());
     }
 }
 
@@ -173,8 +176,7 @@ void DBTableView::showEvent(QShowEvent *event)
         {
             if ( !observer()->readOnly() && dataEditable() )
             {
-                setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked |
-                                QAbstractItemView::AnyKeyPressed | QAbstractItemView::EditKeyPressed);
+                setEditTriggers(QAbstractItemView::AllEditTriggers);
             }
         }
     }
@@ -528,7 +530,7 @@ BaseBeanSharedPointer DBTableView::addBean()
         {
             if ( !filterModel()->property(AlephERP::stLastErrorMessage).toString().isEmpty() )
             {
-                QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error al intentar agregar un registro. \nEl error es: %1").arg(filterModel()->property(AlephERP::stLastErrorMessage).toString()));
+                QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error al intentar agregar un registro. \nEl error es: %1").arg(filterModel()->property(AlephERP::stLastErrorMessage).toString()));
                 filterModel()->setProperty(AlephERP::stLastErrorMessage, "");
             }
         }
@@ -899,4 +901,29 @@ void DBTableView::applyRowSpan()
 void DBTableView::exportSpreadSheet()
 {
     AERPSpreadSheetUtil::instance()->exportSpreadSheet(filterModel(), this);
+}
+
+void DBTableView::editCurrentCell()
+{
+    FilterBaseBeanModel *mdl = qobject_cast<FilterBaseBeanModel *>(model());
+    if ( mdl == NULL || mdl->metadata() == NULL )
+    {
+        return;
+    }
+    if ( !mdl->metadata()->editOnDbForm() )
+    {
+        return;
+    }
+    QModelIndex current = currentIndex();
+    if ( !current.isValid() )
+    {
+        return;
+    }
+    DBFieldMetadata *fld = mdl->metadata()->field(current.column());
+    if ( fld == NULL )
+    {
+        return;
+    }
+    setEditTriggers(QAbstractItemView::SelectedClicked);
+    edit(current);
 }

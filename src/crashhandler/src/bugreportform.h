@@ -25,11 +25,11 @@
 #include "ui_bugreportform.h"
 
 class BugReportForm : public QDialog, public Ui::BugReportForm {
-private:
     Q_OBJECT
+    Q_DISABLE_COPY(BugReportForm)
 
 public:
-    BugReportForm(const QString &stackTraceFile, QWidget * parent = 0, Qt::WindowFlags f = 0);
+    explicit BugReportForm(const QString &stackTraceFile, QWidget * parent = 0, Qt::WindowFlags f = 0);
 };
 
 #endif

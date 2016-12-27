@@ -41,9 +41,6 @@ class DBRelatedElementsViewPrivate;
 class ALEPHERP_DLL_EXPORT DBRelatedElementsView : public QWidget, public DBAbstractViewInterface, public QScriptable
 {
     Q_OBJECT
-    Q_FLAGS(Buttons)
-    Q_ENUMS(Button)
-    Q_ENUMS(CategoriesRule)
     Q_DISABLE_COPY(DBRelatedElementsView)
 
     /** Indicará, separados por "," qué tipo de registros pueden anexarse o relacionarse con el bean del formulario
@@ -115,10 +112,23 @@ public:
     virtual ~DBRelatedElementsView();
 
     /** Botones que serán visibles */
-    enum Button { Insert = 0x01, Update = 0x02, Delete = 0x04, View = 0x08, InsertExisting = 0x10, RemoveExisting = 0x20 };
+    enum Button {
+        Insert = 0x01,
+        Update = 0x02,
+        Delete = 0x04,
+        View = 0x08,
+        InsertExisting = 0x10,
+        RemoveExisting = 0x20
+    };
     Q_DECLARE_FLAGS(Buttons, Button)
+    Q_FLAG(Buttons)
+    Q_ENUM(Button)
 
-    enum CategoriesRule { AllOfThem = 0x01, OneOfThem = 0x02 };
+    enum CategoriesRule {
+        AllOfThem = 0x01,
+        OneOfThem = 0x02
+    };
+    Q_ENUM(CategoriesRule)
 
     QString allowedMetadatas() const;
     void setAllowedMetadatas(const QString &value);
@@ -126,7 +136,7 @@ public:
     void setCategories(const QString &value);
     CategoriesRule categoriesRule() const;
     void setCategoriesRule(CategoriesRule rule);
-    bool aerpControl()
+    bool aerpControl() const
     {
         return true;
     }

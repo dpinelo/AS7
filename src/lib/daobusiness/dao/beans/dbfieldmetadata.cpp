@@ -109,10 +109,6 @@ public:
     /** Tipo de operación de agregado que se realiza. Puede ser suma (sum), media (avg), cuenta (count)... */
     QString m_aggregateOperation;
     bool m_coordinates;
-    /** Si el campo es un String, indicará si almacena código HTML */
-    bool m_html;
-    /** Indica si el campo almacena una dirección de correo electrónico, lo que permitirá el envío de los mismos */
-    bool m_email;
     /** Script a ejecutar para obtener el default value */
     QString m_scriptDefaultValue;
     BuiltInExpressionDef m_builtInExpressionDefaultValue;
@@ -239,6 +235,8 @@ public:
     bool m_lowerCase;
     bool m_upperCase;
     bool m_noSpaces;
+    bool m_editOnDbForm;
+    DBFieldMetadata::SpecialType m_specialType;
 
     QStringList m_dependOnFieldsToCalc;
 
@@ -258,7 +256,6 @@ public:
         m_calculatedSaveOnDB = false;
         m_calculatedConnectToChildModifications = false;
         m_calculatedOnlyOnInsert = false;
-        m_html = false;
         m_coordinates = false;
         m_visibleGrid = true;
         m_debug = false;
@@ -275,7 +272,6 @@ public:
         m_showDefault = false;
         m_hasDefaultValue = false;
         m_engine = NULL;
-        m_email = false;
         m_orderField = false;
         m_scheduleStartTime = false;
         m_scheduleDuration = false;
@@ -286,6 +282,8 @@ public:
         m_upperCase = false;
         m_noSpaces = false;
         m_calculatedOrder = 0;
+        m_editOnDbForm = false;
+        m_specialType = DBFieldMetadata::None;
     }
 
     QString fieldName();
@@ -624,7 +622,7 @@ QString DBFieldMetadata::fieldName() const
 
 void DBFieldMetadata::setFieldName(const QString &name)
 {
-    d->m_fieldName = trUtf8(name.toUtf8());
+    d->m_fieldName = tr(name.toUtf8());
 }
 
 QString DBFieldMetadata::fieldNameScript() const
@@ -654,14 +652,14 @@ bool DBFieldMetadata::readOnly() const
     return false;
 }
 
-bool DBFieldMetadata::html() const
+DBFieldMetadata::SpecialType DBFieldMetadata::specialType() const
 {
-    return d->m_html;
+    return d->m_specialType;
 }
 
-void DBFieldMetadata::setHtml(bool value)
+void DBFieldMetadata::setSpecialType(DBFieldMetadata::SpecialType value)
 {
-    d->m_html = value;
+    d->m_specialType = value;
 }
 
 bool DBFieldMetadata::coordinates() const
@@ -676,16 +674,6 @@ void DBFieldMetadata::setCoordinates(bool value)
     {
         d->m_type = QVariant::String;
     }
-}
-
-bool DBFieldMetadata::email() const
-{
-    return d->m_email;
-}
-
-void DBFieldMetadata::setEmail(bool email)
-{
-    d->m_email = email;
 }
 
 bool DBFieldMetadata::debug() const
@@ -1061,16 +1049,14 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( memo() && databaseColumnType != "text" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo memo en los metadatos pero en la base de datos es de tipo %3 ").
-                  arg(beanMetadata()->tableName()).
-                  arg(dbFieldName()).arg(databaseColumnType);
+            err = tr("%1: La columna %2 es de tipo memo en los metadatos pero en la base de datos es de tipo %3 ").
+                  arg(beanMetadata()->tableName(), dbFieldName(), databaseColumnType);
             return false;
         }
         if ( !memo() && databaseColumnType != "character varying" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo string en los metadatos pero en la base de datos es de tipo %3 ").
-                  arg(beanMetadata()->tableName()).
-                  arg(dbFieldName()).arg(databaseColumnType);
+            err = tr("%1: La columna %2 es de tipo string en los metadatos pero en la base de datos es de tipo %3 ").
+                  arg(beanMetadata()->tableName(), dbFieldName(), databaseColumnType);
             return false;
         }
     }
@@ -1078,9 +1064,8 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( databaseColumnType != "double precision" && databaseColumnType != "numeric" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo double en los metadatos pero en la base de datos es de tipo %3 ").
-                  arg(beanMetadata()->tableName()).
-                  arg(dbFieldName()).arg(databaseColumnType);
+            err = tr("%1: La columna %2 es de tipo double en los metadatos pero en la base de datos es de tipo %3 ").
+                  arg(beanMetadata()->tableName(), dbFieldName(), databaseColumnType);
             return false;
         }
     }
@@ -1088,9 +1073,8 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( databaseColumnType != "integer" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo int en los metadatos pero en la base de datos es de tipo %3 ").
-                  arg(beanMetadata()->tableName()).
-                  arg(dbFieldName()).arg(databaseColumnType);
+            err = tr("%1: La columna %2 es de tipo int en los metadatos pero en la base de datos es de tipo %3 ").
+                  arg(beanMetadata()->tableName(), dbFieldName(), databaseColumnType);
             return false;
         }
     }
@@ -1098,9 +1082,8 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( databaseColumnType != "bigint" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo bigint en los metadatos pero en la base de datos es de tipo %3 ").
-                  arg(beanMetadata()->tableName()).
-                  arg(dbFieldName()).arg(databaseColumnType);
+            err = tr("%1: La columna %2 es de tipo bigint en los metadatos pero en la base de datos es de tipo %3 ").
+                  arg(beanMetadata()->tableName(), dbFieldName(), databaseColumnType);
             return false;
         }
     }
@@ -1108,9 +1091,8 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( databaseColumnType != "date"  && !databaseColumnType.contains("timestamp") )
         {
-            err = trUtf8("%1: La columna %2 es de tipo date en los metadatos pero en la base de datos es de tipo %3 ").
-                  arg(beanMetadata()->tableName()).
-                  arg(dbFieldName()).arg(databaseColumnType);
+            err = tr("%1: La columna %2 es de tipo date en los metadatos pero en la base de datos es de tipo %3 ").
+                  arg(beanMetadata()->tableName(), dbFieldName(), databaseColumnType);
             return false;
         }
     }
@@ -1118,9 +1100,8 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( !databaseColumnType.contains("timestamp") )
         {
-            err = trUtf8("%1: La columna %2 es de tipo date en los metadatos pero en la base de datos es de tipo %3 ").
-                  arg(beanMetadata()->tableName()).
-                  arg(dbFieldName()).arg(databaseColumnType);
+            err = tr("%1: La columna %2 es de tipo date en los metadatos pero en la base de datos es de tipo %3 ").
+                  arg(beanMetadata()->tableName(), dbFieldName(), databaseColumnType);
             return false;
         }
     }
@@ -1128,9 +1109,8 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( databaseColumnType != "boolean" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo bool en los metadatos pero en la base de datos es de tipo %3 ").
-                  arg(beanMetadata()->tableName()).
-                  arg(dbFieldName()).arg(databaseColumnType);
+            err = tr("%1: La columna %2 es de tipo bool en los metadatos pero en la base de datos es de tipo %3 ").
+                  arg(beanMetadata()->tableName(), dbFieldName(), databaseColumnType);
             return false;
         }
     }
@@ -1138,9 +1118,8 @@ bool DBFieldMetadata::checkDatabaseType(const QString &databaseColumnType, const
     {
         if ( databaseColumnType != "bytea" )
         {
-            err = trUtf8("%1: La columna %2 es de tipo image en los metadatos pero en la base de datos es de tipo %3 ").
-                  arg(beanMetadata()->tableName()).
-                  arg(dbFieldName()).arg(databaseColumnType);
+            err = tr("%1: La columna %2 es de tipo image en los metadatos pero en la base de datos es de tipo %3 ").
+                  arg(beanMetadata()->tableName(), dbFieldName(), databaseColumnType);
             return false;
         }
     }
@@ -1313,6 +1292,16 @@ void DBFieldMetadata::setNoSpaces(bool value)
     d->m_noSpaces = value;
 }
 
+bool DBFieldMetadata::editOnDbForm() const
+{
+    return d->m_editOnDbForm;
+}
+
+void DBFieldMetadata::setEditOnDbForm(bool value)
+{
+    d->m_editOnDbForm = value;
+}
+
 void DBFieldMetadata::setXmlDefinition(const QString &value)
 {
     d->m_xmlDefinition = value;
@@ -1326,39 +1315,38 @@ void DBFieldMetadata::setXmlDefinition(const QString &value)
 QString DBFieldMetadata::ddlCreationTable(const AlephERP::CreationTableSqlOptions &options, const QString &dialect)
 {
     QString notNull = d->m_null ? "" : "NOT NULL";
-    QString ddl = QString("%1 %2 %3").arg(d->m_dbFieldName).arg(databaseType(dialect)).arg(notNull);
+    QString ddl = QString("%1 %2 %3").arg(d->m_dbFieldName, databaseType(dialect), notNull);
     QString references;
 
-    if ( options.testFlag(AlephERP::WithForeignKeys) && options.testFlag(AlephERP::ForeignKeysOnTableCreation) )
+    if ( !options.testFlag(AlephERP::WithForeignKeys) || !options.testFlag(AlephERP::ForeignKeysOnTableCreation) )
     {
-        foreach ( DBRelationMetadata *rel, d->m_relations )
+        return ddl;
+    }
+    for ( DBRelationMetadata *rel : d->m_relations )
+    {
+        if ( rel->type() == DBRelationMetadata::MANY_TO_ONE )
         {
-            if ( rel->type() == DBRelationMetadata::MANY_TO_ONE )
+            // Además, la tabla relacionada, DEBE existir
+            BaseBeanMetadata *related = BeansFactory::metadataBean(rel->tableName());
+            if ( related != NULL )
             {
-                // Además, la tabla relacionada, DEBE existir
-                BaseBeanMetadata *related = BeansFactory::metadataBean(rel->tableName());
-                if ( related != NULL )
+                QString deleteCascade;
+                if ( rel->deleteCascade() )
                 {
-                    QString deleteCascade;
-                    if ( rel->deleteCascade() )
-                    {
-                        deleteCascade = " on delete cascade";
-                    }
-                    references = QString("references %1(%2) on update cascade%3").
-                                 arg(rel->tableName()).
-                                 arg(rel->childFieldName()).
-                                 arg(deleteCascade);
+                    deleteCascade = " on delete cascade";
                 }
-                else
-                {
-                    qDebug() << "DBFieldMetadata::ddlCreationTable: No existe la tabla: [" << rel->tableName() << "]";
-                }
+                references = QString("references %1(%2) on update cascade%3").
+                             arg(rel->tableName(), rel->childFieldName(), deleteCascade);
+            }
+            else
+            {
+                qDebug() << "DBFieldMetadata::ddlCreationTable: No existe la tabla: [" << rel->tableName() << "]";
             }
         }
-        if ( !references.isEmpty() )
-        {
-            ddl = QString("%1 %2").arg(ddl).arg(references);
-        }
+    }
+    if ( !references.isEmpty() )
+    {
+        ddl = QString("%1 %2").arg(ddl, references);
     }
     return ddl;
 }
@@ -1370,7 +1358,7 @@ QList<DBRelationMetadata *> DBFieldMetadata::relations(const AlephERP::RelationT
         return d->m_relations;
     }
     QList<DBRelationMetadata *> rels;
-    foreach ( DBRelationMetadata *rel, d->m_relations )
+    for ( DBRelationMetadata *rel : d->m_relations )
     {
         if ( type.testFlag(AlephERP::OneToMany) && rel->type() == DBRelationMetadata::ONE_TO_MANY )
         {
@@ -1476,7 +1464,7 @@ QString DBFieldMetadata::displayValue(QVariant data, DBField *parent)
         }
         d->m_engine->addFunctionArgument("value", value);
         d->m_engine->addFunctionArgument("displayValue", displayValue);
-        d->m_engine->setScript(d->m_displayValueScript, QString("%1.%2.displayValue.js").arg(beanMetadata()->tableName()).arg(d->m_dbFieldName));
+        d->m_engine->setScript(d->m_displayValueScript, QString("%1.%2.displayValue.js").arg(beanMetadata()->tableName(), d->m_dbFieldName));
         QVariant scriptResult = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("displayValueScript")));
         if ( d->m_engine->lastMessage().isEmpty() )
         {
@@ -1519,7 +1507,7 @@ int DBFieldMetadata::calculateLength(DBField *parent)
     {
         d->m_engine->addFunctionArgument("bean", parent->bean());
         d->m_engine->addFunctionArgument("dbField", parent);
-        d->m_engine->setScript(d->m_lengthScript, QString("%1.%2.length.js").arg(beanMetadata()->tableName()).arg(d->m_dbFieldName));
+        d->m_engine->setScript(d->m_lengthScript, QString("%1.%2.length.js").arg(beanMetadata()->tableName(), d->m_dbFieldName));
         data = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("length")));
         if ( d->m_type != QVariant::Invalid )
         {
@@ -1588,7 +1576,7 @@ QVariant DBFieldMetadata::calculateDefaultValue(DBField *parent)
     {
         d->m_engine->addFunctionArgument("bean", parent->bean());
         d->m_engine->addFunctionArgument("dbField", parent);
-        d->m_engine->setScript(d->m_scriptDefaultValue, QString("%1.%2.defaultValue.js").arg(beanMetadata()->tableName()).arg(d->m_dbFieldName));
+        d->m_engine->setScript(d->m_scriptDefaultValue, QString("%1.%2.defaultValue.js").arg(beanMetadata()->tableName(), d->m_dbFieldName));
         data = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("defaultValue")), d->m_type);
         if ( d->m_type == QVariant::Invalid )
         {
@@ -1616,9 +1604,9 @@ QVariant DBFieldMetadata::calculateDefaultValue(DBField *parent)
     parent->restoreOverrideOnExecution();
     qint64 elapsed = timer.elapsed();
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBFieldMetadata::calculateDefaultValue: fieldName: %1.%2. Calculate Aggregate: [%3] ms").
-               arg(parent->bean()->metadata()->tableName()).
-               arg(d->m_dbFieldName).
-               arg(elapsed));
+               arg(parent->bean()->metadata()->tableName(),
+                   d->m_dbFieldName,
+                   QString::number(elapsed)));
     if ( elapsed > AlephERP::warningCalculatedTime )
     {
         QLogger::QLog_Info(AlephERP::stLogScript, "DBFieldMetadata::calculateDefaultValue: Ha tomado mucho tiempo!!!");
@@ -1697,7 +1685,7 @@ QVariant DBFieldMetadata::calculateValue(DBField *fld)
     {
         d->m_engine->addFunctionArgument("bean", fld->bean());
         d->m_engine->addFunctionArgument("dbField", fld);
-        d->m_engine->setScript(d->m_script, QString("%1.%2.value.js").arg(beanMetadata()->tableName()).arg(d->m_dbFieldName));
+        d->m_engine->setScript(d->m_script, QString("%1.%2.value.js").arg(beanMetadata()->tableName(), d->m_dbFieldName));
         fld->registerCalculatingOnBean();
         data = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("value")), d->m_type);
         if ( d->m_type == QVariant::Invalid )
@@ -1709,10 +1697,10 @@ QVariant DBFieldMetadata::calculateValue(DBField *fld)
     fld->restoreOverrideOnExecution();
     qint64 elapsed = timer.elapsed();
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBFieldMetadata::calculateValue: fieldName: %1.%2. Calculate Value: [%3] Time: [%4] ms").
-               arg(fld->bean()->metadata()->tableName()).
-               arg(d->m_dbFieldName).
-               arg(data.toString()).
-               arg(elapsed));
+               arg(fld->bean()->metadata()->tableName(),
+                   d->m_dbFieldName,
+                   data.toString(),
+                   QString::number(elapsed)));
     if ( elapsed > AlephERP::warningCalculatedTime )
     {
         QLogger::QLog_Info(AlephERP::stLogScript, "DBFieldMetadata::calculateValue: Ha tomado mucho tiempo!!!");
@@ -1728,7 +1716,7 @@ QVariant DBFieldMetadata::calculateAggregateScript(DBField *fld, const QString &
     if ( fld->isExecuting(AlephERP::AggregateValue) )
     {
         QLogger::QLog_Warning(AlephERP::stLogScript, QString("DBFieldMetadata::calculateAggregateScript: EXISTEN LLAMADAS RECURSIVAS EN EL CODIGO: bean: [%1]. Field: [%2]").
-                              arg(fld->bean()->metadata()->tableName()).arg(fld->metadata()->dbFieldName()));
+                              arg(fld->bean()->metadata()->tableName(), fld->metadata()->dbFieldName()));
         AERPScript::printScriptsStack();
         return fld->rawValue();
     }
@@ -1739,7 +1727,7 @@ QVariant DBFieldMetadata::calculateAggregateScript(DBField *fld, const QString &
     {
         d->m_engine->addFunctionArgument("relationChildBean", relationChildRecord);
     }
-    d->m_engine->setScript(script, QString("%1.%2.value.js").arg(beanMetadata()->tableName()).arg(d->m_dbFieldName));
+    d->m_engine->setScript(script, QString("%1.%2.value.js").arg(beanMetadata()->tableName(), d->m_dbFieldName));
     fld->registerCalculatingOnBean();
     data = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("value")), d->m_type);
     fld->unregisterCalculatingOnBean();
@@ -1772,7 +1760,7 @@ QString DBFieldMetadata::toolTip(DBField *parent)
     {
         d->m_engine->addFunctionArgument("bean", parent->bean());
         d->m_engine->addFunctionArgument("dbField", parent);
-        d->m_engine->setScript(d->m_toolTipScript, QString("%1.%2.toolTip.js").arg(beanMetadata()->tableName()).arg(d->m_dbFieldName));
+        d->m_engine->setScript(d->m_toolTipScript, QString("%1.%2.toolTip.js").arg(beanMetadata()->tableName(), d->m_dbFieldName));
         data = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("toolTip")));
     }
     parent->restoreOverrideOnExecution();
@@ -1895,7 +1883,7 @@ QString DBFieldMetadata::sqlNullCondition(const QString &dialect)
 QString DBFieldMetadata::sqlCreateIndex(const QString &dialect)
 {
     QString unique = this->unique() ? "UNIQUE" : "";
-    QString idxName = QString("idx_%1_%2").arg(beanMetadata()->tableName()).arg(dbFieldName());
+    QString idxName = QString("idx_%1_%2").arg(beanMetadata()->tableName(), dbFieldName());
     if ( dialect == QLatin1String("QIBASE") && idxName.size() > MAX_LENGTH_OBJECT_NAME_FIREBIRD )
     {
         idxName = QString("idx_%1").arg(alephERPSettings->uniqueId());
@@ -1905,10 +1893,7 @@ QString DBFieldMetadata::sqlCreateIndex(const QString &dialect)
         idxName = QString("idx_%1").arg(alephERPSettings->uniqueId());
     }
     QString sql = QString("CREATE %1 INDEX %2 ON %3(%4);").
-          arg(unique).
-          arg(idxName).
-          arg(beanMetadata()->sqlTableName(dialect)).
-          arg(dbFieldName());
+          arg(unique, idxName, beanMetadata()->sqlTableName(dialect), dbFieldName());
     return sql;
 }
 
@@ -1932,8 +1917,7 @@ QString DBFieldMetadata::sqlWhere(const QString &op, const QVariant &value, cons
     }
     else
     {
-        result = QString("%1 %2 %3").arg(dbFieldName()).
-                 arg(op).arg(sqlValue(value, true, dialect));
+        result = QString("%1 %2 %3").arg(dbFieldName(), op, sqlValue(value, true, dialect));
     }
     return result;
 }
@@ -1962,7 +1946,7 @@ QString DBFieldMetadata::validateRule(DBField *parent, bool &validate)
     parent->setOnExecution(AlephERP::ValidateRule);
     d->m_engine->addFunctionArgument("bean", parent->bean());
     d->m_engine->addFunctionArgument("dbField", parent);
-    d->m_engine->setScript(d->m_validationRuleScript, QString("%1.%2.validationRule.js").arg(beanMetadata()->tableName()).arg(d->m_dbFieldName));
+    d->m_engine->setScript(d->m_validationRuleScript, QString("%1.%2.validationRule.js").arg(beanMetadata()->tableName(), d->m_dbFieldName));
     QVariant temp = d->m_engine->toVariant(d->m_engine->callQsFunction(QString("validationRule")));
     if ( temp.isValid() )
     {
@@ -2004,7 +1988,7 @@ void DBFieldMetadata::onChangeEvent(DBField *parent)
     parent->setOnExecution(AlephERP::OnChangeFieldValue);
     d->m_engine->addFunctionArgument("bean", parent->bean());
     d->m_engine->addFunctionArgument("dbField", parent);
-    d->m_engine->setScript(d->m_onChangeScript, QString("%1.%2.onChange.js").arg(beanMetadata()->tableName()).arg(d->m_dbFieldName));
+    d->m_engine->setScript(d->m_onChangeScript, QString("%1.%2.onChange.js").arg(beanMetadata()->tableName(), d->m_dbFieldName));
     d->m_engine->callQsFunction(QString("onChange"));
     parent->restoreOverrideOnExecution();
     return;
@@ -2065,7 +2049,7 @@ QVariant DBFieldMetadata::parseValue(const QString &v)
  */
 int DBFieldMetadata::nextSerial(DBField *fld)
 {
-    QString sql = QString("SELECT max(%1) as column1 FROM %2").arg(d->m_dbFieldName).arg(fld->bean()->metadata()->sqlTableName());
+    QString sql = QString("SELECT max(%1) as column1 FROM %2").arg(d->m_dbFieldName, fld->bean()->metadata()->sqlTableName());
     QVariant result;
     if ( !BaseDAO::execute(sql, result) )
     {
@@ -2251,7 +2235,7 @@ QString DBFieldMetadataPrivate::fieldName()
             BaseBeanMetadata *beanM = qobject_cast<BaseBeanMetadata *>(q_ptr->parent());
             if ( beanM != NULL )
             {
-                QString scriptName = QString("%1.%2.alias").arg(beanM->tableName()).arg(m_dbFieldName);
+                QString scriptName = QString("%1.%2.alias").arg(beanM->tableName(), m_dbFieldName);
                 m_engine->setScript(m_fieldNameScript, scriptName);
                 QVariant scriptResult = m_engine->toVariant(m_engine->callQsFunction(QString("aliasScript")));
                 if ( m_engine->lastMessage().isEmpty() )

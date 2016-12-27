@@ -304,7 +304,7 @@ bool DBSearchDlg::setTableName(const QString &value)
     AERPBaseDialog::setTableName(value);
     if ( !AERPLoggedUser::instance()->checkMetadataAccess('r', value) )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("No tiene permisos para acceder a estos datos."), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("No tiene permisos para acceder a estos datos."), QMessageBox::Ok);
         setOpenSuccess(false);
         close();
         return false;
@@ -315,7 +315,7 @@ bool DBSearchDlg::setTableName(const QString &value)
     ui->setupUi(this);
     if ( d->m_metadata == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("DBSearchDlg: No existe la tabla: [%1]").arg(value));
+        QLogger::QLog_Error(AlephERP::stLogOther, tr("DBSearchDlg: No existe la tabla: [%1]").arg(value));
         close();
         setOpenSuccess(false);
         return false;
@@ -414,7 +414,7 @@ bool DBSearchDlg::init()
         connect(ui->pbUncheckAll, SIGNAL(clicked(bool)), this, SLOT(uncheckAll()));
     }
 
-    setWindowTitle(trUtf8("Búsqueda de %1 [*]").arg(d->m_metadata->alias()));
+    setWindowTitle(tr("Búsqueda de %1 [*]").arg(d->m_metadata->alias()));
     d->setToolTipForWidgets();
 
     // Establecemos antes de abrir el Qs, los valores por defecto
@@ -529,7 +529,7 @@ void DBSearchDlg::showEvent(QShowEvent *event)
     }
     // Esto es necesario para permitir que haya dos controles que compartan mismo fieldName pero diferentes
     // values y nos permita simular un between
-    foreach (DBField *fld, d->m_templateBean->fields())
+    for (DBField *fld : d->m_templateBean->fields())
     {
         fld->disconnect(SIGNAL(valueModified(QVariant)));
     }
@@ -659,7 +659,7 @@ void DBSearchDlgPrivate::setupWidget()
     }
     layout = new QGridLayout();
     QHash<int, QWidgetList> widgets = q_ptr->setupWidgetFromBaseBeanMetadata(m_metadata, qobject_cast<QGridLayout *>(layout), true);
-    if ( widgets.keys().size() > 0 )
+    if ( widgets.size() > 0 )
     {
         q_ptr->ui->gbSearchFields->setVisible(true);
         q_ptr->ui->gbSearchFields->setLayout(layout);
@@ -684,7 +684,7 @@ bool DBSearchDlgPrivate::setupExternalWidget()
 {
     QString fileName;
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBSearchDlgPrivate::setupExternalWidget: Tabla: %1 tiene definido el dbsearch: %2").
-                        arg(q_ptr->tableName()).arg(m_metadata->uiDbSearch()));
+                        arg(q_ptr->tableName(), m_metadata->uiDbSearch()));
     if ( m_metadata->uiDbSearch().isEmpty() )
     {
         fileName = QString("%1.search.ui").arg(q_ptr->tableName());
@@ -717,7 +717,7 @@ bool DBSearchDlgPrivate::setupExternalWidget()
         else
         {
             QMessageBox::warning(q_ptr, qApp->applicationName(),
-                                 QObject::trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. "
+                                 QObject::tr("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. "
                                                  "Existe un problema en la definición de las tablas de sistema de su programa.").arg(fileName),
                                  QMessageBox::Ok);
             q_ptr->close();
@@ -811,7 +811,7 @@ void DBSearchDlgPrivate::execQs()
     if ( !result )
     {
         QMessageBox::warning(q_ptr, qApp->applicationName(),
-                             QObject::trUtf8("Ha ocurrido un error al cargar el script asociado a este "
+                             QObject::tr("Ha ocurrido un error al cargar el script asociado a este "
                                              "formulario. Es posible que algunas funciones no estén disponibles."),
                              QMessageBox::Ok);
     }
@@ -897,9 +897,9 @@ void DBSearchDlg::select (const QModelIndex &index)
                 QString controlTableName = d->m_metadata->viewOnGrid().isEmpty() ? d->m_metadata->tableName() : d->m_metadata->viewOnGrid();
                 if ( bean->metadata()->tableName() != controlTableName )
                 {
-                    QMessageBox::warning(this,qApp->applicationName(), trUtf8("Debe seleccionar un elemento de tipo <strong>%1</strong>. "
+                    QMessageBox::warning(this,qApp->applicationName(), tr("Debe seleccionar un elemento de tipo <strong>%1</strong>. "
                                          "Ha intentado seleccionar un elemento de tipo %2. Debe escoger un elemento final del árbol.").
-                                         arg(d->m_metadata->alias()).arg(bean->metadata()->alias()), QMessageBox::Ok);
+                                         arg(d->m_metadata->alias(), bean->metadata()->alias()), QMessageBox::Ok);
                     return;
                 }
                 d->m_selectedBean = bean;
@@ -980,7 +980,7 @@ void DBSearchDlg::edit()
     }
     else
     {
-        QMessageBox::warning(this,qApp->applicationName(), trUtf8("Debe seleccionar un registro a editar."));
+        QMessageBox::warning(this,qApp->applicationName(), tr("Debe seleccionar un registro a editar."));
     }
 }
 
@@ -1026,7 +1026,7 @@ void DBSearchDlg::view()
     }
     else
     {
-        QMessageBox::warning(this,qApp->applicationName(), trUtf8("Debe seleccionar un registro que visualizar."));
+        QMessageBox::warning(this,qApp->applicationName(), tr("Debe seleccionar un registro que visualizar."));
     }
 }
 
@@ -1061,7 +1061,7 @@ void DBSearchDlg::newRecord()
                 DBRelation *rel = d->m_masterBean->relation(tableName());
                 if ( rel == NULL )
                 {
-                    QString message = trUtf8("Ha ocurrido un error: No existe la relación %1").arg(tableName());
+                    QString message = tr("Ha ocurrido un error: No existe la relación %1").arg(tableName());
                     QMessageBox::warning(this, qApp->applicationName(), message, QMessageBox::Ok);
                     QLogger::QLog_Error(AlephERP::stLogOther, QString("DBSearchDlg::newRecord: %1").arg(message));
                     return;
@@ -1078,7 +1078,7 @@ void DBSearchDlg::newRecord()
         }
         if ( d->m_beanToInsert.isNull() )
         {
-            QString message = trUtf8("Ha ocurrido un error inesperado. No es posible abrir el formulario de inserción de registros.");
+            QString message = tr("Ha ocurrido un error inesperado. No es posible abrir el formulario de inserción de registros.");
             QMessageBox::warning(this, qApp->applicationName(), message, QMessageBox::Ok);
             return;
         }
@@ -1418,7 +1418,7 @@ QString DBSearchDlgPrivate::sqlWhere(SearchPerformed *searchState) const
                 }
                 if ( hashValue["operator"].toString() == OP_AND )
                 {
-                    where += QString("%1 %2").arg(hashValue["operator"].toString()).arg(sqlValue);
+                    where += QString("%1 %2").arg(hashValue["operator"].toString(), sqlValue);
                 }
                 else
                 {
@@ -1426,14 +1426,14 @@ QString DBSearchDlgPrivate::sqlWhere(SearchPerformed *searchState) const
                     {
                         where = where + " AND ";
                     }
-                    where += QString("upper(%1) %2 %3").arg(fld->dbFieldName()).arg(hashValue["operator"].toString()).arg(sqlValue.toUpper());
+                    where += QString("upper(%1) %2 %3").arg(fld->dbFieldName(), hashValue["operator"].toString(), sqlValue.toUpper());
                 }
             }
             else
             {
                 if ( hashValue["operator"].toString() == OP_AND )
                 {
-                    where += QString("%1 %2").arg(hashValue["operator"].toString()).arg(sqlValue);
+                    where += QString("%1 %2").arg(hashValue["operator"].toString(), sqlValue);
                 }
                 else
                 {
@@ -1441,7 +1441,7 @@ QString DBSearchDlgPrivate::sqlWhere(SearchPerformed *searchState) const
                     {
                         where = where + " AND ";
                     }
-                    where += QString("%1 %2 %3").arg(fld->dbFieldName()).arg(hashValue["operator"].toString()).arg(sqlValue);
+                    where += QString("%1 %2 %3").arg(fld->dbFieldName(), hashValue["operator"].toString(), sqlValue);
                 }
             }
         }
@@ -1665,10 +1665,10 @@ void DBSearchDlgPrivate::setToolTipForWidgets()
             DBFieldMetadata *fld = m_metadata->field(propertyFieldName.toString());
             if ( fld != NULL && fld->type() == QVariant::String )
             {
-                QString message = QObject::trUtf8("<p>La búsqueda utilizando ese campo se hará de la siguiente forma:</p>"
+                QString message = QObject::tr("<p>La búsqueda utilizando ese campo se hará de la siguiente forma:</p>"
                                                   "<p>Se buscará los registros cuyo valor para este campo contenga los carácters que introduzca.</p>");
                 widget->setToolTip(message);
-                message.append(QObject::trUtf8("<p>Por ejemplo si su cadena de búsqueda es \"<strong>PED</strong>\" se encontrarán el registro con valor de campo \"<strong>PED</strong>RO\", pero también el registro con el valor \"ANTONIO <strong>PED</strong>RO\".</p>"));
+                message.append(QObject::tr("<p>Por ejemplo si su cadena de búsqueda es \"<strong>PED</strong>\" se encontrarán el registro con valor de campo \"<strong>PED</strong>RO\", pero también el registro con el valor \"ANTONIO <strong>PED</strong>RO\".</p>"));
                 widget->setWhatsThis(message);
             }
         }

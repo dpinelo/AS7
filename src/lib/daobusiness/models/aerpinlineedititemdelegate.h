@@ -36,11 +36,13 @@ class AERPInlineEditItemDelegate : public AERPItemDelegate
 {
     Q_OBJECT
 
+    friend class AERPInlineEditItemDelegatePrivate;
+
 private:
     AERPInlineEditItemDelegatePrivate *d;
 
 public:
-    explicit AERPInlineEditItemDelegate(const QString &type, QObject * parent = 0);
+    explicit AERPInlineEditItemDelegate(QObject * parent = 0);
     ~AERPInlineEditItemDelegate();
 
     virtual QWidget *createEditor (QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index ) const;

@@ -88,7 +88,7 @@ QString InspectorTreeItem::value() const
     }
     else
     {
-        return QObject::trUtf8("No válido");
+        return QObject::tr("No válido");
     }
 }
 
@@ -191,7 +191,7 @@ public:
 AERPBeanInspectorModel::AERPBeanInspectorModel(QObject *parent) :
     QAbstractItemModel(parent), d(new AERPBeanInspectorModelPrivate(this))
 {
-    d->m_rootItem = new InspectorTreeItem(NULL, trUtf8("Inspección"), QString(""), NULL, this);
+    d->m_rootItem = new InspectorTreeItem(NULL, tr("Inspección"), QString(""), NULL, this);
     d->m_inspectableProperties << "dbOid"
                                << "fields"
                                << "relations"
@@ -457,15 +457,15 @@ QVariant AERPBeanInspectorModel::headerData(int section, Qt::Orientation orienta
         {
             if ( section == 0 )
             {
-                return trUtf8("Clave");
+                return tr("Clave");
             }
             if ( section == 1 )
             {
-                return trUtf8("Valor");
+                return tr("Valor");
             }
             if ( section == 2 )
             {
-                return trUtf8("Valor anterior");
+                return tr("Valor anterior");
             }
         }
     }
@@ -556,7 +556,7 @@ void AERPBeanInspectorModel::addBean(BaseBean *bean)
 void AERPBeanInspectorModel::addTransactionContext(const QString &transaction)
 {
     beginInsertRows(QModelIndex(), d->m_rootItem->childCount(), d->m_rootItem->childCount());
-    InspectorTreeItem *item = new InspectorTreeItem(NULL, QObject::trUtf8("Transacción [%1]").arg(transaction), "", d->m_rootItem, this);
+    InspectorTreeItem *item = new InspectorTreeItem(NULL, QObject::tr("Transacción [%1]").arg(transaction), "", d->m_rootItem, this);
     d->m_rootItem->appendChild(item);
     BaseBeanPointerList list = AERPTransactionContext::instance()->beansOrderedToPersist(transaction);
     foreach (BaseBeanPointer bean, list)
@@ -593,7 +593,7 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
     {
         return;
     }
-    InspectorTreeItem *item = new InspectorTreeItem(bean, QObject::trUtf8("Registro [%1]").arg(bean->metadata()->tableName()), "string", rootItem, q_ptr);
+    InspectorTreeItem *item = new InspectorTreeItem(bean, QObject::tr("Registro [%1]").arg(bean->metadata()->tableName()), "string", rootItem, q_ptr);
     rootItem->appendChild(item);
 
     // Ahora agregamos las primeras propiedades del bean
@@ -604,7 +604,7 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
         {
             if ( propertyName == QStringLiteral("metadata") )
             {
-                InspectorTreeItem *rootField = new InspectorTreeItem(bean->metadata(), QObject::trUtf8("Metadata"), "", item, q_ptr);
+                InspectorTreeItem *rootField = new InspectorTreeItem(bean->metadata(), QObject::tr("Metadata"), "", item, q_ptr);
                 item->appendChild(rootField);
                 for (int mPropIdx = 0 ; mPropIdx < bean->metadata()->metaObject()->propertyCount() ; mPropIdx++)
                 {
@@ -618,9 +618,9 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
             }
             else if ( propertyName == QStringLiteral("fields") )
             {
-                InspectorTreeItem *rootField = new InspectorTreeItem(bean, QObject::trUtf8("Fields"), "", item, q_ptr);
+                InspectorTreeItem *rootField = new InspectorTreeItem(bean, QObject::tr("Fields"), "", item, q_ptr);
                 item->appendChild(rootField);
-                foreach (DBField *fld, bean->fields())
+                for (DBField *fld : bean->fields())
                 {
                     InspectorTreeItem *itemField = new InspectorTreeItem(fld, fld->metadata()->dbFieldName(), "displayValue", rootField, q_ptr);
                     rootField->appendChild(itemField);
@@ -631,7 +631,7 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
                         QString mPropName = fld->metaObject()->property(fPropIdx).name();
                         if ( mPropName == QStringLiteral("metadata") )
                         {
-                            InspectorTreeItem *mField = new InspectorTreeItem(fld->metadata(), QObject::trUtf8("Metadata"), "", itemField, q_ptr);
+                            InspectorTreeItem *mField = new InspectorTreeItem(fld->metadata(), QObject::tr("Metadata"), "", itemField, q_ptr);
                             itemField->appendChild(mField);
                             for (int mPropIdx = 0 ; mPropIdx < fld->metadata()->metaObject()->propertyCount() ; mPropIdx++)
                             {
@@ -654,7 +654,7 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
             }
             else if ( propertyName == QStringLiteral("relations") )
             {
-                InspectorTreeItem *rootRelation = new InspectorTreeItem(bean, QObject::trUtf8("Relations"), "", item, q_ptr);
+                InspectorTreeItem *rootRelation = new InspectorTreeItem(bean, QObject::tr("Relations"), "", item, q_ptr);
                 item->appendChild(rootRelation);
                 foreach (DBRelation *rel, bean->relations())
                 {
@@ -667,7 +667,7 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
                         QString mPropName = rel->metaObject()->property(rPropIdx).name();
                         if ( mPropName == QStringLiteral("metadata") )
                         {
-                            InspectorTreeItem *mRel = new InspectorTreeItem(rel->metadata(), QObject::trUtf8("Metadata"), "", itemRelation, q_ptr);
+                            InspectorTreeItem *mRel = new InspectorTreeItem(rel->metadata(), QObject::tr("Metadata"), "", itemRelation, q_ptr);
                             itemRelation->appendChild(mRel);
                             for (int mPropIdx = 0 ; mPropIdx < rel->metadata()->metaObject()->propertyCount() ; mPropIdx++)
                             {
@@ -689,7 +689,7 @@ void AERPBeanInspectorModelPrivate::populateBean(BaseBean *bean, InspectorTreeIt
             }
             else if ( propertyName == QStringLiteral("relatedElements") )
             {
-                InspectorTreeItem *rootRelation = new InspectorTreeItem(bean, QObject::trUtf8("Related Elements"), "", item, q_ptr);
+                InspectorTreeItem *rootRelation = new InspectorTreeItem(bean, QObject::tr("Related Elements"), "", item, q_ptr);
                 item->appendChild(rootRelation);
                 foreach (RelatedElementPointer rel, bean->getRelatedElements())
                 {

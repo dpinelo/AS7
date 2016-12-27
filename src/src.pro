@@ -98,6 +98,7 @@ QT += widgets \
       network \
       script \
       xml \
+      xmlpatterns
 
 RESOURCES += translations.'$$QT_MAJOR_VERSION'.qrc \
              lib/daobusiness/resources/resources.qrc

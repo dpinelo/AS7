@@ -103,7 +103,7 @@ public:
     DBAbstractViewInterface(QWidget *widget, QHeaderView *header);
     virtual ~DBAbstractViewInterface();
 
-    virtual bool aerpControlRelation()
+    virtual bool aerpControlRelation() const
     {
         return true;
     }
@@ -112,6 +112,7 @@ public:
     virtual void setExternalModel(bool value);
     virtual QString tableName();
     virtual void setTableName(const QString &value);
+    virtual void setRelationName(const QString &value);
     virtual QString filter();
     virtual void setFilter(const QString &value);
     virtual QString order();
@@ -189,11 +190,12 @@ public:
     virtual QString configurationName();
 
     virtual void itemClicked(const QModelIndex &idx);
+    void itemChecked(const QModelIndex &idx, bool value);
 
     virtual void resetCursor();
 
     virtual void prepareColumns();
-    virtual void nextCellOnEnter(const QModelIndex &actualCell, const QModelIndex &nextCell);
+    void nextCellOnEnter(const QModelIndex &actualCell, const QModelIndex &nextCell);
 
     virtual void copy();
     virtual void paste();

@@ -133,7 +133,7 @@ class ALEPHERP_DLL_EXPORT DBTreeView : public QTreeView, public DBAbstractViewIn
 private:
     DBTreeViewPrivate *d;
 
-    void init();
+    bool init(bool onShowEvent = false);
 
 protected:
     virtual void showEvent(QShowEvent *event);
@@ -149,7 +149,7 @@ public:
 
     QString tableNames();
     void setTableNames(const QString &value);
-    QString visibleColumns();
+    QString visibleColumns() const;
     void setVisibleColumns(const QString &value);
     QString keyColumns();
     void setKeyColumns(const QString &value);

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>659</width>
-    <height>211</height>
+    <width>763</width>
+    <height>499</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -113,6 +113,17 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pbPreviewData">
+       <property name="text">
+        <string>Previsualizar datos</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../plugins/openrptplugin/openrpt/OpenRPT/images/OpenRPTWrtembed.qrc">
+         <normaloff>:/OpenRPT/icons/icons_64x64/field_64x64.png</normaloff>:/OpenRPT/icons/icons_64x64/field_64x64.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="pbSpreadSheet">
        <property name="text">
         <string>Exportar Hoja de Cálculo</string>
@@ -162,6 +173,24 @@
      </item>
     </layout>
    </item>
+   <item>
+    <widget class="QGroupBox" name="gbPreview">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="title">
+      <string>Previsualización de datos</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QTableView" name="tableView"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
@@ -177,6 +206,7 @@
  <resources>
   <include location="../resources/resources.qrc"/>
   <include location="../resources/resources.qrc"/>
+  <include location="../../../plugins/openrptplugin/openrpt/OpenRPT/images/OpenRPTWrtembed.qrc"/>
   <include location="../resources/resources.qrc"/>
  </resources>
  <connections/>

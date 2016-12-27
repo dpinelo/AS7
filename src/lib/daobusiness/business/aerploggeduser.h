@@ -53,7 +53,7 @@ public:
     void setEmail(const QString &value);
     QString name() const;
     void setName(const QString &value);
-    QList<AlephERP::RoleInfo> roles() const;
+    const QList<AlephERP::RoleInfo> roles() const;
     bool hasRole(const QString &roleName) const;
     bool hasRole(int idRole) const;
     bool hasOnlyRole(const QString &roleName) const;
@@ -61,6 +61,7 @@ public:
     bool hasAnyRole(const QStringList &roles) const;
     bool isSuperAdmin() const;
     bool dbaMode() const;
+    bool userWritesHistory() const;
     bool checkMetadataAccess(QChar access, const QString &tableName);
 
     bool loadMetadataAccess();

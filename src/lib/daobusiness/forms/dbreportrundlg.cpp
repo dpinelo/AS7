@@ -19,11 +19,8 @@
  ***************************************************************************/
 #include <QtCore>
 #include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
+#include <QtSql>
 #include <QtWidgets>
-#endif
 #include <QtUiTools>
 #include "configuracion.h"
 #include <globales.h>
@@ -150,6 +147,16 @@ void DBReportRunDlg::rbReportSelected(bool value)
             d->setupMainWidget();
             d->showAvailableButtons();
             d->setDefaultValueParemeters();
+            if ( d->m_run->metadata() )
+            {
+                ui->gbPreview->setVisible(!d->m_run->metadata()->exportSql().isEmpty());
+                ui->pbPreviewData->setVisible(!d->m_run->metadata()->exportSql().isEmpty());
+            }
+            else
+            {
+                ui->gbPreview->setVisible(false);
+                ui->pbPreviewData->setVisible(false);
+            }
         }
     }
 }
@@ -178,7 +185,7 @@ bool DBReportRunDlg::init()
 
     if ( d->m_run->metadata() == NULL && d->m_run->availableReports().size() == 0 )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Existe un error en la definición de metadatos del informe."));
+        QMessageBox::warning(this, qApp->applicationName(), tr("Existe un error en la definición de metadatos del informe."));
         return false;
     }
     if ( d->m_run->metadata() == NULL && d->m_run->availableReports().size() > 0 )
@@ -206,12 +213,12 @@ bool DBReportRunDlg::init()
 
     if ( d->m_run->metadata() != NULL )
     {
-        setWindowTitle(trUtf8("Informes - %1").arg(d->m_run->metadata()->alias()));
+        setWindowTitle(tr("Informes - %1").arg(d->m_run->metadata()->alias()));
         ui->pbSpreadSheet->setVisible(d->m_run->canExportSpreadSheet());
     }
     else
     {
-        setWindowTitle(trUtf8("Informes - %1").arg(qApp->applicationName()));
+        setWindowTitle(tr("Informes - %1").arg(qApp->applicationName()));
     }
 
     connect (ui->pbClose, SIGNAL(clicked()), this, SLOT(close()));
@@ -221,6 +228,7 @@ bool DBReportRunDlg::init()
     connect (ui->pbEdit, SIGNAL(clicked()), d->m_run, SLOT(editReport()));
     connect (ui->pbPreview, SIGNAL(clicked()), this, SLOT(preview()));
     connect (ui->pbSpreadSheet, SIGNAL(clicked()), this, SLOT(exportToSpreadSheet()));
+    connect( ui->pbPreviewData, SIGNAL(clicked()), this, SLOT(previewData()));
     connect (d->m_run, SIGNAL(canExecuteReport(bool)), this, SLOT(enableButtons()));
 
     installEventFilters();
@@ -354,7 +362,7 @@ void DBReportRunDlgPrivate::buildUIParameters()
     if ( m_run->beans().isEmpty() || m_run->beans().first().isNull() )
     {
         q_ptr->ui->gbParameters->setVisible(false);
-        QLogger::QLog_Debug(AlephERP::stLogOther, QObject::trUtf8("Este informe no está asociado a ninguna tabla. No puede crearse una interfaz automática."));
+        QLogger::QLog_Debug(AlephERP::stLogOther, QObject::tr("Este informe no está asociado a ninguna tabla. No puede crearse una interfaz automática."));
         return;
     }
     QList<AlephERP::ReportParameterInfo> paramList = m_run->parametersRequired();
@@ -364,7 +372,7 @@ void DBReportRunDlgPrivate::buildUIParameters()
     if ( m == NULL )
     {
         q_ptr->ui->gbParameters->setVisible(false);
-        QLogger::QLog_Debug(AlephERP::stLogOther, QObject::trUtf8("Este informe no está asociado a ninguna tabla. No puede crearse una interfaz automática."));
+        QLogger::QLog_Debug(AlephERP::stLogOther, QObject::tr("Este informe no está asociado a ninguna tabla. No puede crearse una interfaz automática."));
         return;
     }
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
@@ -499,7 +507,7 @@ void DBReportRunDlgPrivate::buildUIChooseReport()
     }
     else
     {
-        QLabel *lbl = new QLabel(QObject::trUtf8("Seleccione el informe"), q_ptr);
+        QLabel *lbl = new QLabel(QObject::tr("Seleccione el informe"), q_ptr);
         QComboBox *cb = new QComboBox(q_ptr);
         QHBoxLayout *lay = new QHBoxLayout();
         lay->addWidget(lbl);
@@ -608,7 +616,7 @@ bool DBReportRunDlg::exportToSpreadSheet()
     bool ok;
     QString selectedType = QInputDialog::getItem(this,
                                                  qApp->applicationName(),
-                                                 trUtf8("Seleccione el tipo de fichero al que desea exportar."),
+                                                 tr("Seleccione el tipo de fichero al que desea exportar."),
                                                  displayTypes,
                                                  0,
                                                  false,
@@ -618,37 +626,72 @@ bool DBReportRunDlg::exportToSpreadSheet()
         return false;
     }
     QString type = types.at(displayTypes.indexOf(selectedType));
-    QString dir = QFileDialog::getExistingDirectory(this, trUtf8("Seleccione el directorio en el que se exportará el fichero."), QDir::homePath());
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Seleccione el directorio en el que se exportará el fichero."), QDir::homePath());
     if ( dir.isEmpty() )
     {
         return false;
     }
     QString fileName = QInputDialog::getText(this,
                                              qApp->applicationName(),
-                                             trUtf8("Seleccione el nombre del fichero a generar."),
+                                             tr("Seleccione el nombre del fichero a generar."),
                                              QLineEdit::Normal,
-                                             QString("%1.%2").arg(d->m_run->metadata()->alias().replace("/", "")).arg(type),
+                                             QString("%1.%2").arg(d->m_run->metadata()->alias().replace("/", ""), type),
                                              &ok);
     if ( !ok || fileName.isEmpty())
     {
         return false;
     }
+    QScopedPointer<QProgressDialog> dlg (new QProgressDialog(this));
+    connect(d->m_run.data(), SIGNAL(initExportToSpreadSheet(int)), dlg.data(), SLOT(setMaximum(int)));
+    connect(d->m_run.data(), SIGNAL(progressExportToSpreadSheet(int)), dlg.data(), SLOT(setValue(int)));
+    connect(d->m_run.data(), SIGNAL(finishExportToSpreadSheet()), dlg.data(), SLOT(close()));
+    connect(d->m_run.data(), SIGNAL(labelExportToSpreadSheet(QString)), dlg.data(), SLOT(setLabelText(QString)));
+    connect(dlg.data(), SIGNAL(canceled()), d->m_run.data(), SLOT(cancelExportToSpreadSheet()));
+
+    dlg->setLabelText(tr("Exportando datos..."));
+    dlg->show();
+    qApp->processEvents();
+
     d->m_run->setParameters(d->constructParameterMap());
-    QString filePath = QString("%1/%2").arg(dir).arg(fileName);
+    QString filePath = QString("%1/%2").arg(dir, fileName);
     bool execute = d->m_run->exportToSpreadSheet(type, filePath);
+    dlg->close();
     if ( !execute )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error al tratar de generar el archivo de hoja de cálculo. \nEl error es: [%1]").arg(d->m_run->lastErrorMessage()), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error al tratar de generar el archivo de hoja de cálculo. \nEl error es: [%1]").arg(d->m_run->lastErrorMessage()), QMessageBox::Ok);
     }
     else
     {
-        int ret = QMessageBox::question(this, qApp->applicationName(), trUtf8("Se ha generado correctamente el fichero de hoja de cálculo. ¿Desea abrirlo?"), QMessageBox::Yes | QMessageBox::No);
+        int ret = QMessageBox::question(this, qApp->applicationName(), tr("Se ha generado correctamente el fichero de hoja de cálculo. ¿Desea abrirlo?"), QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::Yes )
         {
             QDesktopServices::openUrl(QUrl::fromLocalFile(filePath));
         }
     }
     return execute;
+}
+
+void DBReportRunDlg::previewData()
+{
+    if ( d->m_run.isNull() )
+    {
+        return;
+    }
+    d->m_run->setParameters(d->constructParameterMap());
+    QSqlQuery qry = d->m_run->query();
+    if ( qry.isActive() )
+    {
+        QAbstractItemModel *oldQueryModel = ui->tableView->model();
+        QSqlQueryModel *queryModel = new QSqlQueryModel(this);
+        queryModel->setQuery(qry);
+        CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+        ui->tableView->setModel(queryModel);
+        CommonsFunctions::restoreOverrideCursor();
+        if ( oldQueryModel != NULL )
+        {
+            delete oldQueryModel;
+        }
+    }
 }
 
 /*!
@@ -692,7 +735,7 @@ bool DBReportRunDlgPrivate::setupMainWidget()
         }
         else
         {
-            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de informes de sistema de su programa.").arg(fileName),
+            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::tr("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de informes de sistema de su programa.").arg(fileName),
                                  QMessageBox::Ok);
             result = false;
         }
@@ -712,7 +755,7 @@ bool DBReportRunDlgPrivate::setupMainWidget()
         }
         else
         {
-            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de informes de sistema de su programa.").arg(fileName),
+            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::tr("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de informes de sistema de su programa.").arg(fileName),
                                  QMessageBox::Ok);
             result = false;
         }
@@ -786,12 +829,12 @@ void DBReportRunDlgPrivate::execQs()
         {
             CommonsFunctions::setOverrideCursor(QCursor(Qt::ArrowCursor));
             QMessageBox::warning(q_ptr, qApp->applicationName(),
-                                 QObject::trUtf8("Ha ocurrido un error al cargar el script asociado a este "
+                                 QObject::tr("Ha ocurrido un error al cargar el script asociado a este "
                                                  "formulario. Es posible que algunas funciones no estén disponibles."),
                                  QMessageBox::Ok);
 #ifdef ALEPHERP_DEVTOOLS
             int ret = QMessageBox::information(q_ptr, qApp->applicationName(),
-                                               QObject::trUtf8("El script ejecutado contiene errores. ¿Desea editarlo?"),
+                                               QObject::tr("El script ejecutado contiene errores. ¿Desea editarlo?"),
                                                QMessageBox::Yes | QMessageBox::No);
             if ( ret == QMessageBox::Yes )
             {
@@ -850,6 +893,8 @@ void DBReportRunDlgPrivate::showAvailableButtons()
         q_ptr->ui->pbPDF->setVisible(false);
         q_ptr->ui->pbPrint->setVisible(false);
         q_ptr->ui->pbSpreadSheet->setVisible(false);
+        q_ptr->ui->pbPreviewData->setVisible(false);
+        q_ptr->ui->gbPreview->setVisible(false);
     }
     else
     {
@@ -874,11 +919,13 @@ void DBReportRunDlgPrivate::showAvailableButtons()
             q_ptr->ui->pbPreview->setVisible(false);
             q_ptr->ui->pbPDF->setVisible(false);
             q_ptr->ui->pbPrint->setVisible(false);
-            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::trUtf8("No se ha podido cargar el plugin de impresión"));
+            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::tr("No se ha podido cargar el plugin de impresión"));
         }
         if (!m_run.isNull())
         {
             q_ptr->ui->pbSpreadSheet->setVisible(m_run->canExportSpreadSheet());
+            q_ptr->ui->pbPreviewData->setVisible(!m_run->metadata()->exportSql().isEmpty());
+            q_ptr->ui->gbPreview->setVisible(!m_run->metadata()->exportSql().isEmpty());
         }
     }
 }

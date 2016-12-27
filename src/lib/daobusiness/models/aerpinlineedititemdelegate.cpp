@@ -25,6 +25,8 @@
 #include "widgets/dbchooserecordbutton.h"
 #include "widgets/dbcombobox.h"
 #include "widgets/dblineedit.h"
+#include "widgets/dbcheckbox.h"
+#include "widgets/dbdatetimeedit.h"
 #include "dao/beans/basebean.h"
 #include "dao/beans/dbfield.h"
 #include "dao/beans/dbfieldmetadata.h"
@@ -41,18 +43,24 @@
 class AERPInlineEditItemDelegatePrivate
 {
 public:
+    AERPInlineEditItemDelegate *q_ptr;
     QString m_type;
 
-    AERPInlineEditItemDelegatePrivate()
+    AERPInlineEditItemDelegatePrivate(AERPInlineEditItemDelegate *qq) : q_ptr(qq)
     {
     }
+
+    QWidget *createDBLineEdit(QWidget *parent, DBField *fld);
+    QWidget *createDBComboBox(QWidget *parent, DBField *fld);
+    QWidget *createDBDateTimeEdit(QWidget *parent, DBField *fld);
+    QWidget *createDBCheckBox(QWidget *parent, DBField *fld);
+    QString widgetTypeForDBField(DBField *fld);
 };
 
-AERPInlineEditItemDelegate::AERPInlineEditItemDelegate(const QString &type, QObject *parent) :
+AERPInlineEditItemDelegate::AERPInlineEditItemDelegate(QObject *parent) :
     AERPItemDelegate(parent),
-    d(new AERPInlineEditItemDelegatePrivate)
+    d(new AERPInlineEditItemDelegatePrivate(this))
 {
-    d->m_type = type;
 }
 
 AERPInlineEditItemDelegate::~AERPInlineEditItemDelegate()
@@ -68,114 +76,29 @@ QWidget *AERPInlineEditItemDelegate::createEditor(QWidget *parent, const QStyleO
     {
         return QStyledItemDelegate::createEditor(parent, option, index);
     }
-    if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
+
+    QString type = d->widgetTypeForDBField(fld);
+    if ( type == QStringLiteral("DBChooseRecordButton") )
     {
         QPushButton *button = new QPushButton(parent);
         setEditor(button);
         return button;
     }
-    else if ( d->m_type == QStringLiteral("DBLineEdit") )
+    else if ( type == QStringLiteral("DBLineEdit") )
     {
-        DBLineEdit *le = new DBLineEdit(parent);
-        setEditor(le);
-        le->setFieldName(fld->metadata()->dbFieldName());
-        le->setDataFromParentDialog(false);
-
-        QHashIterator<QString, QVariant> it(fld->metadata()->behaviourOnInlineEdit());
-        while (it.hasNext())
-        {
-            it.next();
-            QByteArray key = it.key().toLatin1();
-            if ( le->property(key.constData()).isValid() )
-            {
-                QVariant v;
-                if ( it.value().toString() == QStringLiteral("true") || it.value().toString() == QStringLiteral("false") )
-                {
-                    v = it.value().toString() == QStringLiteral("true");
-                }
-                else
-                {
-                    v = it.value();
-                }
-                le->setProperty(key.constData(), v);
-            }
-        }
-
-        if ( fld->metadata()->behaviourOnInlineEdit().contains("autoComplete") )
-        {
-            AlephERP::AutoCompleteTypes flags;
-            QString autoComplete = fld->metadata()->behaviourOnInlineEdit().value("autoComplete").toString();
-            if ( autoComplete.contains("NoCompletition") )
-            {
-                flags = AlephERP::NoCompletition;
-            }
-            if ( autoComplete.indexOf("ValuesFromThisField", 0, Qt::CaseInsensitive) != -1 )
-            {
-                flags = AlephERP::ValuesFromThisField;
-            }
-            if ( autoComplete.indexOf("ValuesFromRelation", 0, Qt::CaseInsensitive) != -1 )
-            {
-                flags = AlephERP::ValuesFromRelation;
-            }
-            if ( autoComplete.indexOf("ValuesFromTableWithNoRelation", 0, Qt::CaseInsensitive) != -1 )
-            {
-                flags = AlephERP::ValuesFromTableWithNoRelation;
-            }
-            if ( autoComplete.indexOf("RestrictValueToItemFromList", 0, Qt::CaseInsensitive) != -1 )
-            {
-                flags |= AlephERP::RestrictValueToItemFromList;
-            }
-            if ( autoComplete.indexOf("UpdateOwnerFieldBean", 0, Qt::CaseInsensitive) != -1 )
-            {
-                flags |= AlephERP::UpdateOwnerFieldBean;
-            }
-            le->setAutoComplete(flags);
-            le->setAutoCompleteColumn(
-                        fld->metadata()->behaviourOnInlineEdit().value("autoCompleteColumn").toString().isEmpty() ?
-                        fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString() :
-                        fld->metadata()->behaviourOnInlineEdit().value("autoCompleteColumn").toString());
-            QString size = fld->metadata()->behaviourOnInlineEdit().value("autoCompletePopupSize").toString();
-            QStringList parts = size.split("x");
-            if ( parts.size() > 1 )
-            {
-                QSize sz;
-                sz.setWidth(parts.at(0).toInt());
-                sz.setHeight(parts.at(1).toInt());
-                le->setAutoCompletePopupSize(sz);
-            }
-        }
-        le->setWorkBean(fld->bean());
-        le->setValue(fld->value());
-        le->setDataEditable(true);
-        return le;
+        return d->createDBLineEdit(parent, fld);
     }
-    else if ( d->m_type == QStringLiteral("DBComboBox") )
+    else if ( type == QStringLiteral("DBComboBox") )
     {
-        DBComboBox *combo = new DBComboBox(parent);
-        setEditor(combo);
-        combo->setFieldName(fld->metadata()->dbFieldName());
-        if ( fld->relations().size() > 0 )
-        {
-            DBRelation *rel = NULL;
-            foreach ( DBRelation *r, fld->relations(AlephERP::ManyToOne) )
-            {
-                rel = r;
-            }
-            if ( rel != NULL && fld->metadata()->behaviourOnInlineEdit().contains("viewOnRead") )
-            {
-                QStringList temp = fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString().split(".");
-                combo->setListTableModel(rel->metadata()->tableName());
-                combo->setListColumnToSave(rel->metadata()->childFieldName());
-                if ( temp.size() > 0 )
-                {
-                    combo->setListColumnName(temp.at(temp.size()-1));
-                }
-            }
-        }
-        combo->setWorkBean(fld->bean());
-        combo->setValue(fld->value());
-        combo->setDataEditable(true);
-        return combo;
+        return d->createDBComboBox(parent, fld);
+    }
+    else if ( type == QStringLiteral("DBDateTimeEdit") )
+    {
+        return d->createDBDateTimeEdit(parent, fld);
+    }
+    else if ( type == QStringLiteral("DBCheckBox") )
+    {
+        return d->createDBCheckBox(parent, fld);
     }
     return QStyledItemDelegate::createEditor(parent, option, index);
 }
@@ -188,83 +111,66 @@ void AERPInlineEditItemDelegate::setEditorData(QWidget *editor, const QModelInde
     }
     QVariant pointer = index.data(AlephERP::DBFieldRole);
     DBField *fld = static_cast<DBField *>(pointer.value<void *>());
-    if ( fld == NULL )
+    if ( fld ==  NULL )
     {
         return;
     }
-    if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
+    if ( editor->property(AlephERP::stAerpControl).isValid() &&
+         editor->property(AlephERP::stAerpControl).toBool() )
     {
-/*
-        QPushButton *button = qobject_cast<QPushButton *> (editor);
-        if ( button != NULL )
-        {
-            button->setValue(fld->value());
-        }
-*/
-    }
-    else if ( d->m_type == QStringLiteral("DBComboBox") )
-    {
-        DBComboBox *combo = qobject_cast<DBComboBox *> (editor);
-        if ( combo != NULL )
-        {
-            combo->setWorkBean(fld->bean());
-            combo->setValue(fld->value());
-        }
-    }
-    else if ( d->m_type == QStringLiteral("DBLineEdit") )
-    {
-        DBLineEdit *le = qobject_cast<DBLineEdit *> (editor);
-        if ( le != NULL )
-        {
-            // Esta operación puede llamar a observerUnregistered, y borrar el contenido del texto... antes de establecerlo. Lo guardamos
-            le->setWorkBean(fld->bean());
-            le->setValue(fld->value());
-        }
+        DBBaseWidget *baseWidget = dynamic_cast<DBBaseWidget *>(editor);
+        baseWidget->setWorkBean(fld->bean());
+        baseWidget->setValue(fld->value());
     }
 }
 
 void AERPInlineEditItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-    if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
+    QVariant pointer = index.data(AlephERP::DBFieldRole);
+    DBField *fld = static_cast<DBField *>(pointer.value<void *>());
+    if ( fld == NULL )
     {
-        /*        DBChooseRecordButton *button = qobject_cast<DBChooseRecordButton *>(editor);
-                if ( button != NULL ) {
-                    model->setData(index, button->value());
-                }*/
+        return;
     }
-    else if ( d->m_type == QStringLiteral("DBComboBox") )
+
+    if ( !editor->property(AlephERP::stAerpControl).isValid() ||
+         !editor->property(AlephERP::stAerpControl).toBool() )
     {
-        DBComboBox *combo = qobject_cast<DBComboBox *>(editor);
-        if ( combo != NULL )
-        {
-            model->setData(index, combo->value());
-        }
+        return;
     }
-    else if ( d->m_type == QStringLiteral("DBLineEdit") )
+
+    QString type = d->widgetTypeForDBField(fld);
+    if ( type == QStringLiteral("DBLineEdit") )
     {
         DBLineEdit *le = qobject_cast<DBLineEdit *> (editor);
+        if ( le == NULL )
+        {
+            return;
+        }
+        BaseBeanSharedPointer b;
+        FilterBaseBeanModel *filterModel = qobject_cast<FilterBaseBeanModel *>(model);
+        BaseBeanModel *beanModel = qobject_cast<BaseBeanModel *>(model);
+        if ( filterModel != NULL )
+        {
+            b = filterModel->bean(index);
+        }
+        else if ( beanModel != NULL )
+        {
+            b = beanModel->bean(index);
+        }
+        if ( !b.isNull() )
+        {
+            le->setWorkBean(b.data());
+        }
         if ( le != NULL )
         {
-            BaseBeanSharedPointer b;
-            FilterBaseBeanModel *filterModel = qobject_cast<FilterBaseBeanModel *>(model);
-            BaseBeanModel *beanModel = qobject_cast<BaseBeanModel *>(model);
-            if ( filterModel != NULL )
-            {
-                b = filterModel->bean(index);
-            }
-            else if ( beanModel != NULL )
-            {
-                b = beanModel->bean(index);
-            }
-            if ( !b.isNull() )
-            {
-                le->setWorkBean(b.data());
-            }
-            if ( le != NULL )
-            {
-                model->setData(index, le->finalValue());
-            }
+            model->setData(index, le->finalValue());
         }
+    }
+    else
+    {
+        DBBaseWidget *baseWidget = dynamic_cast<DBBaseWidget *>(editor);
+        model->setData(index, baseWidget->value());
     }
 }
 
@@ -280,8 +186,12 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
     {
         return;
     }
+    QString type = d->widgetTypeForDBField(fld);
     Qt::Alignment align = fld->metadata()->alignment();
     QString text = fld->displayValue();
+
+    text = fld->displayValue();
+    align = fld->metadata()->alignment();
     if ( fld->metadata()->behaviourOnInlineEdit().contains("viewOnRead") )
     {
         DBField *field = NULL;
@@ -305,14 +215,14 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
         }
     }
     painter->save();
-    if ( d->m_type == QStringLiteral("DBChooseRecordButton") )
+    if ( type == QStringLiteral("DBChooseRecordButton") )
     {
         QStyleOptionButton buttonOption;
         buttonOption.state = QStyle::State_Enabled | QStyle::State_AutoRaise | QStyle::State_Active;
         if ( fld->isEmpty() )
         {
             buttonOption.rect = option.rect;
-            buttonOption.text = trUtf8("Seleccione %1").arg(fld->metadata()->fieldName());
+            buttonOption.text = tr("Seleccione %1").arg(fld->metadata()->fieldName());
             QApplication::style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter);
         }
         else
@@ -323,7 +233,7 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
             buttonOption.iconSize = QSize(buttonOption.rect.height()-4, buttonOption.rect.height()-4);
             QApplication::style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter);
 
-            QStyleOptionViewItemV4 optionText = option;
+            QStyleOptionViewItem optionText = option;
             initStyleOption(&optionText, index);
             /* Call this to get the focus rect and selection background. */
             optionText.text = text;
@@ -332,17 +242,9 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
             optionText.widget->style()->drawControl(QStyle::CE_ItemViewItem, &optionText, painter, optionText.widget);
         }
     }
-    else if ( d->m_type == QStringLiteral("DBComboBox") )
+    else
     {
-        QStyleOptionViewItemV4 options = option;
-        initStyleOption(&options, index);
-        /* Call this to get the focus rect and selection background. */
-        options.text = text;
-        options.widget->style()->drawControl(QStyle::CE_ItemViewItem, &options, painter, options.widget);
-    }
-    else if ( d->m_type == QStringLiteral("DBLineEdit") )
-    {
-        QStyleOptionViewItemV4 options = option;
+        QStyleOptionViewItem options = option;
         initStyleOption(&options, index);
         /* Call this to get the focus rect and selection background. */
         options.text = text;
@@ -374,98 +276,104 @@ void AERPInlineEditItemDelegate::buttonClicked(const QModelIndex &index)
     {
         return;
     }
+
     QVariant pointer = index.data(AlephERP::DBFieldRole);
     DBField *fld = static_cast<DBField *>(pointer.value<void *>());
     if ( fld == NULL )
     {
         return;
     }
+
     QString tableName, childColumnName;
     BaseBeanPointer workedBean = fld->bean();
-    if ( !workedBean.isNull() )
+    if ( workedBean.isNull() )
     {
-        QList<DBRelation *> relations = fld->relations(AlephERP::ManyToOne);
-        DBRelation *rel = NULL;
-        foreach ( DBRelation *tmp, relations )
+        return;
+    }
+
+    QList<DBRelation *> relations = fld->relations(AlephERP::ManyToOne);
+    DBRelation *rel = NULL;
+    foreach ( DBRelation *tmp, relations )
+    {
+        rel = tmp;
+    }
+    if ( rel == NULL )
+    {
+        return;
+    }
+
+    tableName = rel->metadata()->tableName();
+    childColumnName = rel->metadata()->childFieldName();
+    // Comprobemos si previamente el usuario ha creado un nuevo field padre
+    BaseBeanPointer father = rel->father();
+    if ( !father.isNull() && father->modified() && father->dbState() == BaseBean::INSERT )
+    {
+        int ret = QMessageBox::question(0, qApp->applicationName(),
+                                        tr("Previamente creó un nuevo registro de tipo <strong>%1</strong>."
+                                               "Este registro aún no ha sido guardado en la base de datos. ¿Desea editarlo? <br/>"
+                                               "Si responde no, perderá este registro que insertó y se abrirá la ventana de búsqueda.").arg(father->metadata()->alias()),
+                                        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
+        if ( ret == QMessageBox::Yes )
         {
-            rel = tmp;
-        }
-        if ( rel != NULL )
-        {
-            tableName = rel->metadata()->tableName();
-            childColumnName = rel->metadata()->childFieldName();
-            // Comprobemos si previamente el usuario ha creado un nuevo field padre
-            BaseBeanPointer father = rel->father();
-            if ( !father.isNull() )
-            {
-                if ( father->modified() )
-                {
-                    if ( father->dbState() == BaseBean::INSERT )
-                    {
-                        int ret = QMessageBox::question(0,qApp->applicationName(),
-                                                        trUtf8("Previamente creó un nuevo registro de tipo <strong>%1</strong>."
-                                                               "Este registro aún no ha sido guardado en la base de datos. ¿Desea editarlo? <br/>"
-                                                               "Si responde no, perderá este registro que insertó y se abrirá la ventana de búsqueda.").arg(father->metadata()->alias()),
-                                                        QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );
-                        if ( ret == QMessageBox::Yes )
-                        {
-                            QPointer<DBRecordDlg> dlg = new DBRecordDlg(father, AlephERP::Update, true, 0);
-                            if ( dlg->openSuccess() && dlg->init() )
-                            {
-                                dlg->setModal(true);
-                                dlg->setAttribute(Qt::WA_DeleteOnClose);
-                                dlg->exec();
-                                return;
-                            }
-                        }
-                        else if ( ret == QMessageBox::Cancel )
-                        {
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-        if ( !tableName.isEmpty() )
-        {
-            QPointer<DBSearchDlg> dlg = new DBSearchDlg(tableName, 0);
-            if ( dlg->openSuccess() )
+            QPointer<DBRecordDlg> dlg = new DBRecordDlg(father, AlephERP::Update, true, 0);
+            if ( dlg->openSuccess() && dlg->init() )
             {
                 dlg->setModal(true);
-                if ( dlg->init() )
-                {
-                    dlg->exec();
-                    if ( dlg->userClickOk() )
-                    {
-                        // Recogemos el campo buscado si lo hay
-                        BaseBeanSharedPointer choosedBean = dlg->selectedBean();
-                        if ( !choosedBean.isNull() && !childColumnName.isEmpty() )
-                        {
-                            QVariant v = choosedBean->fieldValue(childColumnName);
-                            fld->setValue(v);
-                            buttonUpdateFields(fld, choosedBean.data());
-                        }
-                    }
-                    if ( (dlg->userClickOk() || dlg->userInsertNewRecord()) && fld->metadata()->behaviourOnInlineEdit().contains("executeScriptAfterChoose") )
-                    {
-                        QWidget *par = qobject_cast<QWidget *>(this->parent());
-                        AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(par);
-                        if ( thisForm != NULL )
-                        {
-                            AERPScript engine;
-                            CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
-                            QString script = fld->metadata()->behaviourOnInlineEdit().value("executeScriptAfterChoose").toString();
-                            engine.addFunctionArgument("bean", fld->bean());
-                            engine.addFunctionArgument("dbField", fld);
-                            engine.addFunctionArgument(AlephERP::stThisForm, thisForm);
-                            engine.setScript(script, QString("%1.afterChoose").arg(fld->dbFieldName()));
-                            engine.callQsFunction(QString("afterChooseScript"));
-                            CommonsFunctions::restoreOverrideCursor();
-                        }
-                    }
-                }
+                dlg->setAttribute(Qt::WA_DeleteOnClose);
+                dlg->exec();
+                return;
             }
-            delete dlg;
+        }
+        else if ( ret == QMessageBox::Cancel )
+        {
+            return;
+        }
+    }
+    if ( tableName.isEmpty() )
+    {
+        return;
+    }
+
+    // Aquí ya tenemos toda la información necesaria para abrir el DBSearchDlg.
+    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName, 0));
+    if ( !dlg->openSuccess() )
+    {
+        return;
+    }
+
+    dlg->setModal(true);
+    if ( !dlg->init() )
+    {
+        return;
+    }
+
+    dlg->exec();
+    if ( dlg->userClickOk() )
+    {
+        // Recogemos el campo buscado si lo hay
+        BaseBeanSharedPointer choosedBean = dlg->selectedBean();
+        if ( !choosedBean.isNull() && !childColumnName.isEmpty() )
+        {
+            QVariant v = choosedBean->fieldValue(childColumnName);
+            fld->setValue(v);
+            buttonUpdateFields(fld, choosedBean.data());
+        }
+    }
+    if ( (dlg->userClickOk() || dlg->userInsertNewRecord()) && fld->metadata()->behaviourOnInlineEdit().contains("executeScriptAfterChoose") )
+    {
+        QWidget *par = qobject_cast<QWidget *>(this->parent());
+        AERPBaseDialog *thisForm = CommonsFunctions::aerpParentDialog(par);
+        if ( thisForm != NULL )
+        {
+            AERPScript engine;
+            CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+            QString script = fld->metadata()->behaviourOnInlineEdit().value("executeScriptAfterChoose").toString();
+            engine.addFunctionArgument("bean", fld->bean());
+            engine.addFunctionArgument("dbField", fld);
+            engine.addFunctionArgument(AlephERP::stThisForm, thisForm);
+            engine.setScript(script, QString("%1.afterChoose").arg(fld->dbFieldName()));
+            engine.callQsFunction(QString("afterChooseScript"));
+            CommonsFunctions::restoreOverrideCursor();
         }
     }
 }
@@ -499,4 +407,168 @@ void AERPInlineEditItemDelegate::buttonUpdateFields(DBField *fld, BaseBean *sele
             }
         }
     }
+}
+
+QWidget *AERPInlineEditItemDelegatePrivate::createDBLineEdit(QWidget *parent, DBField *fld)
+{
+    DBLineEdit *le = new DBLineEdit(parent);
+    q_ptr->setEditor(le);
+    le->setFieldName(fld->metadata()->dbFieldName());
+    le->setDataFromParentDialog(false);
+
+    QHashIterator<QString, QVariant> it(fld->metadata()->behaviourOnInlineEdit());
+    while (it.hasNext())
+    {
+        it.next();
+        QByteArray key = it.key().toLatin1();
+        if ( le->property(key.constData()).isValid() )
+        {
+            QVariant v;
+            if ( it.value().toString() == QStringLiteral("true") || it.value().toString() == QStringLiteral("false") )
+            {
+                v = it.value().toString() == QStringLiteral("true");
+            }
+            else
+            {
+                v = it.value();
+            }
+            le->setProperty(key.constData(), v);
+        }
+    }
+
+    if ( fld->metadata()->behaviourOnInlineEdit().contains("autoComplete") )
+    {
+        AlephERP::AutoCompleteTypes flags;
+        QString autoComplete = fld->metadata()->behaviourOnInlineEdit().value("autoComplete").toString();
+        if ( autoComplete.contains("NoCompletition") )
+        {
+            flags = AlephERP::NoCompletition;
+        }
+        if ( autoComplete.indexOf("ValuesFromThisField", 0, Qt::CaseInsensitive) != -1 )
+        {
+            flags = AlephERP::ValuesFromThisField;
+        }
+        if ( autoComplete.indexOf("ValuesFromRelation", 0, Qt::CaseInsensitive) != -1 )
+        {
+            flags = AlephERP::ValuesFromRelation;
+        }
+        if ( autoComplete.indexOf("ValuesFromTableWithNoRelation", 0, Qt::CaseInsensitive) != -1 )
+        {
+            flags = AlephERP::ValuesFromTableWithNoRelation;
+        }
+        if ( autoComplete.indexOf("RestrictValueToItemFromList", 0, Qt::CaseInsensitive) != -1 )
+        {
+            flags |= AlephERP::RestrictValueToItemFromList;
+        }
+        if ( autoComplete.indexOf("UpdateOwnerFieldBean", 0, Qt::CaseInsensitive) != -1 )
+        {
+            flags |= AlephERP::UpdateOwnerFieldBean;
+        }
+        le->setAutoComplete(flags);
+        le->setAutoCompleteColumn(
+                    fld->metadata()->behaviourOnInlineEdit().value("autoCompleteColumn").toString().isEmpty() ?
+                    fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString() :
+                    fld->metadata()->behaviourOnInlineEdit().value("autoCompleteColumn").toString());
+        QString size = fld->metadata()->behaviourOnInlineEdit().value("autoCompletePopupSize").toString();
+        QStringList parts = size.split("x");
+        if ( parts.size() > 1 )
+        {
+            QSize sz;
+            sz.setWidth(parts.at(0).toInt());
+            sz.setHeight(parts.at(1).toInt());
+            le->setAutoCompletePopupSize(sz);
+        }
+    }
+    le->setWorkBean(fld->bean());
+    le->setValue(fld->value());
+    le->setDataEditable(true);
+    return le;
+}
+
+QWidget *AERPInlineEditItemDelegatePrivate::createDBComboBox(QWidget *parent, DBField *fld)
+{
+    DBComboBox *combo = new DBComboBox(parent);
+    q_ptr->setEditor(combo);
+    combo->setFieldName(fld->metadata()->dbFieldName());
+    if ( fld->relations().size() > 0 )
+    {
+        DBRelation *rel = NULL;
+        foreach ( DBRelation *r, fld->relations(AlephERP::ManyToOne) )
+        {
+            rel = r;
+        }
+        if ( rel != NULL && fld->metadata()->behaviourOnInlineEdit().contains("viewOnRead") )
+        {
+            QStringList temp = fld->metadata()->behaviourOnInlineEdit().value("viewOnRead").toString().split(".");
+            combo->setListTableModel(rel->metadata()->tableName());
+            combo->setListColumnToSave(rel->metadata()->childFieldName());
+            if ( temp.size() > 0 )
+            {
+                combo->setListColumnName(temp.at(temp.size()-1));
+            }
+        }
+    }
+    combo->setWorkBean(fld->bean());
+    combo->setValue(fld->value());
+    combo->setDataEditable(true);
+    return combo;
+}
+
+QWidget *AERPInlineEditItemDelegatePrivate::createDBDateTimeEdit(QWidget *parent, DBField *fld)
+{
+    DBDateTimeEdit *dbDateTime = new DBDateTimeEdit(parent);
+    q_ptr->setEditor(dbDateTime);
+    if ( fld->metadata()->type() == QVariant::Date )
+    {
+        // TODO: This must be localized
+        dbDateTime->setDisplayFormat("dd/MM/yyyy");
+    }
+    else
+    {
+        dbDateTime->setDisplayFormat("dd/MM/yyyy HH:mm");
+    }
+    dbDateTime->setFieldName(fld->metadata()->dbFieldName());
+    dbDateTime->setWorkBean(fld->bean());
+    dbDateTime->setValue(fld->value());
+    dbDateTime->setDataEditable(true);
+    return dbDateTime;
+}
+
+QWidget *AERPInlineEditItemDelegatePrivate::createDBCheckBox(QWidget *parent, DBField *fld)
+{
+    DBCheckBox *dbCheckBox = new DBCheckBox(parent);
+    q_ptr->setEditor(dbCheckBox);
+    dbCheckBox->setFieldName(fld->metadata()->dbFieldName());
+    dbCheckBox->setWorkBean(fld->bean());
+    dbCheckBox->setValue(fld->value());
+    dbCheckBox->setDataEditable(true);
+    return dbCheckBox;
+}
+
+QString AERPInlineEditItemDelegatePrivate::widgetTypeForDBField(DBField *fld)
+{
+    if ( fld->metadata()->type() == QVariant::String )
+    {
+        return "DBLineEdit";
+    }
+    else if ( fld->metadata()->type() == QVariant::Int ||
+              fld->metadata()->type() == QVariant::LongLong ||
+              fld->metadata()->type() == QVariant::Double )
+    {
+        return "DBNumberEdit";
+    }
+    else if ( fld->metadata()->type() == QVariant::Date ||
+              fld->metadata()->type() == QVariant::DateTime )
+    {
+        return "DBDateTimeEdit";
+    }
+    else if ( fld->metadata()->type() == QVariant::Bool )
+    {
+        return "DBCheckBox";
+    }
+    if ( !fld->metadata()->behaviourOnInlineEdit().value("widgetOnEdit").toString().isEmpty() )
+    {
+        return fld->metadata()->behaviourOnInlineEdit().value("widgetOnEdit").toString();
+    }
+    return "DBLineEdit";
 }

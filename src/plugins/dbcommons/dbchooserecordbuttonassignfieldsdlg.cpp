@@ -89,7 +89,7 @@ DBChooseRecordButtonAssignFieldsDlg::DBChooseRecordButtonAssignFieldsDlg(DBChoos
             {
                 if ( !BeansFactory::initSystemsBeans(trash) )
                 {
-                    QMessageBox::warning(this, trUtf8("AlephERP"), trUtf8("No se ha podido inicializar la estructura de beans. No puede iniciarse este diálogo."), QMessageBox::Ok);
+                    QMessageBox::warning(this, tr("AlephERP"), tr("No se ha podido inicializar la estructura de beans. No puede iniciarse este diálogo."), QMessageBox::Ok);
                     CommonsFunctions::restoreOverrideCursor();
                     d->m_openFailed = true;
                     return;

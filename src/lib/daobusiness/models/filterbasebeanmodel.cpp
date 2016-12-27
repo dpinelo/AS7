@@ -59,6 +59,7 @@ public:
     QPointer<AERPScriptQsObject> m_engine;
     bool m_forceToLoadBeans;
     bool m_dbFormHasFilterAcceptsRowFunction;
+    bool m_cancelExportToSpreadSheet;
 
     FilterBaseBeanModelPrivate(FilterBaseBeanModel *qq) : q_ptr(qq)
     {
@@ -69,6 +70,7 @@ public:
         m_acceptedRows[m_states] = QHash<qlonglong, bool>();
         m_forceToLoadBeans = false;
         m_dbFormHasFilterAcceptsRowFunction = false;
+        m_cancelExportToSpreadSheet = false;
     }
 
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent);
@@ -183,6 +185,7 @@ void FilterBaseBeanModel::setSourceModel(QAbstractItemModel *model)
         connect(mdl, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(clearAcceptedRows()));
         connect(mdl, SIGNAL(modelReset()), this, SLOT(clearAcceptedRows()));
         connect(mdl, SIGNAL(modelReset()), this, SLOT(clearColumnCount()));
+        connect(mdl, SIGNAL(itemChecked(QModelIndex,bool)), this, SIGNAL(itemChecked(QModelIndex,bool)));
     }
     QSortFilterProxyModel::setSourceModel(model);
 }
@@ -711,27 +714,28 @@ bool FilterBaseBeanModel::lessThan(const QModelIndex &left, const QModelIndex &r
  */
 bool FilterBaseBeanModelPrivate::qsFilterAcceptsRow(BaseBeanPointer beanRow, const QModelIndex &sourceParent) const
 {
-    if ( m_engine->existQsFunction(AlephERP::stFilterAcceptsRowFunctionName) )
+    if ( !m_engine->existQsFunction(AlephERP::stFilterAcceptsRowFunctionName) )
     {
-        QScriptValue result;
-        QScriptValueList argList;
-        QScriptValue val = m_engine->createScriptValue(beanRow.data());
-        argList.append(val);
-        if ( sourceParent.isValid() )
+        return true;
+    }
+    QScriptValue result;
+    QScriptValueList argList;
+    QScriptValue val = m_engine->createScriptValue(beanRow.data());
+    argList.append(val);
+    if ( sourceParent.isValid() )
+    {
+        BaseBeanModel *model = qobject_cast<BaseBeanModel *>(q_ptr->sourceModel());
+        BaseBeanSharedPointer beanParent = model->bean(sourceParent);
+        if ( !beanParent.isNull() )
         {
-            BaseBeanModel *model = qobject_cast<BaseBeanModel *>(q_ptr->sourceModel());
-            BaseBeanSharedPointer beanParent = model->bean(sourceParent);
-            if ( !beanParent.isNull() )
-            {
-                QScriptValue valParent = m_engine->createScriptValue(beanParent.data());
-                argList.append(valParent);
-            }
+            QScriptValue valParent = m_engine->createScriptValue(beanParent.data());
+            argList.append(valParent);
         }
-        m_engine->callQsObjectFunction(result, AlephERP::stFilterAcceptsRowFunctionName, argList);
-        if ( result.isValid() && result.isBool() )
-        {
-            return result.toBool();
-        }
+    }
+    m_engine->callQsObjectFunction(result, AlephERP::stFilterAcceptsRowFunctionName, argList);
+    if ( result.isValid() && result.isBool() )
+    {
+        return result.toBool();
     }
     return true;
 }
@@ -751,21 +755,37 @@ void FilterBaseBeanModel::clearAcceptedRows()
 
 bool FilterBaseBeanModel::exportToSpreadSheet(const QString &file, const QString &type)
 {
+    d->m_cancelExportToSpreadSheet = false;
     BaseBeanModel *source = qobject_cast<BaseBeanModel *>(sourceModel());
+    if ( source == NULL )
+    {
+        return false;
+    }
+
+    // Primero: Nos aseguramos de cargar datos de los registros
+    for (int i = 0 ; i < rowCount() ; i++)
+    {
+        bean(i);
+        emit rowProcessed(i);
+        if ( d->m_cancelExportToSpreadSheet )
+        {
+            return false;
+        }
+    }
+    connect(source, SIGNAL(rowProcessed(int)), this, SIGNAL(rowProcessed(int)));
+    bool r = source->exportToSpreadSheet(this, source->metadata(), file, type);
+    disconnect(source, SIGNAL(rowProcessed(int)), this, SIGNAL(rowProcessed(int)));
+    return r;
+}
+
+void FilterBaseBeanModel::cancelExportToSpreadSheet()
+{
+    BaseBeanModel *source = qobject_cast<BaseBeanModel *>(sourceModel());
+    d->m_cancelExportToSpreadSheet = true;
     if ( source != NULL )
     {
-        // Primero: Nos aseguramos de cargar datos de los registros
-        for (int i = 0 ; i < rowCount() ; i++)
-        {
-            bean(i);
-            emit rowProcessed(i);
-        }
-        connect(source, SIGNAL(rowProcessed(int)), this, SIGNAL(rowProcessed(int)));
-        bool r = source->exportToSpreadSheet(this, source->metadata(), file, type);
-        disconnect(source, SIGNAL(rowProcessed(int)), this, SIGNAL(rowProcessed(int)));
-        return r;
+        source->cancelExportToSpreadSheet();
     }
-    return false;
 }
 
 bool FilterBaseBeanModel::commit()
@@ -806,30 +826,32 @@ void FilterBaseBeanModel::resetInternalData()
     clearAcceptedRows();
 }
 
-BaseBeanSharedPointer FilterBaseBeanModel::bean (const QModelIndex &index)
+BaseBeanSharedPointer FilterBaseBeanModel::bean(const QModelIndex &index, bool foceReloadIfNeeded)
 {
-    if ( index.isValid() )
+    if ( !index.isValid() )
     {
-        QModelIndex sourceIdx = mapToSource(index);
-        BaseBeanModel *model = qobject_cast<BaseBeanModel *>(sourceModel());
-        if ( model != NULL )
-        {
-            return model->bean(sourceIdx);
-        }
+        return BaseBeanSharedPointer();
+    }
+    QModelIndex sourceIdx = mapToSource(index);
+    BaseBeanModel *model = qobject_cast<BaseBeanModel *>(sourceModel());
+    if ( model != NULL )
+    {
+        return model->bean(sourceIdx, foceReloadIfNeeded);
     }
     return BaseBeanSharedPointer();
 }
 
 BaseBeanSharedPointer FilterBaseBeanModel::beanToBeEdited (const QModelIndex &index)
 {
-    if ( index.isValid() )
+    if ( !index.isValid() )
     {
-        QModelIndex sourceIdx = mapToSource(index);
-        BaseBeanModel *model = qobject_cast<BaseBeanModel *>(sourceModel());
-        if ( model != NULL )
-        {
-            return model->beanToBeEdited(sourceIdx);
-        }
+        return BaseBeanSharedPointer();
+    }
+    QModelIndex sourceIdx = mapToSource(index);
+    BaseBeanModel *model = qobject_cast<BaseBeanModel *>(sourceModel());
+    if ( model != NULL )
+    {
+        return model->beanToBeEdited(sourceIdx);
     }
     return BaseBeanSharedPointer();
 }
@@ -850,17 +872,16 @@ BaseBeanSharedPointerList FilterBaseBeanModel::beans(const QModelIndexList &list
     BaseBeanSharedPointerList beansList;
     BaseBeanModel *model = qobject_cast<BaseBeanModel *>(sourceModel());
     QModelIndexList sourceIdxs;
-    if ( model != NULL )
+    if ( model == NULL )
     {
-        foreach (const QModelIndex &sourceIdx, list)
-        {
-            sourceIdxs << mapToSource(sourceIdx);
-        }
-        beansList = model->beans(sourceIdxs);
-
+        return beansList;
     }
+    for (const QModelIndex &sourceIdx : list)
+    {
+        sourceIdxs << mapToSource(sourceIdx);
+    }
+    beansList = model->beans(sourceIdxs);
     return beansList;
-
 }
 
 QModelIndexList FilterBaseBeanModel::checkedItems()
@@ -881,15 +902,16 @@ QModelIndexList FilterBaseBeanModel::checkedItems()
 void FilterBaseBeanModel::setCheckedItems(QModelIndexList list, bool checked)
 {
     BaseBeanModel *model = qobject_cast<BaseBeanModel *>(sourceModel());
-    if ( model != NULL )
+    if ( model == NULL )
     {
-        QModelIndexList sourceList;
-        foreach (const QModelIndex &idx, list)
-        {
-            sourceList.append(mapToSource(idx));
-        }
-        model->setCheckedItems(list, checked);
+        return;
     }
+    QModelIndexList sourceList;
+    for (const QModelIndex &idx : list)
+    {
+        sourceList.append(mapToSource(idx));
+    }
+    model->setCheckedItems(list, checked);
 }
 
 bool FilterBaseBeanModel::isFrozenModel() const
@@ -963,26 +985,28 @@ QStringList FilterBaseBeanModel::visibleFieldsName() const
 {
     QStringList list;
     BaseBeanModel *model = qobject_cast<BaseBeanModel *>(sourceModel());
-    if ( model != NULL )
+    if ( model == NULL )
     {
-        BaseBeanMetadata *metadata = model->metadata();
-        if ( metadata != NULL )
+        return list;
+    }
+    BaseBeanMetadata *metadata = model->metadata();
+    if ( metadata == NULL )
+    {
+        return list;
+    }
+    if ( model->visibleFieldsFromMetadata() )
+    {
+        for ( DBFieldMetadata *fld : metadata->fields() )
         {
-            if ( model->visibleFieldsFromMetadata() )
+            if ( fld->visibleGrid() || fld->behaviourOnInlineEdit().size() > 0 )
             {
-                foreach ( DBFieldMetadata *fld, metadata->fields() )
-                {
-                    if ( fld->visibleGrid() || fld->behaviourOnInlineEdit().size() > 0 )
-                    {
-                        list << fld->dbFieldName();
-                    }
-                }
-            }
-            else
-            {
-                list = model->visibleFields();
+                list << fld->dbFieldName();
             }
         }
+    }
+    else
+    {
+        list = model->visibleFields();
     }
     return list;
 }
@@ -1071,10 +1095,10 @@ void FilterBaseBeanModel::setLinkColumns(const QStringList &columns)
     }
 }
 
-BaseBeanSharedPointer FilterBaseBeanModel::bean(int row)
+BaseBeanSharedPointer FilterBaseBeanModel::bean(int row, bool foceReloadIfNeeded)
 {
     QModelIndex idx = index(row, 0);
-    return bean(idx);
+    return bean(idx, foceReloadIfNeeded);
 }
 
 /*!
@@ -1150,7 +1174,7 @@ void FilterBaseBeanModel::sort (int column, Qt::SortOrder order)
             {
                 if ( model->rowCount() > alephERPSettings->strongFilterRowCountLimit() )
                 {
-                    int ret = QMessageBox::question(0, qApp->applicationName(), trUtf8("ATENCIÓN: La ordenación por este campo no está optimizada y puede emplear cierto tiempo (dependiendo de su conexión a la base de datos). ¿Está seguro de querer ordenar por este campo?"),
+                    int ret = QMessageBox::question(0, qApp->applicationName(), tr("ATENCIÓN: La ordenación por este campo no está optimizada y puede emplear cierto tiempo (dependiendo de su conexión a la base de datos). ¿Está seguro de querer ordenar por este campo?"),
                                                     QMessageBox::Yes | QMessageBox::No);
                     if ( ret == QMessageBox::No )
                     {
@@ -1173,8 +1197,8 @@ void FilterBaseBeanModel::sort (int column, Qt::SortOrder order)
                 }
                 else
                 {
-                    orderClausule = QString("%1 %2").arg(visibleFlds.at(column)->dbFieldName()).
-                                    arg(order == Qt::AscendingOrder ? "ASC" : "DESC");
+                    orderClausule = QString("%1 %2").
+                            arg(visibleFlds.at(column)->dbFieldName(), order == Qt::AscendingOrder ? "ASC" : "DESC");
                     if ( orderClausule != model->internalOrderClausule() )
                     {
                         model->setInternalOrderClausule(orderClausule, true);
@@ -1197,9 +1221,8 @@ QVariant FilterBaseBeanModel::data(const QModelIndex &proxyIndex, int role) cons
 {
     if ( role == Qt::StatusTipRole )
     {
-        return trUtf8("Mostrando %1 registros de %2 registros disponibles.").
-               arg(alephERPSettings->locale()->toString(rowCount())).
-               arg(alephERPSettings->locale()->toString(sourceModel()->rowCount()));
+        return tr("Mostrando %1 registros de %2 registros disponibles.").
+               arg(alephERPSettings->locale()->toString(rowCount()), alephERPSettings->locale()->toString(sourceModel()->rowCount()));
     }
     // Debemos evitar que al solicitar un dato, se produzca un evento "dataChanged" ya que ese evento
     // hará que este filtro se invalide, y que el subsiguiente data que viene abajo haga que la aplicación

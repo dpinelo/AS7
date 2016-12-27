@@ -105,8 +105,8 @@ public:
     bool forceToLoadBeans() const;
     void setForceToLoadBeans(bool value);
 
-    BaseBeanSharedPointer bean (int row);
-    BaseBeanSharedPointer bean (const QModelIndex &index);
+    BaseBeanSharedPointer bean (int row, bool foceReloadIfNeeded = true);
+    BaseBeanSharedPointer bean (const QModelIndex &index, bool foceReloadIfNeeded = true);
     BaseBeanSharedPointer beanToBeEdited (const QModelIndex &index);
     QModelIndex indexByPk(const QVariant &pk);
     BaseBeanSharedPointerList beans(const QModelIndexList &list);
@@ -137,6 +137,7 @@ signals:
     void rowProcessed(int row);
     void initRefresh();
     void endRefresh();
+    void itemChecked(QModelIndex, bool);
 
 public slots:
     void removeFilterKeyColumn (const QString &dbFieldName, int level = -1, bool hasToInvalidateFilter = true);
@@ -147,6 +148,7 @@ public slots:
     void setFilter (const QString &field);
     void clearAcceptedRows();
     bool exportToSpreadSheet(const QString &file, const QString &type);
+    void cancelExportToSpreadSheet();
     virtual bool commit();
     virtual void rollback();
     virtual void refresh(bool force = false);

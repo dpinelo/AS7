@@ -243,22 +243,23 @@ QVariant RelatedTreeItem::data(int column, int role) const
         {
             if ( d->m_type == RelatedTreeItem::RecordRoot )
             {
-                return QObject::trUtf8("Registros relacionados (%1)").arg(alephERPSettings->locale()->toString(childCount()));
+                return QObject::tr("Registros relacionados (%1)").arg(alephERPSettings->locale()->toString(childCount()));
             }
             else if ( d->m_type == RelatedTreeItem::EmailRoot )
             {
-                return QObject::trUtf8("Correos electrónicos enviados (%1)").arg(alephERPSettings->locale()->toString(childCount()));
+                return QObject::tr("Correos electrónicos enviados (%1)").arg(alephERPSettings->locale()->toString(childCount()));
             }
             else if ( d->m_type == RelatedTreeItem::DocumentRoot )
             {
-                return QObject::trUtf8("Documentos relacionados (%1)").arg(alephERPSettings->locale()->toString(childCount()));
+                return QObject::tr("Documentos relacionados (%1)").arg(alephERPSettings->locale()->toString(childCount()));
             }
             else if ( d->m_type == RelatedTreeItem::DBRelationRoot && !d->m_dbRelation.isNull() )
             {
                 BaseBeanMetadata *relBean = BeansFactory::metadataBean(d->m_dbRelation->metadata()->tableName());
                 if ( relBean != NULL )
                 {
-                    return QObject::trUtf8("Registros descendientes o ancestros: %1 (%2)").arg(relBean->alias()).arg(alephERPSettings->locale()->toString(childCount()));
+                    return QObject::tr("Registros descendientes o ancestros: %1 (%2)").
+                            arg(relBean->alias(), alephERPSettings->locale()->toString(childCount()));
                 }
                 else
                 {
@@ -274,7 +275,7 @@ QVariant RelatedTreeItem::data(int column, int role) const
                     AERPDocMngmntDocument *doc = d->m_element->document();
                     if ( doc == NULL )
                     {
-                        return QObject::trUtf8("Error obteniendo el documento");
+                        return QObject::tr("Error obteniendo el documento");
                     }
 #endif
                 }
@@ -289,7 +290,8 @@ QVariant RelatedTreeItem::data(int column, int role) const
                 }
                 ::EmailAttachment attachment = d->m_element->email().attachments().at(d->m_attachmentRow);
                 double sizeOnMb = attachment.sizeOnBytes() / (1024*1024);
-                QString name = QString("%1 (%2)").arg(attachment.emailFileName()).arg(CommonsFunctions::sizeHuman(sizeOnMb));
+                QString name = QString("%1 (%2)").
+                        arg(attachment.emailFileName(), CommonsFunctions::sizeHuman(sizeOnMb));
                 return name;
 #else
                 return QString();
@@ -387,11 +389,11 @@ QVariant RelatedTreeItem::data(int column, int role) const
                 AERPDocMngmntDocument *doc = d->m_element->document();
                 if ( doc == NULL )
                 {
-                    return QObject::trUtf8("Error obteniendo el documento.");
+                    return QObject::tr("Error obteniendo el documento.");
                 }
                 if ( !d->m_element->found() )
                 {
-                    return QObject::trUtf8("Elemento borrado.");
+                    return QObject::tr("Elemento borrado.");
                 }
 #endif
             }
@@ -399,14 +401,14 @@ QVariant RelatedTreeItem::data(int column, int role) const
             {
                 if ( d->m_element->relatedBean().isNull() || !d->m_element->found() )
                 {
-                    return QObject::trUtf8("Elemento borrado.");
+                    return QObject::tr("Elemento borrado.");
                 }
             }
             else if ( d->m_type == RelatedTreeItem::Email )
             {
                 if ( !d->m_element.isNull() && !d->m_element->found() )
                 {
-                    return QObject::trUtf8("Elemento borrado.");
+                    return QObject::tr("Elemento borrado.");
                 }
             }
             return d->m_element->tooltipText();

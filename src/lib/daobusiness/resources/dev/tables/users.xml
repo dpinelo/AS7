@@ -28,8 +28,8 @@
         </relation>
     </field>
     <field>
-        <name>password</name>
-        <alias>Password</alias>
+        <name>hash</name>
+        <alias>Hash</alias>
         <null>true</null>
         <pk>false</pk>
         <type>password</type>

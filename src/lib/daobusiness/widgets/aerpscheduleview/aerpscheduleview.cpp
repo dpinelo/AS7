@@ -120,17 +120,18 @@ void AERPScheduleView::setModel(QAbstractItemModel *model)
         qxt_d().m_Items.clear();
 
         /*disconnect all signals*/
-        disconnect(qxt_d().m_Model, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(dataChanged(const QModelIndex &, const QModelIndex &)));
-        disconnect(qxt_d().m_Model, SIGNAL(rowsAboutToBeInserted(const QModelIndex &, int, int)), this, SLOT(rowsAboutToBeInserted(const QModelIndex &, int , int)));
-        disconnect(qxt_d().m_Model, SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SLOT(rowsInserted(const QModelIndex &, int , int)));
-        disconnect(qxt_d().m_Model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex &, int, int)), this, SLOT(rowsAboutToBeRemoved(const QModelIndex &, int , int)));
-        disconnect(qxt_d().m_Model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)), this, SLOT(rowsRemoved(const QModelIndex &, int , int)));
+        disconnect(qxt_d().m_Model, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), this, SLOT(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+        disconnect(qxt_d().m_Model, SIGNAL(rowsAboutToBeInserted(QModelIndex, int, int)), this, SLOT(rowsAboutToBeInserted(QModelIndex, int, int)));
+        disconnect(qxt_d().m_Model, SIGNAL(rowsInserted(QModelIndex, int, int)), this, SLOT(rowsInserted(QModelIndex, int, int)));
+        disconnect(qxt_d().m_Model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)), this, SLOT(rowsAboutToBeRemoved(QModelIndex, int, int)));
+        disconnect(qxt_d().m_Model, SIGNAL(rowsRemoved(QModelIndex, int, int)), this, SLOT(rowsRemoved(QModelIndex, int, int)));
 
         /*don't delete the model maybe someone else will use it*/
         qxt_d().m_Model = 0;
         QItemSelectionModel *sm = QAbstractItemView::selectionModel();
         QAbstractItemView::setModel(0);
-        if ( sm != NULL ) {
+        if ( sm != NULL )
+        {
             delete sm;
         }
     }
@@ -140,16 +141,22 @@ void AERPScheduleView::setModel(QAbstractItemModel *model)
         /*initialize the new model*/
         qxt_d().m_Model = model;
         QAbstractItemView::setModel(model);
-        connect(model, SIGNAL(dataChanged(const QModelIndex &, const  QModelIndex &)), this, SLOT(dataChanged(const QModelIndex &, const QModelIndex &)));
-        connect(model, SIGNAL(rowsAboutToBeInserted(const QModelIndex &, int, int)), this, SLOT(rowsAboutToBeInserted(const QModelIndex &, int , int)));
-        connect(model, SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SLOT(rowsInserted(const QModelIndex &, int , int)));
-        connect(model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex &, int, int)), this, SLOT(rowsAboutToBeRemoved(const QModelIndex &, int , int)));
-        connect(model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)), this, SLOT(rowsRemoved(const QModelIndex &, int , int)));
+        connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), this, SLOT(dataChanged(QModelIndex,QModelIndex,QVector<int>)));
+        FilterBaseBeanModel *filterModel = qobject_cast<FilterBaseBeanModel *>(model);
+        if ( filterModel != NULL )
+        {
+            connect(filterModel, SIGNAL(endRefresh()), this, SLOT(repaintItems()));
+            connect(filterModel, SIGNAL(endLoadingData()), this, SLOT(repaintItems()));
+        }
+        connect(model, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)), this, SLOT(rowsAboutToBeInserted(QModelIndex,int,int)));
+        connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(rowsInserted(QModelIndex,int,int)));
+        connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
+        connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(rowsRemoved(QModelIndex,int,int)));
     }
     qxt_d().init();
 }
 
-QAbstractItemModel * AERPScheduleView::model() const
+QAbstractItemModel *AERPScheduleView::model() const
 {
     return qxt_d().m_Model;
 }
@@ -173,9 +180,10 @@ void AERPScheduleView::setViewMode(const AERPScheduleView::ViewMode mode)
     {
         // Los valores estándar serán de 1 hora por celda
         qxt_d().m_currentZoomDepth = 60 * 60;
-        QDateTime startTime = QDateTime::fromTime_t(qxt_d().m_startUnixTime);
-        setDateRange(startTime.date());
     }
+    QDateTime startTime = QDateTime::fromTime_t(qxt_d().m_startUnixTime);
+    setDateRange(startTime.date());
+
     //this will calculate the correct alignment
     //\BUG this may not work because the currentZoomDepth may not fit into the new viewMode
     setCurrentZoomDepth(qxt_d().m_currentZoomDepth);
@@ -397,140 +405,141 @@ void AERPScheduleView::zoomOut()
 
 void AERPScheduleView::paintEvent(QPaintEvent * /*event*/)
 {
-    if (model())
+    if (model() == Q_NULLPTR)
     {
-        /*paint the grid*/
-
-        int iNumRows = qxt_d().m_vHeader->count();
-
-        int xRowEnd = qxt_d().m_hHeader->sectionViewportPosition(qxt_d().m_hHeader->count() - 1) + qxt_d().m_hHeader->sectionSize(qxt_d().m_hHeader->count() - 1);
-        QPainter painter(viewport());
-
-
-        painter.save();
-        painter.setPen(QColor(220, 220, 220));
-
-        for (int iLoop = 0; iLoop < iNumRows; iLoop++)
-        {
-            if ( qxt_d().m_currentViewMode == AERPScheduleView::DayView || qxt_d().m_currentViewMode == AERPScheduleView::WeekView )
-            {
-                QDateTime rowTime = qxt_d().m_vHeader->model()->headerData(iLoop, Qt::Vertical, AlephERP::DateTimeRole).toDateTime();
-                if ( rowTime.isValid() && rowTime.time().minute() == 0 )
-                {
-                    painter.drawLine(0 , qxt_d().m_vHeader->sectionViewportPosition(iLoop), xRowEnd, qxt_d().m_vHeader->sectionViewportPosition(iLoop));
-                }
-            }
-            else if ( qxt_d().m_currentViewMode == AERPScheduleView::MonthView )
-            {
-                int previousWeek = 0;
-                if ( iLoop > 0 )
-                {
-                    previousWeek = qxt_d().weekNumberForRow(iLoop - 1);
-                }
-                int weekNumber = qxt_d().weekNumberForRow(iLoop);
-                if ( weekNumber != previousWeek )
-                {
-                    painter.drawLine(0 , qxt_d().m_vHeader->sectionViewportPosition(iLoop), xRowEnd, qxt_d().m_vHeader->sectionViewportPosition(iLoop));
-                }
-            }
-        }
-
-        int iNumCols = qxt_d().m_hHeader->count();
-        int iYColEnd = qxt_d().m_vHeader->sectionViewportPosition(qxt_d().m_vHeader->count() - 1) + qxt_d().m_vHeader->sectionSize(qxt_d().m_vHeader->count() - 1);
-
-        for (int iLoop = 0; iLoop < iNumCols ; iLoop++)
-        {
-            painter.drawLine(qxt_d().m_hHeader->sectionViewportPosition(iLoop), 0, qxt_d().m_hHeader->sectionViewportPosition(iLoop), iYColEnd);
-        }
-
-        // Ahora, para el modo de mes, vamos a poner el día del mes...
-        if ( qxt_d().m_currentViewMode == AERPScheduleView::MonthView )
-        {
-            for (int iRow = 0 ; iRow < iNumRows ; iRow++)
-            {
-                int previousWeek = 0;
-                if ( iRow > 0 )
-                {
-                    previousWeek = qxt_d().weekNumberForRow(iRow - 1);
-                }
-                int weekNumber = qxt_d().weekNumberForRow(iRow);
-                if ( weekNumber != previousWeek )
-                {
-                    for (int iCol = 0 ; iCol < iNumCols; iCol++)
-                    {
-                        int cellOffset = qxt_d().visualIndexToOffset(iRow, iCol);
-                        int cellTime = qxt_d().offsetToUnixTime(cellOffset);
-                        QDateTime dateTime = QDateTime::fromTime_t(cellTime);
-                        QString text;
-                        QFontMetrics fontMetrics(painter.font());
-                        if ( dateTime.date().day() == 1 )
-                        {
-                            text = alephERPSettings->locale()->toString(dateTime, "d MMM");
-                        }
-                        else
-                        {
-                            text = QString("%1").arg(dateTime.date().day());
-                        }
-                        QSize textSize = fontMetrics.size(Qt::TextSingleLine, text);
-                        int weekSize = 0 ;
-                        // Hay que hacerlo así ya que las secciones no tienen un tamaño fijo y no vale qxt_d().m_vHeader->sectionSize(iRow) * rowsInDayOfWeek()
-                        // para un ajuste mejor
-                        for (int sectionPos = iRow; sectionPos < (iRow + rowsInDayOfWeek()); sectionPos++) {
-                            weekSize += qxt_d().m_vHeader->sectionSize(sectionPos);
-                        }
-                        QRect rect(QPoint(qxt_d().m_hHeader->sectionViewportPosition(iCol), qxt_d().m_vHeader->sectionViewportPosition(iRow)),
-                                   QSize(qxt_d().m_hHeader->sectionSize(iCol), weekSize));
-                        QRect rectText = QRect(rect.x(), rect.y() + 5, rect.width() - 5, textSize.height());
-                        if ( dateTime.date() == QDate::currentDate() )
-                        {
-                            QBrush brush(QColor(qxt_d().m_htmlTodayCellColor));
-                            painter.setBrush(brush);
-                            painter.drawRect(rect);
-                            painter.setPen(Qt::black);
-                        }
-                        else
-                        {
-                            painter.setPen(Qt::gray);
-                        }
-                        painter.drawText(rectText, Qt::AlignTop | Qt::AlignRight, text);
-                    }
-                }
-            }
-        }
-
-        painter.restore();
-
-        QListIterator<AERPScheduleInternalItem *> itemIterator(qxt_d().m_Items);
-        while (itemIterator.hasNext())
-        {
-            AERPScheduleInternalItem * currItem = itemIterator.next();
-            AERPStyleOptionScheduleViewItem style;
-
-            if ( selectionModel() && selectionModel()->currentIndex() == currItem->modelIndex() )
-            {
-                style.selectedItem = currItem;
-            }
-            //\BUG use the correct section here or find a way to forbit section resizing
-            style.roundCornersRadius = 4; //qxt_d().m_vHeader->sectionSize(1) / 2;
-            style.itemHeaderHeight   = qxt_d().m_vHeader->sectionSize(1);
-            style.maxSubItemHeight   = qxt_d().m_vHeader->sectionSize(1);
-
-            if (currItem->isDirty)
-            {
-                currItem->m_cachedParts.clear();
-            }
-
-            style.itemGeometries = currItem->m_geometries;
-            style.itemPaintCache = &currItem->m_cachedParts;
-            style.translate = QPoint(-qxt_d().m_hHeader->offset(), -qxt_d().m_vHeader->offset());
-            painter.save();
-            qxt_d().delegate->paint(&painter, style, currItem->modelIndex());
-            painter.restore();
-            currItem->setDirty(false);
-        }
-
-        painter.end();
+        return;
     }
+    /*paint the grid*/
+
+    int iNumRows = qxt_d().m_vHeader->count();
+
+    int xRowEnd = qxt_d().m_hHeader->sectionViewportPosition(qxt_d().m_hHeader->count() - 1) + qxt_d().m_hHeader->sectionSize(qxt_d().m_hHeader->count() - 1);
+    QPainter painter(viewport());
+
+
+    painter.save();
+    painter.setPen(QColor(220, 220, 220));
+
+    for (int iLoop = 0; iLoop < iNumRows; iLoop++)
+    {
+        if ( qxt_d().m_currentViewMode == AERPScheduleView::DayView || qxt_d().m_currentViewMode == AERPScheduleView::WeekView )
+        {
+            QDateTime rowTime = qxt_d().m_vHeader->model()->headerData(iLoop, Qt::Vertical, AlephERP::DateTimeRole).toDateTime();
+            if ( rowTime.isValid() && rowTime.time().minute() == 0 )
+            {
+                painter.drawLine(0 , qxt_d().m_vHeader->sectionViewportPosition(iLoop), xRowEnd, qxt_d().m_vHeader->sectionViewportPosition(iLoop));
+            }
+        }
+        else if ( qxt_d().m_currentViewMode == AERPScheduleView::MonthView )
+        {
+            int previousWeek = 0;
+            if ( iLoop > 0 )
+            {
+                previousWeek = qxt_d().weekNumberForRow(iLoop - 1);
+            }
+            int weekNumber = qxt_d().weekNumberForRow(iLoop);
+            if ( weekNumber != previousWeek )
+            {
+                painter.drawLine(0 , qxt_d().m_vHeader->sectionViewportPosition(iLoop), xRowEnd, qxt_d().m_vHeader->sectionViewportPosition(iLoop));
+            }
+        }
+    }
+
+    int iNumCols = qxt_d().m_hHeader->count();
+    int iYColEnd = qxt_d().m_vHeader->sectionViewportPosition(qxt_d().m_vHeader->count() - 1) + qxt_d().m_vHeader->sectionSize(qxt_d().m_vHeader->count() - 1);
+
+    for (int iLoop = 0; iLoop < iNumCols ; iLoop++)
+    {
+        painter.drawLine(qxt_d().m_hHeader->sectionViewportPosition(iLoop), 0, qxt_d().m_hHeader->sectionViewportPosition(iLoop), iYColEnd);
+    }
+
+    // Ahora, para el modo de mes, vamos a poner el día del mes...
+    if ( qxt_d().m_currentViewMode == AERPScheduleView::MonthView )
+    {
+        for (int iRow = 0 ; iRow < iNumRows ; iRow++)
+        {
+            int previousWeek = 0;
+            if ( iRow > 0 )
+            {
+                previousWeek = qxt_d().weekNumberForRow(iRow - 1);
+            }
+            int weekNumber = qxt_d().weekNumberForRow(iRow);
+            if ( weekNumber != previousWeek )
+            {
+                for (int iCol = 0 ; iCol < iNumCols; iCol++)
+                {
+                    int cellOffset = qxt_d().visualIndexToOffset(iRow, iCol);
+                    int cellTime = qxt_d().offsetToUnixTime(cellOffset);
+                    QDateTime dateTime = QDateTime::fromTime_t(cellTime);
+                    QString text;
+                    QFontMetrics fontMetrics(painter.font());
+                    if ( dateTime.date().day() == 1 )
+                    {
+                        text = alephERPSettings->locale()->toString(dateTime, "d MMM");
+                    }
+                    else
+                    {
+                        text = QString("%1").arg(dateTime.date().day());
+                    }
+                    QSize textSize = fontMetrics.size(Qt::TextSingleLine, text);
+                    int weekSize = 0 ;
+                    // Hay que hacerlo así ya que las secciones no tienen un tamaño fijo y no vale qxt_d().m_vHeader->sectionSize(iRow) * rowsInDayOfWeek()
+                    // para un ajuste mejor
+                    for (int sectionPos = iRow; sectionPos < (iRow + rowsInDayOfWeek()); sectionPos++) {
+                        weekSize += qxt_d().m_vHeader->sectionSize(sectionPos);
+                    }
+                    QRect rect(QPoint(qxt_d().m_hHeader->sectionViewportPosition(iCol), qxt_d().m_vHeader->sectionViewportPosition(iRow)),
+                               QSize(qxt_d().m_hHeader->sectionSize(iCol), weekSize));
+                    QRect rectText = QRect(rect.x(), rect.y() + 5, rect.width() - 5, textSize.height());
+                    if ( dateTime.date() == QDate::currentDate() )
+                    {
+                        QBrush brush(QColor(qxt_d().m_htmlTodayCellColor));
+                        painter.setBrush(brush);
+                        painter.drawRect(rect);
+                        painter.setPen(Qt::black);
+                    }
+                    else
+                    {
+                        painter.setPen(Qt::gray);
+                    }
+                    painter.drawText(rectText, Qt::AlignTop | Qt::AlignRight, text);
+                }
+            }
+        }
+    }
+
+    painter.restore();
+
+    QListIterator<AERPScheduleInternalItem *> itemIterator(qxt_d().m_Items);
+    while (itemIterator.hasNext())
+    {
+        AERPScheduleInternalItem * currItem = itemIterator.next();
+        AERPStyleOptionScheduleViewItem style;
+
+        if ( selectionModel() && selectionModel()->currentIndex() == currItem->modelIndex() )
+        {
+            style.selectedItem = currItem;
+        }
+        //\BUG use the correct section here or find a way to forbit section resizing
+        style.roundCornersRadius = 4; //qxt_d().m_vHeader->sectionSize(1) / 2;
+        style.itemHeaderHeight   = qxt_d().m_vHeader->sectionSize(1);
+        style.maxSubItemHeight   = qxt_d().m_vHeader->sectionSize(1);
+
+        if (currItem->isDirty)
+        {
+            currItem->m_cachedParts.clear();
+        }
+
+        style.itemGeometries = currItem->m_geometries;
+        style.itemPaintCache = &currItem->m_cachedParts;
+        style.translate = QPoint(-qxt_d().m_hHeader->offset(), -qxt_d().m_vHeader->offset());
+        painter.save();
+        qxt_d().delegate->paint(&painter, style, currItem->modelIndex());
+        painter.restore();
+        currItem->setDirty(false);
+    }
+
+    painter.end();
 }
 
 void AERPScheduleView::updateGeometries()
@@ -580,6 +589,15 @@ void AERPScheduleView::updateGeometries()
     viewport()->update();
     qxt_d().m_vHeader->viewport()->update();
     qxt_d().m_hHeader->viewport()->update();
+}
+
+void AERPScheduleView::repaintItems()
+{
+    if (model())
+    {
+        updateGeometries();
+        qxt_d().reloadItemsFromModel();
+    }
 }
 
 void AERPScheduleView::scrollContentsBy(int dx, int dy)
@@ -673,7 +691,7 @@ void AERPScheduleView::mouseMoveEvent(QMouseEvent * e)
     }
 }
 
-void AERPScheduleView::mouseDoubleClickEvent (QMouseEvent * e)
+void AERPScheduleView::mouseDoubleClickEvent(QMouseEvent * e)
 {
     AERPScheduleInternalItem *item = qxt_d().internalItemAt(mapFromViewport(e->pos()));
     if ( item != NULL && selectionModel() )
@@ -815,7 +833,7 @@ void AERPScheduleView::mouseReleaseEvent(QMouseEvent * /*e*/)
         {
             QMessageBox::information(this,
                                      qApp->applicationName(),
-                                     trUtf8("No se han podido guardar los cambios.  \nEl error es: %1").
+                                     tr("No se han podido guardar los cambios.  \nEl error es: %1").
                                         arg(CommonsFunctions::processToHtml(AERPTransactionContext::instance()->lastErrorMessage())));
         }
         qxt_d().m_selectedItem = NULL;
@@ -925,34 +943,36 @@ void AERPScheduleView::setDefaultRowSize(int height)
 
 void AERPScheduleView::resizeRowsToFitView(bool updateGeo)
 {
-    if ( model() )
+    if ( model() == Q_NULLPTR )
     {
-        int height = viewport()->height();
-        int rowCount = rows();
-        int rowHeightSize = height / rowCount;
-        // Con un gran número de líneas, es necesario hacer un ajuste...
-        double sizeNotDistributed = height % rowCount;
-        qxt_d().setDefaultRowSize(rowHeightSize);
-        if ( qxt_d().m_vHeader )
+        return;
+    }
+    int height = viewport()->height();
+    int rowCount = rows();
+    int rowHeightSize = height / rowCount;
+    // Con un gran número de líneas, es necesario hacer un ajuste...
+    double sizeNotDistributed = height % rowCount;
+    qxt_d().setDefaultRowSize(rowHeightSize);
+    if ( !qxt_d().m_vHeader )
+    {
+        return;
+    }
+    for (int i = 0 ; i < qxt_d().m_vHeader->count(); i++)
+    {
+        if ( sizeNotDistributed > 0 )
         {
-            for (int i = 0 ; i < qxt_d().m_vHeader->count(); i++)
-            {
-                if ( sizeNotDistributed > 0 )
-                {
-                    qxt_d().m_vHeader->resizeSection(i, rowHeightSize + 1);
-                    sizeNotDistributed--;
-                }
-                else
-                {
-                    qxt_d().m_vHeader->resizeSection(i, rowHeightSize);
-                }
-            }
-            if ( updateGeo )
-            {
-                updateGeometries();
-                qxt_d().reloadItemsFromModel();
-            }
+            qxt_d().m_vHeader->resizeSection(i, rowHeightSize + 1);
+            sizeNotDistributed--;
         }
+        else
+        {
+            qxt_d().m_vHeader->resizeSection(i, rowHeightSize);
+        }
+    }
+    if ( updateGeo )
+    {
+        updateGeometries();
+        qxt_d().reloadItemsFromModel();
     }
 }
 
@@ -1046,8 +1066,9 @@ void AERPScheduleView::raiseItem(const QModelIndex &index)
     }
 }
 
-void AERPScheduleView::dataChanged(const QModelIndex & topLeft, const  QModelIndex & bottomRight)
+void AERPScheduleView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
 {
+    Q_UNUSED(roles)
     for (int iLoop = topLeft.row(); iLoop <= bottomRight.row(); iLoop++)
     {
         QModelIndex index = model()->index(iLoop, 0);
@@ -1097,6 +1118,9 @@ void AERPScheduleView::resizeEvent(QResizeEvent * /* e*/)
 
 void AERPScheduleView::rowsRemoved(const QModelIndex & parent, int start, int end)
 {
+    Q_UNUSED(parent)
+    Q_UNUSED(start)
+    Q_UNUSED(end)
     qxt_d().reloadItemsFromModel();
 }
 
@@ -1130,18 +1154,19 @@ void AERPScheduleView::rowsAboutToBeRemoved(const QModelIndex & parent, int star
 void AERPScheduleView::rowsAboutToBeInserted(const QModelIndex & parent, int start, int end)
 {
     /*for now we care only about toplevel items*/
-    if (!parent.isValid())
+    if (parent.isValid())
     {
-        int iDifference = end - start;
-        for (int iLoop = 0; iLoop < qxt_d().m_Items.count(); iLoop++)
-        {
-            AERPScheduleInternalItem * item = qxt_d().m_Items[iLoop];
-            if (item)
-                if (item->m_iModelRow >= start && item->m_iModelRow < model()->rowCount())
-                {
-                    item->m_iModelRow += iDifference + 1;
-                }
-        }
+        return;
+    }
+    int iDifference = end - start;
+    for (int iLoop = 0; iLoop < qxt_d().m_Items.count(); iLoop++)
+    {
+        AERPScheduleInternalItem * item = qxt_d().m_Items[iLoop];
+        if (item)
+            if (item->m_iModelRow >= start && item->m_iModelRow < model()->rowCount())
+            {
+                item->m_iModelRow += iDifference + 1;
+            }
     }
 }
 
@@ -1161,7 +1186,7 @@ QModelIndex AERPScheduleView::currentIndex()
 /*!
  *  sets the timerange
  */
-void AERPScheduleView::setDateRange(const QDate & initDate)
+void AERPScheduleView::setDateRange(const QDate &initDate)
 {
     QDateTime startTime(initDate);
     QDateTime endTime;

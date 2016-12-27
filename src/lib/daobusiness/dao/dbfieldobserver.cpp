@@ -61,7 +61,7 @@ DBFieldObserver::~DBFieldObserver()
     }
 }
 
-bool DBFieldObserver::readOnly()
+bool DBFieldObserver::readOnly() const
 {
     DBField *fld = qobject_cast<DBField *>(entity());
     if ( fld == NULL )

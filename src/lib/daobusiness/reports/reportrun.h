@@ -22,6 +22,7 @@
 
 #include <QtCore>
 #include <QtScript>
+#include <QtSql>
 #include <aerpcommon.h>
 #include "dao/beans/basebean.h"
 
@@ -82,6 +83,10 @@ public:
 
 signals:
     void canExecuteReport(bool value);
+    void initExportToSpreadSheet(int recordCount);
+    void labelExportToSpreadSheet(QString label);
+    void progressExportToSpreadSheet(int value);
+    void finishExportToSpreadSheet();
 
 public slots:
     bool print(int numCopies = 1);
@@ -91,6 +96,8 @@ public slots:
     bool editReport();
     void setParameterValue(const QString &parameterName, const QVariant &value);
     bool exportToSpreadSheet(const QString &type, const QString &file);
+    QSqlQuery query();
+    void cancelExportToSpreadSheet();
 };
 
 Q_DECLARE_METATYPE(ReportRun*)

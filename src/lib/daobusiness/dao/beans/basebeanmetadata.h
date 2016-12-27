@@ -21,11 +21,7 @@
 #define BASEBEANMETADATA_H
 
 #include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include <QtCore>
 #include <QtScript>
 #include <alepherpglobal.h>
@@ -465,6 +461,8 @@ class ALEPHERP_DLL_EXPORT BaseBeanMetadata : public QObject, public QScriptable
      * los datos en segundo plano... Esto podría incrementar mucho la carga en base de datos. Es posible que el modelo
      * permanezca estático (no produzca la recarga). Se debe poner esta variable a true */
     Q_PROPERTY(bool staticModel READ staticModel WRITE setStaticModel)
+    /** Indica si algún campo es editable en los DBFormDlg */
+    Q_PROPERTY(bool editOnDbForm READ editOnDbForm)
 
 private:
     Q_DISABLE_COPY(BaseBeanMetadata)
@@ -488,7 +486,7 @@ public:
     void setTableName(const QString &value);
     bool canNavigate() const;
     void setCanNavigate(bool value);
-    QString sqlTableName(const QString &dialect = "");
+    QString sqlTableName(const QString &dialect = "") const;
     QString schema() const;
     void setSchema(const QString &value);
     void setAlias(const QString &alias);
@@ -510,8 +508,8 @@ public:
     bool logicalDelete() const;
     void setLogicalDelete(bool value);
     void setItemsFilterColumn(const QList<QHash<QString, QString> > &alias);
-    QList<QHash<QString, QString> > itemsFilterColumn() const;
-    QList<EnvVarDefinition> envVars() const;
+    const QList<QHash<QString, QString> > itemsFilterColumn() const;
+    const QList<EnvVarDefinition> envVars() const;
     QString initOrderSort() const;
     void setInitOrderSort(const QString &value);
     QString onCreateScript() const;
@@ -526,7 +524,7 @@ public:
     void setValidateScript(const QString &value);
     QString beforeSaveScript() const;
     void setBeforeSaveScript(const QString &value);
-    QString afterSaveScript();
+    QString afterSaveScript() const;
     void setAfterSaveScript(const QString &value);
     QString afterInsertScript() const;
     void setAfterInsertScript(const QString &value);
@@ -558,22 +556,22 @@ public:
     void setDeletedRelatedElementScript(const QString &value);
     bool canHaveRelatedDocuments() const;
     void setCanHaveRelatedDocuments(bool value);
-    QList<AlephERP::RelatedElementsContentToBeDeleted> relatedElementsContentToBeDelete() const;
+    const QList<AlephERP::RelatedElementsContentToBeDeleted> relatedElementsContentToBeDelete() const;
     void setRelatedElementsContentToBeDelete(const QList<AlephERP::RelatedElementsContentToBeDeleted> &value);
     QString repositoryPathScript() const;
     void setRepositoryPathScript(const QString &value);
     QString repositoryKeywordsScript() const;
     void setRepositoryKeywordsScript(const QString &value);
-    AssociatedFunctionsPointerList associatedScripts() const;
+    const AssociatedFunctionsPointerList associatedScripts() const;
     void setAssociatedScripts(const AssociatedFunctionsPointerList &value);
     QScriptProgram associatedScriptProgram(const QString &functionName);
-    InternalConnectionList internalConnections() const;
+    const InternalConnectionList internalConnections() const;
     void setInternalConnections(const InternalConnectionList &value);
     QString toStringScript () const;
     void setToStringScript(const QString &value);
     QString toStringType () const;
     void setToStringType(const QString &value);
-    HashStringList infoSubTotals() const;
+    const HashStringList infoSubTotals() const;
     void setInfoSubTotals(const HashStringList &v);
     bool filterRowByUser() const;
     void setFilterRowByUser(bool value);
@@ -587,6 +585,7 @@ public:
     void setModuleToolBarEntryPath(const QString &value);
     QString readOnlyScript() const;
     void setReadOnlyScript(const QString &value);
+    bool editOnDbForm() const;
 
     bool showSomeRelationOnRelatedElementsModel();
 
@@ -605,34 +604,34 @@ public:
     void setShowOnTree(bool value);
     bool showOnTreePreloadRecords() const;
     void setShowOnTreePreloadRecords(bool value);
-    QVariantList treeDefinitions ();
+    const QVariantList treeDefinitions() const;
     void setTreeDefinitions (const QVariantList &value);
 
-    QHash<QString, QString> uiDbRecordForRoles() const;
+    const QHash<QString, QString> uiDbRecordForRoles() const;
     QString uiDbRecord() const;
     void setUiDbRecord(const QHash<QString, QString> &value);
 
-    QHash<QString, QString> uiNewDbRecordForRoles() const;
+    const QHash<QString, QString> uiNewDbRecordForRoles() const;
     QString uiNewDbRecord() const;
     void setUiNewDbRecord(const QHash<QString, QString> &value);
 
-    QHash<QString, QString> uiWizardForRoles() const;
+    const QHash<QString, QString> uiWizardForRoles() const;
     QString uiWizard() const;
     void setUiWizard(const QHash<QString, QString> &value);
 
-    QHash<QString, QString> qmlDbRecordForRoles() const;
+    const QHash<QString, QString> qmlDbRecordForRoles() const;
     QString qmlDbRecord() const;
     void setQmlDbRecord(const QHash<QString, QString> &value);
 
-    QHash<QString, QString> qmlNewDbRecordForRoles() const;
+    const QHash<QString, QString> qmlNewDbRecordForRoles() const;
     QString qmlNewDbRecord() const;
     void setQmlNewDbRecord(const QHash<QString, QString> &value);
 
-    QHash<QString, QString> qsDbRecordForRoles() const;
+    const QHash<QString, QString> qsDbRecordForRoles() const;
     QString qsDbRecord() const;
     void setQsDbRecord(const QHash<QString, QString> &value);
 
-    QHash<QString, QString> qsNewDbRecordForRoles() const;
+    const QHash<QString, QString> qsNewDbRecordForRoles() const;
     QString qsNewDbRecord() const;
     void setQsNewDbRecord(const QHash<QString, QString> &value);
 
@@ -660,9 +659,9 @@ public:
     QString qsDbForm() const;
     void setQsDbForm(const QHash<QString, QString> &value);
 
-    QString accessibleRule();
+    QString accessibleRule() const;
     void setAccessibleRule(const QString &value);
-    QString additionalFilter();
+    QString additionalFilter() const;
     void setAdditionalFilter(const QString &value);
     AlephERP::DBObjectType dbObjectType() const;
     void setDbObjectType(AlephERP::DBObjectType arg);
@@ -683,46 +682,46 @@ public:
 
     Q_INVOKABLE QString metadataVar(const QString &varName) const;
 
-    QHash<QString, QString> sql() const;
+    const QHash<QString, QString> sql() const;
 
-    QList<DBFieldMetadata *> fields();
-    QStringList dbFieldNames() const;
+    const QList<DBFieldMetadata *> fields() const;
+    const QStringList dbFieldNames() const;
 
     int countSerialFields();
 
-    QList<DBRelationMetadata *> relations(AlephERP::RelationTypes type = AlephERP::All);
+    const QList<DBRelationMetadata *> relations(AlephERP::RelationTypes type = AlephERP::All) const;
 
-    QList<DBFieldMetadata *> pkFields ();
+    const QList<DBFieldMetadata *> pkFields() const;
     int fieldCount();
     Q_INVOKABLE DBFieldMetadata * field(const QString &dbFieldName);
-    Q_INVOKABLE DBFieldMetadata * field(int index);
+    Q_INVOKABLE DBFieldMetadata * field(int index) const;
     int fieldIndex(const QString &dbFieldName);
-    QString pkWhere(const QVariantMap &list);
-    QString pkOrder();
-    QString sqlSelectPk();
+    QString pkWhere(const QVariantMap &list) const;
+    QString pkOrder() const;
+    QString sqlSelectPk() const;
 
-    bool isScheduleValid();
+    bool isScheduleValid() const;
 
-    DBRelationMetadata * relation(const QString &table);
+    DBRelationMetadata * relation(const QString &table) const;
 
     QString sqlCreateTable(AlephERP::CreationTableSqlOptions options, const QString &dialect, const QString &alternativeName = "");
-    QStringList sqlForeignKeys(AlephERP::CreationTableSqlOptions options, const QString &dialec);
+    const QStringList sqlForeignKeys(AlephERP::CreationTableSqlOptions options, const QString &dialec) const;
     QString sqlCreateIndexes(AlephERP::CreationTableSqlOptions options, const QString &dialect);
     QString sqlAddColumn(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect);
-    QString sqlDropColumn(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect);
-    QString sqlMakeNotNull(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect);
+    QString sqlDropColumn(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect) const;
+    QString sqlMakeNotNull(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect) const;
     QString sqlAlterColumnSetLength(AlephERP::CreationTableSqlOptions options, const QString &dbFieldName, const QString &dialect);
-    QStringList sqlAditional(AlephERP::CreationTableSqlOptions options, const QString &dialect);
+    const QStringList sqlAditional(AlephERP::CreationTableSqlOptions options, const QString &dialect) const;
 
-    QString processToIncludePrefix(const QString &where, const QString &prefix);
+    QString processToIncludePrefix(const QString &where, const QString &prefix) const;
     QString processWhereSqlToIncludeEnvVars(const QString &initialWhere = "", const QString &prefix = "");
-    QStringList fieldsOnSqlClausule(const QString &clausule);
+    const QStringList fieldsOnSqlClausule(const QString &clausule) const;
     QString whereFromAdditionalFilter();
     QString emailTemplateScriptExecute(BaseBean *bean);
     QString emailSubjectScriptExecute(BaseBean *b);
     QString repositoryPathScriptExecute(BaseBean *b);
     QString toStringExecute(BaseBean *b);
-    QStringList repositoryKeywordsScriptExecute(BaseBean *b);
+    const QStringList repositoryKeywordsScriptExecute(BaseBean *b);
     void afterInsertScriptExecute(BaseBean *bean);
     void afterUpdateScriptExecute(BaseBean *bean);
     void afterDeleteScriptExecute(BaseBean *bean);
@@ -743,12 +742,12 @@ public:
     void deletedRelatedElementScriptExecute(BaseBean *bean, RelatedElement *element);
     bool readOnlyScriptExecute(BaseBean *bean);
 
-    QStringList associatedScriptFunctions();
+    const QStringList associatedScriptFunctions() const;
     QString associatedScript(const QString &functionName);
 
     void createInternalConnections(BaseBean *bean);
 
-    QList<DBFieldMetadata *> counterFields(const QString &field);
+    const QList<DBFieldMetadata *> counterFields(const QString &field) const;
 
     static QScriptValue toScriptValue(QScriptEngine *engine, BaseBeanMetadata * const &in);
     static void fromScriptValue(const QScriptValue &object, BaseBeanMetadata * &out);

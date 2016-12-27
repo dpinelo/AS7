@@ -457,12 +457,12 @@ void RelatedElement::setXml(const QString &xml)
         QDomNode n = root.firstChildElement("user");
         if ( !n.isNull() )
         {
-            d->m_user = QObject::trUtf8(n.toElement().text().toUtf8());
+            d->m_user = QObject::tr(n.toElement().text().toUtf8());
         }
         n = root.firstChildElement("timestamp");
         if ( !n.isNull() )
         {
-            d->m_timeStamp = QDateTime::fromString(QObject::trUtf8(n.toElement().text().toUtf8()));
+            d->m_timeStamp = QDateTime::fromString(QObject::tr(n.toElement().text().toUtf8()));
         }
         n = root.firstChildElement("additionalInfo");
         if ( !n.isNull() )
@@ -539,7 +539,8 @@ void RelatedElement::setXml(const QString &xml)
                         }
                         else
                         {
-                            QLogger::QLog_Error(AlephERP::stLogOther, QString("RelatedElement::setXml: ERROR: AERPDocumentDAOPluginIface Plugin nulo. [%1] o ID no valido: [%2]").arg(error).arg(nDoc.toElement().text()));
+                            QLogger::QLog_Error(AlephERP::stLogOther, QString("RelatedElement::setXml: ERROR: AERPDocumentDAOPluginIface Plugin nulo. [%1] o ID no valido: [%2]").
+                                                arg(error, nDoc.toElement().text()));
                         }
                     }
                 }
@@ -719,10 +720,10 @@ void RelatedElement::beanUnloaded()
 QString RelatedElementPrivate::emailDisplayText() const
 {
 #ifdef ALEPHERP_SMTP_SUPPORT
-    QString content = QObject::trUtf8("Para: %1 con fecha: %2 y Asunto: %3").
-                      arg(m_email.to().join(", ")).
-                      arg(alephERPSettings->locale()->toString(m_email.dateTime(), "dd/MM/yyyy HH:mm:ss")).
-                      arg(m_email.subject());
+    QString content = QObject::tr("Para: %1 con fecha: %2 y Asunto: %3").
+                      arg(m_email.to().join(", "),
+                          alephERPSettings->locale()->toString(m_email.dateTime(), "dd/MM/yyyy HH:mm:ss"),
+                          m_email.subject());
     return content;
 #else
     return QString();
@@ -769,11 +770,11 @@ QString RelatedElementPrivate::documentDisplayText() const
 QString RelatedElementPrivate::emailTooltipText() const
 {
 #ifdef ALEPHERP_SMTP_SUPPORT
-    QString content = QObject::trUtf8("<i>Correo electrónico</i><br/>");
-    content = QString("%1<b>Para</b>: %2<br/>").arg(content).arg(m_email.to().join(", "));
-    content = QString("%1<b>Copia</b>: %2<br/>").arg(content).arg(m_email.copy().join(", "));
-    content = QString("%1<b>Asunto</b>: %2<br/>").arg(content).arg(m_email.subject());
-    content = QString("%1<b>Fecha</b>: %2").arg(content).arg(alephERPSettings->locale()->toString(m_email.dateTime(), "dd/MM/yyyy HH:mm:ss"));
+    QString content = QObject::tr("<i>Correo electrónico</i><br/>");
+    content = QString("%1<b>Para</b>: %2<br/>").arg(content, m_email.to().join(", "));
+    content = QString("%1<b>Copia</b>: %2<br/>").arg(content, m_email.copy().join(", "));
+    content = QString("%1<b>Asunto</b>: %2<br/>").arg(content, m_email.subject());
+    content = QString("%1<b>Fecha</b>: %2").arg(content, alephERPSettings->locale()->toString(m_email.dateTime(), "dd/MM/yyyy HH:mm:ss"));
 #else
     QString content;
 #endif
@@ -787,20 +788,22 @@ QString RelatedElementPrivate::beanTooltipText() const
 
 QString RelatedElementPrivate::documentTooltipText() const
 {
-    QString content = QObject::trUtf8("<i>Documento</i><br/>");
+    QString content = QObject::tr("<i>Documento</i><br/>");
 #ifdef ALEPHERP_DOC_MANAGEMENT
     if ( !m_document.isNull() )
     {
-        content = QString("%1<b>Nombre</b>: %2<br/>").arg(content).arg(m_document->name());
-        content = QString("%1<b>Descripción</b>: %2<br/>").arg(content).arg(m_document->description());
-        content = QString("%1<b>Palabras claves</b>: %2<br/>").arg(content).arg(m_document->keywords().join(", "));
+        content = QString("%1<b>Nombre</b>: %2<br/>").arg(content, m_document->name());
+        content = QString("%1<b>Descripción</b>: %2<br/>").arg(content, m_document->description());
+        content = QString("%1<b>Palabras claves</b>: %2<br/>").arg(content, m_document->keywords().join(", "));
         content = QString("%1<b>Última versión</b>: %2<br/> modificada por <i>%3</i> por última vez el <i>%4</i>").
-                  arg(content).arg(m_document->lastVersion()).arg(m_document->lastModificationUser()).
-                  arg(alephERPSettings->locale()->toString(m_document->lastModificationTime()));
+                  arg(content,
+                      QString(m_document->lastVersion()),
+                      m_document->lastModificationUser(),
+                      alephERPSettings->locale()->toString(m_document->lastModificationTime()));
         AERPDocumentVersion *version = m_document->version(m_document->lastVersion());
         if ( version != NULL )
         {
-            content = QString("%1<b>Tamaño</b>: %2<br/>").arg(content).arg(CommonsFunctions::sizeHuman(version->sizeOnBytes()));
+            content = QString("%1<b>Tamaño</b>: %2<br/>").arg(content, CommonsFunctions::sizeHuman(version->sizeOnBytes()));
         }
     }
 #endif

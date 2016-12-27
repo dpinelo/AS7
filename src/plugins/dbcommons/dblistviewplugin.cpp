@@ -49,12 +49,12 @@ QIcon DBListViewPlugin::icon() const
 
 QString DBListViewPlugin::toolTip() const
 {
-    return trUtf8("Extensión de QListView para recoger la configuración de los BaseBean");
+    return tr("Extensión de QListView para recoger la configuración de los BaseBean");
 }
 
 QString DBListViewPlugin::whatsThis() const
 {
-    return trUtf8("Extensión de QListView para recoger la configuración de los BaseBean");
+    return tr("Extensión de QListView para recoger la configuración de los BaseBean");
 }
 
 bool DBListViewPlugin::isContainer() const

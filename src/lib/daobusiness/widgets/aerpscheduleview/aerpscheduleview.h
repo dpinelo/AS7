@@ -150,8 +150,9 @@ protected:
     virtual bool                viewportEvent(QEvent * event);
 
 public Q_SLOTS:
-    void                        dataChanged(const QModelIndex & topLeft, const  QModelIndex & bottomRight);
+    void                        dataChanged(const QModelIndex & topLeft, const  QModelIndex & bottomRight, const QVector<int> &roles = QVector<int>());
     void                        updateGeometries();
+    void                        repaintItems();
     void                        zoomIn();
     void                        zoomOut();
 

@@ -212,7 +212,7 @@ QString SystemDAO::systemTablesPSQL = ""
                                       "CREATE TABLE alepherp_users"
                                       "("
                                       "  username character varying(255) NOT NULL, "
-                                      "  \"password\" character varying(255), "
+                                      "  \"hash\" character varying(255), "
                                       "  name character varying(255), "
                                       "  email character varying(255), "
                                       "  CONSTRAINT alepherp_users_pkey PRIMARY KEY (username) "
@@ -306,7 +306,7 @@ QString SystemDAO::systemTablesPSQL = ""
                                       ");"
 
                                       "INSERT INTO alepherp_roles (nombre, superadmin, dbamode) values ('Administradores', true, true);"
-                                      "INSERT INTO alepherp_users (username, password) values ('admin', '');"
+                                      "INSERT INTO alepherp_users (username, hash) values ('admin', '');"
                                       "INSERT INTO alepherp_users_roles (id_rol, username) values (1, 'admin');"
                                       "INSERT INTO alepherp_permissions (id_rol, tablename, permissions) VALUES (1, '*', 'rw');";
 
@@ -442,7 +442,7 @@ QString SystemDAO::systemTablesSQLite = ""
                                         "CREATE TABLE alepherp_users"
                                         "("
                                         "  username character varying(255) NOT NULL,"
-                                        "  \"password\" character varying(255),"
+                                        "  \"hash\" character varying(255),"
                                         "  name character varying(255), "
                                         "  email character varying(255), "
                                         "  CONSTRAINT alepherp_users_pkey PRIMARY KEY (username)"
@@ -513,7 +513,7 @@ QString SystemDAO::systemTablesSQLite = ""
                                         ");"
 
                                         "INSERT INTO alepherp_roles (nombre, superadmin, dbamode) values ('Administradores', 1, 1);"
-                                        "INSERT INTO alepherp_users (username, password) values ('admin', '');"
+                                        "INSERT INTO alepherp_users (username, hash) values ('admin', '');"
                                         "INSERT INTO alepherp_users_roles (id_rol, username) values (1, 'admin');"
                                         "INSERT INTO alepherp_permissions (id_rol, tablename, permissions) VALUES (1, '*', 'rw');";
 
@@ -569,8 +569,8 @@ void SystemDAO::writeDbMessages(QSqlQuery *qry)
         }
         else
         {
-            SystemDAO::m_lastMessage = QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
-                                       arg(qry->lastError().databaseText());
+            SystemDAO::m_lastMessage = QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText(),
+                                                                                           qry->lastError().databaseText());
         }
     }
     QLogger::QLog_Error(AlephERP::stLogDB, QString("SystemDAO: BBDD LastQuery: [%1]").arg(qry->lastQuery()));
@@ -647,9 +647,9 @@ int SystemDAO::countSystemObjects()
     QSqlDatabase db = Database::getQDatabase(BASE_CONNECTION);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(db));
     QString sql = QString("SELECT count(*) as column1 FROM %1_system WHERE (device='%2.*' or device='%3' or device='*')").
-            arg(alephERPSettings->systemTablePrefix()).
-            arg(alephERPSettings->deviceType()).
-            arg(alephERPSettings->deviceTypeSize());
+            arg(alephERPSettings->systemTablePrefix(),
+                alephERPSettings->deviceType(),
+                alephERPSettings->deviceTypeSize());
     qry->prepare(sql);
     bool result = qry->exec();
     QLogger::QLog_Info(AlephERP::stLogDB, QString("SystemDAO::countSystemObjects: [%1]").arg(qry->lastQuery()));
@@ -784,10 +784,10 @@ bool SystemDAO::checkIfForeignKeyExists(DBRelationMetadata *rel, const QString &
                           "AND tc.table_name='%2' "
                           "AND kcu.column_name='%3' "
                           "AND tc.constraint_schema='%4'").
-            arg(rel->sqlTableName()).
-            arg(rel->rootMetadata()->sqlTableName()).
-            arg(rel->rootFieldName()).
-            arg(schema);
+            arg(rel->sqlTableName(),
+                rel->rootMetadata()->sqlTableName(),
+                rel->rootFieldName(),
+                schema);
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO::checkIfForeignKeyExists: [%1]").arg(sql));
     if ( qry->exec(sql) )
     {
@@ -818,7 +818,7 @@ bool SystemDAO::insertModule(const QString &id, const QString &name, const QStri
     qry->bindValue(":table_creation_options", tableCreationOptions);
     result = qry->exec();
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO::insertModule: [%1]. INSERTANDO MODULO EN BASE DE DATOS: [%2]").
-                        arg(qry->lastQuery()).arg(id));
+                        arg(qry->lastQuery(), id));
     if ( !result )
     {
         SystemDAO::writeDbMessages(qry.data());
@@ -839,10 +839,10 @@ bool SystemDAO::insertOrUpdateReport(ReportMetadata *m, const QString &content)
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(BASE_CONNECTION)));
     bool insert = false;
     QString sql = QString("SELECT COUNT(*) as column1 FROM %1_system WHERE nombre='%2' and type='report' and (device='%3.*' or device='%4' or device='*')").
-                          arg(alephERPSettings->systemTablePrefix()).
-                          arg(m->reportName()).
-                          arg(alephERPSettings->deviceType()).
-                          arg(alephERPSettings->deviceTypeSize());
+                          arg(alephERPSettings->systemTablePrefix(),
+                              m->reportName(),
+                              alephERPSettings->deviceType(),
+                              alephERPSettings->deviceTypeSize());
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO::insertOrUpdateReport: [%1]").arg(sql));
     if ( qry->exec(sql) )
     {
@@ -958,7 +958,10 @@ bool SystemDAO::insertSystemObject(AERPSystemObject *systemObject, const QString
     qry->bindValue(":device", systemObject->deviceTypes().join(","));
     result = qry->exec();
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("SystemDAO::insertSystemObject: [%1]. INSERTANDO OBJETO EN BASE DE DATOS: [%2]. OBJETO: [%3]. VERSION: [%4]").
-                        arg(qry->lastQuery()).arg(connectionName).arg(systemObject->name()).arg(systemObject->version()));
+                        arg(qry->lastQuery(),
+                            connectionName,
+                            systemObject->name(),
+                            QString::number(systemObject->version())));
     if ( !result )
     {
         SystemDAO::writeDbMessages(qry.data());
@@ -1140,7 +1143,7 @@ QList<AERPSystemObject *> SystemDAO::localSystemObjects()
                     else
                     {
                         QLogger::QLog_Info(AlephERP::stLogDB, QString("SystemDAO::localSystemObjects: Existía ya cargada una versión previa de [%1] [%2]").
-                                            arg(qry->record().value("nombre").toString()).arg(qry->record().value("type").toString()));
+                                            arg(qry->record().value("nombre").toString(), qry->record().value("type").toString()));
                     }
                 }
                 else
@@ -1319,34 +1322,46 @@ bool SystemDAO::deleteSystemObject(const QString &name, const QString &type, con
 
 int SystemDAO::versionSystemObject(const QString &name, const QString &type, const QString &device, int idOrigin, const QString &connectionName)
 {
-    SystemDAO::clearLastDbMessage();
-    QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
-    QString sql = QString("SELECT max(version) as column1 FROM %1_system "
-                          "WHERE nombre = :nombre AND type = :type AND device = :device AND idorigin = :idorigin").arg(alephERPSettings->systemTablePrefix());
-    int result = -1;
+    static QHash<QString, int> versionObjectHash;
 
-    qry->prepare(sql);
-    qry->bindValue(":nombre", name);
-    qry->bindValue(":type", type);
-    qry->bindValue(":device", device);
-    qry->bindValue(":idorigin", idOrigin);
-    if ( qry->exec() )
+    QString hash = QString("%1:%2:%3:%4").
+            arg(name,
+                type,
+                device,
+                QString::number(idOrigin));
+    QString md5Hash = QCryptographicHash::hash(hash.toLatin1(), QCryptographicHash::Md5).toHex();
+
+    if ( versionObjectHash.isEmpty() )
     {
-        if ( qry->first() )
+        SystemDAO::clearLastDbMessage();
+        QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connectionName)));
+        QString sql = QString("SELECT max(version) as maxversion, nombre, type, device, idorigin "
+                              "FROM %1_system "
+                              "GROUP BY nombre, type, device, idorigin").arg(alephERPSettings->systemTablePrefix());
+        if ( qry->exec(sql) )
         {
-            result = qry->value(0).toInt();
+            while ( qry->next() )
+            {
+                QString dbHash = QString("%1:%2:%3:%4").
+                        arg(qry->value("nombre").toString(),
+                            qry->value("type").toString(),
+                            qry->value("device").toString(),
+                            qry->value("idorigin").toString());
+                QString md5DbHash = QCryptographicHash::hash(dbHash.toLatin1(), QCryptographicHash::Md5).toHex();
+                versionObjectHash[md5DbHash] = qry->value("maxversion").toInt();
+            }
         }
         else
         {
-            result = 0;
+            SystemDAO::writeDbMessages(qry.data());
         }
+        qDebug() << "SystemDAO::versionSystemObject: [ " << qry->lastQuery() << " ]";
     }
-    else
+    if ( versionObjectHash.contains(md5Hash) )
     {
-        SystemDAO::writeDbMessages(qry.data());
+         return versionObjectHash.value(md5Hash);
     }
-    qDebug() << "SystemDAO::versionSystemObject: [ " << qry->lastQuery() << " ]. OBJETO: [" << name << "] VERSION: [" << result << "]";
-    return result;
+    return 0;
 }
 
 AERPSystemObject *SystemDAO::systemObject(const QString &name, const QString &type, const QString &device, int idOrigin, const QString &connection, bool forceToSearch)
@@ -1369,8 +1384,8 @@ AERPSystemObject *SystemDAO::systemObject(const QString &name, const QString &ty
                           "(device=:device or device='*' or device like '%2.*') and idorigin=:idorigin "
                           "ORDER BY version DESC "
                           "LIMIT 1").
-            arg(alephERPSettings->systemTablePrefix()).
-            arg(device);
+            arg(alephERPSettings->systemTablePrefix(),
+                device);
     qry->prepare(sql);
     qry->bindValue(":nombre", name);
     qry->bindValue(":type", type);
@@ -1456,8 +1471,8 @@ bool SystemDAO::checkModules()
         {
             BeansFactory::instance()->newModule(AlephERP::stSystemModule,
                                                 AlephERP::stSystemModule,
-                                                trUtf8("Módulo de sistema"),
-                                                trUtf8("Módulo de sistema"),
+                                                tr("Módulo de sistema"),
+                                                tr("Módulo de sistema"),
                                                 "",
                                                 true,
                                                 "AlephERP::WithoutForeignKeys | AlephERP::WithSimulateOID");
@@ -1500,9 +1515,9 @@ bool SystemDAO::checkSystemObjectsOnLocal(QString &failTable)
                   "WHERE (device='%2' or device like '%3.*' or device='*') "
                   "GROUP BY nombre, type, device, idorigin "
                   "ORDER BY nombre, type, device, idorigin").
-            arg(alephERPSettings->systemTablePrefix()).
-            arg(alephERPSettings->deviceTypeSize()).
-            arg(alephERPSettings->deviceType());
+            arg(alephERPSettings->systemTablePrefix(),
+                alephERPSettings->deviceTypeSize(),
+                alephERPSettings->deviceType());
     // Esta SQL obtiene un objeto en concreto.
     sqlSystemObject = QString("SELECT * FROM %1_system "
                               "WHERE nombre=:nombre AND type=:type AND version=:version AND device=:device AND idorigin=:idorigin").
@@ -1613,12 +1628,12 @@ bool SystemDAO::checkSystemObjectsOnLocal(QString &failTable)
                     {
                         QLogger::QLog_Error(AlephERP::stLogDB, qryObjects->lastError().text());
                         failTable = qryObjects->record().value("nombre").toString();
-                        SystemDAO::m_lastMessage = trUtf8("No existe el registro remoto con valores: Nombre: [%1], Tipo: [%2], Versión: [%3], Dispositivo: [%4], IdOrigin: [%5]").
-                                arg(qryObjects->record().value("nombre").toString()).
-                                arg(qryObjects->record().value("type").toString()).
-                                arg(qryObjects->record().value("max_version").toInt()).
-                                arg(qryObjects->record().value("device").toString()).
-                                arg(qryObjects->record().value("idorigin").toInt());
+                        SystemDAO::m_lastMessage = tr("No existe el registro remoto con valores: Nombre: [%1], Tipo: [%2], Versión: [%3], Dispositivo: [%4], IdOrigin: [%5]").
+                                arg(qryObjects->record().value("nombre").toString(),
+                                    qryObjects->record().value("type").toString(),
+                                    qryObjects->record().value("max_version").toString(),
+                                    qryObjects->record().value("device").toString(),
+                                    qryObjects->record().value("idorigin").toString());
                         QLogger::QLog_Error(AlephERP::stLogDB, SystemDAO::m_lastMessage);
                         return false;
                     }

@@ -50,7 +50,7 @@ BaseBeanObserver::BaseBeanObserver(DBObject *entity) :
         d->m_validator->setBean(bean);
         connect(bean, SIGNAL(beanModified(bool)), this, SLOT(setWindowModified(bool)));
         QList<DBRelation *> rels = bean->relations(AlephERP::OneToOne);
-        foreach (DBRelation *rel, rels)
+        for (DBRelation *rel : rels)
         {
             connect(rel, SIGNAL(brotherLoaded(BaseBean*)), this, SLOT(sync()));
         }
@@ -77,7 +77,7 @@ void BaseBeanObserver::setEntity(QObject *obj)
     }
     d->m_validator->setBean(qobject_cast<BaseBean *>(obj));
     QList<DBRelation *> rels = bean->relations(AlephERP::OneToOne);
-    foreach (DBRelation *rel, rels)
+    for (DBRelation *rel : rels)
     {
         connect(rel, SIGNAL(brotherLoaded(BaseBean*)), this, SLOT(sync()));
     }
@@ -88,7 +88,8 @@ void BaseBeanObserver::setEntity(QObject *obj)
   */
 void BaseBeanObserver::setWindowModified(bool value)
 {
-    foreach (QObject *widget, viewWidgets())
+    QList<QPointer<QObject> > list = viewWidgets();
+    for (QObject *widget : list)
     {
         // No se llama a setWindowModified, ya que esta función no es virtual, y no estaríamos
         // llamando al setWindowModified del hijo del widget (y no ejecutaría nuestro código propio en setWindowModified).
@@ -100,7 +101,7 @@ void BaseBeanObserver::setWindowModified(bool value)
     }
 }
 
-bool BaseBeanObserver::readOnly()
+bool BaseBeanObserver::readOnly() const
 {
     BaseBean *bean = qobject_cast<BaseBean *> (entity());
     if ( bean == NULL )
@@ -137,7 +138,7 @@ void BaseBeanObserver::uninstallWidget(QObject *widget)
     // Al desinstalar el formulario, debemos desinstalar todos los controles de ese form que pudieran estar asociados
     // TODO También habría que hacerlo para todos los hijos de las relaciones
     QList<QWidget *> children = widget->findChildren<QWidget *>();
-    foreach ( QWidget *childWidget, children )
+    for ( QWidget *childWidget : children )
     {
         if ( childWidget->property(AlephERP::stAerpControl).toBool() )
         {
@@ -145,7 +146,7 @@ void BaseBeanObserver::uninstallWidget(QObject *widget)
             QList<DBObject *> lstObj = bean->navigateThrough(baseWidget->fieldName(), baseWidget->relationFilter());
             if ( lstObj.size() > 0 )
             {
-                foreach (DBObject *obj, lstObj)
+                for (DBObject *obj : lstObj)
                 {
                     obj->observer()->uninstallWidget(childWidget);
                 }
@@ -170,7 +171,7 @@ void BaseBeanObserver::uninstallWidget(QObject *widget)
             QList<DBObject *> lstObj = bean->navigateThrough(baseWidget->relationName(), baseWidget->relationFilter());
             if ( lstObj.size() > 0 )
             {
-                foreach (DBObject *obj, lstObj)
+                for (DBObject *obj : lstObj)
                 {
                     obj->observer()->uninstallWidget(childWidget);
                 }
@@ -198,7 +199,8 @@ void BaseBeanObserver::sync()
         return;
     }
     setWindowModified(bean->modified() | AERPTransactionContext::instance()->isDirty(bean->actualContext()));
-    foreach (QObject *form, viewWidgets())
+    QList<QPointer<QObject> > list = viewWidgets();
+    for (QObject *form : list)
     {
         QList<QWidget *> widgets = form->findChildren<QWidget *>();
         if ( form->property(AlephERP::stAerpControl).toBool() )
@@ -206,7 +208,7 @@ void BaseBeanObserver::sync()
             DBBaseWidget *baseWidget = dynamic_cast<DBBaseWidget *>(form);
             baseWidget->refresh();
         }
-        foreach ( QWidget *w, widgets )
+        for ( QWidget *w : widgets )
         {
             if ( w->property(AlephERP::stAerpControl).toBool() )
             {

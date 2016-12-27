@@ -26,6 +26,7 @@
 #include "dao/beans/beansfactory.h"
 #include "dao/beans/dbfieldmetadata.h"
 #include "dao/backgrounddao.h"
+#include "forms/aerptransactioncontextprogressdlg.h"
 #include "models/filterbasebeanmodel.h"
 #include "models/basebeanmodel.h"
 #include "models/treebasebeanmodel.h"
@@ -43,8 +44,8 @@ DBAbstractFilterView::DBAbstractFilterView(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->cbFastFilterValue->setVisible(false);
-    ui->deFastFilter1->setSpecialValueText(trUtf8("Seleccione fecha"));
-    ui->deFastFilter2->setSpecialValueText(trUtf8("Seleccione fecha"));
+    ui->deFastFilter1->setSpecialValueText(tr("Seleccione fecha"));
+    ui->deFastFilter2->setSpecialValueText(tr("Seleccione fecha"));
     ui->deFastFilter1->setDisplayFormat(CommonsFunctions::dateFormat());
     ui->deFastFilter2->setDisplayFormat(CommonsFunctions::dateFormat());
     ui->deFastFilter1->setDate(alephERPSettings->minimumDate());
@@ -65,6 +66,8 @@ DBAbstractFilterView::DBAbstractFilterView(QWidget *parent) :
     connect (ui->leFastFilter, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
     connect (ui->leFastFilter1, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
     connect (ui->leFastFilter2, SIGNAL(returnPressed()), this, SIGNAL(fastFilterReturnPressed()));
+    connect (ui->pbInlineEdit, SIGNAL(clicked(bool)), this, SLOT(setInlineEdit(bool)));
+    connect (ui->pbSave, SIGNAL(clicked(bool)), this, SLOT(saveInlineEdit()));
 
     ui->leFastFilter->installEventFilter(this);
 }
@@ -96,13 +99,12 @@ void DBAbstractFilterView::setTableName (const QString &tableName)
     if ( !d->m_itemView.isNull() )
     {
         QString objName = QString("%1_dbFilterTableView_%2").
-                          arg(d->m_itemView->metaObject()->className()).
-                          arg(tableName);
+                          arg(d->m_itemView->metaObject()->className(), tableName);
         d->m_itemView->setObjectName(objName);
         d->m_metadata = BeansFactory::metadataBean(tableName);
         if ( d->m_metadata == NULL )
         {
-            QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("Su aplicación no está bien configurada. Existen tablas de sistemas no creadas. Consulte con Aleph Sistemas de Información."));
+            QLogger::QLog_Error(AlephERP::stLogOther, tr("Su aplicación no está bien configurada. Existen tablas de sistemas no creadas. Consulte con Aleph Sistemas de Información."));
             return;
         }
         if ( !d->m_metadata->viewOnGrid().isEmpty() )
@@ -110,7 +112,7 @@ void DBAbstractFilterView::setTableName (const QString &tableName)
             d->m_metadata = BeansFactory::metadataBean(d->m_metadata->viewOnGrid());
             if ( d->m_metadata == NULL )
             {
-                QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("Su aplicación no está bien configurada. Existen tablas de sistemas no creadas. Consulte con Aleph Sistemas de Información."));
+                QLogger::QLog_Error(AlephERP::stLogOther, tr("Su aplicación no está bien configurada. Existen tablas de sistemas no creadas. Consulte con Aleph Sistemas de Información."));
                 return;
             }
         }
@@ -295,7 +297,7 @@ void DBAbstractFilterView::saveStrongFilterWidgetStatus()
     {
         if ( cb->currentIndex() != -1 )
         {
-            QString key = QString("%1%2").arg(d->m_tableName).arg(cb->objectName());
+            QString key = QString("%1%2").arg(d->m_tableName, cb->objectName());
             alephERPSettings->saveRegistryValue(key, cb->itemData(cb->currentIndex()));
         }
     }
@@ -357,6 +359,48 @@ void DBAbstractFilterView::reSort()
     }
 }
 
+void DBAbstractFilterView::setInlineEdit(bool enabled)
+{
+    QTableView *tv = qobject_cast<QTableView *>(d->m_itemView);
+    if ( tv == NULL || d->m_model.isNull() )
+    {
+        return;
+    }
+    ui->pbSave->setVisible(enabled);
+    if ( enabled )
+    {
+        d->m_model->freezeModel();
+        tv->setSelectionBehavior(QAbstractItemView::SelectItems);
+        tv->setEditTriggers(QAbstractItemView::AllEditTriggers);
+        QToolTip::showText(ui->pbInlineEdit->parentWidget()->mapToGlobal(ui->pbInlineEdit->pos()),
+                           ui->pbInlineEdit->toolTip(),
+                           ui->pbInlineEdit,
+                           QRect(),
+                           10 * 1000);
+    }
+    else
+    {
+        tv->setSelectionBehavior(QAbstractItemView::SelectRows);
+    }
+}
+
+void DBAbstractFilterView::saveInlineEdit()
+{
+    if ( !isInlineEditMode() || d->m_model.isNull() )
+    {
+        return;
+    }
+
+    AERPTransactionContextProgressDlg::showDialog(d->m_model->contextName(), this);
+    if ( !d->m_model->commit() )
+    {
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             tr("Ha ocurrido un error al intentar consolidar los datos.\nError: %1").arg(d->m_model->lastErrorMessage()),
+                             QMessageBox::Ok);
+    }
+}
+
 /*!
     Slot que realiza un filtrado rápido de los registros presentados, en función de lo que el
     usuario haya introducido en los camposera. Este filtrado se realiza a partir del objeto Filter definido.
@@ -375,7 +419,7 @@ void DBAbstractFilterView::fastFilterByText()
     if ( ui->cbFastFilter->currentIndex() == -1 )
     {
         QMessageBox::warning(this,qApp->applicationName(),
-                             trUtf8(MSG_NO_COLUMN_SELECCIONADA), QMessageBox::Ok);
+                             tr(MSG_NO_COLUMN_SELECCIONADA), QMessageBox::Ok);
     }
     else
     {
@@ -435,7 +479,7 @@ void DBAbstractFilterView::fastFilterByNumbers()
     if ( ui->cbFastFilter->currentIndex() == -1 )
     {
         QMessageBox::warning(this,qApp->applicationName(),
-                             trUtf8(MSG_NO_COLUMN_SELECCIONADA), QMessageBox::Ok);
+                             tr(MSG_NO_COLUMN_SELECCIONADA), QMessageBox::Ok);
     }
     else
     {
@@ -598,13 +642,15 @@ void DBAbstractFilterView::filterWithSql()
             {
                 if ( !ui->leFastFilter->text().isEmpty() )
                 {
-                    aditionalSql = QString("UPPER(%1) LIKE UPPER('%%%2%%')").arg(fld->dbFieldName()).arg(fld->sqlValue(ui->leFastFilter->text(), false));
+                    aditionalSql = QString("UPPER(%1) LIKE UPPER('%%%2%%')").arg(fld->dbFieldName(), fld->sqlValue(ui->leFastFilter->text(), false));
                 }
             }
             else if ( fld->type() == QVariant::Date || fld->type() == QVariant::DateTime )
             {
-                aditionalSql = QString("%1 BETWEEN %2 AND %3").arg(fld->dbFieldName()).
-                               arg(fld->sqlValue(ui->deFastFilter1->date())).arg(fld->sqlValue(ui->deFastFilter2->date()));
+                aditionalSql = QString("%1 BETWEEN %2 AND %3").
+                        arg(fld->dbFieldName(),
+                            fld->sqlValue(ui->deFastFilter1->date()),
+                            fld->sqlValue(ui->deFastFilter2->date()));
             }
             else if ( fld->type() == QVariant::Int || fld->type() == QVariant::LongLong || fld->type() == QVariant::Double )
             {
@@ -620,8 +666,7 @@ void DBAbstractFilterView::filterWithSql()
                         }
                         else if ( ui->cbFastFilterOperators->currentIndex() == CB_OPERATOR_BETWEEN )
                         {
-                            aditionalSql = QString("%1 BETWEEN %2 AND %3").arg(fld->dbFieldName()).
-                                           arg(fld->sqlValue(v1)).arg(fld->sqlValue(v2));
+                            aditionalSql = QString("%1 BETWEEN %2 AND %3").arg(fld->dbFieldName(), fld->sqlValue(v1), fld->sqlValue(v2));
                         }
                         else if ( ui->cbFastFilterOperators->currentIndex() == CB_OPERATOR_LESS )
                         {
@@ -809,7 +854,7 @@ void DBAbstractFilterView::prepareFilterControlsAndFilter()
 void DBAbstractFilterView::prepareFilterControlsByOperator()
 {
     clearFilter();
-    if ( ui->cbFastFilterOperators->currentText() == trUtf8("Entre") )
+    if ( ui->cbFastFilterOperators->currentText() == tr("Entre") )
     {
         ui->lblBetween->setVisible(true);
         ui->lblAnd->setVisible(true);
@@ -884,6 +929,25 @@ void DBAbstractFilterView::init(bool initStrongFilter)
     d->m_itemView->setDragDropMode(QAbstractItemView::DragOnly);
     d->m_itemView->setDragEnabled(true);
 
+    ui->pbInlineEdit->setVisible(d->m_metadata->editOnDbForm());
+    ui->pbSave->setVisible(d->m_metadata->editOnDbForm() && ui->pbInlineEdit->isChecked());
+    QStringList fields;
+    QList<DBFieldMetadata *> fieldsMetadata = d->m_metadata->fields();
+    for (DBFieldMetadata *fld : fieldsMetadata)
+    {
+        if ( fld->editOnDbForm() )
+        {
+            fields << fld->fieldName();
+        }
+    }
+    QString toolTip = tr("Desde este momento podrá modificar directamente en la tabla un conjunto de\n "
+                         "columnas haciendo click directamente en la celda y editando en la misma celda\n. "
+                         "Deberá pulsar el botón de guardar para consolidar los cambios a base de datos, o bien\n "
+                         "si desea cancelar, haga click en este mismo botón para cancelar los cambios. \n"
+                         "Las columnas que podrá modificar son: %1").arg(fields.join(", "));
+    ui->pbInlineEdit->setToolTip(toolTip);
+    ui->pbInlineEdit->setWhatsThis(toolTip);
+
     d->addFieldsCombo();
 
     // Debe hacerse en este orden para que no se produzcan retrasos de ordenación.
@@ -955,13 +1019,13 @@ void DBAbstractFilterView::init(bool initStrongFilter)
 /*!
   Esta función devuelve el bean actualmente seleccionado en el modelo.
   */
-BaseBeanPointer DBAbstractFilterView::selectedBean()
+BaseBeanPointer DBAbstractFilterView::selectedBean(bool foceReloadIfNeeded)
 {
     BaseBeanPointer bean;
     QModelIndex currentIndex = d->m_itemView->currentIndex();
     if ( currentIndex.isValid() && filterModel() )
     {
-        bean = filterModel()->bean(currentIndex).data();
+        bean = filterModel()->bean(currentIndex, foceReloadIfNeeded).data();
     }
     return bean;
 }
@@ -1086,6 +1150,10 @@ void DBAbstractFilterView::freezeModel()
  */
 void DBAbstractFilterView::defrostModel()
 {
+    if ( isInlineEditMode() )
+    {
+        return;
+    }
     if ( d->m_model != NULL )
     {
         if ( d->m_model->isFrozenModel() )
@@ -1094,17 +1162,6 @@ void DBAbstractFilterView::defrostModel()
         }
         d->m_model->refresh();
     }
-    /*
-     * Este código tiene efectos fatales en la estabilidad del programa con modelos en árbol.
-     * Aparte, no tendría que se necesario: En caso de un refresco, el modelo emite dataChanged, y
-     * el filtro debería invalidarse solo
-     * */
-    /*
-    if ( d->m_modelFilter && alephERPSettings->modelsRefresh() )
-    {
-        d->m_modelFilter->invalidate();
-    }
-    */
 }
 
 void DBAbstractFilterView::resizeRowsToContents()
@@ -1178,6 +1235,11 @@ bool DBAbstractFilterView::isFrozenModel() const
         return d->m_model->isFrozenModel();
     }
     return false;
+}
+
+bool DBAbstractFilterView::isInlineEditMode() const
+{
+    return ui->pbInlineEdit->isVisible() && ui->pbInlineEdit->isChecked();
 }
 
 bool DBAbstractFilterView::eventFilter(QObject *sender, QEvent *event)

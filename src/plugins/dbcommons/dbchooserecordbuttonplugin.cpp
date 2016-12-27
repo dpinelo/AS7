@@ -64,12 +64,12 @@ QIcon DBChooseRecordButtonPlugin::icon() const
 
 QString DBChooseRecordButtonPlugin::toolTip() const
 {
-    return trUtf8("PushButton que permite localizar registros y asignarlos sus fields a controles.");
+    return tr("PushButton que permite localizar registros y asignarlos sus fields a controles.");
 }
 
 QString DBChooseRecordButtonPlugin::whatsThis() const
 {
-    return trUtf8("PushButton que permite localizar registros y asignarlos sus fields a controles.");
+    return tr("PushButton que permite localizar registros y asignarlos sus fields a controles.");
 }
 
 bool DBChooseRecordButtonPlugin::isContainer() const

@@ -78,7 +78,7 @@ private:
     void connections(const BaseBeanPointer &child);
     void setMetadata(DBRelationMetadata *m);
 
-    BaseBeanPointerList internalChildren();
+    const BaseBeanPointerList internalChildren() const;
     void addInternalOtherChildren(BaseBeanPointer bean);
     BaseBeanPointer internalBrother();
 
@@ -93,11 +93,11 @@ public:
     Q_INVOKABLE BaseBeanPointer childByOid(qlonglong oid, bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointer childByField(const QString &dbField, const QVariant &value, bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointer childByFilter(const QString &filter, bool includeToBeDeleted = false);
-    Q_INVOKABLE BaseBeanPointerList childrenByFilter(const QString &filter, const QString &order = "", bool includeToBeDeleted = false);
-    Q_INVOKABLE BaseBeanPointerList children(const QString &order = "", bool includeToBeDeleted = true, bool includeOtherChildren = true);
+    Q_INVOKABLE const BaseBeanPointerList childrenByFilter(const QString &filter, const QString &order = "", bool includeToBeDeleted = false);
+    Q_INVOKABLE const BaseBeanPointerList children(const QString &order = "", bool includeToBeDeleted = true, bool includeOtherChildren = true);
     Q_INVOKABLE int childrenCountByState(BaseBean::DbBeanStates state);
-    Q_INVOKABLE BaseBeanPointerList modifiedChildren();
-    Q_INVOKABLE void addChildren(BaseBeanSharedPointerList list);
+    Q_INVOKABLE const BaseBeanPointerList modifiedChildren() const;
+    Q_INVOKABLE void addChildren(const BaseBeanSharedPointerList &list);
     Q_INVOKABLE void addChild(BaseBeanSharedPointer child);
     Q_INVOKABLE void deleteAllChildren();
     Q_INVOKABLE void deleteChildByObjectName(const QString &objectName);
@@ -111,7 +111,7 @@ public:
     BaseBeanPointer father(bool retrieveOnDemand = true);
     void setFather(BaseBean *bean);
     bool fatherSetted();
-    QVector<BaseBeanSharedPointer> sharedChildren(const QString &order = "");
+    const QVector<BaseBeanSharedPointer> sharedChildren(const QString &order = "");
 
     BaseBeanPointer brother();
     void setBrother(BaseBeanPointer bean);
@@ -119,20 +119,20 @@ public:
 
     QString filter() const;
     void setFilter(const QString &filter);
-    bool childrenLoaded();
-    bool childrenModified();
+    bool childrenLoaded() const;
+    bool childrenModified() const;
     /** Se proporcionar por semántica */
-    bool isFatherLoaded()
+    bool isFatherLoaded() const
     {
         return childrenLoaded();
     }
-    bool loadingOnBackground();
+    bool loadingOnBackground() const;
 
-    QString fetchChildSqlWhere (const QString &aliasChild = QString (""));
-    QString fetchFatherSqlWhere(const QString &aliasChild = QString (""));
-    QString sqlChildTableAlias();
+    QString fetchChildSqlWhere (const QString &aliasChild = QString ("")) const;
+    QString fetchFatherSqlWhere(const QString &aliasChild = QString ("")) const;
+    QString sqlChildTableAlias() const;
 
-    Q_INVOKABLE DBField * masterField();
+    Q_INVOKABLE DBField * masterField() const;
     BaseBeanPointer ownerBean() const;
     bool allSignalsBlocked() const;
 
@@ -226,7 +226,7 @@ private slots:
     void emitChildEndEdit(BaseBean *bean);
     void setChildrenLoadedInternaly();
     void otherChildrenDestroyed(QObject *obj);
-    void availableBeans(QString id, int offset, BaseBeanSharedPointerList bean);
+    void availableBeans(QString id, int offset, const BaseBeanSharedPointerList &bean);
     void backgroundQueryExecuted(QString id, bool result);
 
 protected slots:

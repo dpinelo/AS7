@@ -59,7 +59,7 @@ AERPBeanInspector::AERPBeanInspector(QWidget *parent) :
     d->m_model = new AERPBeanInspectorModel(this);
     setObjectName("InspectorBeanWidget");
     setModel(d->m_model.data());
-    setWindowTitle(trUtf8("Inspección de registros"));
+    setWindowTitle(tr("Inspección de registros"));
     setAlternatingRowColors(true);
     setAnimated(true);
 }

@@ -110,7 +110,18 @@ CONFIG += debug_and_release
 # Hasta aquí
 #-----------------------------------------------------------------------------------------------------
 
-BUILDNUM=$$system('git describe')
+linux-clang {
+    message("Añade información adicional de Clang")
+    QMAKE_CXXFLAGS="-Xclang -load -Xclang ClangLazy.so -Xclang -add-plugin -Xclang clang-lazy"
+}
+
+unix {
+    BUILDNUM=$$system('git describe --tags')
+}
+win32 {
+    message('git --git-dir=$$ALEPHERPPATH\.git --work-tree=$$ALEPHERPPATH describe --tags')
+    BUILDNUM=$$system('git --git-dir=$$ALEPHERPPATH\.git --work-tree=$$ALEPHERPPATH describe --tags')
+}
 DEFINES += ALEPHERP_REVISION=\\\"$${BUILDNUM}\\\"
 message("Construyendo version " $$BUILDNUM)
 

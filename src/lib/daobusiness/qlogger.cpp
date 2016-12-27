@@ -166,7 +166,7 @@ void QLoggerWriter::write(LogLevel level, const QString &module, const QString &
 {
     QString dtFormat = QDateTime::currentDateTime().toString("dd-MM-yyyy hh:mm:ss.zzz");
     QString logLevel = QLoggerManager::levelToText(level);
-    QString text = QString("[%1] [%2] {%3} %4").arg(dtFormat).arg(logLevel).arg(module).arg(message);
+    QString text = QString("[%1] [%2] {%3} %4").arg(dtFormat, logLevel, module, message);
 
     if ( openFile() )
     {

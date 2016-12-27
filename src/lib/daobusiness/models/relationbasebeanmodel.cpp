@@ -202,7 +202,7 @@ RelationBaseBeanModel::RelationBaseBeanModel(DBRelation *rel,
     if ( d->m_relation &&
          d->m_relation->metadata()->type() != DBRelationMetadata::ONE_TO_MANY )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("ATENCIÓN: RelationBaseBeanModel está pensado para relaciones 1M y %1 no lo es.").
+        QLogger::QLog_Error(AlephERP::stLogOther, tr("ATENCIÓN: RelationBaseBeanModel está pensado para relaciones 1M y %1 no lo es.").
                             arg(d->m_relation->metadata()->tableName()));
     }
 }
@@ -516,11 +516,11 @@ QVariant RelationBaseBeanModel::data(const QModelIndex &item, int role) const
 {
     if ( role == AlephERP::InsertRowTextRole && d->m_metadata )
     {
-        return trUtf8("Insertar registro '%1").arg(d->m_metadata->alias());
+        return tr("Insertar registro '%1").arg(d->m_metadata->alias());
     }
     if ( role == AlephERP::EditRowTextRole && d->m_metadata )
     {
-        return trUtf8("Editar registro '%1").arg(d->m_metadata->alias());
+        return tr("Editar registro '%1").arg(d->m_metadata->alias());
     }
     if ( !item.isValid() || item.row() <= -1 || item.row() >= d->rowCount() )
     {

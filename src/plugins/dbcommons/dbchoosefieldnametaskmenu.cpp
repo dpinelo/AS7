@@ -40,7 +40,7 @@ DBChooseFieldNameTaskMenu::DBChooseFieldNameTaskMenu(QWidget *widget, QObject *p
     QObject(parent), d(new DBChooseFieldNameTaskMenuPrivate())
 {
     d->m_widget = widget;
-    d->m_editFieldsAction = new QAction(trUtf8("AlephERP: Assign DB Field..."), this);
+    d->m_editFieldsAction = new QAction(tr("AlephERP: Assign DB Field..."), this);
     connect(d->m_editFieldsAction, SIGNAL(triggered()), this, SLOT(selectFields()));
 }
 
@@ -53,7 +53,7 @@ void DBChooseFieldNameTaskMenu::selectFields()
 {
     if ( DBBaseWidget::aerpBaseDialogTableName(d->m_widget).isEmpty() )
     {
-        QMessageBox::warning(0,qApp->applicationName(), trUtf8("Debe indicar una tabla para el formulario. Para ello, rellene la propiedad tableName del diálogo principal. Éste debe ser de tipo AERPBaseDialog."), QMessageBox::Ok);
+        QMessageBox::warning(0,qApp->applicationName(), tr("Debe indicar una tabla para el formulario. Para ello, rellene la propiedad tableName del diálogo principal. Éste debe ser de tipo AERPBaseDialog."), QMessageBox::Ok);
         return;
     }
     QPointer<DBChooseFieldNameDlg> dlg = new DBChooseFieldNameDlg(d->m_widget);

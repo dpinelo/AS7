@@ -49,7 +49,7 @@ AERPTransactionContextProgressDlg::AERPTransactionContextProgressDlg(QWidget *pa
     connect(AERPTransactionContext::instance(), SIGNAL(validationInited(QString,int)), this, SLOT(transactionProcessInited(QString,int)));
 
     ui->progressBar->setValue(0);
-    setWindowTitle(trUtf8("%1 - Transacción").arg(qApp->applicationName()));
+    setWindowTitle(tr("%1 - Transacción").arg(qApp->applicationName()));
 }
 
 AERPTransactionContextProgressDlg::~AERPTransactionContextProgressDlg()
@@ -95,15 +95,15 @@ void AERPTransactionContextProgressDlg::showInfo(BaseBeanPointer bean)
     }
     if ( bean->dbState() == BaseBean::INSERT )
     {
-        ui->lblAction->setText(trUtf8("Insertando registro: <i>%1</i>").arg(bean->metadata()->alias()));
+        ui->lblAction->setText(tr("Insertando registro: <i>%1</i>").arg(bean->metadata()->alias()));
     }
     else if ( bean->dbState() == BaseBean::UPDATE )
     {
-        ui->lblAction->setText(trUtf8("Modificando registro: <i>%1</i>").arg(bean->metadata()->alias()));
+        ui->lblAction->setText(tr("Modificando registro: <i>%1</i>").arg(bean->metadata()->alias()));
     }
     else if ( bean->dbState() == BaseBean::TO_BE_DELETED )
     {
-        ui->lblAction->setText(trUtf8("Borrando registro: <i>%1</i>").arg(bean->metadata()->alias()));
+        ui->lblAction->setText(tr("Borrando registro: <i>%1</i>").arg(bean->metadata()->alias()));
     }
     ui->progressBar->setValue(ui->progressBar->value()+1);
 }

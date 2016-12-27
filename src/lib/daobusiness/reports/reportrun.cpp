@@ -49,11 +49,13 @@ public:
     QString m_pdfGeneratedFilePath;
     bool m_dialogIsShowedNow;
     QString m_linkedTo;
+    bool m_cancelExportToSpreadSheet;
 
     explicit ReportRunPrivate(ReportRun *qq) : q_ptr(qq)
     {
         m_parentWidget = NULL;
         m_dialogIsShowedNow = false;
+        m_cancelExportToSpreadSheet = false;
     }
 
     QVariantMap buildEnvVarParameterBinding();
@@ -95,13 +97,13 @@ void ReportRun::setReportName(const QString &reportName)
                     {
                         // TODO: No me gusta esto aquí, pero por el momento lo dejamos...
                         int ret = QMessageBox::question(0, qApp->applicationName(),
-                                                        trUtf8("El informe de nombre %1 parece que no existe en el sistema. ¿Desea crear un nuevo nuevo?").arg(d->m_metadata->reportName()), QMessageBox::Yes | QMessageBox::No);
+                                                        tr("El informe de nombre %1 parece que no existe en el sistema. ¿Desea crear un nuevo nuevo?").arg(d->m_metadata->reportName()), QMessageBox::Yes | QMessageBox::No);
                         if ( ret == QMessageBox::Yes )
                         {
                             if ( !editReport() )
                             {
                                 QMessageBox::warning(0, qApp->applicationName(),
-                                                     trUtf8("No se ha podido abrir la interfaz de edición/creación. El error es: %1.").arg(ReportRun::lastErrorMessage()));
+                                                     tr("No se ha podido abrir la interfaz de edición/creación. El error es: %1.").arg(ReportRun::lastErrorMessage()));
                                 emit canExecuteReport(false);
                                 return;
                             }
@@ -114,7 +116,7 @@ void ReportRun::setReportName(const QString &reportName)
                     else
                     {
                         QMessageBox::warning(0, qApp->applicationName(),
-                                             trUtf8("El informe de nombre %1 no existe en el sistema.").arg(d->m_metadata->reportName()));
+                                             tr("El informe de nombre %1 no existe en el sistema.").arg(d->m_metadata->reportName()));
                         emit canExecuteReport(false);
                         return;
                     }
@@ -280,14 +282,14 @@ AERPReportsInterface *ReportRun::iface()
         AERPReportsInterface *iface = ReportRun::loadPlugin(d->m_metadata->pluginName());
         if ( iface == NULL )
         {
-            d->m_lastErrorMessage = trUtf8("Cannot load plugin: %1.").arg(d->m_metadata->pluginName());
+            d->m_lastErrorMessage = tr("Cannot load plugin: %1.").arg(d->m_metadata->pluginName());
             emit canExecuteReport(false);
         }
         return iface;
     }
     else
     {
-        d->m_lastErrorMessage = trUtf8("No existen los metadatos asociados al informe");
+        d->m_lastErrorMessage = tr("No existen los metadatos asociados al informe");
     }
     return NULL;
 }
@@ -400,7 +402,7 @@ QVariantMap ReportRunPrivate::buildParameterBindingForBean(BaseBeanPointer bean)
     AERPMultiStringMap parameterBinding = m_metadata->parameterBinding();
     if ( !bean.isNull() )
     {
-        foreach (DBField *fld, bean->fields())
+        for (DBField *fld : bean->fields())
         {
             if ( parameterBinding.contains(fld->metadata()->dbFieldName()) )
             {
@@ -434,12 +436,12 @@ AERPReportsInterface * ReportRun::loadPlugin(const QString &pluginName)
 #if defined(Q_OS_WIN)
         QString pathPluginFile = QString("%1/%2.dll").arg(reportPluginDir).arg(pluginName);
 #else
-        QString pathPluginFile = QString("%1/lib%2.so").arg(reportPluginDir).arg(pluginName);
+        QString pathPluginFile = QString("%1/lib%2.so").arg(reportPluginDir, pluginName);
 #endif
         QFile pluginFile(pathPluginFile);
         if (!pluginFile.exists())
         {
-            m_lastMessage = QObject::trUtf8("No existe el plugin indicado: %1").arg(pluginName);
+            m_lastMessage = QObject::tr("No existe el plugin indicado: %1").arg(pluginName);
             return iface;
         }
         pluginLoader = new QPluginLoader(pathPluginFile, qApp);
@@ -451,8 +453,8 @@ AERPReportsInterface * ReportRun::loadPlugin(const QString &pluginName)
         if ( !pluginLoader->load() )
         {
             CommonsFunctions::restoreOverrideCursor();
-            m_lastMessage = QObject::trUtf8("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
-                            arg(pluginName).arg(pluginLoader->errorString());
+            m_lastMessage = QObject::tr("Ha ocurrido un error cargando el plugin: %1. \nEl error es: %2").
+                            arg(pluginName, pluginLoader->errorString());
         }
         else
         {
@@ -460,7 +462,7 @@ AERPReportsInterface * ReportRun::loadPlugin(const QString &pluginName)
             CommonsFunctions::restoreOverrideCursor();
             if ( !iface )
             {
-                m_lastMessage = QObject::trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
+                m_lastMessage = QObject::tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
             }
         }
     }
@@ -470,7 +472,7 @@ AERPReportsInterface * ReportRun::loadPlugin(const QString &pluginName)
         CommonsFunctions::restoreOverrideCursor();
         if ( !iface )
         {
-            m_lastMessage = QObject::trUtf8("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
+            m_lastMessage = QObject::tr("No se cargó el plugin: %1. \nRazón desconocida.").arg(pluginName);
         }
     }
     return iface;
@@ -502,7 +504,7 @@ bool ReportRun::editReport(const QString &reportName)
     {
         m_lastMessage = QString("ReportMetadata::editReport: El driver no permite la edición");
         QLogger::QLog_Error(AlephERP::stLogOther, m_lastMessage);
-        QMessageBox::warning(0, qApp->applicationName(), QObject::trUtf8("Este tipo de informes no pueden editarse: %1").arg(m->pluginName()), QMessageBox::Ok);
+        QMessageBox::warning(0, qApp->applicationName(), QObject::tr("Este tipo de informes no pueden editarse: %1").arg(m->pluginName()), QMessageBox::Ok);
     }
     if (iface->editReport(m->absolutePath()))
     {
@@ -510,7 +512,7 @@ bool ReportRun::editReport(const QString &reportName)
         QFile file(m->absolutePath());
         if (  !file.open(QIODevice::ReadOnly) )
         {
-            QMessageBox::warning(0, qApp->applicationName(), trUtf8("No se pudo abrir el archivo."), QMessageBox::Ok);
+            QMessageBox::warning(0, qApp->applicationName(), tr("No se pudo abrir el archivo."), QMessageBox::Ok);
             return false;
         }
         if ( iface->reportIsBinaryFile() )
@@ -527,7 +529,7 @@ bool ReportRun::editReport(const QString &reportName)
         }
         if (!SystemDAO::insertOrUpdateReport(m, content) )
         {
-            QMessageBox::warning(0, qApp->applicationName(), trUtf8("No se pudo guardar o insertar el informe editado. Error: %1.").arg(SystemDAO::lastErrorMessage()), QMessageBox::Ok);
+            QMessageBox::warning(0, qApp->applicationName(), tr("No se pudo guardar o insertar el informe editado. Error: %1.").arg(SystemDAO::lastErrorMessage()), QMessageBox::Ok);
             return false;
         }
     }
@@ -568,7 +570,7 @@ bool ReportRunPrivate::prepareReport(BaseBeanPointer bean)
             }
             if ( metadatas.size() == 0 )
             {
-                m_lastErrorMessage = QObject::trUtf8("No hay definido ningún informe para %1").arg(bean->metadata()->alias());
+                m_lastErrorMessage = QObject::tr("No hay definido ningún informe para %1").arg(bean->metadata()->alias());
                 return false;
             }
             else if ( m_reportName.isEmpty() )
@@ -583,13 +585,13 @@ bool ReportRunPrivate::prepareReport(BaseBeanPointer bean)
             }
             if ( m_metadata.isNull() )
             {
-                m_lastErrorMessage = QObject::trUtf8("No existe el informe %1").arg(m_reportName);
+                m_lastErrorMessage = QObject::tr("No existe el informe %1").arg(m_reportName);
                 return false;
             }
             AERPMultiStringMap parameterBinding = m_metadata->parameterBinding();
             if ( parameterBinding.isEmpty() )
             {
-                m_lastErrorMessage = QObject::trUtf8("No hay correspondencia definida entre campos y parámetros");
+                m_lastErrorMessage = QObject::tr("No hay correspondencia definida entre campos y parámetros");
                 return false;
             }
         }
@@ -696,7 +698,7 @@ bool ReportRun::preview(int numCopies)
     }
     else
     {
-        d->m_lastErrorMessage = trUtf8("Plugin does not allow preview.");
+        d->m_lastErrorMessage = tr("Plugin does not allow preview.");
         return false;
     }
 }
@@ -767,7 +769,7 @@ bool ReportRun::pdf(int numCopies, bool open)
     }
     else
     {
-        d->m_lastErrorMessage = trUtf8("Plugin does not allow PDF creation.");
+        d->m_lastErrorMessage = tr("Plugin does not allow PDF creation.");
         return false;
     }
     return true;
@@ -807,6 +809,7 @@ void ReportRun::setParameterValue(const QString &parameterName, const QVariant &
 bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
 {
     // Vamos a generar la hoja de cálculo a partir de la consulta
+    d->m_cancelExportToSpreadSheet = false;
     QScopedPointer<AERPSpreadSheet> spread(new AERPSpreadSheet());
     AERPSpreadSheetIface *iface = NULL;
     foreach (AERPSpreadSheetIface *i, AERPSpreadSheet::ifaces())
@@ -820,9 +823,10 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
     QString sql = d->m_metadata->exportSql();
     if ( iface == NULL || !iface->canWriteFiles() || !canExportSpreadSheet() || sql.isEmpty())
     {
-        d->m_lastErrorMessage = trUtf8("No existe ningún plugin disponible que pueda escribir un fichero de tipo: %1").arg(type);
+        d->m_lastErrorMessage = tr("No existe ningún plugin disponible que pueda escribir un fichero de tipo: %1").arg(type);
         return false;
     }
+    QString sqlCount = QString("SELECT count(*) FROM (%1) AS foo").arg(sql);
 
     // Construimos los parámetros de entorno
     QVariantMap parameters;
@@ -843,11 +847,20 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
         param[it.key()] = it.value();
     }
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("ReportRun::exportToSpreadSheet: [%1]").arg(sql));
+
     QScopedPointer<QSqlQuery> qry(new QSqlQuery(Database::getQDatabase()));
+    QScopedPointer<QSqlQuery> qryCount(new QSqlQuery(Database::getQDatabase()));
     if ( !qry->prepare(sql) )
     {
-        d->m_lastErrorMessage = trUtf8("Ocurrió un error al preparar la consulta de exportación. \nEl error es: [%1][%2]").
-                arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
+        d->m_lastErrorMessage = tr("Ocurrió un error al preparar la consulta de exportación. \nEl error es: [%1][%2]").
+                arg(qry->lastError().databaseText(), qry->lastError().driverText());
+        QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
+        return false;
+    }
+    if ( !qryCount->prepare(sqlCount) )
+    {
+        d->m_lastErrorMessage = tr("Ocurrió un error al preparar la consulta de exportación. \nEl error es: [%1][%2]").
+                arg(qryCount->lastError().databaseText(), qryCount->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
         return false;
     }
@@ -861,54 +874,128 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
             placeHolder.prepend(":");
         }
         qry->bindValue(placeHolder, itQuery.value());
+        qryCount->bindValue(placeHolder, itQuery.value());
     }
 
-    qDebug() << qry->boundValues();;
-
-    if ( !qry->exec() )
+    emit initExportToSpreadSheet(2);
+    emit labelExportToSpreadSheet(tr("Realizando consulta en base de datos..."));
+    qApp->processEvents();
+    bool rCount = qryCount->exec();
+    bool r = qry->exec();
+    if ( !rCount || !r )
     {
-        d->m_lastErrorMessage = trUtf8("Ocurrió un error ejecutando la consulta de exportación. \nEl error es: [%1][%2]").
-                arg(qry->lastError().databaseText()).arg(qry->lastError().driverText());
+        d->m_lastErrorMessage = tr("Ocurrió un error ejecutando la consulta de exportación. \nEl error es: [%1][%2]").
+                arg(qry->lastError().databaseText(), qry->lastError().driverText());
         QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
         return false;
     }
-    QStringList metadataFields = d->m_metadata->exportMetadataFields();
     AERPSheet *sheet = spread->createSheet(d->m_reportName, 0);
     int rowNumber = 1;
     char column = 'A';
+
+    qryCount->first();
+    int rowCount = qryCount->value(0).toInt();
+    emit initExportToSpreadSheet(rowCount);
+    emit labelExportToSpreadSheet(tr("Exportando datos (%1 registros)...").
+                                  arg(alephERPSettings->locale()->toString(rowCount)));
+    qApp->processEvents();
+
     for (int i = 0 ; i < qry->record().count() ; i++)
     {
+        if ( d->m_cancelExportToSpreadSheet )
+        {
+            d->m_lastErrorMessage = tr("Cancelado por el usuario");
+            return false;
+        }
         sheet->addColumn(qry->record().fieldName(i));
     }
     while (qry->next())
     {
         for (int idx = 0 ; idx < qry->record().count() ; ++idx)
         {
-            AERPCell *cell = sheet->createCell(QString("%1").arg(rowNumber), QString("%2").arg(QChar(column + idx)));
-            cell->setValue(qry->record().value(idx));
-            if ( AERP_CHECK_INDEX_OK(idx, metadataFields) )
+            if ( d->m_cancelExportToSpreadSheet )
             {
-                QString dbFieldName = d->m_metadata->exportMetadataFields().at(idx);
-                QStringList parts = dbFieldName.split(".");
-                if ( parts.size() == 2 )
-                {
-                    BaseBeanMetadata *m = BeansFactory::metadataBean(parts.at(0));
-                    if ( m != NULL )
-                    {
-                        DBFieldMetadata *f = m->field(parts.at(1));
-                        if ( f != NULL )
-                        {
-                        }
-                    }
-                }
+                d->m_lastErrorMessage = tr("Cancelado por el usuario");
+                return false;
             }
+            AERPCell *cell = sheet->createCellWithoutCheck(QString("%1").arg(rowNumber), QString("%2").arg(QChar(column + idx)));
+            cell->setValue(qry->record().value(idx));
         }
         rowNumber++;
+        emit progressExportToSpreadSheet(rowNumber);
+        qApp->processEvents();
     }
     bool execute = iface->writeFile(spread.data(), file);
+    emit finishExportToSpreadSheet();
     if ( !execute )
     {
         d->m_lastErrorMessage = iface->lastMessage();
     }
     return execute;
 }
+
+QSqlQuery ReportRun::query()
+{
+    QSqlQuery qry(Database::getQDatabase());
+    QString sql = d->m_metadata->exportSql();
+    if ( sql.isEmpty())
+    {
+        d->m_lastErrorMessage = tr("No existe ninguna query de previsualización de datos.");
+        return qry;
+    }
+
+    // Construimos los parámetros de entorno
+    QVariantMap parameters;
+    if ( !d->m_beans.isEmpty() )
+    {
+        // TODO: Hay que ver esto.
+        // parameters = d->buildParameterBindingForBean();
+    }
+    else if ( !d->m_metadata.isNull() )
+    {
+        parameters = d->m_parameters;
+    }
+    QVariantMap param = d->buildEnvVarParameterBinding();
+    QMapIterator<QString, QVariant> it(parameters);
+    while (it.hasNext())
+    {
+        it.next();
+        param[it.key()] = it.value();
+    }
+    QLogger::QLog_Debug(AlephERP::stLogDB, QString("ReportRun::query: [%1]").arg(sql));
+    if ( !qry.prepare(sql) )
+    {
+        d->m_lastErrorMessage = tr("Ocurrió un error al preparar la consulta de previsualización de datos. \nEl error es: [%1][%2]").
+                arg(qry.lastError().databaseText(), qry.lastError().driverText());
+        QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
+        return qry;
+    }
+    QMapIterator<QString, QVariant> itQuery(param);
+    while (itQuery.hasNext())
+    {
+        itQuery.next();
+        QString placeHolder = itQuery.key();
+        if ( !placeHolder.startsWith(":") )
+        {
+            placeHolder.prepend(":");
+        }
+        qry.bindValue(placeHolder, itQuery.value());
+    }
+
+    qDebug() << qry.boundValues();;
+
+    if ( !qry.exec() )
+    {
+        d->m_lastErrorMessage = tr("Ocurrió un error ejecutando la consulta de previsualización de datos. \nEl error es: [%1][%2]").
+                arg(qry.lastError().databaseText(), qry.lastError().driverText());
+        QLogger::QLog_Error(AlephERP::stLogDB, d->m_lastErrorMessage);
+        return qry;
+    }
+    return qry;
+}
+
+void ReportRun::cancelExportToSpreadSheet()
+{
+    d->m_cancelExportToSpreadSheet = true;
+}
+

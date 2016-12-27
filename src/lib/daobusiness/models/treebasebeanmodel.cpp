@@ -68,7 +68,10 @@ TreeBaseBeanModel::TreeBaseBeanModel(const QStringList &tableNames, bool init, Q
         info.metadata = BeansFactory::metadataBean(info.tableName);
         d->m_levelInfo.append(info);
     }
-    setVisibleFields(d->m_levelInfo.last().metadata->dbFieldNames());
+    if ( d->m_levelInfo.last().metadata )
+    {
+        setVisibleFields(d->m_levelInfo.last().metadata->dbFieldNames());
+    }
 
     connect(EnvVars::instance(), SIGNAL(varChanged(QString,QVariant)), this, SLOT(resetModel()));
     connect(BackgroundDAO::instance(), SIGNAL(availableBeans(QString,BaseBeanSharedPointerList)), this, SLOT(beansHasBeenLoaded(QString,BaseBeanSharedPointerList)), Qt::QueuedConnection);
@@ -443,7 +446,8 @@ QModelIndex TreeBaseBeanModel::indexForItem(BeanTreeItem *item)
 /*!
     Devuelve el índice del modelo para el bean dado.
  */
-QModelIndex TreeBaseBeanModel::index(const BaseBeanSharedPointer &bean)
+/*
+QModelIndex TreeBaseBeanModel::index(const BaseBeanSharedPointer &bean) const
 {
     // Primero vamos a determinar en qu nivel se encuentra el objeto
     QModelIndex indice;
@@ -460,6 +464,7 @@ QModelIndex TreeBaseBeanModel::index(const BaseBeanSharedPointer &bean)
 
     return indice;
 }
+*/
 
 QModelIndex TreeBaseBeanModel::indexByPk(const QVariant &pk)
 {
@@ -508,7 +513,7 @@ QVariant TreeBaseBeanModel::headerData(int section, Qt::Orientation orientation,
     switch ( role )
     {
     case Qt::DisplayRole:
-        return QObject::trUtf8(field->fieldName().toUtf8());
+        return QObject::tr(field->fieldName().toUtf8());
 
     case AlephERP::DBFieldNameRole:
         return field->dbFieldName();
@@ -577,7 +582,7 @@ Qt::ItemFlags TreeBaseBeanModel::flags (const QModelIndex & index) const
         {
             flags = flags | Qt::ItemIsEnabled;
         }
-        QString checkColumn = QString("%1.%2").arg(bean->metadata()->tableName()).arg(field->dbFieldName());
+        QString checkColumn = QString("%1.%2").arg(bean->metadata()->tableName(), field->dbFieldName());
         if ( BaseBeanModel::checkColumns().contains(checkColumn))
         {
             flags = flags | Qt::ItemIsUserCheckable;
@@ -603,7 +608,7 @@ bool TreeBaseBeanModel::insertRows (int row, int count, const QModelIndex & pare
     }
     if ( !levelInfo->allowInsert )
     {
-        setProperty(AlephERP::stLastErrorMessage, trUtf8("No está permitido inserar registros de tipo '%1' desde esta vista.").arg(levelInfo->metadata->alias()));
+        setProperty(AlephERP::stLastErrorMessage, tr("No está permitido inserar registros de tipo '%1' desde esta vista.").arg(levelInfo->metadata->alias()));
         return false;
     }
     BaseBeanMetadata *metadata = levelInfo->metadata;
@@ -712,7 +717,7 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
         }
         if ( field != NULL )
         {
-            checkColumn = QString("%1.%2").arg(b->metadata()->tableName()).arg(field->dbFieldName());
+            checkColumn = QString("%1.%2").arg(b->metadata()->tableName(), field->dbFieldName());
         }
     }
 
@@ -755,19 +760,19 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
             BaseBeanMetadata *m = d->m_levelInfo.first().metadata;
             if ( m )
             {
-                return trUtf8("Insertar registro '%1'").arg(m->alias());
+                return tr("Insertar registro '%1'").arg(m->alias());
             }
         }
         else
         {
-            return trUtf8("Insertar registro '%1'").arg(nextLevelInfo->metadata->alias());
+            return tr("Insertar registro '%1'").arg(nextLevelInfo->metadata->alias());
         }
         return QString();
     case AlephERP::EditRowTextRole:
-        return trUtf8("Editar registro '%1").arg(levelInfo->metadata->alias());
+        return tr("Editar registro '%1").arg(levelInfo->metadata->alias());
 
     case AlephERP::DeleteRowTextRole:
-        return trUtf8("Eliminar registro '%1").arg(levelInfo->metadata->alias());
+        return tr("Eliminar registro '%1").arg(levelInfo->metadata->alias());
 
     case AlephERP::SortRole:
     case Qt::DisplayRole:
@@ -849,7 +854,7 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
         {
             return static_cast<int>(Qt::PointingHandCursor);
         }
-        else if ( field != NULL && field->email() )
+        else if ( field != NULL && field->specialType() == DBFieldMetadata::Email )
         {
             return static_cast<int>(Qt::PointingHandCursor);
         }
@@ -879,7 +884,8 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
             {
                 font.setUnderline(true);
             }
-            else if ( field->email() )
+            else if ( field->specialType() == DBFieldMetadata::Email ||
+                      field->specialType() == DBFieldMetadata::UrlWeb  )
             {
                 font.setUnderline(true);
             }
@@ -919,7 +925,7 @@ QVariant TreeBaseBeanModel::data(const QModelIndex &idx, int role) const
             {
                 return QBrush(Qt::blue);
             }
-            else if ( field->email() )
+            else if ( field->specialType() == DBFieldMetadata::Email )
             {
                 return QBrush(Qt::blue);
             }
@@ -1059,7 +1065,7 @@ bool TreeBaseBeanModel::setData(const QModelIndex &idx, const QVariant &value, i
     {
         return false;
     }
-    QString checkColumn = QString("%1.%2").arg(bean->metadata()->tableName()).arg(field->dbFieldName());
+    QString checkColumn = QString("%1.%2").arg(bean->metadata()->tableName(), field->dbFieldName());
     if ( role == Qt::CheckStateRole && BaseBeanModel::checkColumns().contains(checkColumn) )
     {
         bool ok;
@@ -1274,7 +1280,7 @@ bool TreeBaseBeanModel::removeRows (int row, int count, const QModelIndex & pare
     LevelInfo *levelInfo = d->levelInfoForTable(item->tableName());
     if ( levelInfo->tableName != d->m_levelInfo.last().tableName && !levelInfo->allowDelete )
     {
-        setLastErrorMessage(trUtf8("No se permiten borrar registro de tipo '%1").arg(levelInfo->metadata->tableName()));
+        setLastErrorMessage(tr("No se permiten borrar registro de tipo '%1").arg(levelInfo->metadata->tableName()));
         return false;
     }
 
@@ -1348,7 +1354,7 @@ int TreeBaseBeanModel::totalRecordCount() const
 
 void TreeBaseBeanModel::freezeModel()
 {
-    QLogger::QLog_Debug(AlephERP::stLogOther, trUtf8("TreeBaseBeanModel::freezeModel: invocado"));
+    QLogger::QLog_Debug(AlephERP::stLogOther, tr("TreeBaseBeanModel::freezeModel: invocado"));
     BaseBeanModel::freezeModel();
     if ( d->m_refreshing )
     {

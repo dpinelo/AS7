@@ -281,7 +281,7 @@ QList<DBField *> StringExpression::fieldsInvolvedOnCalc(BaseBean *bean)
                             DBRelation *rel = qobject_cast<DBRelation *>(obj);
                             if ( rel != NULL )
                             {
-                                foreach (DBField *fld, bean->fields())
+                                for (DBField *fld : bean->fields())
                                 {
                                     if ( fld->relations().contains(rel) && !fldList.contains(fld) )
                                     {

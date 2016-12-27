@@ -100,15 +100,15 @@ QWidget *AERPUiLoader::createWidget(const QString &className, QWidget *parent, c
     }
     return widget;
 #else
-    QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPUiLoader::createWidget: Creando [%1][%2]").arg(className).arg(name));
+    QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPUiLoader::createWidget: Creando [%1][%2]").arg(className, name));
     QWidget *w = QUiLoader::createWidget(className, parent, name);
     if ( w != NULL )
     {
-        QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPUiLoader::createWidget: Creado exitosamente [%1][%2]").arg(className).arg(name));
+        QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPUiLoader::createWidget: Creado exitosamente [%1][%2]").arg(className, name));
     }
     else
     {
-        QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPUiLoader::createWidget: No se ha podido crear [%1][%2]").arg(className).arg(name));
+        QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPUiLoader::createWidget: No se ha podido crear [%1][%2]").arg(className, name));
     }
     return w;
 #endif

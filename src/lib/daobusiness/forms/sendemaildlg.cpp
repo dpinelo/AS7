@@ -109,7 +109,7 @@ SendEmailDlg::SendEmailDlg(BaseBeanPointer bean, QWidget* parent, Qt::WindowFlag
     if ( d->m_iface == NULL )
     {
         QMessageBox::warning(this, qApp->applicationName(),
-                             trUtf8("No se ha podido cargar el plugin para el envío de correos. Error: %1").arg(messageError), QMessageBox::Ok);
+                             tr("No se ha podido cargar el plugin para el envío de correos. Error: %1").arg(messageError), QMessageBox::Ok);
         close();
         return;
     }
@@ -127,8 +127,8 @@ SendEmailDlg::SendEmailDlg(BaseBeanPointer bean, QWidget* parent, Qt::WindowFlag
     }
 
     d->m_addAttachment = new QAction(ui->pbAddAttachment->icon(), ui->pbAddAttachment->text(), this);
-    d->m_openAttachment = new QAction(QIcon(":/generales/images/edit_search.png"), trUtf8("Abrir adjunto"), this);
-    d->m_saveAttachment = new QAction(QIcon(":/generaleS/images/save.png"), trUtf8("Guardar como..."), this);
+    d->m_openAttachment = new QAction(QIcon(":/generales/images/edit_search.png"), tr("Abrir adjunto"), this);
+    d->m_saveAttachment = new QAction(QIcon(":/generaleS/images/save.png"), tr("Guardar como..."), this);
     d->m_deleteAttachment = new QAction(ui->pbRemoveAttachment->icon(), ui->pbRemoveAttachment->text(), this);
 
     connect(ui->pbSend, SIGNAL(clicked()), this, SLOT(send()));
@@ -177,7 +177,7 @@ SendEmailDlg::SendEmailDlg(BaseBeanPointer bean, QWidget* parent, Qt::WindowFlag
     QString from;
     if ( !AERPLoggedUser::instance()->userName().isEmpty() && !AERPLoggedUser::instance()->email().isEmpty() )
     {
-        from = QString("%1 <%2>").arg(AERPLoggedUser::instance()->name()).arg(AERPLoggedUser::instance()->email());
+        from = QString("%1 <%2>").arg(AERPLoggedUser::instance()->name(), AERPLoggedUser::instance()->email());
     }
     else if ( !AERPLoggedUser::instance()->email().isEmpty() )
     {
@@ -230,7 +230,7 @@ void SendEmailDlg::askToClose()
 {
     if ( !d->m_wasSent )
     {
-        int ret = QMessageBox::question(this, qApp->applicationName(), trUtf8("No ha enviado el correo electrónico. ¿Está seguro de querer salir?"), QMessageBox::Yes | QMessageBox::No);
+        int ret = QMessageBox::question(this, qApp->applicationName(), tr("No ha enviado el correo electrónico. ¿Está seguro de querer salir?"), QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::Yes )
         {
             close();
@@ -284,7 +284,7 @@ void SendEmailDlg::send()
 {
     d->m_dlg = new QProgressDialog(this);
     d->m_dlg->setAttribute(Qt::WA_DeleteOnClose);
-    d->m_dlg->setLabelText(trUtf8("Envío de correo electrónico"));
+    d->m_dlg->setLabelText(tr("Envío de correo electrónico"));
     d->m_dlg->setWindowTitle(qApp->applicationName());
 
     connect(d->m_smtp, SIGNAL(init(int)), d->m_dlg, SLOT(setMaximum(int)));
@@ -332,7 +332,7 @@ void SendEmailDlg::send()
 
     if ( !d->m_smtp->send() )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Ha ocurrido un error enviando el correo electrónico. El error fue: %1").arg(d->m_smtp->errorMessage()), QMessageBox::Ok);
+        QMessageBox::warning(this, qApp->applicationName(), tr("Ha ocurrido un error enviando el correo electrónico. El error fue: %1").arg(d->m_smtp->errorMessage()), QMessageBox::Ok);
         d->m_wasSent = false;
     }
     else
@@ -451,11 +451,11 @@ void SendEmailDlg::execQs()
         if ( !executeOk )
         {
             CommonsFunctions::setOverrideCursor(QCursor(Qt::ArrowCursor));
-            QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ha ocurrido un error al cargar el script asociado a este "
+            QMessageBox::warning(this,qApp->applicationName(), tr("Ha ocurrido un error al cargar el script asociado a este "
                                  "formulario. Es posible que algunas funciones no estén disponibles."),
                                  QMessageBox::Ok);
 #ifdef ALEPHERP_DEVTOOLS
-            int ret = QMessageBox::information(this,qApp->applicationName(), trUtf8("El script ejecutado contiene errores. ¿Desea editarlo?"),
+            int ret = QMessageBox::information(this,qApp->applicationName(), tr("El script ejecutado contiene errores. ¿Desea editarlo?"),
                                                QMessageBox::Yes | QMessageBox::No);
             if ( ret == QMessageBox::Yes )
             {
@@ -500,11 +500,11 @@ void SendEmailDlgPrivate::createContactListWidget()
         m_contactWidget = frame;
         QGridLayout *layout = new QGridLayout();
 
-        QLabel *filterLabel = new QLabel(QObject::trUtf8("Nombre del contacto"), frame);
+        QLabel *filterLabel = new QLabel(QObject::tr("Nombre del contacto"), frame);
         QLineEdit *filterEdit = new QLineEdit(frame);
         filterEdit->resize(200, filterEdit->height());
         filterEdit->setObjectName(QString("filterContactName"));
-        QPushButton *pbOk = new QPushButton(QIcon(":/aplicacion/images/ok.png"), QObject::trUtf8("Ok"), frame);
+        QPushButton *pbOk = new QPushButton(QIcon(":/aplicacion/images/ok.png"), QObject::tr("Ok"), frame);
 
         m_tableView = new DBTableView(frame);
 
@@ -574,7 +574,7 @@ void SendEmailDlg::showOrHideContactFilter()
 
 void SendEmailDlg::addAttachmentClick()
 {
-    QStringList files = QFileDialog::getOpenFileNames(this, trUtf8("Seleccione los ficheros adjuntos"));
+    QStringList files = QFileDialog::getOpenFileNames(this, tr("Seleccione los ficheros adjuntos"));
     if ( files.isEmpty() )
     {
         return;
@@ -629,7 +629,7 @@ void SendEmailDlg::openAttachment()
             QUrl url = QUrl::fromLocalFile(path);
             if ( !QDesktopServices::openUrl(url) )
             {
-                QMessageBox::warning(this, qApp->applicationName(), trUtf8("No se pudo abrir el archivo adjunto. Puede usted ir al archivo en la ruta: %1").arg(path));
+                QMessageBox::warning(this, qApp->applicationName(), tr("No se pudo abrir el archivo adjunto. Puede usted ir al archivo en la ruta: %1").arg(path));
             }
             openedRows.append(item->row());
         }
@@ -644,7 +644,7 @@ void SendEmailDlg::saveAttachment()
     {
         return;
     }
-    QString newPath = QFileDialog::getExistingDirectory(this, trUtf8("Seleccione la ruta y el nombre con el que almacenará el adjunto"),
+    QString newPath = QFileDialog::getExistingDirectory(this, tr("Seleccione la ruta y el nombre con el que almacenará el adjunto"),
                       QDir::homePath());
     if ( newPath.isEmpty() )
     {
@@ -661,7 +661,7 @@ void SendEmailDlg::saveAttachment()
             QString copyTo = newPath + "/" + fi.fileName();
             if ( !QFile::copy (path, copyTo) )
             {
-                QMessageBox::warning(this, qApp->applicationName(), trUtf8("No se ha podido guardar el archivo en la ruta indicada. Puede usted ir al archivo en la ruta: %1").arg(path));
+                QMessageBox::warning(this, qApp->applicationName(), tr("No se ha podido guardar el archivo en la ruta indicada. Puede usted ir al archivo en la ruta: %1").arg(path));
             }
             openedRows.append(item->row());
         }
@@ -681,9 +681,7 @@ void SendEmailDlgPrivate::initCompleter ()
         // En el momento en el que el primer elemento de la lista ordenada sera por ejemplo, "ALM" y el último sea ""
         // el completer no es capaz de detectar la ordenación y no genera completado.
         QString sql = QString("SELECT * FROM (SELECT DISTINCT %1 || ' <' || %2 || '>' as column1 FROM %3 WHERE %2 <> '') AS FOO WHERE column1 <> '' ORDER BY column1 ASC").
-                      arg(m_contactModelDisplayField).
-                      arg(m_contactModelEmailField).
-                      arg(m->sqlTableName());
+                      arg(m_contactModelDisplayField, m_contactModelEmailField, m->sqlTableName());
         qDebug() << "SendEmailDlgPrivate::initCompleter: " << sql;
         m_completerModel->setQuery(sql);
 

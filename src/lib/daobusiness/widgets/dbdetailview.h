@@ -58,15 +58,12 @@ class DBDetailView;
   @see DBRelation
   @author David Pinelo <alepherp@alephsistemas.es>
   */
-class ALEPHERP_DLL_EXPORT DBDetailView : public QWidget, public DBAbstractViewInterface, public QScriptable
+class ALEPHERP_DLL_EXPORT DBDetailView :
+        public QWidget,
+        public DBAbstractViewInterface,
+        public QScriptable
 {
     Q_OBJECT
-    Q_FLAGS(Buttons)
-    Q_ENUMS(Button)
-    Q_FLAGS(WorkModes)
-    Q_ENUMS(WorkMode)
-    Q_FLAGS(RecordStates)
-    Q_ENUMS(RecordState)
     Q_DISABLE_COPY(DBDetailView)
 
     Q_PROPERTY (QString relationName READ relationName WRITE setRelationName)
@@ -159,7 +156,9 @@ public:
          * se mostrará es la posibilidad de anexar o seleccionar otro registro existente */
         ExistingPrevious = 0x02
     };
+    Q_ENUM(WorkMode)
     Q_DECLARE_FLAGS(WorkModes, WorkMode)
+    Q_FLAG(WorkModes)
 
     /** Botones que serán visibles */
 #ifdef DELETE
@@ -185,7 +184,9 @@ public:
         RemoveExistingButton = 0x020,
         ExportSpreadSheetButton = 0x040
     };
+    Q_ENUM(Button)
     Q_DECLARE_FLAGS(Buttons, Button)
+    Q_FLAG(Buttons)
 
     virtual AlephERP::ObserverType observerType(BaseBean *)
     {

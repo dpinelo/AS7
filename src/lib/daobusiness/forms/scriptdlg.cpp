@@ -66,7 +66,7 @@ ScriptDlg::ScriptDlg(const QString &uiName, const QString &qsName, QWidget* pare
 bool ScriptDlg::init()
 {
     // Nombre único para identificar las propiedades de este formulario
-    setObjectName(QString("%1%2").arg(objectName()).arg(d->m_ui));
+    setObjectName(QString("%1%2").arg(objectName(), d->m_ui));
 
     setWindowFlags(windowFlags() | Qt::WindowMinMaxButtonsHint |
                    Qt::WindowSystemMenuHint | Qt::WindowContextHelpButtonHint);
@@ -133,7 +133,7 @@ void ScriptDlg::setupMainWidget()
     {
         QMessageBox::warning(this,
                              qApp->applicationName(),
-                             trUtf8("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").
+                             tr("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de las tablas de sistema de su programa.").
                                 arg(d->m_ui),
                              QMessageBox::Ok);
         close();
@@ -181,11 +181,11 @@ void ScriptDlg::execQs()
     CommonsFunctions::restoreOverrideCursor();
     if ( !result )
     {
-        QMessageBox::warning(this,qApp->applicationName(), trUtf8("Ha ocurrido un error al cargar el script asociado a este "
+        QMessageBox::warning(this,qApp->applicationName(), tr("Ha ocurrido un error al cargar el script asociado a este "
                              "formulario. Es posible que algunas funciones no estén disponibles."),
                              QMessageBox::Ok);
 #ifdef ALEPHERP_DEVTOOLS
-        int ret = QMessageBox::information(this,qApp->applicationName(), trUtf8("El script ejecutado contiene errores. ¿Desea editarlo?"),
+        int ret = QMessageBox::information(this,qApp->applicationName(), tr("El script ejecutado contiene errores. ¿Desea editarlo?"),
                                            QMessageBox::Yes | QMessageBox::No);
         if ( ret == QMessageBox::Yes )
         {

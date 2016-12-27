@@ -63,7 +63,7 @@ public:
     }
 
     virtual void installWidget(QObject *widget);
-    virtual bool readOnly();
+    virtual bool readOnly() const;
     virtual void informOnFieldChanges(QWidget *w, const QStringList fields);
 
 public slots:

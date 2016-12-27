@@ -103,7 +103,7 @@ QVariant DBListViewPrivate::valueFromBeans()
                             }
                             else
                             {
-                                result = QString("%1,%2").arg(result).arg(bean->fieldValue(key).toString());
+                                result = QString("%1,%2").arg(result, bean->fieldValue(key).toString());
                             }
                         }
                         list.append(result);
@@ -128,7 +128,7 @@ QVariant DBListViewPrivate::valueFromBeans()
                             }
                             else
                             {
-                                result = QString("%1,%2").arg(result).arg(bean->fieldValue(key).toString());
+                                result = QString("%1,%2").arg(result, bean->fieldValue(key).toString());
                             }
                         }
                         if ( !data.isEmpty() )
@@ -295,7 +295,7 @@ QString DBListView::keyField()
                     }
                     else
                     {
-                        d->m_keyField = QString("%1;%2").arg(d->m_keyField).arg(fld->dbFieldName());
+                        d->m_keyField = QString("%1;%2").arg(d->m_keyField, fld->dbFieldName());
                     }
                 }
             }

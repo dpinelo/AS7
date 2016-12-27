@@ -64,7 +64,7 @@ DBAbstractViewInterface::DBAbstractViewInterface(QWidget *widget, QHeaderView *h
     m_visibleRecords = AlephERP::DBRecordStates(AlephERP::Inserted | AlephERP::Existing);
     m_allowedEdit = true;
     m_readOnlyModel = true;
-    m_hideColumn = new QAction(QObject::trUtf8("Ocultar columna"), m_thisWidget);
+    m_hideColumn = new QAction(QObject::tr("Ocultar columna"), m_thisWidget);
     m_clickedColumn = -1;
     m_header = header;
     m_htmlDelegate = new AERPHtmlDelegate(m_thisWidget);
@@ -139,11 +139,28 @@ QString DBAbstractViewInterface::tableName()
 
 void DBAbstractViewInterface::setTableName(const QString &value)
 {
+    bool hasToRefresh = !m_tableName.isEmpty() && value != m_tableName;
     m_tableName = value;
     BaseBeanMetadata *m = BeansFactory::metadataBean(m_tableName);
     if ( m != NULL )
     {
         m_order = m->initOrderSort();
+    }
+    if ( hasToRefresh )
+    {
+        clearModels();
+        refresh();
+    }
+}
+
+void DBAbstractViewInterface::setRelationName(const QString &value)
+{
+    bool hasToRefresh = !m_tableName.isEmpty() && value != m_tableName;
+    DBBaseWidget::setRelationName(value);
+    if ( hasToRefresh )
+    {
+        clearModels();
+        refresh();
     }
 }
 
@@ -762,7 +779,7 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
     {
         return;
     }
-    BaseBeanSharedPointer bean = filterModel()->bean(idx);
+    BaseBeanSharedPointer bean = filterModel()->bean(idx, false);
     if ( bean.isNull() )
     {
         return;
@@ -771,6 +788,29 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
     DBField *fld = bean->field(fieldName);
     if ( fld == NULL )
     {
+        return;
+    }
+    QString uiDbRecord = bean->metadata()->uiDbRecord();
+    QString qsDbRecord = bean->metadata()->qsDbRecord();
+    // Si es una URL, abrimos el navegador
+    if ( fld->metadata()->specialType() == DBFieldMetadata::UrlWeb && fld->value().isValid() )
+    {
+        QUrl url(fld->value().toString());
+        if ( !fld->value().toString().startsWith("http") )
+        {
+            url = QUrl(QString("http://%1").arg(fld->value().toString()));
+        }
+        QDesktopServices::openUrl(url);
+        return;
+    }
+    if ( fld->metadata()->specialType() == DBFieldMetadata::Email && fld->value().isValid() )
+    {
+        QUrl url(fld->value().toString());
+        if ( !fld->value().toString().startsWith("mailto") )
+        {
+            url = QUrl(QString("mailto://%1").arg(fld->value().toString()));
+        }
+        QDesktopServices::openUrl(url);
         return;
     }
     AlephERP::FormOpenType openType;
@@ -852,6 +892,14 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
                 return;
             }
             QPointer<DBRecordDlg> dlg = new DBRecordDlg(b, openType, true);
+            if ( !uiDbRecord.isEmpty() )
+            {
+                dlg->setUiCode(uiDbRecord);
+            }
+            if ( !qsDbRecord.isEmpty() )
+            {
+                dlg->setQsCode(qsDbRecord);
+            }
             QApplication::restoreOverrideCursor();
             if ( dlg->openSuccess() && dlg->init() )
             {
@@ -861,6 +909,35 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
                 dlg->show();
             }
         }
+    }
+}
+
+void DBAbstractViewInterface::itemChecked(const QModelIndex &idx, bool value)
+{
+    QAbstractItemView *view = qobject_cast<QAbstractItemView *>(m_thisWidget);
+    if ( !view || !idx.isValid() )
+    {
+        return;
+    }
+    if ( view->model() != idx.model() )
+    {
+        qWarning() << "DBAbstractViewInterface::itemChecked: Índice y modelo no coinciden.";
+        return;
+    }
+    if ( !filterModel() )
+    {
+        return;
+    }
+    QWidget *widget = dynamic_cast<QWidget *>(this);
+    AERPBaseDialog *containerDlg = CommonsFunctions::aerpParentDialog(widget);
+    if ( containerDlg != NULL )
+    {
+        QScriptValueList args;
+        args.append(QScriptValue(idx.row()));
+        args.append(QScriptValue(idx.column()));
+        args.append(QScriptValue(value));
+        containerDlg->callQSMethod(QString("%1ItemChecked").arg(widget->objectName()), args);
+        containerDlg->callQSMethod(QString("%1ItemChecked").arg(m_relationName), args);
     }
 }
 
@@ -943,7 +1020,7 @@ void DBAbstractViewInterface::prepareColumns()
         foreach ( DBFieldMetadata *fld, list )
         {
             int col = header->visualIndex(i);
-            if ( fld->html() )
+            if ( fld->specialType() == DBFieldMetadata::Html )
             {
                 itemView->setItemDelegateForColumn(col, m_htmlDelegate);
             }
@@ -953,7 +1030,7 @@ void DBAbstractViewInterface::prepareColumns()
             }
             if ( fld->behaviourOnInlineEdit().size() > 0 )
             {
-                AERPInlineEditItemDelegate *delegate = new AERPInlineEditItemDelegate(fld->behaviourOnInlineEdit().value("widgetOnEdit").toString(), m_thisWidget);
+                AERPInlineEditItemDelegate *delegate = new AERPInlineEditItemDelegate(m_thisWidget);
                 itemView->setItemDelegateForColumn(col, delegate);
             }
             i++;
@@ -1043,7 +1120,7 @@ QString DBAbstractViewInterface::configurationName()
     QDialog *parent = CommonsFunctions::parentDialog(m_thisWidget);
     if ( parent != NULL )
     {
-        name = QString("%1-%2").arg(parent->objectName()).arg(temp);
+        name = QString("%1-%2").arg(parent->objectName(), temp);
     }
     else
     {
@@ -1077,7 +1154,7 @@ void DBAbstractViewInterface::nextCellOnEnter(const QModelIndex &actualCell, con
         int row = filterModel()->rowCount();
         if ( !filterModel()->insertRow(row) )
         {
-            QMessageBox::warning(0, qApp->applicationName(), QObject::trUtf8("Ha ocurrido un error al intentar agregar un registro. \nEl error es: %1").
+            QMessageBox::warning(0, qApp->applicationName(), QObject::tr("Ha ocurrido un error al intentar agregar un registro. \nEl error es: %1").
                                  arg(filterModel()->property(AlephERP::stLastErrorMessage).toString()));
             filterModel()->setProperty(AlephERP::stLastErrorMessage, "");
             return;
@@ -1185,7 +1262,7 @@ void DBAbstractViewInterface::paste()
             // error, uneven number of columns, probably bad data
             QMessageBox::critical(itemView,
                                   qApp->applicationName(),
-                                  QObject::trUtf8("Datos no válidos en el portapapeles. No se puede realizar el pegado."));
+                                  QObject::tr("Datos no válidos en el portapapeles. No se puede realizar el pegado."));
             return;
         }
 
@@ -1194,7 +1271,7 @@ void DBAbstractViewInterface::paste()
             // error, clipboard does not match current number of columns
             QMessageBox::critical(itemView,
                                   qApp->applicationName(),
-                                  QObject::trUtf8("Datos no válidos en el portapapeles. El número de columnas es incorrecta."));
+                                  QObject::tr("Datos no válidos en el portapapeles. El número de columnas es incorrecta."));
             return;
         }
 
@@ -1242,7 +1319,7 @@ void DBAbstractViewInterface::showContextMenu(const QPoint &point)
     {
         QAction *copyAction = NULL;
         QPixmap copyIcon(":/actions/actions/copy.png");
-        copyAction = new QAction(QIcon(copyIcon), QObject::trUtf8("Copiar"), itemView);
+        copyAction = new QAction(QIcon(copyIcon), QObject::tr("Copiar"), itemView);
         QObject::connect(copyAction, SIGNAL(triggered()), itemView, SLOT(copy()));
         contextMenu.addAction(copyAction);
     }
@@ -1254,7 +1331,7 @@ void DBAbstractViewInterface::showContextMenu(const QPoint &point)
         }
         QAction *pasteAction = NULL;
         QPixmap pasteIcon(":/actions/actions/paste.png");
-        pasteAction = new QAction(QIcon(pasteIcon), QObject::trUtf8("Pegar"), itemView);
+        pasteAction = new QAction(QIcon(pasteIcon), QObject::tr("Pegar"), itemView);
         QObject::connect(pasteAction, SIGNAL(triggered()), itemView, SLOT(paste()));
         contextMenu.addAction(pasteAction);
     }

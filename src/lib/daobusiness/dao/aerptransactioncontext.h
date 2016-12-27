@@ -63,8 +63,8 @@ public:
     QString lastErrorMessage() const;
     void setDatabase(const QString &name);
     QString database() const;
-    BaseBeanPointerList beansOnContext(const QString &contextName);
-    BaseBeanPointerList beansOrderedToPersist(const QString &contextName);
+    const BaseBeanPointerList beansOnContext(const QString &contextName) const;
+    const BaseBeanPointerList beansOrderedToPersist(const QString &contextName) const;
     bool isDirty(const QString &contextName);
     bool isOnTransaction(BaseBeanPointer bean);
     QList<QVariant> registeredCounterValues(DBField *fld);

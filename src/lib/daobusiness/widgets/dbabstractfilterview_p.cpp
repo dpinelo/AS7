@@ -108,11 +108,11 @@ QString DBAbstractFilterViewPrivate::initSortForModel()
                 }
                 if ( sort.isEmpty() )
                 {
-                    sort = QString("%1 %2").arg(order.at(i)).arg(s);
+                    sort = QString("%1 %2").arg(order.at(i), s);
                 }
                 else
                 {
-                    sort = QString("%1, %2 %3").arg(sort).arg(order.at(i)).arg(s);
+                    sort = QString("%1, %2 %3").arg(sort, order.at(i), s);
                 }
             }
         }
@@ -228,12 +228,25 @@ QString DBAbstractFilterViewPrivate::initOrderedColumnSort()
   */
 void DBAbstractFilterViewPrivate::createStrongFilter()
 {
+    q_ptr->ui->gbCustomFilter->setVisible(false);
     if ( m_metadata == NULL )
     {
         return;
     }
     QList<QHash<QString, QString> > filters = m_metadata->itemsFilterColumn();
     int i = 0;
+
+    if ( filters.size() > 0 )
+    {
+        QVBoxLayout *lay = new QVBoxLayout;
+        lay->setContentsMargins(0, 0, 0, 0);
+        q_ptr->ui->gbCustomFilter->setVisible(filters.size() > 0);
+        q_ptr->ui->gbCustomFilter->setLayout(lay);
+    }
+    else
+    {
+        q_ptr->ui->gbCustomFilter->setVisible(false);
+    }
 
     foreach ( HashString filter, filters )
     {
@@ -291,45 +304,44 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
 {
     QComboBox *cb = new QComboBox(q_ptr);
     QLabel *lbl = new QLabel(q_ptr);
-    QVBoxLayout *lay = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbFilter->layout());
-    if ( lay == NULL )
-    {
-        return;
-    }
-    QHBoxLayout *layout;
+    lbl->setBuddy(cb);
+
+    QVBoxLayout *fatherCustomFiltersLayout = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbCustomFilter->layout());
+    QHBoxLayout *itemFilterLayout;
     if ( m_layouts.contains(row) )
     {
-        layout = m_layouts[row];
+        itemFilterLayout = m_layouts[row];
     }
     else
     {
         if ( row == 0 )
         {
-            layout = lay->findChild<QHBoxLayout *>();
-            if ( layout == NULL )
+            itemFilterLayout = fatherCustomFiltersLayout->findChild<QHBoxLayout *>();
+            if ( itemFilterLayout == NULL )
             {
-                layout = new QHBoxLayout;
+                itemFilterLayout = new QHBoxLayout;
+                fatherCustomFiltersLayout->addLayout(itemFilterLayout);
             }
         }
         else
         {
-            layout = new QHBoxLayout;
-            lay->addLayout(layout);
+            itemFilterLayout = new QHBoxLayout;
+            fatherCustomFiltersLayout->addLayout(itemFilterLayout);
         }
-        m_layouts[row] = layout;
+        m_layouts[row] = itemFilterLayout;
     }
     cb->setObjectName(QString("cbStrongFilter%1").arg(fld->dbFieldName()));
     lbl->setObjectName(QString("lblStrongFilter%1").arg(fld->dbFieldName()));
     lbl->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Fixed);
-    layout->insertWidget(i*2, lbl);
-    layout->insertWidget(i*2 + 1, cb);
+    itemFilterLayout->insertWidget(i*2, lbl);
+    itemFilterLayout->insertWidget(i*2 + 1, cb);
     lbl->setText(fld->fieldName());
     if ( fld->type() == QVariant::Bool )
     {
         QString filterItem = fld->sqlWhere("=", true);
-        cb->addItem(QIcon(":/aplicacion/images/ok.png"), QObject::trUtf8("Verdadero"), filterItem);
+        cb->addItem(QIcon(":/aplicacion/images/ok.png"), QObject::tr("Verdadero"), filterItem);
         filterItem = fld->sqlWhere("=", false);
-        cb->addItem(QIcon(":/generales/images/delete.png"), QObject::trUtf8("Falso"), filterItem);
+        cb->addItem(QIcon(":/generales/images/delete.png"), QObject::tr("Falso"), filterItem);
     }
     else
     {
@@ -350,7 +362,7 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
                     // Añadimos los hijos de la relación al combo
                     foreach ( BaseBeanSharedPointer child, list )
                     {
-                        QString where = QString("%1=%2").arg(fieldToFilter).arg(child->sqlFieldValue(rel->childFieldName()));
+                        QString where = QString("%1=%2").arg(fieldToFilter, child->sqlFieldValue(rel->childFieldName()));
                         cb->addItem(child->displayFieldValue(relationFieldToShow), where);
                     }
                 }
@@ -378,9 +390,9 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
     }
     if ( viewAll )
     {
-        cb->addItem(QObject::trUtf8("Ver todos"), "");
+        cb->addItem(QObject::tr("Ver todos"), "");
     }
-    QString key = QString("%1%2").arg(m_tableName).arg(cb->objectName());
+    QString key = QString("%1%2").arg(m_tableName, cb->objectName());
     QVariant v = alephERPSettings->loadRegistryValue(key);
     int index = cb->findData(v);
     if ( index != -1 )
@@ -403,11 +415,9 @@ void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fl
 {
     DBLineEdit *le = new DBLineEdit(q_ptr);
     QLabel *lbl = new QLabel(q_ptr);
-    QVBoxLayout *lay = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbFilter->layout());
-    if ( lay == NULL )
-    {
-        return;
-    }
+    lbl->setBuddy(le);
+
+    QVBoxLayout *lay = qobject_cast<QVBoxLayout *>(q_ptr->ui->gbCustomFilter->layout());
     QHBoxLayout *layout;
     if ( m_layouts.contains(row) )
     {
@@ -471,7 +481,7 @@ QString DBAbstractFilterViewPrivate::sqlFilterForStrongFilter(const QString &tab
             {
                 sqlFilter.append(" AND ");
             }
-            sqlFilter = QString("%1(%2)").arg(sqlFilter).arg(data);
+            sqlFilter = QString("%1(%2)").arg(sqlFilter, data);
         }
     }
     // Ahora se agregan las variables de entorno
@@ -609,7 +619,7 @@ QString DBAbstractFilterViewPrivate::buildFilterWhere(const QString &aditionalSq
                 }
                 else
                 {
-                    whereFilter = QString("%1 AND %2").arg(whereFilter).arg(filter);
+                    whereFilter = QString("%1 AND %2").arg(whereFilter, filter);
                 }
             }
         }
@@ -623,14 +633,12 @@ QString DBAbstractFilterViewPrivate::buildFilterWhere(const QString &aditionalSq
             if ( le->property(AlephERP::stShowTextLineExactlySearch).toBool() )
             {
                 filter = QString("lower(%1) like lower('%2')").
-                    arg(le->property(AlephERP::stFieldName).toString()).
-                    arg(le->text());
+                    arg(le->property(AlephERP::stFieldName).toString(), le->text());
             }
             else
             {
                 filter = QString("lower(%1) like lower('%%2%')").
-                    arg(le->property(AlephERP::stFieldName).toString()).
-                    arg(le->text());
+                    arg(le->property(AlephERP::stFieldName).toString(), le->text());
             }
             if ( whereFilter.isEmpty() )
             {
@@ -638,7 +646,7 @@ QString DBAbstractFilterViewPrivate::buildFilterWhere(const QString &aditionalSq
             }
             else
             {
-                whereFilter = QString("%1 AND %2").arg(whereFilter).arg(filter);
+                whereFilter = QString("%1 AND %2").arg(whereFilter, filter);
             }
         }
     }
@@ -651,7 +659,7 @@ QString DBAbstractFilterViewPrivate::buildFilterWhere(const QString &aditionalSq
         }
         else
         {
-            whereFilter = QString("%1 AND %2").arg(whereFilter).arg(aditionalSql);
+            whereFilter = QString("%1 AND %2").arg(whereFilter, aditionalSql);
         }
     }
     return whereFilter;
@@ -696,7 +704,7 @@ void DBAbstractFilterViewPrivate::addOptionsCombo(DBFieldMetadata *fld)
 {
     bool blockState = q_ptr->ui->cbFastFilterValue->blockSignals(true);
     q_ptr->ui->cbFastFilterValue->clear();
-    q_ptr->ui->cbFastFilterValue->addItem(QObject::trUtf8("Ver todos"), QString(""));
+    q_ptr->ui->cbFastFilterValue->addItem(QObject::tr("Ver todos"), QString(""));
     if ( !fld->optionsList().isEmpty() )
     {
         QMapIterator<QString, QString> optionList(fld->optionsList());
@@ -708,8 +716,8 @@ void DBAbstractFilterViewPrivate::addOptionsCombo(DBFieldMetadata *fld)
     }
     else if ( fld->type() == QVariant::Bool )
     {
-        q_ptr->ui->cbFastFilterValue->addItem(QIcon(":/aplicacion/images/ok.png"), QObject::trUtf8("Verdadero"), QVariant("true"));
-        q_ptr->ui->cbFastFilterValue->addItem(QIcon(":/generales/images/delete.png"), QObject::trUtf8("Falso"), QVariant("false"));
+        q_ptr->ui->cbFastFilterValue->addItem(QIcon(":/aplicacion/images/ok.png"), QObject::tr("Verdadero"), QVariant("true"));
+        q_ptr->ui->cbFastFilterValue->addItem(QIcon(":/generales/images/delete.png"), QObject::tr("Falso"), QVariant("false"));
     }
     q_ptr->ui->cbFastFilterValue->blockSignals(blockState);
 }
@@ -813,7 +821,7 @@ void DBAbstractFilterViewPrivate::createSubTotals()
     QGroupBox *gb = new QGroupBox(q_ptr);
     QHBoxLayout *lay = new QHBoxLayout(gb);
     QSpacerItem *horizontalSpacer = new QSpacerItem(224, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    gb->setTitle(QObject::trUtf8("Subtotales"));
+    gb->setTitle(QObject::tr("Subtotales"));
     gb->setLayout(lay);
     lay->addItem(horizontalSpacer);
     q_ptr->layout()->addWidget(gb);
@@ -883,17 +891,17 @@ void DBAbstractFilterViewPrivate::calculateSubTotals()
                     if ( !where.isEmpty() )
                     {
                         sql = QString("SELECT %1(%2) FROM %3 WHERE %4").
-                              arg(subTotal["calc"]).
-                              arg(subTotal["field"]).
-                              arg(m_metadata->sqlTableName()).
-                              arg(where);
+                              arg(subTotal["calc"],
+                                 subTotal["field"],
+                                 m_metadata->sqlTableName(),
+                                 where);
                     }
                     else
                     {
                         sql = QString("SELECT %1(%2) FROM %3").
-                              arg(subTotal["calc"]).
-                              arg(subTotal["field"]).
-                              arg(m_metadata->sqlTableName());
+                              arg(subTotal["calc"],
+                                  subTotal["field"],
+                                  m_metadata->sqlTableName());
                     }
                 }
                 if ( !sql.isEmpty() )
@@ -930,7 +938,8 @@ QString DBAbstractFilterViewPrivate::buildSqlWhereForSubTotal()
                 {
                     sql += " AND ";
                 }
-                sql = QString("%1 %2 BETWEEN %3 AND %4").arg(sql).arg(dbFieldName).arg(fld->sqlValue(filterValues["value1"])).arg(fld->sqlValue(filterValues["value2"]));
+                sql = QString("%1 %2 BETWEEN %3 AND %4").
+                        arg(sql, dbFieldName, fld->sqlValue(filterValues["value1"]), fld->sqlValue(filterValues["value2"]));
             }
             else
             {
@@ -941,11 +950,11 @@ QString DBAbstractFilterViewPrivate::buildSqlWhereForSubTotal()
                 }
                 if ( fld->type() == QVariant::String )
                 {
-                    sql = QString("%1 UPPER(%2) LIKE UPPER('%%3%')").arg(sql).arg(dbFieldName).arg(v.toString());
+                    sql = QString("%1 UPPER(%2) LIKE UPPER('%%3%')").arg(sql, dbFieldName, v.toString());
                 }
                 else
                 {
-                    sql = QString("%1 %2%3%4").arg(sql).arg(dbFieldName).arg(filterValues.value("operator").toString()).arg(fld->sqlValue(v));
+                    sql = QString("%1 %2%3%4").arg(sql, dbFieldName, filterValues.value("operator").toString(), fld->sqlValue(v));
                 }
             }
         }
@@ -959,7 +968,7 @@ QString DBAbstractFilterViewPrivate::buildSqlWhereForSubTotal()
         }
         else
         {
-            where = QString("%1 AND %2").arg(m_whereFilter).arg(sql);
+            where = QString("%1 AND %2").arg(m_whereFilter, sql);
         }
     }
     else
@@ -971,7 +980,7 @@ QString DBAbstractFilterViewPrivate::buildSqlWhereForSubTotal()
     {
         if ( !where.isEmpty() )
         {
-            where = QString("%1 AND %2").arg(where).arg(modelWhere);
+            where = QString("%1 AND %2").arg(where, modelWhere);
         }
         else
         {
@@ -1003,7 +1012,7 @@ void DBAbstractFilterViewPrivate::subTotalNewData(bool result, const QString &id
     }
     else
     {
-        le->setText(QObject::trUtf8("ERROR"));
+        le->setText(QObject::tr("ERROR"));
     }
     m_subTotalsFields.remove(id);
 }

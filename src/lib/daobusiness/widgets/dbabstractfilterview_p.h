@@ -21,11 +21,7 @@
 #define DBABSTRACTFILTERVIEWPRIVATE_H
 
 #include <QtCore>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 
 #define MSG_NO_COLUMN_SELECCIONADA QT_TR_NOOP("Debe seleccionar una columna de filtrado.")
 #define CB_OPERATOR_EQUAL       0

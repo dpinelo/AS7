@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include "configuracion.h"
 #include "models/envvars.h"
+#include "dao/database.h"
 #include <QtCore>
 #include <QtGlobal>
 #include <QDebug>
@@ -33,23 +34,9 @@
 #endif
 
 #define KEY_FIRST_USE                   "firstUse"
-
-#define KEY_SERVIDORDB                  "db/servidor"
-#define KEY_USUARIODB                   "db/usuario"
-#define KEY_PASSWORDDB                  "db/password"
-#define KEY_NOMBREDB                    "db/nombre"
-#define KEY_PORTDB                      "db/port"
-#define KEY_TIPO_CONEXION               "db/TipoConexion"
-#define KEY_DSN_ODBC                    "db/DSN_ODBC"
-#define KEY_ESQUEMA_BBDD                "db/esquema_bbdd"
-#define KEY_SYSTEM_TABLE_PREFIX         "db/system_table_prefix"
+#define KEY_SERVER_ID                   "db/serverId"
 #define KEY_FILESYSTEM_ENCODING         "db/filesystem_encoding"
-#define KEY_CONNECT_OPTIONS             "db/connect_options"
-#define KEY_CLOUD_PROTOCOL              "db/cloudProtocol"
-
-#define KEY_LICENSE_KEY                 "db/cloud/licenseKey"
 #define KEY_COMPUTER_UUID               "db/cloud/computerUUID"
-
 #define KEY_LAST_SERVER_ID              "db/lastServerId"
 #define KEY_LOG_LEVEL                   "generales/logLevel"
 
@@ -100,8 +87,6 @@
 #define KEY_ALLOW_SYSTEM_TRAY           "generales/allowSystemTray"
 
 #define KEY_PRESS_HUMAN_INTERVAL        "generales/keyPressHumanInterval"
-
-#define KEY_USER_WRITES_HISTORY         "generales/userWritesHistory"
 
 #define KEY_REPORTS_TO_SHOW_COMBOBOX    "generales/reportsToShowCombobox"
 
@@ -166,7 +151,6 @@ AlephERPSettings::AlephERPSettings(QObject *parent) :
     m_modelsRefresh = true;
     m_reportsToShowCombobox = 8;
     m_lookAndFeelDark = false;
-    m_userWritesHistory = true;
     m_logLevel = QLogger::InfoLevel;
 #ifdef ALEPHERP_LOCALMODE
     m_secondsLoadBackground = 60 * 60;
@@ -316,28 +300,14 @@ void AlephERPSettings::init (void)
     m_locale = new QLocale(QLocale::Spanish, QLocale::Spain);
     m_firstDayOfWeek = m_locale->firstDayOfWeek();
 
-    m_dbServer = m_settings->value(KEY_SERVIDORDB).toString();
-    m_userDb = m_settings->value(KEY_USUARIODB).toString();
-    m_passwordDb = m_settings->value(KEY_PASSWORDDB).toString();
-    m_dbName = m_settings->value(KEY_NOMBREDB).toString();
-    m_dbPort = m_settings->value(KEY_PORTDB, 5432).toInt();
-    m_dbSchema = m_settings->value(KEY_ESQUEMA_BBDD, "public").toString();
-    m_connectionType = m_settings->value(KEY_TIPO_CONEXION).toString();
-    m_dsnODBC = m_settings->value(KEY_DSN_ODBC).toString();
-    m_systemTablePrefix = m_settings->value(KEY_SYSTEM_TABLE_PREFIX, "alepherp").toString();
     m_fileSystemEncoding = m_settings->value(KEY_FILESYSTEM_ENCODING).toString();
-    m_connectOptions = m_settings->value(KEY_CONNECT_OPTIONS).toString();
     m_timeBetweenReloads = m_settings->value(KEY_MODEL_TIME_BETWEEN_RELOADS, 2000).toInt();
-    m_cloudProtocol = m_settings->value(KEY_CLOUD_PROTOCOL, "http").toString();
-    m_licenseKey = m_settings->value(KEY_LICENSE_KEY, "").toString();
     m_httpTimeout = m_settings->value(KEY_HTTP_TIMEOUT, 60000).toInt();
     m_advancedUser = m_settings->value(KEY_ADVANCED_USER, true).toBool();
     m_lastServer = m_settings->value(KEY_LAST_SERVER_ID, -1).toInt();
     m_logLevel = static_cast<QLogger::LogLevel>(m_settings->value(KEY_LOG_LEVEL, static_cast<int>(QLogger::InfoLevel)).toInt());
     m_allowSystemTray = m_settings->value(KEY_ALLOW_SYSTEM_TRAY, false).toBool();
     m_reportsToShowCombobox = m_settings->value(KEY_REPORTS_TO_SHOW_COMBOBOX, 8).toInt();
-
-    m_userWritesHistory = m_settings->value(KEY_USER_WRITES_HISTORY, true).toBool();
 
     m_humanKeyPressIntervalMsecs = m_settings->value(KEY_PRESS_HUMAN_INTERVAL, 100).toInt();
 
@@ -453,6 +423,30 @@ void AlephERPSettings::init (void)
     m_lookAndFeelDark = m_settings->value(KEY_LOOK_AND_FEEL_DARK, false).toBool();
 }
 
+void AlephERPSettings::loadServerOptions(int id)
+{
+    QSqlDatabase db = QSqlDatabase::database(Database::serversDatabaseName());
+    QString sql = "SELECT * FROM alepherp_servers WHERE id=:id";
+    QSqlQuery qry(db);
+    qry.prepare(sql);
+    qry.bindValue(":id", id);
+    if ( qry.exec() && qry.first() )
+    {
+        m_dbServer = qry.value("server").toString();
+        m_userDb = qry.value("user").toString();
+        m_passwordDb = qry.value("password").toString();
+        m_dbName = qry.value("database").toString();
+        m_dbPort = qry.value("port").toInt();
+        m_dbSchema = qry.value("scheme").toString();
+        m_connectionType = qry.value("type").toString();
+        m_dsnODBC = qry.value("dsn").toString();
+        m_systemTablePrefix = qry.value("table_prefix").toString();
+        m_connectOptions = qry.value("options").toString();
+        m_cloudProtocol = qry.value("cloud_protocol").toString();
+        m_licenseKey = qry.value("license_key").toString();
+    }
+}
+
 
 QString AlephERPSettings::dbServer() const
 {
@@ -460,21 +454,9 @@ QString AlephERPSettings::dbServer() const
 }
 
 
-void AlephERPSettings::setDbServer ( const QString& theValue )
-{
-    QMutexLocker lock(&mutex);
-    m_dbServer = theValue;
-}
-
 QString AlephERPSettings::dbUser() const
 {
     return m_userDb;
-}
-
-void AlephERPSettings::setDbUser ( const QString& theValue )
-{
-    QMutexLocker lock(&mutex);
-    m_userDb = theValue;
 }
 
 QString AlephERPSettings::dbPassword() const
@@ -482,32 +464,14 @@ QString AlephERPSettings::dbPassword() const
     return m_passwordDb;
 }
 
-void AlephERPSettings::setDbPassword ( const QString& theValue )
-{
-    QMutexLocker lock(&mutex);
-    m_passwordDb = theValue;
-}
-
 QString AlephERPSettings::dbName() const
 {
     return m_dbName;
 }
 
-void AlephERPSettings::setDbName ( const QString& theValue )
-{
-    QMutexLocker lock(&mutex);
-    m_dbName = theValue;
-}
-
 int AlephERPSettings::dbPort() const
 {
     return m_dbPort;
-}
-
-void AlephERPSettings::setDbPort ( int theValue )
-{
-    QMutexLocker lock(&mutex);
-    m_dbPort = theValue;
 }
 
 void AlephERPSettings::applyDimensionForm(QWidget *form) const
@@ -856,19 +820,19 @@ QString AlephERPSettings::dataPath() const
 void AlephERPSettings::saveRegistryValue(const QString &key, const QVariant &value)
 {
     QMutexLocker lock(&mutex);
-    QString registryKey = QString("%1/%2").arg(KEY_OTHERS).arg(key);
+    QString registryKey = QString("%1/%2").arg(KEY_OTHERS, key);
     m_settings->setValue(registryKey, value);
 }
 
 QVariant AlephERPSettings::loadRegistryValue(const QString &key)
 {
-    QString registryKey = QString("%1/%2").arg(KEY_OTHERS).arg(key);
+    QString registryKey = QString("%1/%2").arg(KEY_OTHERS, key);
     return m_settings->value(registryKey);
 }
 
 QMap<QString, QString> AlephERPSettings::groupValues(const QString &key)
 {
-    QString registryKey = QString("%1/%2").arg(KEY_OTHERS).arg(key);
+    QString registryKey = QString("%1/%2").arg(KEY_OTHERS, key);
     QMap<QString, QString> map;
     foreach (const QString childKey, m_settings->allKeys())
     {
@@ -949,19 +913,7 @@ void AlephERPSettings::save(void)
     // Al guardar los datos, ya no estamos en primer uso.
     m_settings->setValue(KEY_FIRST_USE, false);
 
-    m_settings->setValue(KEY_SERVIDORDB, m_dbServer);
-    m_settings->setValue(KEY_USUARIODB, m_userDb);
-    m_settings->setValue(KEY_PASSWORDDB, m_passwordDb);
-    m_settings->setValue(KEY_PORTDB, m_dbPort);
-    m_settings->setValue(KEY_NOMBREDB, m_dbName);
-    m_settings->setValue(KEY_ESQUEMA_BBDD, m_dbSchema);
-    m_settings->setValue(KEY_TIPO_CONEXION, m_connectionType);
-    m_settings->setValue(KEY_DSN_ODBC, m_dsnODBC);
-    m_settings->setValue(KEY_SYSTEM_TABLE_PREFIX, m_systemTablePrefix);
     m_settings->setValue(KEY_FILESYSTEM_ENCODING, m_fileSystemEncoding);
-    m_settings->setValue(KEY_CONNECT_OPTIONS, m_connectOptions);
-    m_settings->setValue(KEY_CLOUD_PROTOCOL, m_cloudProtocol);
-    m_settings->setValue(KEY_LICENSE_KEY, m_licenseKey);
     m_settings->setValue(KEY_COMPUTER_UUID, m_computerUUID);
     m_settings->setValue(KEY_HTTP_TIMEOUT, m_httpTimeout);
     m_settings->setValue(KEY_REPORT_ENGINE, m_reportEngine);
@@ -1075,22 +1027,9 @@ QString AlephERPSettings::connectionType() const
 #endif
 }
 
-void AlephERPSettings::setConnectionType ( const QString& theValue )
-{
-    QMutexLocker lock(&mutex);
-    m_connectionType = theValue;
-}
-
 QString AlephERPSettings::dsnODBC() const
 {
     return m_dsnODBC;
-}
-
-
-void AlephERPSettings::setDsnODBC ( const QString& theValue )
-{
-    QMutexLocker lock(&mutex);
-    m_dsnODBC = theValue;
 }
 
 QString AlephERPSettings::systemTablePrefix() const
@@ -1109,21 +1048,9 @@ void AlephERPSettings::setPasswordCert(const QString &passwordCert)
     m_passwordCert = passwordCert;
 }
 
-void AlephERPSettings::setSystemTablePrefix (const QString &value)
-{
-    QMutexLocker lock(&mutex);
-    m_systemTablePrefix = value;
-}
-
 QString AlephERPSettings::fileSystemEncoding() const
 {
     return m_fileSystemEncoding;
-}
-
-void AlephERPSettings::setSileSystemEncoding (const QString &value)
-{
-    QMutexLocker lock(&mutex);
-    m_fileSystemEncoding = value;
 }
 
 QString AlephERPSettings::lookAndFeel() const
@@ -1147,21 +1074,9 @@ QString AlephERPSettings::connectOptions()
     return m_connectOptions;
 }
 
-void AlephERPSettings::setConnectOptions(const QString &value)
-{
-    QMutexLocker lock(&mutex);
-    m_connectOptions = value;
-}
-
 QString AlephERPSettings::cloudProtocol()
 {
     return m_cloudProtocol;
-}
-
-void AlephERPSettings::setCloudProtocol(const QString &value)
-{
-    QMutexLocker lock(&mutex);
-    m_cloudProtocol = value;
 }
 
 int AlephERPSettings::httpTimeout()
@@ -1184,11 +1099,6 @@ void AlephERPSettings::setAllowSystemTray(bool value)
 {
     QMutexLocker lock(&mutex);
     m_allowSystemTray = value;
-}
-
-bool AlephERPSettings::userWritesHistory() const
-{
-    return m_userWritesHistory;
 }
 
 int AlephERPSettings::lastServer()
@@ -1245,17 +1155,6 @@ void AlephERPSettings::setReportEngine(const QString &value)
     m_reportEngine = value;
 }
 
-QString AlephERPSettings::licenseKey()
-{
-    return m_licenseKey;
-}
-
-void AlephERPSettings::setLicenseKey(const QString &value)
-{
-    QMutexLocker lock(&mutex);
-    m_licenseKey = value;
-}
-
 QString AlephERPSettings::computerUUID()
 {
     return m_computerUUID;
@@ -1270,12 +1169,6 @@ void AlephERPSettings::setLookAndFeel (const QString &theValue )
 QString AlephERPSettings::dbSchema() const
 {
     return m_dbSchema;
-}
-
-void AlephERPSettings::setDbSchema ( const QString& theValue )
-{
-    QMutexLocker lock(&mutex);
-    m_dbSchema = theValue;
 }
 
 bool AlephERPSettings::debuggerEnabled()

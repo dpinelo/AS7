@@ -192,10 +192,10 @@ bool DBFieldPrivate::checkLength()
     if ( temp.size() > q_ptr->length() )
     {
         result = false;
-        m_message = QObject::trUtf8("%1\r\n%2: La longitud del texto introducido sobrepasa la permitida. Acorte el texto.").
-                    arg(m_message).arg(q_ptr->metadata()->fieldName());
-        m_htmlMessage = QObject::trUtf8("%1<p><strong>%2</strong>: La longitud del texto introducido sobrepasa la permitida. Acorte el texto.</p>").
-                        arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
+        m_message = QObject::tr("%1\r\n%2: La longitud del texto introducido sobrepasa la permitida. Acorte el texto.").
+                    arg(m_message, q_ptr->metadata()->fieldName());
+        m_htmlMessage = QObject::tr("%1<p><strong>%2</strong>: La longitud del texto introducido sobrepasa la permitida. Acorte el texto.</p>").
+                        arg(m_htmlMessage, q_ptr->metadata()->fieldName());
         if ( m_widget == NULL )
         {
             // TODO esto no es muy elegante
@@ -216,8 +216,8 @@ bool DBFieldPrivate::checkUnique()
 {
     QMutexLocker lock(&m_mutex);
     bool result = true;
-    QString sql = QString("SELECT COUNT(*) as column1 FROM %1 WHERE %2=%3").arg(q_ptr->bean()->metadata()->tableName()).
-                  arg(q_ptr->metadata()->dbFieldName()).arg(q_ptr->sqlValue(true));
+    QString sql = QString("SELECT COUNT(*) as column1 FROM %1 WHERE %2=%3").
+            arg(q_ptr->bean()->metadata()->tableName(), q_ptr->metadata()->dbFieldName(), q_ptr->sqlValue(true));
     QVariant sqlValue;
     if ( BaseDAO::execute(sql, sqlValue, Database::databaseConnectionForThisThread()) )
     {
@@ -225,16 +225,16 @@ bool DBFieldPrivate::checkUnique()
         if ( count > 0 )
         {
             result = false;
-            m_message = QObject::trUtf8("%1\r\n[%2] %3: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: %4").
-                            arg(m_message).
-                            arg(q_ptr->bean()->metadata()->alias()).
-                            arg(q_ptr->metadata()->fieldName()).
-                            arg(q_ptr->displayValue());
-            m_htmlMessage = QObject::trUtf8("%1<p>[%2] <strong>%3</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: <i>%4</i></p>").
-                            arg(m_htmlMessage).
-                            arg(q_ptr->bean()->metadata()->alias()).
-                            arg(q_ptr->metadata()->fieldName()).
-                            arg(q_ptr->displayValue());
+            m_message = QObject::tr("%1\r\n[%2] %3: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: %4").
+                            arg(m_message,
+                                q_ptr->bean()->metadata()->alias(),
+                                q_ptr->metadata()->fieldName(),
+                                q_ptr->displayValue());
+            m_htmlMessage = QObject::tr("%1<p>[%2] <strong>%3</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: <i>%4</i></p>").
+                            arg(m_htmlMessage,
+                                q_ptr->bean()->metadata()->alias(),
+                                q_ptr->metadata()->fieldName(),
+                                q_ptr->displayValue());
             if ( m_widget == NULL )
             {
                 // TODO esto no es muy elegante
@@ -270,7 +270,7 @@ bool DBFieldPrivate::checkNull()
             // Si el campo apunta a una relación, no podra tener valor cero... o, si es cero, pero
             // apunta a un padre que va a ser guardado, entonces pasa la validación.
             QList<DBRelation *> relations = q_ptr->relations();
-            foreach (DBRelation *rel, relations)
+            for (DBRelation *rel : relations)
             {
                 if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE && rel->father() )
                 {
@@ -298,9 +298,9 @@ bool DBFieldPrivate::checkNull()
 
         if ( ! result )
         {
-            m_message = QObject::trUtf8("%1\r\n%2: No puede estar vacío.").arg(m_message).arg(q_ptr->metadata()->fieldName());
-            m_htmlMessage = QObject::trUtf8("%1<p><strong>%2</strong>: No puede estar vac&iacute;o.</p>").
-                            arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
+            m_message = QObject::tr("%1\r\n%2: No puede estar vacío.").arg(m_message, q_ptr->metadata()->fieldName());
+            m_htmlMessage = QObject::tr("%1<p><strong>%2</strong>: No puede estar vac&iacute;o.</p>").
+                            arg(m_htmlMessage, q_ptr->metadata()->fieldName());
             if ( m_widget == NULL )
             {
                 // TODO Esto no es muy elegante
@@ -317,9 +317,9 @@ bool DBFieldPrivate::checkNull()
         if ( q_ptr->value().isNull() || !q_ptr->value().isValid() )
         {
             result = false;
-            m_message = QObject::trUtf8("%1\r\n%2: No puede estar vacío.").arg(m_message).arg(q_ptr->metadata()->fieldName());
-            m_htmlMessage = QObject::trUtf8("%1<p><strong>%2</strong>: No puede estar vac&iacute;o.</p>").
-                            arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
+            m_message = QObject::tr("%1\r\n%2: No puede estar vacío.").arg(m_message, q_ptr->metadata()->fieldName());
+            m_htmlMessage = QObject::tr("%1<p><strong>%2</strong>: No puede estar vac&iacute;o.</p>").
+                            arg(m_htmlMessage, q_ptr->metadata()->fieldName());
             if ( m_widget == NULL )
             {
                 // TODO Esto no es muy elegante
@@ -350,20 +350,20 @@ bool DBFieldPrivate::checkUniqueOnFilterField()
     BaseBean *bean = q_ptr->bean();
     QStringList filterFields = q_ptr->metadata()->uniqueOnFilterField().split(QRegExp(";|,"));
     QString sqlFilterField;
-    foreach (const QString &filterField, filterFields)
+    for (const QString &filterField : filterFields)
     {
         DBField *dbField = bean->field(filterField.trimmed());
         if ( dbField != NULL )
         {
             if ( sqlFilterField.isEmpty() )
             {
-                sqlFilterField = QString("%1=%2").arg(dbField->metadata()->dbFieldName()).
-                                 arg(dbField->sqlValue(true));
+                sqlFilterField = QString("%1=%2").
+                        arg(dbField->metadata()->dbFieldName(), dbField->sqlValue(true));
             }
             else
             {
-                sqlFilterField = QString("%1 AND %2=%3").arg(sqlFilterField).arg(dbField->metadata()->dbFieldName()).
-                                 arg(dbField->sqlValue(true));
+                sqlFilterField = QString("%1 AND %2=%3").
+                        arg(sqlFilterField, dbField->metadata()->dbFieldName(), dbField->sqlValue(true));
             }
         }
     }
@@ -373,10 +373,10 @@ bool DBFieldPrivate::checkUniqueOnFilterField()
     }
     // Hay que distinguir el caso en el que se está insertando, o editando.
     QString sql = QString("SELECT COUNT(*) as column1 FROM %1 WHERE %2=%3 AND %4").
-                        arg(q_ptr->bean()->metadata()->sqlTableName()).
-                        arg(q_ptr->metadata()->dbFieldName()).
-                        arg(q_ptr->sqlValue(true)).
-                        arg(sqlFilterField);
+                        arg(q_ptr->bean()->metadata()->sqlTableName(),
+                            q_ptr->metadata()->dbFieldName(),
+                            q_ptr->sqlValue(true),
+                            sqlFilterField);
     if ( m_bean->dbState() == BaseBean::UPDATE )
     {
         sql.append(" AND NOT (").append(m_bean->sqlWherePk()).append(")");
@@ -393,30 +393,30 @@ bool DBFieldPrivate::checkUniqueOnFilterField()
                 if ( (q_ptr->metadata()->counterDefinition()->calculateOnlyOnInsert && bean->dbState() == BaseBean::INSERT) || !q_ptr->metadata()->counterDefinition()->calculateOnlyOnInsert )
                 {
                     int ret = QMessageBox::question(m_widget, qApp->applicationName(),
-                                                    QObject::trUtf8("Existe ya un registro con este mismo valor: <strong>%1</strong>. "
+                                                    QObject::tr("Existe ya un registro con este mismo valor: <strong>%1</strong>. "
                                                             "El valor debe ser único. ¿Desea volver a calcularlo?").arg(q_ptr->displayValue()),
                                                     QMessageBox::Yes | QMessageBox::No);
                     if ( ret == QMessageBox::Yes )
                     {
                         q_ptr->setValue(q_ptr->calculateCounter());
-                        m_message = QObject::trUtf8("%1\r\n%2: Se ha calculado un nuevo valor.").
-                                    arg(m_message).arg(q_ptr->metadata()->fieldName());
-                        m_htmlMessage = QObject::trUtf8("%1<p><strong>%2</strong>: Se ha calculado un nuevo valor.</p>").
-                                        arg(m_htmlMessage).arg(q_ptr->metadata()->fieldName());
+                        m_message = QObject::tr("%1\r\n%2: Se ha calculado un nuevo valor.").
+                                    arg(m_message, q_ptr->metadata()->fieldName());
+                        m_htmlMessage = QObject::tr("%1<p><strong>%2</strong>: Se ha calculado un nuevo valor.</p>").
+                                        arg(m_htmlMessage, q_ptr->metadata()->fieldName());
                         return true;
                     }
                 }
             }
-            m_message = QObject::trUtf8("%1\r\n[%2] %3: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: %4").
-                            arg(m_message).
-                            arg(q_ptr->bean()->metadata()->alias()).
-                            arg(q_ptr->metadata()->fieldName()).
-                            arg(q_ptr->displayValue());
-            m_htmlMessage = QObject::trUtf8("%1<p>[%2] <strong>%3</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: <i>%4</i></p>").
-                            arg(m_htmlMessage).
-                            arg(q_ptr->bean()->metadata()->alias()).
-                            arg(q_ptr->metadata()->fieldName()).
-                            arg(q_ptr->displayValue());
+            m_message = QObject::tr("%1\r\n[%2] %3: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: %4").
+                            arg(m_message,
+                                q_ptr->bean()->metadata()->alias(),
+                                q_ptr->metadata()->fieldName(),
+                                q_ptr->displayValue());
+            m_htmlMessage = QObject::tr("%1<p>[%2] <strong>%3</strong>: Ya existe un registro que tiene ese valor. El valor debe ser único. Valor Actual: <i>%4</i></p>").
+                            arg(m_htmlMessage,
+                                q_ptr->bean()->metadata()->alias(),
+                                q_ptr->metadata()->fieldName(),
+                                q_ptr->displayValue());
             if ( m_widget == NULL )
             {
                 // TODO esto no es muy elegante
@@ -556,7 +556,7 @@ QList<DBRelation *> DBField::relations(const AlephERP::RelationTypes &type)
         return d->m_relations;
     }
     QList<DBRelation *> rels;
-    foreach ( DBRelation *rel, d->m_relations )
+    for ( DBRelation *rel : d->m_relations )
     {
         if ( type.testFlag(AlephERP::OneToMany) && rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
         {
@@ -577,7 +577,7 @@ QList<DBRelation *> DBField::relations(const AlephERP::RelationTypes &type)
 
 DBRelation * DBField::relation(const QString &relationName)
 {
-    foreach ( DBRelation *rel, d->m_relations )
+    for ( DBRelation *rel : d->m_relations )
     {
         if ( rel->metadata()->name() == relationName)
         {
@@ -603,7 +603,7 @@ void DBField::setRelations(const QList<DBRelation *> rels)
     QMutexLocker lock(&d->m_mutex);
 
     d->m_relations = rels;
-    foreach (DBRelation *rel, rels)
+    for (DBRelation *rel : rels)
     {
         /** Aquí exponemos las relaciones al motor Qs */
         QVariant pointer = QVariant::fromValue(rel);
@@ -615,7 +615,7 @@ void DBField::setRelations(const QList<DBRelation *> rels)
 bool DBField::hasM1Relation() const
 {
     // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
-    foreach (DBRelation *rel, d->m_relations)
+    for (DBRelation *rel : d->m_relations)
     {
         if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
         {
@@ -628,7 +628,7 @@ bool DBField::hasM1Relation() const
 bool DBField::hasBrotherRelation() const
 {
     // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
-    foreach (DBRelation *rel, d->m_relations)
+    for (DBRelation *rel : d->m_relations)
     {
         if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
         {
@@ -825,7 +825,7 @@ QVariant DBField::previousValue() const
 {
     if ( !d->m_bean->checkAccess('r') )
     {
-        return trUtf8(AlephERP::stNoAccess);
+        return tr(AlephERP::stNoAccess);
     }
     return d->m_previousValue;
 }
@@ -834,7 +834,7 @@ QVariant DBField::oldValue() const
 {
     if ( !d->m_bean->checkAccess('r') )
     {
-        return trUtf8(AlephERP::stNoAccess);
+        return tr(AlephERP::stNoAccess);
     }
     return d->m_oldValue;
 }
@@ -882,7 +882,7 @@ QVariant DBField::value()
     }
     if ( !d->m_bean->checkAccess('r') )
     {
-        return trUtf8(AlephERP::stNoAccess);
+        return tr(AlephERP::stNoAccess);
     }
     if ( d->m->coordinates() )
     {
@@ -1024,7 +1024,7 @@ QVariant DBField::value()
     if ( hasM1Relation() || hasBrotherRelation() )
     {
         // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
-        foreach (DBRelation *rel, d->m_relations)
+        for (DBRelation *rel : d->m_relations)
         {
             if ( rel != NULL && (rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE || rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE) )
             {
@@ -1079,7 +1079,7 @@ QString DBFieldPrivate::filterForUniqueOnFilterField(const QString where)
     {
         bool first = true;
         tempSql.append("(");
-        foreach (const QString &part, parts)
+        for (const QString &part : parts)
         {
             if ( !first )
             {
@@ -1089,7 +1089,7 @@ QString DBFieldPrivate::filterForUniqueOnFilterField(const QString where)
             if ( !sqlVal.isEmpty() )
             {
                 first = false;
-                tempSql.append(QString("%1=%2").arg(part).arg(sqlVal));
+                tempSql.append(QString("%1=%2").arg(part, sqlVal));
             }
         }
         tempSql.append(")");
@@ -1105,7 +1105,7 @@ QVariant DBField::defaultValue()
 {
     if ( !d->m_bean->checkAccess('r') )
     {
-        return trUtf8(AlephERP::stNoAccess);
+        return tr(AlephERP::stNoAccess);
     }
     QVariant v = d->m->calculateDefaultValue(this);
     emit defaultValueCalculated(d->m->dbFieldName(), v);
@@ -1361,14 +1361,14 @@ void DBField::setInternalValue(const QVariant &newValue, bool overwriteOnReadOnl
         // a relaciones 1->M, donde se ha establecido el valor de la parte 1 en esta función
         // y se debe poner los valores en los hijos de la parte M.
         QList<DBRelation *> rels = relations();
-        foreach (DBRelation *rel, rels)
+        for (DBRelation *rel : rels)
         {
             if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
             {
                 // Al llamar a la función internalChildren, sólo nos traemos los beans en memoria y no los que están
                 // en base de datos (estos ya vendrían con este campo relleno).
                 BaseBeanPointerList otherChildren = rel->internalChildren();
-                foreach (BaseBeanPointer child, otherChildren)
+                for (BaseBeanPointer child : otherChildren)
                 {
                     if ( !child.isNull() )
                     {
@@ -1479,7 +1479,7 @@ QString DBField::dbFieldName() const
 QVariantMap DBField::relationsMap()
 {
     QVariantMap map;
-    foreach (DBRelation *rel, d->m_relations)
+    for (DBRelation *rel : d->m_relations)
     {
         map[rel->metadata()->name()] = QVariant::fromValue(rel);
     }
@@ -1542,7 +1542,7 @@ QString DBField::sqlValue(bool includeQuotesOnString, const QString &dialect, bo
 {
     if ( !d->m_bean->checkAccess('r') )
     {
-        return trUtf8(AlephERP::stNoAccess);
+        return tr(AlephERP::stNoAccess);
     }
     QVariant v;
     if ( useRawValue )
@@ -1560,7 +1560,7 @@ QString DBField::sqlOldValue(bool includeQuotesOnString, const QString &dialect)
 {
     if ( !d->m_bean->checkAccess('r') )
     {
-        return trUtf8(AlephERP::stNoAccess);
+        return tr(AlephERP::stNoAccess);
     }
 
     return d->sqlValue(d->m_oldValue, includeQuotesOnString, dialect);
@@ -1681,14 +1681,14 @@ QString DBField::sqlWhere(const QString &op, const QString &dialect)
 
     if ( d->m->type() == QVariant::Double )
     {
-        result = QString ("round(%1::numeric, %2) %3 %4").arg(sqlFieldName).
-                 arg(DB_DOUBLE_PRECISION).arg(op).
-                 arg(sqlValue(true, dialect));
+        result = QString ("round(%1::numeric, %2) %3 %4").arg(sqlFieldName,
+                                                              QString::number(DB_DOUBLE_PRECISION),
+                                                              op,
+                                                              sqlValue(true, dialect));
     }
     else
     {
-        result = QString("%1 %2 %3").arg(sqlFieldName).
-                 arg(op).arg(sqlValue(true, dialect));
+        result = QString("%1 %2 %3").arg(sqlFieldName, op, sqlValue(true, dialect));
     }
     return result;
 }
@@ -1986,7 +1986,7 @@ QVariant DBFieldPrivate::calculateAggregateValue()
             if ( rel != NULL )
             {
                 BaseBeanPointerList beans = rel->childrenByFilter(calc.filter.at(i));
-                foreach ( BaseBeanPointer bean, beans )
+                for ( BaseBeanPointer bean : beans )
                 {
                     if ( !bean.isNull() )
                     {
@@ -2028,9 +2028,9 @@ QVariant DBFieldPrivate::calculateAggregateValue()
     q_ptr->restoreOverrideOnExecution();
     qint64 elapsed = timer.elapsed();
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBFieldPrivate::calculateAggregateValue: fieldName: %1.%2. Calculate Aggregate: [%3] ms").
-               arg(m_bean->metadata()->tableName()).
-               arg(m->dbFieldName()).
-               arg(elapsed));
+               arg(m_bean->metadata()->tableName(),
+                   m->dbFieldName(),
+                   QString::number(elapsed)));
     if ( elapsed > AlephERP::warningCalculatedTime )
     {
         QLogger::QLog_Info(AlephERP::stLogScript, "DBFieldPrivate::calculateAggregateValue: Ha tomado mucho tiempo!!!");
@@ -2060,7 +2060,7 @@ void DBFieldPrivate::calculateAggregateScriptItem(const QString &relation, const
         if ( rel != NULL )
         {
             BaseBeanPointerList beans = rel->childrenByFilter(filter);
-            foreach ( BaseBeanPointer bean, beans )
+            for ( BaseBeanPointer bean : beans )
             {
                 if ( !bean.isNull() )
                 {
@@ -2111,7 +2111,7 @@ void DBFieldPrivate::calculateAggregateExpressionItem(int indexAggregate, const 
     if ( rel != NULL )
     {
         BaseBeanPointerList beans = rel->childrenByFilter(filter);
-        foreach ( BaseBeanPointer bean, beans )
+        for ( BaseBeanPointer bean : beans )
         {
             if ( !bean.isNull() )
             {
@@ -2306,9 +2306,9 @@ QVariant DBField::calculateCounter(const QString &connection, bool searchOnTrans
     restoreOverrideOnExecution();
     qint64 elapsed = timer.elapsed();
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBField::calculateCounter: fieldName: %1.%2. Calculate Aggregate: [%3] ms").
-               arg(d->m_bean->metadata()->tableName()).
-               arg(d->m->dbFieldName()).
-               arg(elapsed));
+               arg(d->m_bean->metadata()->tableName(),
+                   d->m->dbFieldName(),
+                   QString::number(elapsed)));
     if ( elapsed > AlephERP::warningCalculatedTime )
     {
         QLogger::QLog_Info(AlephERP::stLogScript, "DBField::calculateCounter: Ha tomado mucho tiempo!!!");
@@ -2331,7 +2331,7 @@ QVariant DBFieldPrivate::calculateCounterOldMethod(const QString &connection, bo
             if ( prefixs.size() > i && !prefixs.at(i).isEmpty() )
             {
                 QList<DBRelation *> rels = otherField->relations(AlephERP::ManyToOne);
-                foreach ( DBRelation *rel, rels )
+                for ( DBRelation *rel : rels )
                 {
                     BaseBean *father = rel->father();
                     if ( father != NULL )
@@ -2374,13 +2374,11 @@ QVariant DBFieldPrivate::calculateCounterOldMethod(const QString &connection, bo
     counterPrefix.append(m->counterDefinition()->separator);
     if ( m_counterVariablePart == -1 )
     {
-        QString where = QString("%1 LIKE '%2%%'").arg(m->dbFieldName()).arg(counterPrefix);
+        QString where = QString("%1 LIKE '%2%%'").arg(m->dbFieldName(), counterPrefix);
         where = filterForUniqueOnFilterField(where);
         where = m->beanMetadata()->processWhereSqlToIncludeEnvVars(where);
         QString sql = QString("SELECT max(%1) as column1 FROM %2 WHERE %3").
-                        arg(m->dbFieldName()).
-                        arg(m_bean->metadata()->sqlTableName()).
-                        arg(where);
+                        arg(m->dbFieldName(), m_bean->metadata()->sqlTableName(), where);
         if ( !BaseDAO::execute(sql, result, connection) )
         {
             return result;
@@ -2449,13 +2447,11 @@ QVariant DBFieldPrivate::calculateCounter(const QString &connection, bool search
     {
         QString sql, where;
         sql = QString("SELECT max(%1) as column1 FROM %2").
-                      arg(m->dbFieldName()).
-                      arg(m_bean->metadata()->sqlTableName());
+                      arg(m->dbFieldName(), m_bean->metadata()->sqlTableName());
         if ( m->type() == QVariant::String )
         {
             where = QString("%1 LIKE '%2%%'").
-                      arg(m->dbFieldName()).
-                      arg(result);
+                      arg(m->dbFieldName(), result);
         }
         where = filterForUniqueOnFilterField(where);
         where = m_bean->metadata()->processWhereSqlToIncludeEnvVars(where);
@@ -2741,7 +2737,7 @@ bool DBField::validate()
         if ( !temp && !message.isEmpty() )
         {
             d->m_htmlMessage = QString("%1<p><strong>%2</strong>: %3</p>").
-                               arg(d->m_htmlMessage).arg(metadata()->fieldName()).arg(message);
+                               arg(d->m_htmlMessage, metadata()->fieldName(), message);
         }
     }
     // Si el campo está marcado como único, no puede haber ningún valor igual
@@ -2777,8 +2773,8 @@ void DBField::loadValueOnBackground()
     {
         return;
     }
-    QString sql = QString("SELECT %1 FROM %2 WHERE %3").arg(metadata()->dbFieldName()).
-                  arg(bean()->metadata()->sqlTableName()).arg(bean()->sqlWherePk());
+    QString sql = QString("SELECT %1 FROM %2 WHERE %3").
+            arg(metadata()->dbFieldName(), bean()->metadata()->sqlTableName(), bean()->sqlWherePk());
 
     d->m_backgroundUuid = BackgroundDAO::instance()->programQuery(sql);
     connect(BackgroundDAO::instance(), SIGNAL(queryExecuted(QString,bool)), this, SLOT(backgroundDataAvailable(QString,bool)));
@@ -2929,7 +2925,7 @@ bool DBField::isEmpty()
     else if ( hasM1Relation() )
     {
         // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
-        foreach (DBRelation *rel, d->m_relations)
+        for (DBRelation *rel : d->m_relations)
         {
             if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE )
             {
@@ -2940,7 +2936,7 @@ bool DBField::isEmpty()
     else if ( hasBrotherRelation() )
     {
         // Si el campo contiene una relación a un padre (relación M1), y el padre no está establecido, en ese caso, no se incluye
-        foreach (DBRelation *rel, d->m_relations)
+        for (DBRelation *rel : d->m_relations)
         {
             if ( rel != NULL && rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
             {

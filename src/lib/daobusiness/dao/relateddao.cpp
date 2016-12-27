@@ -58,8 +58,9 @@ void RelatedDAO::writeDbMessages(QSqlQuery *qry)
         }
         else
         {
-            m_relatedDaoThreadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
-                    arg(qry->lastError().databaseText()));
+            m_relatedDaoThreadLastMessage.setLocalData(QString("Driver Error: %1\nDatabase Error: %2").
+                                                       arg(qry->lastError().driverText(),
+                                                           qry->lastError().databaseText()));
         }
     }
     QLogger::QLog_Error(AlephERP::stLogDB, QString("RelatedDAO: writeDbMessages: BBDD LastQuery: [%1]").arg(qry->lastQuery()));
@@ -279,7 +280,7 @@ QHash<AlephERP::RelatedElementTypes, int> RelatedDAO::countRelatedElements(BaseB
         }
         where = where + QString("relatedoid=:childoid");
     }
-    sql = sql.arg(alephERPSettings->systemTablePrefix()).arg(where);
+    sql = sql.arg(alephERPSettings->systemTablePrefix(), where);
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("RelatedDAO::countRelatedElements: [%1]").arg(sql));
     if ( !qry->prepare(sql) )
     {
@@ -345,7 +346,7 @@ int RelatedDAO::countRelatedElements(AlephERP::RelatedElementTypes type, BaseBea
         }
         where = where + QString("relatedoid=:childoid");
     }
-    sql = sql.arg(alephERPSettings->systemTablePrefix()).arg(where);
+    sql = sql.arg(alephERPSettings->systemTablePrefix(), where);
     QLogger::QLog_Debug(AlephERP::stLogDB, QString("RelatedDAO::countRelatedElements: [%1]").arg(sql));
     if ( !qry->prepare(sql) )
     {
@@ -402,7 +403,6 @@ bool RelatedDAO::deleteRelations(BaseBean *bean, const QString &idTransaction, c
                     else if ( element->type() == AlephERP::Document )
                     {
 #ifdef ALEPHERP_DOC_MANAGEMENT
-                        QString error;
                         if ( !AERPDocumentDAOWrapper::instance()->deleteDocument(element->document()) )
                         {
                             QLogger::QLog_Error(AlephERP::stLogOther, QString("RelatedDAO::deleteRelations: [%1]").arg(AERPDocumentDAOWrapper::instance()->lastMessage()));

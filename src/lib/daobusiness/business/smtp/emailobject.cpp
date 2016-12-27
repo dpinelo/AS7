@@ -190,11 +190,11 @@ QString EmailObject::toXml() const
     QString xml;
     xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
     xml += "<email>\n";
-    xml = QString("%1<username><![CDATA[%2]]></username>\n").arg(xml).arg(AERPLoggedUser::instance()->userName());
-    xml = QString("%1<host><![CDATA[%2]]></host>\n").arg(xml).arg(m_server);
+    xml = QString("%1<username><![CDATA[%2]]></username>\n").arg(xml, AERPLoggedUser::instance()->userName());
+    xml = QString("%1<host><![CDATA[%2]]></host>\n").arg(xml, m_server);
     xml = QString("%1<port>%2</port>\n").arg(xml).arg(m_port);
-    xml = QString("%1<date><![CDATA[%2]]></date>\n").arg(xml).arg(m_dateTime.toString());
-    xml = QString("%1<from><![CDATA[%2]]></from>\n").arg(xml).arg(m_from);
+    xml = QString("%1<date><![CDATA[%2]]></date>\n").arg(xml, m_dateTime.toString());
+    xml = QString("%1<from><![CDATA[%2]]></from>\n").arg(xml, m_from);
 
     xml += "<to>\n";
     foreach (const QString & to, m_to)
@@ -231,7 +231,7 @@ QString EmailObject::toXml() const
     xml = QString("%1<subject><![CDATA[%2]]></subject>").arg(xml).arg(Qt::escape(m_subject));
 #endif
 #if (QT_VERSION > 0x050000)
-    xml = QString("%1<subject><![CDATA[%2]]></subject>").arg(xml).arg(m_subject.toHtmlEscaped());
+    xml = QString("%1<subject><![CDATA[%2]]></subject>").arg(xml, m_subject.toHtmlEscaped());
 #endif
     xml = QString("%1<attachmentCount>%2</attachmentCount>").arg(xml).arg(m_attachments.size());
 #include <QtGlobal>
@@ -239,7 +239,7 @@ QString EmailObject::toXml() const
     xml = QString("%1<body><![CDATA[%2]]></body>").arg(xml).arg(Qt::escape(m_body));
 #endif
 #if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
-    xml = QString("%1<body><![CDATA[%2]]></body>").arg(xml).arg(m_body.toHtmlEscaped());
+    xml = QString("%1<body><![CDATA[%2]]></body>").arg(xml, m_body.toHtmlEscaped());
 #endif
     xml = QString("%1</email>").arg(xml);
     return xml;
@@ -446,11 +446,11 @@ QString EmailAttachment::toXml()
     QFileInfo fi(m_path);
     if ( fi.exists() )
     {
-        xml = QString("%1<originalFileName><![CDATA[%2]]></originalFileName>").arg(xml).arg(fi.fileName());
-        xml = QString("%1<size>%2</size>").arg(xml).arg(fi.size());
+        xml = QString("%1<originalFileName><![CDATA[%2]]></originalFileName>").arg(xml, fi.fileName());
+        xml = QString("%1<size>%2</size>").arg(xml, fi.size());
     }
-    xml = QString("%1<type><![CDATA[%2]]></type>").arg(xml).arg(m_type);
-    xml = QString("%1<emailFileName><![CDATA[%2]]></emailFileName>").arg(xml).arg(m_emailFileName);
+    xml = QString("%1<type><![CDATA[%2]]></type>").arg(xml, m_type);
+    xml = QString("%1<emailFileName><![CDATA[%2]]></emailFileName>").arg(xml, m_emailFileName);
     xml += "</emailAttachment>";
     return xml;
 }

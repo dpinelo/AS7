@@ -197,7 +197,7 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBSearchDlg(BaseBeanMetadata
                             de->setDateTime(alephERPSettings->minimumDateTime());
                         }
                         de->setProperty(AlephERP::stFieldName, fld->dbFieldName());
-                        de->setSpecialValueText(QObject::trUtf8("Seleccione fecha"));
+                        de->setSpecialValueText(QObject::tr("Seleccione fecha"));
                         de->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
                         widList << qobject_cast<QWidget *>(de);
                         de = new DBDateTimeEdit(q_ptr);
@@ -215,7 +215,7 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBSearchDlg(BaseBeanMetadata
                         }
                         de->setVisible(false);
                         de->setProperty(AlephERP::stFieldName, fld->dbFieldName());
-                        de->setSpecialValueText(QObject::trUtf8("Seleccione fecha"));
+                        de->setSpecialValueText(QObject::tr("Seleccione fecha"));
                         de->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
                         widList << qobject_cast<QWidget *>(de);
                     }
@@ -243,8 +243,8 @@ QComboBox * AERPBaseDialogPrivate::createComboOperators(const QString &fld)
 {
     QComboBox *cb = new QComboBox(q_ptr);
     QStringList list;
-    list << QObject::trUtf8("Menor que") << QObject::trUtf8("Igual") <<
-         QObject::trUtf8("Mayor que") << QObject::trUtf8("Entre los valores");
+    list << QObject::tr("Menor que") << QObject::tr("Igual") <<
+         QObject::tr("Mayor que") << QObject::tr("Entre los valores");
     cb->addItems(list);
     cb->setObjectName(QString("cb_%1").arg(fld));
     cb->setProperty(AlephERP::stFieldName, fld);

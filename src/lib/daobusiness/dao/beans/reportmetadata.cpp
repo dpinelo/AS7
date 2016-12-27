@@ -167,7 +167,7 @@ QString ReportMetadata::absolutePath() const
 {
     if ( d->m_absolutePath.isEmpty() )
     {
-        return QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).arg(d->m_name);
+        return QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), d->m_name);
     }
     return d->m_absolutePath;
 }
@@ -365,7 +365,7 @@ void ReportMetadataPrivate::setConfig()
         if ( !n.isNull() )
         {
             m_reportName = n.toElement().text().toUtf8();
-            m_absolutePath = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).arg(QString(n.toElement().text().toUtf8()));
+            m_absolutePath = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), QString(n.toElement().text().toUtf8()));
         }
         n = root.firstChildElement("parameterForm");
         if ( !n.isNull() )
@@ -375,7 +375,7 @@ void ReportMetadataPrivate::setConfig()
         n = root.firstChildElement("alias");
         if ( !n.isNull() )
         {
-            m_alias = QObject::trUtf8(n.toElement().text().toUtf8());
+            m_alias = QObject::tr(n.toElement().text().toUtf8());
         }
         n = root.firstChildElement("linkedTo");
         if ( !n.isNull() )

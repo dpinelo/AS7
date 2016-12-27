@@ -656,11 +656,11 @@ QVariant MultipleRelationBaseBeanModel::data(const QModelIndex &item, int role) 
 {
     if ( role == AlephERP::InsertRowTextRole && d->m_metadata )
     {
-        return trUtf8("Insertar registro '%1").arg(d->m_metadata->alias());
+        return tr("Insertar registro '%1").arg(d->m_metadata->alias());
     }
     if ( role == AlephERP::EditRowTextRole && d->m_metadata )
     {
-        return trUtf8("Editar registro '%1").arg(d->m_metadata->alias());
+        return tr("Editar registro '%1").arg(d->m_metadata->alias());
     }
     if ( !item.isValid() || item.row() <= -1 || item.row() >= d->rowCount() )
     {

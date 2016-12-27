@@ -111,7 +111,7 @@ public:
     void emitRelatedElementModified(RelatedElementPointer el);
     void copy(BaseBean *copyBean);
     void removeRelatedElement(RelatedElementPointer element);
-    bool checkAccess(QChar access);
+    bool checkAccess(QChar access) const;
 };
 
 BaseBeanPrivate::BaseBeanPrivate(BaseBean *qq) :
@@ -138,9 +138,10 @@ void BaseBeanPrivate::setDefaultValues(BaseBeanPointerList fatherBeans)
 
     QStringList rootFieldsSetted;
     // Si invocamos a este objeto con "padres" de relaciones, los asignamos
-    foreach (BaseBeanPointer father, fatherBeans)
+    for (BaseBeanPointer father : fatherBeans)
     {
-        foreach (DBRelation *rel, q_ptr->relations(AlephERP::ManyToOne))
+        QList<DBRelation *> relations = q_ptr->relations(AlephERP::ManyToOne);
+        for (DBRelation *rel : relations)
         {
             if ( father && rel->metadata()->tableName() == father->metadata()->tableName() )
             {
@@ -149,7 +150,7 @@ void BaseBeanPrivate::setDefaultValues(BaseBeanPointerList fatherBeans)
             }
         }
     }
-    foreach ( DBField *fld, m_fields )
+    for ( DBField *fld : m_fields )
     {
         if ( fld->metadata()->hasDefaultValue() && !rootFieldsSetted.contains(fld->metadata()->dbFieldName()) )
         {
@@ -454,17 +455,17 @@ BaseBean::~BaseBean()
  * Inicializa la estructura básica del bean o registro de base de datos. Puede establecer los valores por defecto
  * y también asignar los padres de las relaciones M1
  */
-void BaseBean::init(BaseBeanMetadata *m, bool hastToSetDefaultValue, BaseBeanPointerList fatherBeans)
+void BaseBean::init(BaseBeanMetadata *m, bool hastToSetDefaultValue, const BaseBeanPointerList &fatherBeans)
 {
     QMutexLocker lock(&d->m_mutex);
     d->m = m;
     QList<DBFieldMetadata *> fieldsMetadata = d->m->fields();
     QList<DBRelationMetadata *>relationsMetadata = d->m->relations();
-    foreach (DBFieldMetadata *metadata, fieldsMetadata)
+    for (DBFieldMetadata *metadata : fieldsMetadata)
     {
         newField(metadata);
     }
-    foreach (DBRelationMetadata *metadata, relationsMetadata)
+    for (DBRelationMetadata *metadata : relationsMetadata)
     {
         DBRelation *rel = newRelation(metadata);
         DBField *fld = field(rel->metadata()->rootFieldName());
@@ -475,7 +476,7 @@ void BaseBean::init(BaseBeanMetadata *m, bool hastToSetDefaultValue, BaseBeanPoi
     }
     // Funciones asociadas definidas en QS. Importante definirlas aquí para que estén presentes en los
     // scripts de los valores por defecto.
-    foreach (const QString &functionName, m->associatedScriptFunctions())
+    for (const QString &functionName : m->associatedScriptFunctions())
     {
         BaseBeanQsFunction *function = new BaseBeanQsFunction(functionName, this);
         QByteArray ba = functionName.toUtf8();
@@ -570,7 +571,7 @@ DBField *BaseBean::newField(DBFieldMetadata *m)
 void BaseBean::makeCalculatedFieldsConnections(const QString &fieldToCalc, const QStringList &fieldsOnCalcArg)
 {
     QList<DBField *> fieldsToCalculate;
-    foreach (DBField *field, d->m_fields)
+    for (DBField *field : d->m_fields)
     {
         // Vamos a conectarnos a los objetos que deben recalculares
         if ( field->metadata()->calculated() && (fieldToCalc.isEmpty() || field->metadata()->dbFieldName() == fieldToCalc) )
@@ -580,7 +581,7 @@ void BaseBean::makeCalculatedFieldsConnections(const QString &fieldToCalc, const
     }
     std::stable_sort(fieldsToCalculate.begin(), fieldsToCalculate.end(), CompareCalculatedDBField());
 
-    foreach (DBField *field, fieldsToCalculate)
+    for (DBField *field : fieldsToCalculate)
     {
         QStringList fieldsOnCalc;
         if ( fieldsOnCalcArg.isEmpty() )
@@ -591,7 +592,7 @@ void BaseBean::makeCalculatedFieldsConnections(const QString &fieldToCalc, const
         {
             fieldsOnCalc = fieldsOnCalcArg;
         }
-        foreach (const QString &path, fieldsOnCalc)
+        for (const QString &path : fieldsOnCalc)
         {
             DBObject *obj = navigateThroughProperties(path);
             if ( obj != NULL )
@@ -615,7 +616,8 @@ void BaseBean::makeCalculatedFieldsConnections(const QString &fieldToCalc, const
         // Nos conectamos también a las relaciones agregadas
         if ( field->metadata()->aggregate() )
         {
-            foreach (const QString &rel, field->metadata()->aggregateCalc().relation)
+            QStringList rels = field->metadata()->aggregateCalc().relation;
+            for (const QString &rel : rels)
             {
                 DBRelation *r = relation(rel);
                 if ( r != NULL )
@@ -670,7 +672,7 @@ DBRelation *BaseBean::newRelation(DBRelationMetadata *m)
     return rel;
 }
 
-QList<DBField *> BaseBean::fields() const
+const QList<DBField *> BaseBean::fields() const
 {
     return d->m_fields;
 }
@@ -678,7 +680,7 @@ QList<DBField *> BaseBean::fields() const
 QVariantMap BaseBean::fieldsMap() const
 {
     QVariantMap map;
-    foreach (DBField *fld, d->m_fields)
+    for (DBField *fld : d->m_fields)
     {
         map[fld->metadata()->dbFieldName()] = QVariant::fromValue(fld);
     }
@@ -688,14 +690,14 @@ QVariantMap BaseBean::fieldsMap() const
 /*!
   Conjunto de todas las relaciones del basebean. Pueden ser relaciones con hijos o con padres
   */
-QList<DBRelation *> BaseBean::relations(AlephERP::RelationTypes type) const
+const QList<DBRelation *> BaseBean::relations(AlephERP::RelationTypes type) const
 {
     if ( type.testFlag(AlephERP::All) )
     {
         return d->m_relations;
     }
     QList<DBRelation *> rels;
-    foreach ( DBRelation *rel, d->m_relations )
+    for ( DBRelation *rel : d->m_relations )
     {
         if ( type.testFlag(AlephERP::OneToMany) && rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
         {
@@ -716,7 +718,7 @@ QList<DBRelation *> BaseBean::relations(AlephERP::RelationTypes type) const
 QVariantMap BaseBean::relationsMap() const
 {
     QVariantMap map;
-    foreach (DBRelation *rel, d->m_relations)
+    for (DBRelation *rel : d->m_relations)
     {
         map[rel->metadata()->name()] = QVariant::fromValue(rel);
     }
@@ -742,7 +744,7 @@ int BaseBean::relationIndex(const QString &relationName)
 /*!
   Devuelve los hijos de la relación dada. Busca el objeto relation, y obtiene directamente los hijos
   */
-BaseBeanPointerList BaseBean::relationChildren(const QString &relationName, const QString &order, bool includeToBeDeleted)
+const BaseBeanPointerList BaseBean::relationChildren(const QString &relationName, const QString &order, bool includeToBeDeleted)
 {
     DBRelation *rel = relation(relationName);
     if ( rel != NULL )
@@ -783,7 +785,7 @@ BaseBeanPointer BaseBean::relationChildByField(const QString &relationName, cons
   Devuelve los hijos de la relación \a relationName según un filtro elaborado en \a filter
   y ordenados según \a order
   */
-BaseBeanPointerList BaseBean::relationChildrenByFilter(const QString &relationName, const QString &filter, const QString &order, bool includeToBeDeleted)
+const BaseBeanPointerList BaseBean::relationChildrenByFilter(const QString &relationName, const QString &filter, const QString &order, bool includeToBeDeleted)
 {
     BaseBeanPointerList beans;
     DBRelation *rel = relation(relationName);
@@ -832,9 +834,20 @@ void BaseBean::setFieldValue(int index, const QVariant &value)
     }
 }
 
+void BaseBean::setFieldValue(const QString &dbFieldName, const QVariant &value)
+{
+    for ( DBField *field : d->m_fields )
+    {
+        if ( field->metadata()->dbFieldName() == dbFieldName )
+        {
+            field->setValue(value);
+        }
+    }
+}
+
 void BaseBean::setFieldValueFromSqlRawData(const QString &dbFieldName, const QString &data)
 {
-    foreach ( DBField *field, d->m_fields )
+    for ( DBField *field : d->m_fields )
     {
         if ( field->metadata()->dbFieldName() == dbFieldName )
         {
@@ -845,22 +858,11 @@ void BaseBean::setFieldValueFromSqlRawData(const QString &dbFieldName, const QSt
 
 void BaseBean::setOverwriteFieldValue(const QString &dbFieldName, const QVariant &value)
 {
-    foreach ( DBField *field, d->m_fields )
+    for ( DBField *field : d->m_fields )
     {
         if ( field->metadata()->dbFieldName() == dbFieldName )
         {
             field->setOverwriteValue(value);
-        }
-    }
-}
-
-void BaseBean::setFieldValue(const QString &dbFieldName, const QVariant &value)
-{
-    foreach ( DBField *field, d->m_fields )
-    {
-        if ( field->metadata()->dbFieldName() == dbFieldName )
-        {
-            field->setValue(value);
         }
     }
 }
@@ -875,7 +877,7 @@ void BaseBean::setInternalFieldValue(int index, const QVariant &value, bool over
 
 void BaseBean::setOldValue(const QString &dbFieldName, const QVariant &oldValue)
 {
-    foreach ( DBField *field, d->m_fields )
+    for ( DBField *field : d->m_fields )
     {
         if ( field->metadata()->dbFieldName() == dbFieldName )
         {
@@ -894,7 +896,7 @@ void BaseBean::setOldValue(int index, const QVariant &oldValue)
 
 void BaseBean::setInternalFieldValue(const QString &dbFieldName, const QVariant &value, bool overwriteOnReadOnly, bool updateChildren)
 {
-    foreach ( DBField *field, d->m_fields )
+    for ( DBField *field : d->m_fields )
     {
         if ( field->metadata()->dbFieldName() == dbFieldName )
         {
@@ -924,17 +926,20 @@ DBField *BaseBean::field(const QString &dbFieldName)
             }
         }
     }
-    if ( field == NULL &&
-         !dbFieldName.isEmpty() &&
-         dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
-         dbFieldName != QLatin1String(AlephERP::stInactive) )
+    if ( field == NULL )
     {
-        QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::field: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+         if ( !dbFieldName.isEmpty() &&
+               dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+               dbFieldName != QLatin1String(AlephERP::stInactive) &&
+               dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::field: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        }
     }
     return field;
 }
 
-DBField * BaseBean::field(int index)
+DBField * BaseBean::field(int index) const
 {
     if ( index < 0 || index >= d->m_fields.size() )
     {
@@ -946,7 +951,7 @@ DBField * BaseBean::field(int index)
 /**
   Devuelve todos aquellos campos que componen la primaryKey
   */
-QList<DBField *> BaseBean::pkFields()
+const QList<DBField *> BaseBean::pkFields() const
 {
     QList<DBField *> fields;
     for ( int i = 0 ; i < d->m_fields.size() ; i++ )
@@ -963,7 +968,7 @@ QList<DBField *> BaseBean::pkFields()
     return fields;
 }
 
-int BaseBean::fieldIndex(const QString &dbFieldName)
+int BaseBean::fieldIndex(const QString &dbFieldName) const
 {
     int index = -1;
     for ( int i = 0 ; i < d->m_fields.size() ; i++ )
@@ -974,12 +979,15 @@ int BaseBean::fieldIndex(const QString &dbFieldName)
             break;
         }
     }
-    if ( index == -1 &&
-         !dbFieldName.isEmpty() &&
-         dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
-         dbFieldName != QLatin1String(AlephERP::stInactive) )
+    if ( index == -1 )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldIndex: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        if ( !dbFieldName.isEmpty() &&
+              dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+              dbFieldName != QLatin1String(AlephERP::stInactive) &&
+              dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldIndex: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        }
     }
     return index;
 }
@@ -996,6 +1004,11 @@ bool BaseBean::modifiedRelatedElements() const
 
 QColor BaseBean::rowColor()
 {
+    DBField *fldColor = field(AlephERP::stRowColor);
+    if ( fldColor != NULL )
+    {
+        return QColor(fldColor->value().toString());
+    }
     return d->m->rowColorScriptExecute(this);
 }
 
@@ -1017,7 +1030,7 @@ DBRelation * BaseBean::relation(const QString &relationName)
     }
     if ( rel == NULL && !relationName.isEmpty() )
     {
-        QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::relation: [%1]. No existe la relación: [%2]").arg(d->m->tableName()).arg(relationName));
+        QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::relation: [%1]. No existe la relación: [%2]").arg(d->m->tableName(), relationName));
     }
     return rel;
 }
@@ -1031,7 +1044,7 @@ BaseBeanPointer BaseBean::father(const QString &relationName)
     DBRelation *rel = relation(relationName);
     if ( rel == NULL || relationName.isEmpty() )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::father: [%1]. No existe la relación: [%2]").arg(d->m->tableName()).arg(relationName));
+        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::father: [%1]. No existe la relación: [%2]").arg(d->m->tableName(), relationName));
     }
     else
     {
@@ -1074,7 +1087,7 @@ QString BaseBean::fatherDisplayFieldValue(const QString &relationName, const QSt
 /*!
   Devuelve el valor del campo dbFieldName
   */
-QVariant BaseBean::fieldValue(int dbField)
+QVariant BaseBean::fieldValue(int dbField) const
 {
     if ( dbField > -1 && dbField < d->m_fields.size() )
     {
@@ -1100,9 +1113,10 @@ QVariant BaseBean::fieldValue(const QString &dbFieldName)
     {
         if ( !dbFieldName.isEmpty() &&
              dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
-             dbFieldName != QLatin1String(AlephERP::stInactive) )
+             dbFieldName != QLatin1String(AlephERP::stInactive) &&
+             dbFieldName != QLatin1String(AlephERP::stRowColor) )
         {
-            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::fieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
         }
     }
     else
@@ -1112,24 +1126,28 @@ QVariant BaseBean::fieldValue(const QString &dbFieldName)
     return value;
 }
 
-bool  BaseBean::isFieldEmpty(const QString &dbFieldName)
+bool BaseBean::isFieldEmpty(const QString &dbFieldName)
 {
     if ( dbFieldName.isEmpty() )
     {
         return true;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL ||
-         dbFieldName.isEmpty() ||
-         dbFieldName == QLatin1String("editable") )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::isFieldEmpty: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
-        return true;
+        if ( !dbFieldName.isEmpty() &&
+              dbFieldName != QLatin1String(AlephERP::stInactive) &&
+              dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+              dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::isFieldEmpty: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+            return true;
+        }
     }
     return fld->isEmpty();
 }
 
-QPixmap BaseBean::pixmapFieldValue(int dbField)
+QPixmap BaseBean::pixmapFieldValue(int dbField) const
 {
     QPixmap pixmap;
     DBField *fld = field(dbField);
@@ -1176,11 +1194,15 @@ QString BaseBean::displayFieldValue(const QString & dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL ||
-         dbFieldName.isEmpty() ||
-         dbFieldName == QLatin1String("editable") )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::displayFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        if ( !dbFieldName.isEmpty() &&
+              dbFieldName != QLatin1String(AlephERP::stInactive) &&
+              dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+              dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::displayFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        }
     }
     else
     {
@@ -1214,11 +1236,15 @@ QString BaseBean::sqlFieldValue(const QString & dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL ||
-         dbFieldName.isEmpty() ||
-         dbFieldName == QLatin1String("editable") )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::sqlFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+        if ( !dbFieldName.isEmpty() &&
+             dbFieldName != QLatin1String(AlephERP::stInactive) &&
+             dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+             dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::sqlFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        }
     }
     else
     {
@@ -1239,11 +1265,15 @@ QString BaseBean::toolTipField(const QString &dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL ||
-         dbFieldName.isEmpty() ||
-         dbFieldName == QLatin1String("editable") )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::toolTipField: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+         if ( !dbFieldName.isEmpty() &&
+               dbFieldName != QLatin1String(AlephERP::stInactive) &&
+               dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+               dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::toolTipField: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        }
     }
     else
     {
@@ -1272,11 +1302,15 @@ QVariant BaseBean::defaultFieldValue(const QString &dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL ||
-         dbFieldName.isEmpty() ||
-         dbFieldName == QLatin1String("editable") )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::defaultFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(dbFieldName));
+         if ( !dbFieldName.isEmpty() &&
+               dbFieldName != QLatin1String(AlephERP::stInactive) &&
+               dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
+               dbFieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::defaultFieldValue: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), dbFieldName));
+        }
     }
     else
     {
@@ -1293,11 +1327,15 @@ QString BaseBean::sqlWhere(const QString &fieldName, const QString &op)
 {
     QString sql;
     DBField *fld = field(fieldName);
-    if ( fld == NULL ||
-         fieldName.isEmpty() ||
-         fieldName == "editable" )
+    if ( fld == NULL )
     {
-        QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::sqlWhere: [%1]. No existe el campo: [%2]").arg(d->m->tableName()).arg(fieldName));
+         if ( !fieldName.isEmpty() &&
+               fieldName != QLatin1String(AlephERP::stInactive) &&
+               fieldName != QLatin1String(AlephERP::stFieldEditable) &&
+               fieldName != QLatin1String(AlephERP::stRowColor) )
+        {
+            QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::sqlWhere: [%1]. No existe el campo: [%2]").arg(d->m->tableName(), fieldName));
+        }
     }
     else
     {
@@ -1319,7 +1357,7 @@ QString BaseBean::sqlWherePk()
     {
         return where;
     }
-    foreach ( DBField *fld, pk )
+    for ( DBField *fld : pk )
     {
         if ( where.isEmpty() )
         {
@@ -1333,7 +1371,7 @@ QString BaseBean::sqlWherePk()
     return where;
 }
 
-QVariant BaseBean::pkValue()
+QVariant BaseBean::pkValue() const
 {
     QVariantMap pkValues;
     QList<DBField *> pk = pkFields();
@@ -1341,14 +1379,14 @@ QVariant BaseBean::pkValue()
     {
         return QVariant();
     }
-    foreach ( DBField *fld, pk )
+    for ( DBField *fld : pk )
     {
         pkValues[fld->metadata()->dbFieldName()] = fld->value();
     }
     return pkValues;
 }
 
-QVariantList BaseBean::pkListValue()
+const QVariantList BaseBean::pkListValue() const
 {
     QVariantList list;
     QList<DBField *> pk = pkFields();
@@ -1356,7 +1394,7 @@ QVariantList BaseBean::pkListValue()
     {
         return list;
     }
-    foreach ( DBField *fld, pk )
+    for ( DBField *fld : pk )
     {
         list.append(fld->value());
     }
@@ -1438,11 +1476,12 @@ void BaseBean::setDbState(BaseBean::DbBeanStates value)
             AERPTransactionContext::instance()->discardFromContext(this, false);
         }
         // Marcamos también para borrar todos los hijos de las relaciones que hubiese
-        foreach (DBRelation *rel, d->m_relations)
+        for (DBRelation *rel : d->m_relations)
         {
             if ( rel->metadata()->deleteCascade() && (rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY || rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE) )
             {
-                foreach (BaseBeanPointer b, rel->internalChildren())
+                BaseBeanPointerList internalChildren = rel->internalChildren();
+                for (BaseBeanPointer b : internalChildren)
                 {
                     b->setDbState(BaseBean::TO_BE_DELETED);
                 }
@@ -1451,7 +1490,7 @@ void BaseBean::setDbState(BaseBean::DbBeanStates value)
 
         // Se marcan también para borrar los elementos relacionados de ese bean. Esto invocará a los scripts
         // de borrado
-        foreach (RelatedElement *elem, d->m_relatedElements)
+        for (RelatedElement *elem : d->m_relatedElements)
         {
             if ( elem->state() != RelatedElement::TO_BE_DELETED && elem->state() != RelatedElement::DELETED )
             {
@@ -1468,7 +1507,7 @@ void BaseBean::setDbState(BaseBean::DbBeanStates value)
 
 BaseBean::DbBeanStates BaseBean::dbState() const
 {
-    // Si el registro es una vista, jamás podrá estar modificado
+    // Si el registro es una vista, jamás podrá estar como "INSERT", ni para ser borrado.
     if ( d->m->dbObjectType() == AlephERP::View )
     {
         return BaseBean::UPDATE;
@@ -1532,7 +1571,7 @@ void BaseBean::setModified()
     QString senderClassName(dbObject->metaObject()->className());
     if ( senderClassName == QLatin1String("DBField") )
     {
-        foreach (DBField *fld, d->m_fields)
+        for (DBField *fld : d->m_fields)
         {
             if ( fld->modified() )
             {
@@ -1570,7 +1609,7 @@ void BaseBean::recalculateCalculatedFields()
     timer.start();
 
     QList<DBField *> fieldsToCalculate;
-    foreach ( DBField *fld, d->m_fields )
+    for ( DBField *fld : d->m_fields )
     {
         if ( fld->metadata()->calculated() && fld != sender() && !fld->isWorking() )
         {
@@ -1579,7 +1618,7 @@ void BaseBean::recalculateCalculatedFields()
     }
     std::stable_sort(fieldsToCalculate.begin(), fieldsToCalculate.end(), CompareCalculatedDBField());
 
-    foreach ( DBField *fld, fieldsToCalculate )
+    for ( DBField *fld : fieldsToCalculate )
     {
         if ( fld->metadata()->calculated() && fld != sender() && !fld->isWorking() )
         {
@@ -1590,9 +1629,9 @@ void BaseBean::recalculateCalculatedFields()
                 {
                     d->m_recalculatingField.push(fld);
                     QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::recalculateCalculatedFields: Forzando el recalculo de [%1][%2]. Bean número: [%3]").
-                                       arg(d->m->tableName()).
-                                       arg(fld->metadata()->dbFieldName()).
-                                       arg(objectName()));
+                                       arg(d->m->tableName(),
+                                           fld->metadata()->dbFieldName(),
+                                           objectName()));
                     // Si la señal viene dada por la carga de un padre, no tendríamos porqué emitir ningúna señal (si es por ejemplo
                     // una modificación, la carga del padre implica necesariamente que se haya dado un valor al campo que apunta a ese padre
                     QString senderSignal;
@@ -1621,7 +1660,7 @@ void BaseBean::recalculateCalculatedFields()
                     QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::recalculateCalculatedFields: Intentando calcular un campo que estaba en una llamada anterior.[%1] La pila es: ").arg(fld->metadata()->dbFieldName()));
                     QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::recalculateCalculatedFields: --------------------------------------"));
                     QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::recalculateCalculatedFields: FIELDS EN PILA "));
-                    foreach (DBField *element, d->m_recalculatingField)
+                    for (DBField *element : d->m_recalculatingField)
                     {
                         QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::recalculateCalculatedFields: [%1]").arg(element->metadata()->dbFieldName()));
                     }
@@ -1648,13 +1687,13 @@ void BaseBean::uncheckModifiedFields(bool uncheckChildren)
 {
     QMutexLocker lock(&d->m_mutex);
     bool signalsWasBlocked = blockAllSignals(true);
-    foreach (DBField *fld, d->m_fields)
+    for (DBField *fld : d->m_fields)
     {
         fld->setModified(false);
     }
     if ( uncheckChildren )
     {
-        foreach (DBRelation *rel, d->m_relations)
+        for (DBRelation *rel : d->m_relations)
         {
             rel->uncheckChildrensModified();
         }
@@ -1718,7 +1757,7 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore, 
         {
             if ( d->m_modified && (!metadata()->beforeInsertScriptExecute(this) || !metadata()->beforeSaveScriptExecute(this)) )
             {
-                QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("No se han cumplido las condiciones necesarias para la inserción de este registro '%1'").arg(metadata()->alias()));
+                QLogger::QLog_Error(AlephERP::stLogOther, tr("No se han cumplido las condiciones necesarias para la inserción de este registro '%1'").arg(metadata()->alias()));
                 return false;
             }
             emitBeforeInsert();
@@ -1728,7 +1767,7 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore, 
         {
             if ( d->m_modified && !(metadata()->beforeUpdateScriptExecute(this) || metadata()->beforeSaveScriptExecute(this)) )
             {
-                QLogger::QLog_Error(AlephERP::stLogOther, trUtf8("No se han cumplido las condiciones necesarias para la edición de este registro '%1'").arg(metadata()->alias()));
+                QLogger::QLog_Error(AlephERP::stLogOther, tr("No se han cumplido las condiciones necesarias para la edición de este registro '%1'").arg(metadata()->alias()));
                 return false;
             }
             emitBeforeUpdate();
@@ -1751,7 +1790,7 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore, 
 
     // ¿Hay algún campo calculado que el usuario no puede modificar o bien, que puede modificar
     // pero no lo ha hecho?
-    foreach ( DBField *fld, d->m_fields )
+    for ( DBField *fld : d->m_fields )
     {
         if ( fld->metadata()->hasCounterDefinition() )
         {
@@ -1791,7 +1830,7 @@ bool BaseBean::save(const QString &idTransaction, bool recalculateFieldsBefore, 
             // Ejecutamos las acciones tras insertar.
             metadata()->afterInsertScriptExecute(this);
             // Debemos actualizar todas aquellas relaciones, que tengan hijos, a que éstos, estarán cargados
-            foreach (DBRelation *rel, d->m_relations)
+            for (DBRelation *rel : d->m_relations)
             {
                 rel->setChildrenLoadedInternaly();
             }
@@ -1859,7 +1898,7 @@ void BaseBean::backupValues()
     QMutexLocker lock(&d->m_mutex);
 
     bool beanSignalsState = blockAllSignals(true);
-    foreach ( DBField *fld, d->m_fields )
+    for ( DBField *fld : d->m_fields )
     {
         if ( fld->metadata()->calculated() && (!fld->metadata()->memo() || fld->memoLoaded()) )
         {
@@ -1899,7 +1938,7 @@ void BaseBean::restoreValues(bool blockSignals, AlephERP::RelationTypes restoreO
     }
 
     // Además, borramos los posibles hijos agregados...
-    foreach (DBRelation *rel, d->m_relations)
+    for (DBRelation *rel : d->m_relations)
     {
         if ( restoreOnRelations.testFlag(AlephERP::All) ||
              (restoreOnRelations.testFlag(AlephERP::OneToOne) && rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE) ||
@@ -1910,14 +1949,14 @@ void BaseBean::restoreValues(bool blockSignals, AlephERP::RelationTypes restoreO
         }
     }
 
-    foreach (DBField *fld, d->m_fields)
+    for (DBField *fld : d->m_fields)
     {
         if ( fld->metadata()->calculated() && !(dbState() == BaseBean::UPDATE && fld->metadata()->calculatedOnlyOnInsert()) )
         {
             fld->setValueIsOld();
         }
     }
-    foreach (DBField *fld, d->m_fields)
+    for (DBField *fld : d->m_fields)
     {
         if ( fld->metadata()->calculated() && !(dbState() == BaseBean::UPDATE && fld->metadata()->calculatedOnlyOnInsert()) )
         {
@@ -1948,7 +1987,7 @@ void BaseBean::setSerialUniqueId()
 {
     QMutexLocker lock(&d->m_mutex);
     QList<DBFieldMetadata *> pkFields = d->m->pkFields();
-    foreach ( DBField *fld, d->m_fields )
+    for ( DBField *fld : d->m_fields )
     {
         if ( fld->metadata()->serial() && pkFields.contains(fld->metadata()) )
         {
@@ -2013,7 +2052,7 @@ QString BaseBeanPrivate::extractFilterOperator(const QString &filter)
     QString op;
     ops << "=" << "<" << ">" << "!=";
 
-    foreach ( QString temp, ops )
+    for ( const QString &temp : ops )
     {
         if ( filter.indexOf(temp) != -1 )
         {
@@ -2049,7 +2088,7 @@ bool BaseBean::checkFilter(const QString &filterExpression, Qt::CaseSensitivity 
 
     QStringList conditions = filterExpression.split(QRegExp(" (AND|and) "));
 
-    foreach ( QString filter, conditions )
+    for ( const QString &filter : conditions )
     {
         op = d->extractFilterOperator(filter);
         if ( op.isEmpty() )
@@ -2246,7 +2285,7 @@ DBObject *BaseBean::navigateThroughProperties(const QString &path, bool returnIn
         QVariant v = obj->property(ba.constData());
         if ( !v.isValid() )
         {
-            QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBean::navigateThroughProperties: La ruta [%1] no conduce a ningún lugar. Item: [%2]").arg(path).arg(items.at(i)));
+            QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBean::navigateThroughProperties: La ruta [%1] no conduce a ningún lugar. Item: [%2]").arg(path, items.at(i)));
             return NULL;
         }
         // http://liveblue.wordpress.com/2012/10/29/qobject-multiple-inheritance-and-smart-delegators/
@@ -2398,7 +2437,7 @@ QList<DBObject *> BaseBeanPrivate::iterateNavigation(DBField *fld, const QString
             else
             {
                 BaseBeanPointerList children = rel->childrenByFilter(filter);
-                foreach (BaseBeanPointer pointerBean, children)
+                for (BaseBeanPointer pointerBean : children)
                 {
                     if ( !pointerBean.isNull() )
                     {
@@ -2406,7 +2445,7 @@ QList<DBObject *> BaseBeanPrivate::iterateNavigation(DBField *fld, const QString
                     }
                 }
             }
-            foreach (BaseBean *bean, beanList)
+            for (BaseBean *bean : beanList)
             {
                 list.append(iterateNavigation(bean, nextRelativePath, nextFilters));
             }
@@ -2441,7 +2480,8 @@ QList<DBObject *> BaseBeanPrivate::iterateNavigation(DBRelation *rel, const QStr
         }
         else
         {
-            foreach (BaseBeanPointer pointerBean, rel->children(filter))
+            BaseBeanPointerList pointerBeans = rel->children(filter);
+            for (BaseBeanPointer pointerBean : pointerBeans)
             {
                 if ( !pointerBean.isNull() )
                 {
@@ -2449,7 +2489,7 @@ QList<DBObject *> BaseBeanPrivate::iterateNavigation(DBRelation *rel, const QStr
                 }
             }
         }
-        foreach (BaseBean *bean, beanList)
+        for (BaseBean *bean : beanList)
         {
             if ( bean != NULL )
             {
@@ -2472,7 +2512,7 @@ void BaseBean::deleteObserver()
     {
         delete m_observer;
     }
-    foreach ( DBField *fld, d->m_fields )
+    for ( DBField *fld : d->m_fields )
     {
         fld->deleteObserver();
     }
@@ -2652,7 +2692,7 @@ RelatedElementPointer BaseBean::newRelatedElement(AlephERP::RelatedElementTypes 
     return element;
 }
 
-AERPUserRowAccessList BaseBean::access()
+AERPUserRowAccessList BaseBean::access() const
 {
     return d->m_access;
 }
@@ -2674,12 +2714,12 @@ void BaseBean::appendAccess(const AERPUserRowAccess &item)
  * Devuelve true si el presente usuario tiene permisos para acceder a esta fila
  * @return
  */
-bool BaseBean::checkAccess(QChar access)
+bool BaseBean::checkAccess(QChar access) const
 {
     return d->checkAccess(access);
 }
 
-bool BaseBeanPrivate::checkAccess(QChar access)
+bool BaseBeanPrivate::checkAccess(QChar access) const
 {
     if ( AERPLoggedUser::instance()->isSuperAdmin() )
     {
@@ -2698,7 +2738,8 @@ bool BaseBeanPrivate::checkAccess(QChar access)
         return true;
     }
     // Se hacen dos bucles para tener en cuenta la granularidad de los permisos.
-    foreach (AERPUserRowAccess item, q_ptr->access())
+    QList<AERPUserRowAccess> accessItems =  q_ptr->access();
+    for (const AERPUserRowAccess &item : accessItems)
     {
         if ( (item.userName() == AERPLoggedUser::instance()->userName() ||
                 AERPLoggedUser::instance()->hasRole(item.idRole()) )
@@ -2707,7 +2748,7 @@ bool BaseBeanPrivate::checkAccess(QChar access)
             return false;
         }
     }
-    foreach (AERPUserRowAccess item, q_ptr->access())
+    for (const AERPUserRowAccess &item : accessItems)
     {
         if ( item.access().contains(access) )
         {
@@ -2972,7 +3013,7 @@ RelatedElementPointer BaseBean::newRelatedElement(AERPDocMngmntDocument *doc, co
  * Devuelve los elementos relacionados. No devuelve los marcados para ser borrados.
  * @return
  */
-RelatedElementPointerList BaseBean::getRelatedElements(AlephERP::RelatedElementTypes type, AlephERP::RelatedElementCardinalities cardinality, bool includeToBeDelete)
+const RelatedElementPointerList BaseBean::getRelatedElements(AlephERP::RelatedElementTypes type, AlephERP::RelatedElementCardinalities cardinality, bool includeToBeDelete)
 {
     QMutexLocker lock(&d->m_mutex);
     RelatedElementPointerList elements;
@@ -2998,7 +3039,7 @@ RelatedElementPointerList BaseBean::getRelatedElements(AlephERP::RelatedElementT
         d->m_loadingRelatedElements = false;
         d->m_modified = modifiedState;
     }
-    foreach (RelatedElementPointer element, d->m_relatedElements)
+    for (RelatedElementPointer element : d->m_relatedElements)
     {
         if ( !element.isNull() )
         {
@@ -3018,7 +3059,7 @@ RelatedElementPointerList BaseBean::getRelatedElementsByRelatedTableName(const Q
 {
     RelatedElementPointerList elements;
     RelatedElementPointerList allElements = getRelatedElements(AlephERP::Record, cardinality, includeToBeDelete);
-    foreach (RelatedElementPointer element, allElements)
+    for (RelatedElementPointer element : allElements)
     {
         if ( !element.isNull() )
         {
@@ -3038,7 +3079,7 @@ RelatedElementPointerList BaseBean::getRelatedElementsByCategory(const QString &
 {
     RelatedElementPointerList elements;
     RelatedElementPointerList allElements = getRelatedElements(type, cardinality, includeToBeDelete);
-    foreach (RelatedElementPointer element, allElements)
+    for (RelatedElementPointer element : allElements)
     {
         if ( !element.isNull() )
         {
@@ -3058,7 +3099,7 @@ RelatedElementPointerList BaseBean::getRelatedElementsByCategoryAndRelatedTableN
 {
     RelatedElementPointerList elements;
     RelatedElementPointerList allElements = getRelatedElements(AlephERP::Record, cardinality, includeToBeDelete);
-    foreach (RelatedElementPointer element, allElements)
+    for (RelatedElementPointer element : allElements)
     {
         if ( !element.isNull() )
         {
@@ -3078,7 +3119,7 @@ RelatedElementPointerList BaseBean::getRelatedElementsByCategoriesAndRelatedTabl
 {
     RelatedElementPointerList elements;
     RelatedElementPointerList allElements = getRelatedElements(AlephERP::Record, cardinality, includeToBeDelete);
-    foreach (RelatedElementPointer element, allElements)
+    for (RelatedElementPointer element : allElements)
     {
         if ( !element.isNull() )
         {
@@ -3097,7 +3138,7 @@ RelatedElementPointerList BaseBean::getRelatedElementsByDocumentId(int id)
 {
     RelatedElementPointerList elements;
     RelatedElementPointerList allElements = getRelatedElements(AlephERP::Document);
-    foreach (RelatedElementPointer element, allElements)
+    for (RelatedElementPointer element : allElements)
     {
         if ( !element.isNull() )
         {
@@ -3115,7 +3156,7 @@ int BaseBean::countRelatedElementsByCategory(const QString &category, AlephERP::
 {
     int count = 0;
     RelatedElementPointerList allElements = getRelatedElements(type, cardinality, includeToBeDelete);
-    foreach (RelatedElementPointer element, allElements)
+    for (RelatedElementPointer element : allElements)
     {
         if ( !element.isNull() )
         {
@@ -3132,7 +3173,7 @@ int BaseBean::countRelatedElementsByRelatedTableName(const QString &tableName, A
 {
     int count = 0;
     RelatedElementPointerList allElements = getRelatedElements(AlephERP::Record, cardinality, includeToBeDelete);
-    foreach (RelatedElementPointer element, allElements)
+    for (RelatedElementPointer element : allElements)
     {
         if ( !element.isNull() )
         {
@@ -3149,7 +3190,7 @@ int BaseBean::countRelatedElementsByCategoryAndRelatedTableName(const QString &t
 {
     int count = 0;
     RelatedElementPointerList allElements = getRelatedElements(AlephERP::Record, cardinality, includeToBeDelete);
-    foreach (RelatedElementPointer element, allElements)
+    for (RelatedElementPointer element : allElements)
     {
         if ( !element.isNull() )
         {
@@ -3166,7 +3207,7 @@ int BaseBean::countRelatedElementsByCategoriesAndRelatedTableNames(const QString
 {
     int count = 0;
     RelatedElementPointerList allElements = getRelatedElements(AlephERP::Record, cardinality, includeToBeDelete);
-    foreach (RelatedElementPointer element, allElements)
+    for (RelatedElementPointer element : allElements)
     {
         if ( !element.isNull() )
         {
@@ -3232,7 +3273,7 @@ int BaseBean::countRelatedElements(AlephERP::RelatedElementTypes type, AlephERP:
 void BaseBean::deleteRelatedElementByCategory(const QString &category, AlephERP::RelatedElementTypes type, AlephERP::RelatedElementCardinalities cardinality)
 {
     RelatedElementPointerList allElements = getRelatedElements(type, cardinality, false);
-    foreach (RelatedElementPointer element, allElements)
+    for (RelatedElementPointer element : allElements)
     {
         if ( !element.isNull() )
         {
@@ -3362,7 +3403,7 @@ void BaseBean::setLoadTime(const QDateTime &time)
 void BaseBean::clean(bool onlyFields, bool children, bool fathers)
 {
     QMutexLocker lock(&d->m_mutex);
-    foreach (DBField *fld, d->m_fields)
+    for (DBField *fld : d->m_fields)
     {
         bool blockState = fld->blockSignals(true);
         fld->setValue(QVariant());
@@ -3376,7 +3417,7 @@ void BaseBean::clean(bool onlyFields, bool children, bool fathers)
     }
     if ( children )
     {
-        foreach (DBRelation *rel, d->m_relations)
+        for (DBRelation *rel : d->m_relations)
         {
             if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY || rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE )
             {
@@ -3386,7 +3427,7 @@ void BaseBean::clean(bool onlyFields, bool children, bool fathers)
     }
     if ( fathers )
     {
-        foreach (DBRelation *rel, d->m_relations)
+        for (DBRelation *rel : d->m_relations)
         {
             if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE && rel->father() )
             {
@@ -3503,7 +3544,8 @@ QScriptValue BaseBean::copyRelationChildren()
     QStringList relationNames;
     if (context()->argumentCount() == 1)
     {
-        foreach (DBRelation *rel, relations(AlephERP::OneToMany | AlephERP::OneToOne))
+        QList<DBRelation *> rels = relations(AlephERP::OneToMany | AlephERP::OneToOne);
+        for (DBRelation *rel : rels)
         {
             relationNames.append(rel->metadata()->name());
         }
@@ -3547,7 +3589,8 @@ QScriptValue BaseBean::deepCopyValues()
     QStringList relationNames;
     if (context()->argumentCount() == 1)
     {
-        foreach (DBRelation *rel, relations(AlephERP::OneToMany | AlephERP::OneToOne))
+        QList<DBRelation *> rels = relations(AlephERP::OneToMany | AlephERP::OneToOne);
+        for (DBRelation *rel : rels)
         {
             relationNames.append(rel->metadata()->name());
         }
@@ -3620,12 +3663,12 @@ void BaseBean::registerRecalculateFields()
 
 void BaseBean::setValuesFromFilter(const QString &filter)
 {
-    if ( filter.toLower().contains(QStringLiteral(" or ")) )
+    if ( filter.contains(QStringLiteral(" or "), Qt::CaseInsensitive) )
     {
         return;
     }
     QStringList parts = filter.split(QRegExp(" (AND|and) "));
-    foreach (const QString &part, parts)
+    for (const QString &part : parts)
     {
         QStringList subparts = part.split("=");
         if ( subparts.size() == 2 )
@@ -3670,7 +3713,8 @@ QScriptValue BaseBean::duplicate()
         BaseBean *copyBean = BeansFactory::instance()->newBaseBean(d->m->tableName());
         d->copy(copyBean);
         // Los campos seriales se resetean
-        foreach (DBField *fld, copyBean->fields())
+        const QList<DBField *> copyBeanFields = copyBean->fields();
+        for (DBField *fld : copyBeanFields)
         {
             if ( fld->metadata()->serial() )
             {
@@ -3728,7 +3772,7 @@ void BaseBeanPrivate::copy(BaseBean *destCopyBean)
     // Importante hacer este access aquí!!
     destCopyBean->setAccess(m_access);
 
-    foreach (DBField *fld, m_fields)
+    for (DBField *fld : m_fields)
     {
         DBField *fldCopy = destCopyBean->field(fld->dbFieldName());
         // Al hacer la copia, tenemos en cuenta si es un campo memo y no se ha obtenido, para no obtenerlo
@@ -3802,11 +3846,11 @@ bool BaseBean::blockAllSignals(bool value)
     {
         d->m_isBlockingSignals = true;
         blockSignals(value);
-        foreach (DBRelation *rel, d->m_relations)
+        for (DBRelation *rel : d->m_relations)
         {
             rel->blockAllSignals(value);
         }
-        foreach (DBField *fld, d->m_fields)
+        for (DBField *fld : d->m_fields)
         {
             fld->blockSignals(value);
         }
@@ -3822,7 +3866,7 @@ bool BaseBean::allSignalsBlocked() const
 
 DBField *BaseBean::fieldForRole(int role)
 {
-    foreach (DBField *f, d->m_fields)
+    for (DBField *f : d->m_fields)
     {
         if ( role == Qxt::ItemStartTimeRole )
         {
@@ -3893,7 +3937,8 @@ void BaseBean::copyValues(BaseBeanPointer otherBean, bool saveValues)
         backupValues();
     }
     QStringList fieldNames;
-    foreach (DBField *fld, otherBean->fields())
+    const QList<DBField *> otherFields = otherBean->fields();
+    for (DBField *fld : otherFields)
     {
         fieldNames << fld->metadata()->dbFieldName();
     }
@@ -3913,7 +3958,7 @@ void BaseBean::copyValues(BaseBeanPointer otherBean, const QStringList &fields)
     {
         return;
     }
-    foreach ( DBField *fld, d->m_fields )
+    for ( DBField *fld : d->m_fields )
     {
         if ( fields.contains(fld->metadata()->dbFieldName()) )
         {
@@ -3937,16 +3982,17 @@ void BaseBean::copyValues(BaseBeanPointer otherBean, const QStringList &fields)
  * @param otherBean
  * @param relationNames
  */
-void BaseBean::copyRelationChildren(BaseBeanPointer otherBean, QStringList &relationNames)
+void BaseBean::copyRelationChildren(BaseBeanPointer otherBean, const QStringList &relationNames)
 {
     QMutexLocker lock(&d->m_mutex);
-    foreach (const QString &relationName, relationNames)
+    for (const QString &relationName : relationNames)
     {
         DBRelation *otherRel = otherBean->relation(relationName);
         DBRelation *thisRel = relation(relationName);
         if (otherRel != NULL && thisRel != NULL)
         {
-            foreach (BaseBeanPointer child, otherRel->children("", false))
+            BaseBeanPointerList otherRelChildren = otherRel->children("", false);
+            for (BaseBeanPointer child : otherRelChildren)
             {
                 if (!child.isNull())
                 {
@@ -3972,7 +4018,8 @@ void BaseBean::deepCopyValues(BaseBeanPointer otherBean, const QStringList &rela
     QStringList definitiveRelationsNames;
     if ( relationNames.isEmpty() )
     {
-        foreach (DBRelation *rel, relations(AlephERP::OneToMany | AlephERP::OneToOne))
+        QList<DBRelation *> rels = relations(AlephERP::OneToMany | AlephERP::OneToOne);
+        for (DBRelation *rel : rels)
         {
             definitiveRelationsNames.append(rel->metadata()->name());
         }
@@ -3984,20 +4031,22 @@ void BaseBean::deepCopyValues(BaseBeanPointer otherBean, const QStringList &rela
 
     copyValues(otherBean);
 
-    foreach (const QString &relationName, definitiveRelationsNames)
+    for (const QString &relationName : definitiveRelationsNames)
     {
         DBRelation *otherRel = otherBean->relation(relationName);
         DBRelation *thisRel = relation(relationName);
         if (otherRel != NULL && thisRel != NULL && thisRel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY)
         {
-            foreach (BaseBeanPointer child, otherRel->children("", false))
+            BaseBeanPointerList otherRelChildren = otherRel->children("", false);
+            for (BaseBeanPointer child : otherRelChildren)
             {
                 if (!child.isNull())
                 {
                     BaseBeanSharedPointer newBean = thisRel->newChild();
                     // Importante no incluir en la lista de valores a copiar el del idservicio
                     QStringList fieldNames;
-                    foreach (DBField *fld, newBean->fields())
+                    const QList<DBField *> newBeanFields = newBean->fields();
+                    for (DBField *fld : newBeanFields)
                     {
                         if ( fld->metadata()->dbFieldName() != thisRel->metadata()->childFieldName() )
                         {
@@ -4021,14 +4070,14 @@ void BaseBean::deepCopyValues(BaseBeanPointer otherBean, const QStringList &rela
  * fields que se almacenan en base de datos (ya que los calculados vendrán de una relación entre estos)
  * @return
  */
-QString BaseBean::hash(bool useRawValue)
+QString BaseBean::hash(bool useRawValue) const
 {
     QString totalData;
-    foreach ( DBField *fld, d->m_fields )
+    for ( DBField *fld : d->m_fields )
     {
         if ( fld->metadata()->isOnDb() )
         {
-            totalData = QString("%1%2;").arg(totalData).arg(fld->sqlValue(true, "", useRawValue));
+            totalData = QString("%1%2;").arg(totalData, fld->sqlValue(true, "", useRawValue));
         }
     }
     QByteArray ba = QCryptographicHash::hash(totalData.toUtf8(), QCryptographicHash::Sha1);
@@ -4042,14 +4091,14 @@ QString BaseBean::hash(bool useRawValue)
  * Esta función es análoga a la anterior \a hash pero utiliza valores sin procesar
  * y no fuerza a obtener ningún campo (como los memo que se solicitan bajo demanda)
  */
-QString BaseBean::rawHash()
+QString BaseBean::rawHash() const
 {
     QString totalData;
-    foreach ( DBField *fld, d->m_fields )
+    for ( DBField *fld : d->m_fields )
     {
         if ( fld->metadata()->isOnDb() )
         {
-            totalData = QString("%1%2;").arg(totalData).arg(fld->metadata()->sqlValue(fld->rawValue()));
+            totalData = QString("%1%2;").arg(totalData, fld->metadata()->sqlValue(fld->rawValue()));
         }
     }
     QByteArray ba = QCryptographicHash::hash(totalData.toUtf8(), QCryptographicHash::Sha1);
@@ -4093,11 +4142,11 @@ QStringList BaseBean::repositoryKeywords() const
  * @param field
  * @return
  */
-QList<DBField *> BaseBean::counterFields(const QString &fld)
+const QList<DBField *> BaseBean::counterFields(const QString &fld)
 {
     QList<DBFieldMetadata *> mList = d->m->counterFields(fld);
     QList<DBField *> list;
-    foreach (DBFieldMetadata *mFld, mList)
+    for (DBFieldMetadata *mFld : mList)
     {
         list << field(mFld->dbFieldName());
     }
@@ -4110,7 +4159,7 @@ QList<DBField *> BaseBean::counterFields(const QString &fld)
 */
 void BaseBeanPrivate::connectCounterFields()
 {
-    foreach ( DBField *fld, m_fields )
+    for ( DBField *fld : m_fields )
     {
         if ( fld->metadata()->hasCounterDefinition() )
         {
@@ -4128,7 +4177,7 @@ void BaseBeanPrivate::connectCounterFields()
                         if ( prefixs.size() > i && !prefixs.at(i).isEmpty() )
                         {
                             QList<DBRelation *> rels = otherField->relations(AlephERP::ManyToOne);
-                            foreach ( DBRelation *rel, rels )
+                            for ( DBRelation *rel : rels )
                             {
                                 BaseBean *father = rel->father(false);
                                 if ( father != NULL )
@@ -4151,7 +4200,7 @@ void BaseBeanPrivate::connectCounterFields()
                 stringExpression.expression = fld->metadata()->counterDefinition()->expression;
                 // Primero generamos la expresión sin el valor del contador (por si hay que aplicar trailing zeros)
                 QList<DBField *> flds = stringExpression.fieldsInvolvedOnCalc(q_ptr);
-                foreach (DBField *remoteField, flds)
+                for (DBField *remoteField : flds)
                 {
                     QObject::connect(remoteField, SIGNAL(valueModified(QVariant)), fld, SLOT(recalculateCounterField()));
                 }
@@ -4167,7 +4216,7 @@ void BaseBeanPrivate::connectCounterFields()
  */
 void BaseBeanPrivate::connectAggregateFields()
 {
-    foreach ( DBField *fld, m_fields )
+    for ( DBField *fld : m_fields )
     {
         AggregateCalc calc = fld->metadata()->aggregateCalc();
         for ( int i = 0 ; i < calc.relation.size() ; i++ )
@@ -4208,7 +4257,7 @@ void BaseBean::cleanToBeDeletedRelatedElements()
  */
 void BaseBean::adjustOldValues()
 {
-    foreach (DBField *fld, d->m_fields)
+    for (DBField *fld : d->m_fields)
     {
         fld->adjustOldValue();
     }
@@ -4223,7 +4272,7 @@ void BaseBean::prepareToDeleteRelatedElements()
 {
     if ( d->m->relatedElementsContentToBeDelete().size() > 0 )
     {
-        foreach (const AlephERP::RelatedElementsContentToBeDeleted &item, d->m->relatedElementsContentToBeDelete() )
+        for (const AlephERP::RelatedElementsContentToBeDeleted &item : d->m->relatedElementsContentToBeDelete() )
         {
             RelatedElementPointerList itemsToBeDeleted;
             if ( item.category.isEmpty() || item.category == QStringLiteral("*") )
@@ -4234,7 +4283,7 @@ void BaseBean::prepareToDeleteRelatedElements()
             {
                 itemsToBeDeleted = getRelatedElementsByCategory(item.category, item.type, item.cardinality, true);
             }
-            foreach (RelatedElementPointer element, itemsToBeDeleted)
+            for (RelatedElementPointer element : itemsToBeDeleted)
             {
                 if ( item.type == AlephERP::NoneAll || item.type == element->type() )
                 {
@@ -4262,7 +4311,7 @@ bool BaseBean::removeConfiguredRelatedElements(const QString &idTransaction)
 {
     if ( d->m->relatedElementsContentToBeDelete().size() > 0 )
     {
-        foreach (const AlephERP::RelatedElementsContentToBeDeleted &item, d->m->relatedElementsContentToBeDelete() )
+        for (const AlephERP::RelatedElementsContentToBeDeleted &item : d->m->relatedElementsContentToBeDelete() )
         {
             RelatedElementPointerList itemsToBeDeleted;
             if ( item.category.isEmpty() || item.category == QStringLiteral("*") )
@@ -4273,7 +4322,7 @@ bool BaseBean::removeConfiguredRelatedElements(const QString &idTransaction)
             {
                 itemsToBeDeleted = getRelatedElementsByCategory(item.category, item.type, item.cardinality, true);
             }
-            foreach (RelatedElementPointer element, itemsToBeDeleted)
+            for (RelatedElementPointer element : itemsToBeDeleted)
             {
                 if ( item.type == AlephERP::NoneAll || item.type == element->type() )
                 {

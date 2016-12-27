@@ -64,6 +64,8 @@ public:
     static void fromScriptValue(const QScriptValue &object, DBFilterScheduleView * &out);
 
 signals:
+    void enterPressedOnValidIndex(QModelIndex);
+    void doubleClickOnValidIndex(QModelIndex);
 
 public slots:
     void init(bool initStrongFilter = true);

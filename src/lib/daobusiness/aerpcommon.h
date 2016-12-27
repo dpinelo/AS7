@@ -95,7 +95,6 @@ public:
     static const char * stMinimumDate;
     static const char * stDataEditable;
     static const char * stDeleteContext;
-    static const char * stModelContext;
     static const char * stJobsList;
     static const char * stDatabaseName;
     static const char * stDeleteLockNotification;
@@ -151,6 +150,7 @@ public:
     static const char * stDatabaseErrorPrefix;
     static const char * stQsFunction;
     static const char * stAddToThisForm;
+    static const char * stRowColor;
 
     static const char * stLogDB;
     static const char * stLogScript;
@@ -163,16 +163,6 @@ public:
     static const char * stLogDBCloud;
 #endif
 
-    Q_FLAGS(AutoCompleteTypes)
-    Q_FLAGS(CreationTableSqlOptions)
-    Q_FLAGS(RelationTypes)
-    Q_ENUMS(DBRecordState)
-    Q_FLAGS(DBRecordStates)
-    Q_ENUMS(RelatedElementCardinality)
-    Q_FLAGS(RelatedElementCardinalities)
-    Q_ENUMS(DateTimeParts)
-    Q_ENUMS(FormOpenType)
-
     enum DateTimeParts
     {
         Second = 0x01,
@@ -184,6 +174,7 @@ public:
         Year = 0x20,
         Week = 0x40
     };
+    Q_ENUM(DateTimeParts)
 
     enum ObserverType
     {
@@ -192,6 +183,7 @@ public:
         DbRelation = 0x04,
         DbMultipleRelation = 0x08
     };
+    Q_ENUM(ObserverType)
 
     enum DBObjectType
     {
@@ -199,6 +191,7 @@ public:
         Table = 0x01,
         View = 0x02
     };
+    Q_ENUM(DBObjectType)
 
     enum DBRecordState
     {
@@ -207,6 +200,7 @@ public:
         ToBeDeleted = 0x04,
         Deleted = 0x08
     };
+    Q_ENUM(DBRecordState)
     Q_DECLARE_FLAGS(DBRecordStates, DBRecordState)
 
     enum RelatedElementTypes
@@ -217,6 +211,7 @@ public:
         Document = 0x04,
         EmailAttachment = 0x08
     };
+    Q_ENUM(RelatedElementTypes)
 
     enum RelatedElementCardinality
     {
@@ -224,6 +219,7 @@ public:
         PointToMaster = 0x02,
         PointToAll = 0x03
     };
+    Q_ENUM(RelatedElementCardinality)
     Q_DECLARE_FLAGS(RelatedElementCardinalities, RelatedElementCardinality)
 
     struct RelatedElementsContentToBeDeleted
@@ -232,7 +228,6 @@ public:
         RelatedElementCardinality cardinality;
         RelatedElementTypes type;
         QString tableName;
-
     };
 
     enum ExtendRole
@@ -262,6 +257,7 @@ public:
         AllParentsSerializedPrimaryKeyRole = Qt::UserRole + 124,
         TreeItemRole = Qt::UserRole + 125
     };
+    Q_ENUM(ExtendRole)
 
     enum RelationTypesFlag
     {
@@ -270,6 +266,7 @@ public:
         ManyToOne = 0x004,
         OneToOne = 0x008
     };
+    Q_ENUM(RelationTypesFlag)
     Q_DECLARE_FLAGS (RelationTypes, RelationTypesFlag)
 
     enum CreationTableSqlOptionsFlag
@@ -286,6 +283,7 @@ public:
         WithRemoteOID = 0x0200,
         ForeignKeysOnTableCreation = 0x0400
     };
+    Q_ENUM(CreationTableSqlOptionsFlag)
     Q_DECLARE_FLAGS (CreationTableSqlOptions, CreationTableSqlOptionsFlag)
 
     // Almacenará el script que está actualmente en ejecución
@@ -308,6 +306,7 @@ public:
         CalculateLength = 0x4000,
         CheckFatherSetted = 0x8000
     };
+    Q_ENUM(DBCriticalMethodsExecuting)
 
     // Tipos de autocompletados que ofrece el sistema
     enum AutoCompleteTypesFlag
@@ -320,6 +319,7 @@ public:
         RestrictValueToItemFromList = 0x008,
         UpdateOwnerFieldBean = 0x010
     };
+    Q_ENUM(AutoCompleteTypesFlag)
     Q_DECLARE_FLAGS (AutoCompleteTypes, AutoCompleteTypesFlag)
 
     // Tipos de errores en la consistencia de las tablas en base de datos
@@ -340,6 +340,7 @@ public:
         ForeignKeyNotExists = 0x1000,
         IndexNotExists = 0x2000
     };
+    Q_ENUM(ConsistencyTableErrorsFlag)
     Q_DECLARE_FLAGS (ConsistencyTableErrors, ConsistencyTableErrorsFlag)
 
     // Tipos definidos por el sistema de metadatos.
@@ -353,6 +354,7 @@ public:
         Bool = 0x010,
         Image = 0x020
     };
+    Q_ENUM(MetadataTypesFlag)
     Q_DECLARE_FLAGS (MetadataTypes, MetadataTypesFlag)
 
     // Tipos de nodos del gestor documental
@@ -363,23 +365,27 @@ public:
         NodeItem = 0x04,
         DocumentItem = 0x08
     };
+    Q_ENUM(DocNodeType)
 
     enum EmailState
     {
         New = 0x001,
         Sent = 0x002
     };
+    Q_ENUM(EmailState)
 
     enum FormOpenType {
         Insert,
         Update,
         ReadOnly
     };
+    Q_ENUM(FormOpenType)
 
     enum GeoCodeOperation {
         SearchCoords = 0x01,
         SearchAddress = 0x02
     };
+    Q_ENUM(GeoCodeOperation)
 
 #ifdef ALEPHERP_DOC_MANAGEMENT
     enum ShowedDocumentsFlag
@@ -389,6 +395,7 @@ public:
         CheckAllKeywords = 0x004,
         CheckOneKeyword = 0x008
     };
+    Q_ENUM(ShowedDocumentsFlag)
     Q_DECLARE_FLAGS (ShowedDocuments, ShowedDocumentsFlag)
 #endif
 
@@ -419,6 +426,7 @@ public:
     {
         QString userName;
         QList<Role> roles;
+        bool writeHistory;
     };
 
     struct Role
@@ -427,6 +435,7 @@ public:
         QString roleName;
         bool superAdmin;
         bool dbaMode;
+        bool writeHistory;
         QList<User> users;
     };
 
@@ -436,6 +445,7 @@ public:
         QString roleName;
         bool superAdmin;
         bool dbaMode;
+        bool writeHistory;
     };
 
     struct HistoryItem
@@ -465,6 +475,13 @@ public:
         QHash<QString, QString> engineValues;
         QString formattedAddress;
     };
+
+    Q_FLAG(AutoCompleteTypes)
+    Q_FLAG(CreationTableSqlOptions)
+    Q_FLAG(RelationTypes)
+    Q_FLAG(DBRecordStates)
+    Q_FLAG(RelatedElementCardinalities)
+
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(AlephERP::RelationTypes)

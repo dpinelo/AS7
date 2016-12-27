@@ -363,7 +363,7 @@ void DBRelationPrivate::updateChildren(BaseBean *father, QList<BaseBean *> &stac
         return;
     }
     // Actualizamos los controles asociados a los fields de este bean padre
-    QList<DBField *> flds = father->fields();
+    const QList<DBField *> flds = father->fields();
     stackList.append(father);
     foreach ( DBField *fld, flds )
     {
@@ -452,7 +452,7 @@ void DBRelationPrivate::loadOneToManyChildren(const QString &order, const QStrin
     }
 }
 
-void DBRelationPrivate::addOtherChildren(BaseBeanPointerList list)
+void DBRelationPrivate::addOtherChildren(const BaseBeanPointerList &list)
 {
     QMutexLocker lock(&m_mutex);
     int countChildren = 0;
@@ -516,10 +516,7 @@ QString DBRelationPrivate::cacheKey(const QString &filter, const QString &order,
 {
     QString key;
     key = QString("%1|%2|%3|%4").
-            arg(filter).
-            arg(order).
-            arg(includeToBeDeleted ? "1" : "0").
-            arg(includeOtherChildren ? "1" : "0");
+            arg(filter, order, includeToBeDeleted ? "1" : "0", includeOtherChildren ? "1" : "0");
     return key;
 }
 
@@ -533,12 +530,12 @@ bool DBRelationPrivate::isOnCache(const QString &key)
     return m_cacheOrderedSharedBeans.contains(key);
 }
 
-BaseBeanSharedPointerList DBRelationPrivate::sharedCache(const QString &key)
+const BaseBeanSharedPointerList DBRelationPrivate::sharedCache(const QString &key) const
 {
     return m_cacheOrderedSharedBeans.value(key);
 }
 
-BaseBeanPointerList DBRelationPrivate::cache(const QString &key)
+const BaseBeanPointerList DBRelationPrivate::cache(const QString &key) const
 {
     return m_cacheOrderedBeans.value(key);
 }
@@ -549,12 +546,12 @@ void DBRelationPrivate::clearCache()
     m_cacheOrderedSharedBeans.clear();
 }
 
-void DBRelationPrivate::addToCache(const QString &key, BaseBeanSharedPointerList list)
+void DBRelationPrivate::addToCache(const QString &key, const BaseBeanSharedPointerList &list)
 {
     m_cacheOrderedSharedBeans[key] = list;
 }
 
-void DBRelationPrivate::addToCache(const QString &key, BaseBeanPointerList list)
+void DBRelationPrivate::addToCache(const QString &key, const BaseBeanPointerList &list)
 {
     m_cacheOrderedBeans[key] = list;
 }
@@ -627,7 +624,7 @@ int DBRelationPrivate::otherChildrenSize() const
     return m_otherChildren.size();
 }
 
-BaseBeanPointerList DBRelationPrivate::otherChildren() const
+const BaseBeanPointerList DBRelationPrivate::otherChildren() const
 {
     return m_otherChildren;
 }
@@ -668,7 +665,7 @@ void DBRelationPrivate::otherChildrenRemoveAll(BaseBeanPointer bean)
     m_otherChildren.removeAll(bean);
 }
 
-QVector<BaseBeanSharedPointer> DBRelationPrivate::children() const
+const QVector<BaseBeanSharedPointer> DBRelationPrivate::children() const
 {
     return m_children;
 }

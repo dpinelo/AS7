@@ -45,12 +45,12 @@ QIcon QwwRichTextEditPlugin::icon() const
 
 QString QwwRichTextEditPlugin::toolTip() const
 {
-    return trUtf8("Editor RichText, desarrollado por wysota del proyecto wwWidgets.");
+    return tr("Editor RichText, desarrollado por wysota del proyecto wwWidgets.");
 }
 
 QString QwwRichTextEditPlugin::whatsThis() const
 {
-    return trUtf8("Editor RichText, desarrollado por wysota del proyecto wwWidgets.");
+    return tr("Editor RichText, desarrollado por wysota del proyecto wwWidgets.");
 }
 
 bool QwwRichTextEditPlugin::isContainer() const

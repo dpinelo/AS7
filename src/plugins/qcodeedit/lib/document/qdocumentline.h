@@ -77,7 +77,8 @@ public:
         FormatsApplied		= 32
     };
 
-    Q_DECLARE_FLAGS(States, State);
+    Q_ENUM(State)
+    Q_DECLARE_FLAGS(States, State)
 
     explicit QDocumentLine(QDocument *doc);
     QDocumentLine(const QDocumentLine& line);

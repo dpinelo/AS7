@@ -368,7 +368,7 @@ void AERPSystemObjectEditorWidget::importBinary()
         return;
     }
     BaseBean *bean = dlg->bean();
-    QString fileName = QFileDialog::getOpenFileName(0, trUtf8("Seleccione el fichero que desea agregar"));
+    QString fileName = QFileDialog::getOpenFileName(0, tr("Seleccione el fichero que desea agregar"));
     if ( fileName.isNull() )
     {
         return;
@@ -376,7 +376,7 @@ void AERPSystemObjectEditorWidget::importBinary()
     QFile file(fileName);
     if (  !file.open(QIODevice::ReadOnly) )
     {
-        QMessageBox::warning(0,qApp->applicationName(), trUtf8("No se pudo abrir el archivo."), QMessageBox::Ok);
+        QMessageBox::warning(0,qApp->applicationName(), tr("No se pudo abrir el archivo."), QMessageBox::Ok);
         return;
     }
     QByteArray binaryContent = file.readAll();
@@ -403,7 +403,7 @@ void AERPSystemObjectEditorWidget::editReport()
     BaseBean *bean = dlg->bean();
     if ( !ReportRun::editReport(bean->fieldValue("nombre").toString()) )
     {
-        QMessageBox::warning(this, qApp->applicationName(), trUtf8("Se ha producido un error. El error es: %1").arg(ReportRun::lastErrorMessage()));
+        QMessageBox::warning(this, qApp->applicationName(), tr("Se ha producido un error. El error es: %1").arg(ReportRun::lastErrorMessage()));
     }
 }
 
@@ -426,7 +426,7 @@ void AERPSystemObjectEditorWidget::calculatePatch()
         QScopedPointer<BaseBean> originalBean (BeansFactory::instance()->newBaseBean("alepherp_system", false, false));
         if ( !BaseDAO::selectFirst(originalBean.data(), QString("id = %1").arg(bean->fieldValue("idorigin").toInt())) )
         {
-            QMessageBox::warning(this, qApp->applicationName(), trUtf8("Se ha producido un error y no se puede calcular el patch. Error: %1").arg(BaseDAO::lastErrorMessage()));
+            QMessageBox::warning(this, qApp->applicationName(), tr("Se ha producido un error y no se puede calcular el patch. Error: %1").arg(BaseDAO::lastErrorMessage()));
             return;
         }
         diff_match_patch diff;
@@ -660,7 +660,7 @@ void AERPSystemObjectEditorDlgPrivate::importTemplate(const QString &resource)
     {
         if ( bean->modified() && !bean->fieldValue("contenido").toString().isEmpty() )
         {
-            int ret = QMessageBox::question(q_ptr, qApp->applicationName(), QObject::trUtf8("¿Desea sobreescribir el contenido actual?"), QMessageBox::Yes | QMessageBox::No);
+            int ret = QMessageBox::question(q_ptr, qApp->applicationName(), QObject::tr("¿Desea sobreescribir el contenido actual?"), QMessageBox::Yes | QMessageBox::No);
             if ( ret == QMessageBox::No )
             {
                 return;

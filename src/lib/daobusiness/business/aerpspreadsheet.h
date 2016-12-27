@@ -39,7 +39,6 @@ class ALEPHERP_DLL_EXPORT AERPSpreadSheetUtil : public QObject
 
 private:
     explicit AERPSpreadSheetUtil(QObject *parent);
-    bool m_operationCanceled;
 
 public:
     virtual ~AERPSpreadSheetUtil();
@@ -48,7 +47,6 @@ public:
 
 public slots:
     void exportSpreadSheet(FilterBaseBeanModel *filterModel, QWidget *uiParent);
-    void operationCanceled();
 };
 
 /**
@@ -59,7 +57,6 @@ public slots:
 class ALEPHERP_DLL_EXPORT AERPSpreadSheet : public QObject
 {
     Q_OBJECT
-    Q_ENUMS(Type)
 
     Q_PROPERTY(QString name READ name WRITE setName)
     Q_PROPERTY(QList<AERPSheet *> sheets READ sheets)
@@ -89,9 +86,17 @@ public:
         Date = QMetaType::QDate,
         DateTime = QMetaType::QDateTime,
     };
+    Q_ENUM(Type)
+
     static QVariant::Type qtypeForAERPVariantType(Type type);
     static Type aerptypeQVariantType(QVariant::Type type);
     static QString columnStringName(int column);
+    static int columnIndex(const QString &columnName);
+    static qlonglong cellIndex(int row, const QString &column);
+    inline static qlonglong cellIndex(int row, int column)
+    {
+        return (row * 1000) + column;
+    }
 
     QString lastMessage() const;
     void setLastMessage(const QString &value);
@@ -169,7 +174,9 @@ public slots:
     AERPCell *cell(const QString &row, const QString &column);
     AERPCell *cell(int rowId, const QString &column);
     AERPCell *createCell(int row, int column, const QVariant value = QVariant());
+    AERPCell *createCell(int row, const QString &column, const QVariant value = QVariant());
     AERPCell *createCell(const QString &row, const QString &column, const QVariant value = QVariant());
+    AERPCell *createCellWithoutCheck(const QString &row, const QString &column, const QVariant value = QVariant());
     QVariant cellValue(int rowId, int columnId);
     QVariant cellValue(const QString &row, const QString &column);
     QVariant cellValue(int rowId, const QString &column);

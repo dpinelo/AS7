@@ -49,7 +49,11 @@ class DBFieldMetadata;
   @see DBDetailView
   @author David Pinelo <alepherp@alephsistemas.es>
 */
-class ALEPHERP_DLL_EXPORT DBTableView : public QTableView, public DBAbstractViewInterface, public AERPBackgroundAnimation, public QScriptable
+class ALEPHERP_DLL_EXPORT DBTableView :
+        public QTableView,
+        public DBAbstractViewInterface,
+        public AERPBackgroundAnimation,
+        public QScriptable
 {
     Q_OBJECT
     Q_DISABLE_COPY(DBTableView)
@@ -237,6 +241,7 @@ public slots:
         AERPBackgroundAnimation::hideAnimation();
     }
     virtual void exportSpreadSheet();
+    virtual void editCurrentCell();
 
 signals:
     void valueEdited(const QVariant &value);
@@ -246,6 +251,7 @@ signals:
     void destroyed(QWidget *widget);
     void enterPressedOnValidIndex(const QModelIndex &index);
     void doubleClickOnValidIndex(const QModelIndex &index);
+    void itemChecked(const QModelIndex &index);
     void fieldNameChanged();
 
 };

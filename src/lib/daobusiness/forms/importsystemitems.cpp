@@ -61,7 +61,7 @@ SystemItemsDlg::SystemItemsDlg(const QString &moduleName, const QList<QHash<QStr
     ui(new Ui::SystemItemsDlg), d(new SystemItemsPrivate(this))
 {
     ui->setupUi(this);
-    ui->lblModuleName->setText(trUtf8("Módulo que se está tratando: %1").arg(moduleName));
+    ui->lblModuleName->setText(tr("Módulo que se está tratando: %1").arg(moduleName));
     ui->stackedWidget->setCurrentWidget(ui->page);
     d->m_originalList = items;
     d->m_moduleDirPath = moduleDirPath;
@@ -84,10 +84,10 @@ SystemItemsDlg::SystemItemsDlg(const QString &moduleName, const QList<QHash<QStr
         itemWidget = new QTableWidgetItem (hash["module"]);
         ui->tableWidget->setItem(row, 2, itemWidget);
 
-        itemWidget = new QTableWidgetItem (hash["actualVersion"].isEmpty() ? trUtf8("Nuevo objecto") : hash["actualVersion"]);
+        itemWidget = new QTableWidgetItem (hash["actualVersion"].isEmpty() ? tr("Nuevo objecto") : hash["actualVersion"]);
         ui->tableWidget->setItem(row, 3, itemWidget);
 
-        itemWidget = new QTableWidgetItem (hash["actualModule"].isEmpty() ? trUtf8("Nuevo objecto") : hash["actualModule"]);
+        itemWidget = new QTableWidgetItem (hash["actualModule"].isEmpty() ? tr("Nuevo objecto") : hash["actualModule"]);
         ui->tableWidget->setItem(row, 4, itemWidget);
 
         itemWidget = new QTableWidgetItem (hash["type"]);
@@ -99,7 +99,7 @@ SystemItemsDlg::SystemItemsDlg(const QString &moduleName, const QList<QHash<QStr
         itemWidget = new QTableWidgetItem (hash["debugOnInit"]);
         ui->tableWidget->setItem(row, 7, itemWidget);
 
-        itemWidget = new QTableWidgetItem (trUtf8("A sustituir"));
+        itemWidget = new QTableWidgetItem (tr("A sustituir"));
         ui->tableWidget->setItem(row, 8, itemWidget);
     }
 
@@ -117,7 +117,7 @@ SystemItemsDlg::SystemItemsDlg(const QString &module, const QString &type, QWidg
     ui(new Ui::SystemItemsDlg), d(new SystemItemsPrivate(this))
 {
     ui->setupUi(this);
-    ui->lblModuleName->setText(trUtf8("Módulo que se está tratando: %1").arg(module));
+    ui->lblModuleName->setText(tr("Módulo que se está tratando: %1").arg(module));
     ui->stackedWidget->setCurrentWidget(ui->page);
 
     d->addModules();
@@ -231,7 +231,7 @@ void SystemItemsDlg::showDiff()
     QList<QTableWidgetItem *> items = ui->tableWidget->selectedItems();
     if ( items.size() == 0 )
     {
-        QMessageBox::information(this, qApp->applicationName(), QObject::trUtf8("Debe seleccionar algún fichero para comparar."), QMessageBox::Ok);
+        QMessageBox::information(this, qApp->applicationName(), QObject::tr("Debe seleccionar algún fichero para comparar."), QMessageBox::Ok);
         return;
     }
     QTableWidgetItem *item = items.at(0);
@@ -249,7 +249,7 @@ void SystemItemsDlg::showDiff()
     {
         if ( finalListDiff.at(0).operation == DiffCode::DIFF_EQUAL )
         {
-            QMessageBox::information(this, qApp->applicationName(), QObject::trUtf8("Las dos copias son iguales"), QMessageBox::Ok);
+            QMessageBox::information(this, qApp->applicationName(), QObject::tr("Las dos copias son iguales"), QMessageBox::Ok);
             return;
         }
     }

@@ -197,8 +197,8 @@ void OpenRPTPluginPrivate::openFile()
     QFile file(m_reportPath);
     if (!doc.setContent(&file, &errMsg, &errLine, &errColm))
     {
-        QMessageBox::critical(m_widget, QObject::trUtf8("Error Cargando archivo"),
-                              QObject::trUtf8("Existe un error abriendo el archivo %1."
+        QMessageBox::critical(m_widget, QObject::tr("Error Cargando archivo"),
+                              QObject::tr("Existe un error abriendo el archivo %1."
                                               "\n\n%2 en la línea %3 columna %4.")
                               .arg(m_reportPath).arg(errMsg).arg(errLine).arg(errColm), QMessageBox::Ok );
         return;
@@ -207,8 +207,8 @@ void OpenRPTPluginPrivate::openFile()
     QDomElement root = doc.documentElement();
     if(root.tagName() != "report")
     {
-        QMessageBox::critical(m_widget, QObject::trUtf8("Archivo no válido"),
-                              QObject::trUtf8("El archivo %1 no parece ser un archivo válido."
+        QMessageBox::critical(m_widget, QObject::tr("Archivo no válido"),
+                              QObject::tr("El archivo %1 no parece ser un archivo válido."
                                               "\n\nEl nodo raíz no es de tipo 'report'.").arg(m_reportPath), QMessageBox::Ok );
         return;
     }
@@ -269,7 +269,7 @@ bool OpenRPTPlugin::print(bool showPreview, int numCopies)
             if ( !printer.isValid() )
             {
                 QLogger::QLog_Error(AlephERP::stLogScript,
-                                    trUtf8("OpenRPTPlugin::print: Impresora no válida [%1]").arg(d->m_printerName));
+                                    tr("OpenRPTPlugin::print: Impresora no válida [%1]").arg(d->m_printerName));
             }
         }
 
@@ -315,7 +315,7 @@ bool OpenRPTPlugin::print(bool showPreview, int numCopies)
 
 bool OpenRPTPlugin::pdf()
 {
-    QString outfile = QFileDialog::getSaveFileName(d->m_widget, trUtf8("Choose filename to save"), trUtf8("print.pdf"), trUtf8("Pdf (*.pdf)"));
+    QString outfile = QFileDialog::getSaveFileName(d->m_widget, tr("Choose filename to save"), tr("print.pdf"), tr("Pdf (*.pdf)"));
 
     if(outfile.isEmpty())   // User canceled save dialog
     {

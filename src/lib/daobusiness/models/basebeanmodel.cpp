@@ -53,6 +53,8 @@ public:
     bool m_visibleFieldsFromMetadata;
     QList<DBFieldMetadata *> m_visibleFieldsMetadata;
     bool m_canEmitDataChanged;
+    bool m_cancelExportToSpreadSheet;
+    QString m_modelContext;
 
     explicit BaseBeanModelPrivate(BaseBeanModel *qq) : q_ptr(qq)
     {
@@ -62,6 +64,8 @@ public:
         m_loadingData = false;
         m_visibleFieldsFromMetadata = true;
         m_canEmitDataChanged = true;
+        m_cancelExportToSpreadSheet = false;
+        m_modelContext = QUuid::createUuid().toString();
     }
 
     bool isFunction(int column);
@@ -208,7 +212,7 @@ QVariant BaseBeanModel::data(DBField *field, const QModelIndex &item, int role) 
     {
         if ( bean != NULL )
         {
-            return QString("[%1][%2]").arg(bean->metadata()->tableName()).arg(bean->pkSerializedValue());
+            return QString("[%1][%2]").arg(bean->metadata()->tableName(), bean->pkSerializedValue());
         }
         else
         {
@@ -386,7 +390,8 @@ QVariant BaseBeanModel::data(DBField *field, const QModelIndex &item, int role) 
         {
             font.setUnderline(true);
         }
-        else if ( fldMetadata->email() )
+        else if ( fldMetadata->specialType() == DBFieldMetadata::Email ||
+                  fldMetadata->specialType() == DBFieldMetadata::UrlWeb )
         {
             font.setUnderline(true);
         }
@@ -445,7 +450,8 @@ QVariant BaseBeanModel::data(DBField *field, const QModelIndex &item, int role) 
         {
             return QBrush(Qt::blue);
         }
-        else if ( fldMetadata->email() )
+        else if ( fldMetadata->specialType() == DBFieldMetadata::Email ||
+                  fldMetadata->specialType() == DBFieldMetadata::UrlWeb )
         {
             return QBrush(Qt::blue);
         }
@@ -530,7 +536,8 @@ QVariant BaseBeanModel::data(DBField *field, const QModelIndex &item, int role) 
         {
             return static_cast<int>(Qt::PointingHandCursor);
         }
-        else if ( fldMetadata->email() )
+        else if ( fldMetadata->specialType() == DBFieldMetadata::Email ||
+                  fldMetadata->specialType() == DBFieldMetadata::UrlWeb )
         {
             return static_cast<int>(Qt::PointingHandCursor);
         }
@@ -569,7 +576,7 @@ QVariant BaseBeanModel::headerData(DBFieldMetadata *field, int section, Qt::Orie
         {
             return d->headerDataFunction(section);
         }
-        return QObject::trUtf8(field->fieldName().toUtf8());
+        return QObject::tr(field->fieldName().toUtf8());
 
     case AlephERP::DBFieldNameRole:
         return field->dbFieldName();
@@ -733,8 +740,9 @@ void BaseBeanModel::setCanShowCheckBoxes(bool value)
     d->m_canShowCheckBoxes = value;
 }
 
-QModelIndexList BaseBeanModel::checkedItems()
+QModelIndexList BaseBeanModel::checkedItems(const QModelIndex &idx)
 {
+    Q_UNUSED(idx)
     QModelIndexList list;
     QHashIterator<int, bool> it(m_checkedItems);
     while ( it.hasNext() )
@@ -817,7 +825,7 @@ bool BaseBeanModel::isLinkColumn(int column) const
     return false;
 }
 
-void BaseBeanModel::setCheckedItems(QModelIndexList list, bool checked)
+void BaseBeanModel::setCheckedItems(const QModelIndexList &list, bool checked)
 {
     int lessRow = INT_MAX, lessCol = INT_MAX, maxRow = 0, maxCol = 0;
     if ( list.size() == 0 )
@@ -852,7 +860,7 @@ void BaseBeanModel::setCheckedItems(QModelIndexList list, bool checked)
     }
 }
 
-void BaseBeanModel::setCheckedItem(QModelIndex index, bool checked)
+void BaseBeanModel::setCheckedItem(const QModelIndex &index, bool checked)
 {
     if ( index.isValid() )
     {
@@ -951,18 +959,18 @@ QString BaseBeanModel::sqlSelectFieldsClausule(BaseBeanMetadata *metadata, QList
                     }
                     else
                     {
-                        sql = QString("%1.%2").arg(alias).arg(field->dbFieldName());
+                        sql = QString("%1.%2").arg(alias, field->dbFieldName());
                     }
                 }
                 else
                 {
                     if ( alias.isEmpty() )
                     {
-                        sql = QString("%1, %2").arg(sql).arg(field->dbFieldName());
+                        sql = QString("%1, %2").arg(sql, field->dbFieldName());
                     }
                     else
                     {
-                        sql = QString("%1, %2.%3").arg(sql).arg(alias).arg(field->dbFieldName());
+                        sql = QString("%1, %2.%3").arg(sql, alias, field->dbFieldName());
                     }
                 }
             }
@@ -974,7 +982,7 @@ QString BaseBeanModel::sqlSelectFieldsClausule(BaseBeanMetadata *metadata, QList
                 }
                 else
                 {
-                    sql = QString("%1, 'notVisible' as %2").arg(sql).arg(field->dbFieldName());
+                    sql = QString("%1, 'notVisible' as %2").arg(sql, field->dbFieldName());
                 }
             }
         }
@@ -1000,7 +1008,7 @@ QString BaseBeanModel::sqlSelectFieldsClausule(BaseBeanMetadata *metadata, QList
             }
             else
             {
-                sql = QString("%1, %2.oid").arg(sql).arg(alias);
+                sql = QString("%1, %2.oid").arg(sql, alias);
             }
         }
     }
@@ -1035,9 +1043,9 @@ QString BaseBeanModel::buildSqlSelect(BaseBeanMetadata *metadata, const QString 
         {
             sql = sqlSelectFieldsClausule(metadata, fields, includeOid, "t1");
             sql = QString("SELECT DISTINCT %1 FROM %2 AS t1 LEFT JOIN %3_user_row_access AS t2 ON t1.oid = t2.recordoid WHERE ").
-                  arg(sql).
-                  arg(metadata->sqlTableName()).
-                  arg(alephERPSettings->systemTablePrefix());
+                  arg(sql,
+                      metadata->sqlTableName(),
+                      alephERPSettings->systemTablePrefix());
             if ( !where.isEmpty() )
             {
                 sql = sql % BaseDAO::proccessSqlToAddAlias(where, metadata, "t1") % QString(" AND ");
@@ -1064,11 +1072,11 @@ QString BaseBeanModel::buildSqlSelect(BaseBeanMetadata *metadata, const QString 
         QHash<QString, QString> xmlSql = metadata->sql();
         if ( xmlSql.contains("FROM") )
         {
-            sql = QString("SELECT DISTINCT %1 FROM %2").arg(sqlFields).arg(xmlSql.value("FROM"));
+            sql = QString("SELECT DISTINCT %1 FROM %2").arg(sqlFields, xmlSql.value("FROM"));
         }
         else
         {
-            sql = QString("SELECT DISTINCT %1 FROM %2").arg(sqlFields).arg(metadata->sqlTableName());
+            sql = QString("SELECT DISTINCT %1 FROM %2").arg(sqlFields, metadata->sqlTableName());
         }
         if ( xmlSql.contains("WHERE") )
         {
@@ -1223,7 +1231,7 @@ QMimeData *BaseBeanModel::mimeData(const QModelIndexList &indexes) const
                         text = text.append("\n");
                         firstRow = false;
                     }
-                    foreach (DBField *fld, b->fields())
+                    for (DBField *fld : b->fields())
                     {
                         if ( fld->metadata()->visibleGrid() )
                         {
@@ -1245,38 +1253,14 @@ QMimeData *BaseBeanModel::mimeData(const QModelIndexList &indexes) const
     return mimeData;
 }
 
-/**
- * @brief BaseBeanModel::scheduleData
- * Si el modelo presenta datos en una vista de tipo calendario, aquí se pretratan los datos
- * @param idx
- * @param role
- * @return
- */
-QVariant BaseBeanModel::scheduleData(const QModelIndex &idx, int role)
-{
-    if ( role != Qxt::ItemDurationRole && role != Qxt::ItemStartTimeRole )
-    {
-        return QVariant();
-    }
-    /*
-    if ( role == Qxt::ItemStartTimeRole ) {
-           QDateTime time = field->value().toDateTime();
-           return time.toTime_t();
-       } else if ( role == Qxt::ItemDurationRole ) {
-           return field->value().toInt();
-       }
-       */
-    return QVariant();
-}
-
-
 bool BaseBeanModel::exportToSpreadSheet(QAbstractItemModel *model, BaseBeanMetadata *m, const QString &file, const QString &type)
 {
     if ( !m )
     {
-        model->setProperty("lastErrorMessage", trUtf8("Los metadatos están vacíos."));
+        model->setProperty("lastErrorMessage", tr("Los metadatos están vacíos."));
         return false;
     }
+    d->m_cancelExportToSpreadSheet = false;
     QScopedPointer<AERPSpreadSheet> spread (new AERPSpreadSheet);
     AERPSheet *sheet = spread->createSheet(m->alias(), 0);
     for (int column = 0 ; column < model->columnCount() ; ++column)
@@ -1297,6 +1281,10 @@ bool BaseBeanModel::exportToSpreadSheet(QAbstractItemModel *model, BaseBeanMetad
                 sheet->setColumnDecimalPlaces(column, 0);
             }
         }
+        if ( d->m_cancelExportToSpreadSheet )
+        {
+            return false;
+        }
     }
     int rowCount = model->rowCount();
     int columnCount = model->columnCount();
@@ -1309,6 +1297,10 @@ bool BaseBeanModel::exportToSpreadSheet(QAbstractItemModel *model, BaseBeanMetad
             {
                 AERPCell *cell = sheet->createCell(row, column);
                 cell->setValue(idx.data(AlephERP::RawValueRole));
+            }
+            if ( d->m_cancelExportToSpreadSheet )
+            {
+                return false;
             }
         }
         emit rowProcessed(row);
@@ -1414,6 +1406,10 @@ bool BaseBeanModel::exportToSpreadSheet(const QString &file, const QString &type
     return BaseBeanModel::exportToSpreadSheet(this, metadata(), file, type);
 }
 
+void BaseBeanModel::cancelExportToSpreadSheet()
+{
+    d->m_cancelExportToSpreadSheet = true;
+}
 
 bool BaseBeanModelPrivate::isFunction(int column)
 {
@@ -1476,7 +1472,12 @@ QString BaseBeanModelPrivate::headerDataFunction(int column) const
     }
     if ( q_ptr->visibleFields().at(column).contains("incrementalSum") )
     {
-        return QObject::trUtf8("%1 - Incremental").arg(fld->fieldName());
+        return QObject::tr("%1 - Incremental").arg(fld->fieldName());
     }
     return QString();
+}
+
+QString BaseBeanModel::contextName() const
+{
+    return d->m_modelContext;
 }

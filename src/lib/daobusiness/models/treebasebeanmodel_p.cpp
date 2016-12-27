@@ -165,8 +165,7 @@ int TreeBaseBeanModelPrivate::lastTableRecordCount()
     }
     QString filter = m->processWhereSqlToIncludeEnvVars(m_levelInfo.last().filter);
     QString sql = QString("SELECT count(*) FROM %1 %2").
-            arg(m->sqlTableName()).
-            arg(!filter.isEmpty() ? QString("WHERE ").append(filter) : "");
+            arg(m->sqlTableName(), !filter.isEmpty() ? QString("WHERE ").append(filter) : "");
     QVariant r;
     if ( BaseDAO::execute(sql, r) )
     {
@@ -180,9 +179,10 @@ BeanTreeItemPointer TreeBaseBeanModelPrivate::itemById(qlonglong id, const QStri
     QList<BeanTreeItemPointer> list;
     if ( tableName.isEmpty() )
     {
-        foreach (QList<BeanTreeItemPointer> l, m_itemsPerTable.values())
+        const QList<QList<BeanTreeItemPointer> > allValues = m_itemsPerTable.values();
+        for (QList<BeanTreeItemPointer> itemList : allValues)
         {
-            list.append(l);
+            list.append(itemList);
         }
     }
     else
@@ -387,8 +387,7 @@ QString TreeBaseBeanModelPrivate::lastLevelCountUnderlyingSql()
             where.prepend(" WHERE ");
         }
         sql = QString("SELECT count(*) as lastlevelcount, %1 FROM %2 whereClausule GROUP BY %1").
-                arg(rel->rootFieldName()).
-                arg(last.metadata->sqlTableName());
+                arg(rel->rootFieldName(), last.metadata->sqlTableName());
         // La cláusula where puede contener algo así como
         //  WHERE idempresa = 2 AND idejercicio = 12 AND UPPER(codsubcuenta) LIKE UPPER('%%4%%')
         // y en ese último %%4%% se produciría un reemplazo no deseable.
@@ -428,6 +427,10 @@ QString TreeBaseBeanModelPrivate::upperLevelUnderlyingSql()
         {
             filters << QString("(%1)").arg(filter);
         }
+        else
+        {
+            filters << QString("");
+        }
     }
     for (int i = 1 ; i < tables.size() ; i++)
     {
@@ -438,12 +441,12 @@ QString TreeBaseBeanModelPrivate::upperLevelUnderlyingSql()
             return sql;
         }
         QString relClausule = QString("(t%1.%2 = t%3.%4 %5)").
-                arg(i).
-                arg(rel->childFieldName()).
-                arg(i-1).
-                arg(rel->rootFieldName()).
-                arg(!filters.at(i-1).isEmpty() ? QString(" AND ").append(filters.at(i-1)) : "");
-        from.append(QString(" LEFT JOIN %2 ON %3").arg(tables.at(i)).arg(relClausule));
+                arg(QString::number(i),
+                    rel->childFieldName(),
+                    QString(i-1),
+                    rel->rootFieldName(),
+                    !filters.at(i-1).isEmpty() ? QString(" AND ").append(filters.at(i-1)) : "");
+        from.append(QString(" LEFT JOIN %2 ON %3").arg(tables.at(i), relClausule));
     }
     from.prepend(tables.first());
     DBRelationMetadata *rel = m_levelInfo.at(penultimateLevel).metadata->relation(m_levelInfo.last().tableName);
@@ -461,9 +464,9 @@ QString TreeBaseBeanModelPrivate::upperLevelUnderlyingSql()
     QString lastLevelCount = lastLevelCountUnderlyingSql();
     from.replace(QStringLiteral("lastLevelUnderlying"), lastLevelCount);
     sql = QString("SELECT DISTINCT t%1.lastlevelcount, %2, %3 FROM ").
-            arg(lastLevel).
-            arg(fields.join(", ")).
-            arg(dataFields.join(", "));
+            arg(QString::number(lastLevel),
+                fields.join(", "),
+                dataFields.join(", "));
     sql.append(from).append(!filters.at(0).isEmpty() ? QString(" WHERE ").append(filters.at(0)) : "").
             append(!order.isEmpty() ? QString(" ORDER BY %1").arg(order.join(", ")) : "");
     return sql;
@@ -477,7 +480,7 @@ QStringList TreeBaseBeanModelPrivate::levelRetreivedFields(int level, const QStr
     {
         if ( (fld->isOnDb() || fld->serial()) && !fld->memo() )
         {
-            list << QString("%1.%2 AS vf%3%2").arg(prefix).arg(fld->dbFieldName()).arg(level);
+            list << QString("%1.%2 AS vf%3%2").arg(prefix, fld->dbFieldName(), QString::number(level));
         }
     }
     return list;
@@ -490,7 +493,7 @@ BaseBeanSharedPointer TreeBaseBeanModelPrivate::loadBean(QSqlRecord rec, int lev
     if ( b )
     {
         b->blockAllSignals(true);
-        foreach (DBField *fld, b->fields())
+        for (DBField *fld : b->fields())
         {
             QString dbFieldName = QString("vf%1%2").arg(level).arg(fld->metadata()->dbFieldName());
             fld->setInternalValue(rec.value(dbFieldName));
@@ -773,8 +776,7 @@ void TreeBaseBeanModelPrivate::checkDeletedRemote(BeanTreeItemPointer parent)
             filter = whereClausule(itemParent);
         }
         QString sql = QString("SELECT oid, '%1' as tablename FROM %1 WHERE %2").
-                arg(nextLevel->tableName).
-                arg(filter);
+                arg(nextLevel->tableName, filter);
         pet->uuid = BackgroundDAO::instance()->programQuery(sql);
     }
 }
@@ -794,7 +796,7 @@ void TreeBaseBeanModelPrivate::replaceBean(BeanTreeItemPointer item, BaseBeanSha
         // Sólo emitimos la señal, si ha cambiado
         if ( item->bean() )
         {
-            foreach (DBField *fld, item->bean()->fields())
+            for (DBField *fld : item->bean()->fields())
             {
                 if ( fld->metadata()->visibleGrid() )
                 {

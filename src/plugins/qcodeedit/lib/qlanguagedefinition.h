@@ -51,8 +51,8 @@ public:
         CloseMask	= 0x00fff000,		///< Number of actual closing fold mark
         OpenMask	= 0x00000fff		///< Number of actual open fold mark
     };
-
-    Q_DECLARE_FLAGS(CollapseState, CollapseFlag);
+    Q_ENUM(CollapseFlag)
+    Q_DECLARE_FLAGS(CollapseState, CollapseFlag)
 
     QLanguageDefinition();
     virtual ~QLanguageDefinition();

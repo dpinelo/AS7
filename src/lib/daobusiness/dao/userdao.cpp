@@ -31,16 +31,16 @@
 
 QString UserDAO::m_lastMessage;
 
-#define SQL_SELECT_USER "SELECT username, password FROM %1_users WHERE username=:username"
-#define SQL_SELECT_USER_ROLES "SELECT t2.id, t2.nombre, t2.superadmin, t2.dbamode FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND username=:username"
+#define SQL_SELECT_USER "SELECT username, hash, write_history FROM %1_users WHERE username=:username"
+#define SQL_SELECT_USER_ROLES "SELECT t2.id, t2.nombre, t2.superadmin, t2.dbamode, t2.write_history FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND username=:username"
 #define SQL_SELECT_PERMISSIONS_BY_USER "SELECT tablename, permissions FROM %1_permissions WHERE username=:username"
 #define SQL_SELECT_PERMISSIONS_BY_ROL "SELECT tablename, permissions FROM %1_permissions WHERE id_rol=:id_rol"
-#define SQL_CHANGE_PASSWORD "UPDATE %1_users SET password=:password WHERE username=:username"
+#define SQL_CHANGE_PASSWORD "UPDATE %1_users SET hash=:hash WHERE username=:username"
 
-#define SQL_SELECT_USER_CI "SELECT username, password FROM %1_users WHERE upper(username)=upper(:username)"
-#define SQL_SELECT_USER_ROLES_CI "SELECT t2.id, t2.nombre, t2.superadmin, t2.dbamode FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND upper(username)=upper(:username)"
+#define SQL_SELECT_USER_CI "SELECT username, hash, write_history FROM %1_users WHERE upper(username)=upper(:username)"
+#define SQL_SELECT_USER_ROLES_CI "SELECT t2.id, t2.nombre, t2.superadmin, t2.dbamode, t2.write_history FROM %1_users_roles as t1, %1_roles as t2 WHERE t1.id_rol = t2.id AND upper(username)=upper(:username)"
 #define SQL_SELECT_PERMISSIONS_BY_USER_CI "SELECT tablename, permissions FROM %1_permissions WHERE upper(username)=upper(:username)"
-#define SQL_CHANGE_PASSWORD_CI "UPDATE %1_users SET password=:password WHERE upper(username)=upper(:username)"
+#define SQL_CHANGE_PASSWORD_CI "UPDATE %1_users SET hash=:hash WHERE upper(username)=upper(:username)"
 
 UserDAO::UserDAO(QObject *parent) :
     QObject(parent)
@@ -50,7 +50,7 @@ UserDAO::UserDAO(QObject *parent) :
 /*!
   Realiza un login a base de datos. Devuelve true o false si el usuario existe en base de datos
  */
-UserDAO::LoginMessages UserDAO::login (QString &userName, const QString &password)
+UserDAO::LoginMessages UserDAO::login(QString &userName, const QString &userPassword)
 {
     bool result = false;
     QString sql;
@@ -85,9 +85,9 @@ UserDAO::LoginMessages UserDAO::login (QString &userName, const QString &passwor
         }
         else
         {
-            QString passwordMd5 = qry->value(1).toString();
-            QByteArray hashMd5 = QCryptographicHash::hash(password.toLatin1(), QCryptographicHash::Md5).toHex();
-            if ( hashMd5 == passwordMd5 )
+            QString dbHash = qry->value(1).toString();
+            QByteArray hash = QCryptographicHash::hash(userPassword.toLatin1(), QCryptographicHash::Sha3_512).toHex();
+            if ( hash == dbHash )
             {
                 // Corregimos (por si viene en mayúsculas) el nombre del usuario para que coincida plenamente
                 // con el de la base de datos. De no hacerlo así tendríamos problemas con las variables de entorno.
@@ -177,7 +177,7 @@ bool UserDAO::setMetadataAccess(const QString &userName, const QString &tableNam
 {
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase()));
     QString sql = QString("INSERT INTO %1_permissions (username, tablename, permissions) VALUES ('%2', '%3', '%4')").
-                  arg(alephERPSettings->systemTablePrefix()).arg(userName).arg(tableName).arg(permission);
+                  arg(alephERPSettings->systemTablePrefix(), userName, tableName, permission);
     bool result = qry->exec(sql);
     if ( !result )
     {
@@ -227,11 +227,11 @@ bool UserDAO::changePassword (QString &userName, const QString &oldPassword, con
     UserDAO::LoginMessages loginResult = UserDAO::login(userName, oldPassword);
     if ( !userName.isEmpty() && ( loginResult == UserDAO::LOGIN_OK || loginResult == UserDAO::EMPTY_PASSWORD ) )
     {
-        QByteArray hashMd5 = QCryptographicHash::hash(newPassword.toLatin1(), QCryptographicHash::Md5).toHex();
+        QByteArray hash = QCryptographicHash::hash(newPassword.toLatin1(), QCryptographicHash::Sha3_512).toHex();
         QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase()));
         qry->prepare(sql);
         qry->bindValue(":username", userName, QSql::In);
-        qry->bindValue(":password", QString(hashMd5));
+        qry->bindValue(":hash", QString(hash));
 
         if ( qry->exec() )
         {
@@ -244,6 +244,27 @@ bool UserDAO::changePassword (QString &userName, const QString &oldPassword, con
         QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("UserDAO::changePassword: [%1]").arg(qry->lastQuery()));
     }
     return result;
+}
+
+bool UserDAO::userWriteHistory(const QString &userName)
+{
+    QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase()));
+    qry->prepare(QString("SELECT write_history FROM %1_users WHERE lower(username)=lower(:username)").arg(alephERPSettings->systemTablePrefix()));
+    qry->bindValue(":username", userName, QSql::In);
+
+    if ( qry->exec() )
+    {
+        QLogger::QLog_Debug(AlephERP::stLogDB, QString::fromUtf8("UserDAO::userWriteHistory: [%1]").arg(qry->lastQuery()));
+        if ( qry->first() )
+        {
+            return qry->value("write_history").toBool();
+        }
+    }
+    else
+    {
+        writeDbMessages(qry.data());
+    }
+    return true;
 }
 
 /**
@@ -284,6 +305,7 @@ QList<AlephERP::RoleInfo> UserDAO::userRoles(const QString &userName)
             role.roleName = qry->value(1).toString();
             role.superAdmin = qry->value(2).toBool();
             role.dbaMode = qry->value(3).toBool();
+            role.writeHistory = qry->value(4).toBool();
             result.append(role);
         }
     }
@@ -304,12 +326,15 @@ bool UserDAO::createUser(const QString &userName, const QString &password)
     if ( password.isEmpty() )
     {
         sql = QString("INSERT INTO %1_users (username) VALUES ('%2')").
-              arg(alephERPSettings->systemTablePrefix()).arg(userName);
+              arg(alephERPSettings->systemTablePrefix(), userName);
     }
     else
     {
-        sql = QString("INSERT INTO %1_users (username, password) VALUES ('%2', md5('%3'))").
-              arg(alephERPSettings->systemTablePrefix()).arg(userName).arg(password);
+        QString hash = QCryptographicHash::hash(password.toLatin1(), QCryptographicHash::Sha3_512).toHex();
+        sql = QString("INSERT INTO %1_users (username, password) VALUES ('%2', '%3')").
+                  arg(alephERPSettings->systemTablePrefix(),
+                      userName,
+                      hash);
     }
     UserDAO::clearLastDbMessage();
 
@@ -338,8 +363,8 @@ void UserDAO::writeDbMessages(QSqlQuery *qry)
         }
         else
         {
-            UserDAO::m_lastMessage = QString("Driver Error: %1\nDatabase Error: %2").arg(qry->lastError().driverText()).
-                                     arg(qry->lastError().databaseText());
+            UserDAO::m_lastMessage = QString("Driver Error: %1\nDatabase Error: %2").
+                    arg(qry->lastError().driverText(), qry->lastError().databaseText());
         }
     }
     QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("UserDAO: BBDD LastQuery: [%1]").arg(qry->lastQuery()));
@@ -376,6 +401,7 @@ QList<AlephERP::User> UserDAO::users()
                     AlephERP::Role rol;
                     rol.idRole = qry->record().value("id").toInt();
                     rol.roleName = qry->record().value("nombre").toString();
+                    rol.writeHistory = qry->record().value("write_history").toBool();
                     users[i].roles.append(rol);
                     previousUser = true;
                 }
@@ -387,6 +413,7 @@ QList<AlephERP::User> UserDAO::users()
                 AlephERP::Role rol;
                 rol.idRole = qry->record().value("id").toInt();
                 rol.roleName = qry->record().value("nombre").toString();
+                rol.writeHistory = qry->record().value("write_history").toBool();
                 user.roles.append(rol);
                 users.append(user);
             }
@@ -421,6 +448,7 @@ QList<AlephERP::Role> UserDAO::roles()
                 {
                     AlephERP::User user;
                     user.userName = qry->record().value("username").toString();
+                    user.writeHistory = qry->record().value("write_history").toBool();
                     roles[i].users.append(user);
                     previousRole = true;
                 }
@@ -430,8 +458,10 @@ QList<AlephERP::Role> UserDAO::roles()
                 AlephERP::Role role;
                 role.idRole = qry->record().value("id").toInt();
                 role.roleName = qry->record().value("nombre").toString();
+                role.writeHistory = qry->record().value("write_history").toBool();
                 AlephERP::User user;
                 user.userName = qry->record().value("username").toString();
+                user.writeHistory = qry->record().value("write_history").toBool();
                 role.users.append(user);
                 roles.append(role);
             }
@@ -477,8 +507,7 @@ bool UserDAO::loadUserRowAccessData(const QList<BaseBean *> &beans, const QStrin
                           "FROM %1_user_row_access as acc LEFT JOIN %1_roles as rol ON acc.id_rol = rol.id "
                           "WHERE acc.tablename=:tablename AND acc.recordoid IN (%2) "
                           "ORDER BY acc.recordoid, acc.username, rol.nombre").
-                  arg(alephERPSettings->systemTablePrefix()).
-                  arg(oids);
+                  arg(alephERPSettings->systemTablePrefix(), oids);
 
     UserDAO::clearLastDbMessage();
 
@@ -486,7 +515,8 @@ bool UserDAO::loadUserRowAccessData(const QList<BaseBean *> &beans, const QStrin
     if ( !qry->prepare(sql) )
     {
         writeDbMessages(qry.data());
-        QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("UserDAO::loadUserRowAccessData: Error en prepare: [%1] [%2]").arg(sql).arg(qry->lastError().text()));
+        QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("UserDAO::loadUserRowAccessData: Error en prepare: [%1] [%2]").
+                            arg(sql, qry->lastError().text()));
         return false;
     }
     qry->bindValue(":tablename", tableName);
@@ -560,7 +590,7 @@ bool UserDAO::loadUserRowAccessData(BaseBeanPointer bean, const QString &connect
     if ( !qry->prepare(sql) )
     {
         writeDbMessages(qry.data());
-        QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("UserDAO::loadUserRowAccessData: Error en prepare: [%1] [%2]").arg(sql).arg(qry->lastError().text()));
+        QLogger::QLog_Error(AlephERP::stLogDB, QString::fromUtf8("UserDAO::loadUserRowAccessData: Error en prepare: [%1] [%2]").arg(sql, qry->lastError().text()));
         return false;
     }
     qry->bindValue(":tablename", bean->metadata()->tableName());
@@ -607,7 +637,7 @@ bool UserDAO::updateUserRowAccess(BaseBeanPointer bean, const QString &connectio
 
     if ( bean->dbState() == BaseBean::INSERT )
     {
-        UserDAO::m_lastMessage = trUtf8("UserDAO::updateUserRowAccess: Bean estaba en modo insert.");
+        UserDAO::m_lastMessage = tr("UserDAO::updateUserRowAccess: Bean estaba en modo insert.");
         return false;
     }
     if ( BaseDAO::transaction(connectionName) )

@@ -46,7 +46,7 @@ DBFullScheduleView::DBFullScheduleView(QWidget *parent) :
     setFrameStyle(QFrame::NoFrame);
     setStyleSheet("DBFullScheduleView {background: transparent;}");
 
-    ui->dbScheduleView->setHeaderDateFormat(trUtf8("dddd, dd 'de' MMMM"));
+    ui->dbScheduleView->setHeaderDateFormat(tr("dddd, dd 'de' MMMM"));
 
     connect(ui->pbNext, SIGNAL(clicked()), this, SLOT(nextView()));
     connect(ui->pbPrevious, SIGNAL(clicked()), this, SLOT(previousView()));
@@ -208,36 +208,37 @@ QRegion DBFullScheduleView::visualRegionForSelection(const QItemSelection &selec
 
 void DBFullScheduleView::showEvent(QShowEvent *)
 {
-    if ( metadata() != NULL )
+    if ( metadata() == NULL )
     {
-        ScheduleData data = metadata()->scheduledData();
-        if ( !data.showViewModesFilter )
-        {
-            ui->lblMode->setVisible(false);
-            ui->cbMode->setVisible(false);
-        }
-        if ( alephERPSettings->scheduleMode(objectName()) == -1 )
-        {
-            bool blockState = ui->cbMode->blockSignals(true);
-            if ( data.viewMode == AERPScheduleView::WeekView )
-            {
-                ui->cbMode->setCurrentIndex(1);
-            }
-            else if ( data.viewMode == AERPScheduleView::MonthView )
-            {
-                ui->cbMode->setCurrentIndex(2);
-            }
-            else if ( data.viewMode == AERPScheduleView::DayView )
-            {
-                ui->cbMode->setCurrentIndex(0);
-            }
-            ui->cbMode->blockSignals(blockState);
-            saveState();
-        }
-        applyState();
-
-        ui->lblDate->setText(alephERPSettings->locale()->toString(ui->dbScheduleView->initRange(), "MMMM yyyy"));
+        return;
     }
+    ScheduleData data = metadata()->scheduledData();
+    if ( !data.showViewModesFilter )
+    {
+        ui->lblMode->setVisible(false);
+        ui->cbMode->setVisible(false);
+    }
+    if ( alephERPSettings->scheduleMode(objectName()) == -1 )
+    {
+        bool blockState = ui->cbMode->blockSignals(true);
+        if ( data.viewMode == AERPScheduleView::WeekView )
+        {
+            ui->cbMode->setCurrentIndex(1);
+        }
+        else if ( data.viewMode == AERPScheduleView::MonthView )
+        {
+            ui->cbMode->setCurrentIndex(2);
+        }
+        else if ( data.viewMode == AERPScheduleView::DayView )
+        {
+            ui->cbMode->setCurrentIndex(0);
+        }
+        ui->cbMode->blockSignals(blockState);
+        saveState();
+    }
+    applyState();
+
+    ui->lblDate->setText(alephERPSettings->locale()->toString(ui->dbScheduleView->initRange(), "MMMM yyyy"));
 }
 
 void DBFullScheduleView::hideEvent(QHideEvent *)

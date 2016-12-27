@@ -149,6 +149,7 @@ void DBRichTextEdit::refresh()
 
 void DBRichTextEdit::showEvent(QShowEvent *event)
 {
+    Q_UNUSED(event)
     observer(false);
     showtMandatoryWildcardForLabel();
     if ( m_observer )

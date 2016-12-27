@@ -27,36 +27,36 @@ AERPSpellNumber::AERPSpellNumber()
 QStringList englishListSmallNumbers()
 {
     QStringList numbers;
-    numbers << QObject::trUtf8("zero");
-    numbers << QObject::trUtf8("one");
-    numbers << QObject::trUtf8("two");
-    numbers << QObject::trUtf8("three");
-    numbers << QObject::trUtf8("four");
-    numbers << QObject::trUtf8("five");
-    numbers << QObject::trUtf8("six");
-    numbers << QObject::trUtf8("seven");
-    numbers << QObject::trUtf8("eight");
-    numbers << QObject::trUtf8("nine");
-    numbers << QObject::trUtf8("ten");
-    numbers << QObject::trUtf8("eleven");
-    numbers << QObject::trUtf8("twelve");
-    numbers << QObject::trUtf8("thirten");
-    numbers << QObject::trUtf8("fourten");
-    numbers << QObject::trUtf8("fiften");
-    numbers << QObject::trUtf8("sixten");
-    numbers << QObject::trUtf8("seventen");
-    numbers << QObject::trUtf8("eighten");
-    numbers << QObject::trUtf8("nineten");
+    numbers << QObject::tr("zero");
+    numbers << QObject::tr("one");
+    numbers << QObject::tr("two");
+    numbers << QObject::tr("three");
+    numbers << QObject::tr("four");
+    numbers << QObject::tr("five");
+    numbers << QObject::tr("six");
+    numbers << QObject::tr("seven");
+    numbers << QObject::tr("eight");
+    numbers << QObject::tr("nine");
+    numbers << QObject::tr("ten");
+    numbers << QObject::tr("eleven");
+    numbers << QObject::tr("twelve");
+    numbers << QObject::tr("thirten");
+    numbers << QObject::tr("fourten");
+    numbers << QObject::tr("fiften");
+    numbers << QObject::tr("sixten");
+    numbers << QObject::tr("seventen");
+    numbers << QObject::tr("eighten");
+    numbers << QObject::tr("nineten");
     return numbers;
 }
 
 QStringList englishListThousandPowers()
 {
     QStringList numbers;
-    numbers << QObject::trUtf8(" billion");
-    numbers << QObject::trUtf8(" million");
-    numbers << QObject::trUtf8(" thousand");
-    numbers << QObject::trUtf8("");
+    numbers << QObject::tr(" billion");
+    numbers << QObject::tr(" million");
+    numbers << QObject::tr(" thousand");
+    numbers << QObject::tr("");
     return numbers;
 }
 
@@ -64,14 +64,14 @@ QStringList englishListDecades()
 {
     QStringList numbers;
     numbers << "";
-    numbers << QObject::trUtf8("twenty");
-    numbers << QObject::trUtf8("thirty");
-    numbers << QObject::trUtf8("forty");
-    numbers << QObject::trUtf8("fifty");
-    numbers << QObject::trUtf8("sixty");
-    numbers << QObject::trUtf8("seventy");
-    numbers << QObject::trUtf8("eighty");
-    numbers << QObject::trUtf8("ninety");
+    numbers << QObject::tr("twenty");
+    numbers << QObject::tr("thirty");
+    numbers << QObject::tr("forty");
+    numbers << QObject::tr("fifty");
+    numbers << QObject::tr("sixty");
+    numbers << QObject::tr("seventy");
+    numbers << QObject::tr("eighty");
+    numbers << QObject::tr("ninety");
     return numbers;
 }
 
@@ -82,11 +82,11 @@ QString englishSpellHundreds(unsigned n)
     if (n > 99)
     {
         res = smallNumbers[n/100];
-        res += QObject::trUtf8(" hundred");
+        res += QObject::tr(" hundred");
         n %= 100;
         if (n)
         {
-            res += QObject::trUtf8(" y ");
+            res += QObject::tr(" y ");
         }
     }
     if (n >= 20)
@@ -453,7 +453,7 @@ QString AERPSpellNumber::spellNumber(double n, int decimalPlaces, const QString 
     QString result;
     if ( !strDecimalPart.isEmpty() )
     {
-        result = QObject::trUtf8("%1 con %2").arg(strIntegerPart).arg(strDecimalPart);
+        result = QObject::tr("%1 con %2").arg(strIntegerPart, strDecimalPart);
     }
     else
     {

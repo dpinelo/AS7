@@ -149,7 +149,7 @@
       <item row="0" column="0">
        <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>AlephERP se ha cerrado de forma inesperada. Esta ventana le ofrece información técnica sobre el posible cierre de la aplicación que es de ayuda a los desarrolladores para su corrección. Por favor, envíe esta información por correo electrónico a su implantador, junto con una descripción de su interacción con el sistema en el momento del fallo.</string>
+         <string>El sistema se ha cerrado de forma inesperada. Esta ventana le ofrece información técnica sobre el posible cierre de la aplicación que es de ayuda a los desarrolladores para su corrección. Por favor, envíe esta información por correo electrónico a su implantador, junto con una descripción de su interacción con el sistema en el momento del fallo.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>

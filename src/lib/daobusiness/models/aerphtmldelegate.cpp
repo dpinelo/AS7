@@ -33,7 +33,7 @@ AERPHtmlDelegate::AERPHtmlDelegate(QObject* parent) :
 
 void AERPHtmlDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-    QStyleOptionViewItemV4 options = option;
+    QStyleOptionViewItem options = option;
     initStyleOption(&options, index);
 
     QStyle *style = options.widget? options.widget->style() : QApplication::style();
@@ -45,7 +45,7 @@ void AERPHtmlDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 
     /* Call this to get the focus rect and selection background. */
     options.text = "";
-    options.viewItemPosition = QStyleOptionViewItemV4::Beginning;
+    options.viewItemPosition = QStyleOptionViewItem::Beginning;
     style->drawControl(QStyle::CE_ItemViewItem, &options, painter, options.widget);
 
     QAbstractTextDocumentLayout::PaintContext ctx;
@@ -73,7 +73,7 @@ void AERPHtmlDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 
 QSize AERPHtmlDelegate::sizeHint(const QStyleOptionViewItem & option, const QModelIndex & index) const
 {
-    QStyleOptionViewItemV4 options = option;
+    QStyleOptionViewItem options = option;
     initStyleOption(&options, index);
 
     QTextDocument doc;

@@ -20,19 +20,13 @@
 
 #include "aerpmoviedelegate.h"
 #include <QtCore/QVariant>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui/QAbstractItemView>
-#include <QtGui/QLabel>
-#include <QtGui/QMovie>
-#else
 #include <QtWidgets>
-#endif
 #include <aerpcommon.h>
 
 Q_DECLARE_METATYPE(QMovie *)
 
 AERPMovieDelegate::AERPMovieDelegate(QAbstractItemView *view, QObject *parent) :
-    AERPItemDelegate(parent),
+    AERPInlineEditItemDelegate(parent),
     m_view(view)
 {
     m_alignment = Qt::AlignHCenter | Qt::AlignVCenter;
@@ -50,16 +44,21 @@ QMovie *AERPMovieDelegate::qVariantToPointerToQMovie(const QVariant &variant) co
     return variant.value<QMovie *>();
 }
 
-
 void AERPMovieDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    QStyledItemDelegate::paint(painter, option, index);
-
     bool rowFetched = index.data(AlephERP::RowFetchedRole).toBool();
 
     if ( rowFetched )
     {
-        m_view->setIndexWidget(index, NULL);
+        // Es muy importante hacer esta comprobación, o este delegate jamás permitirá
+        // crear ningún tipo de editor para edición inline.
+        QWidget *indexWidget = m_view->indexWidget(index);
+        QLabel  *movieLabel = qobject_cast<QLabel *>(indexWidget);
+        if (movieLabel)
+        {
+            m_view->setIndexWidget(index, NULL);
+        }
+        AERPInlineEditItemDelegate::paint(painter, option, index);
     }
     else
     {

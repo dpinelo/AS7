@@ -49,12 +49,12 @@ QIcon DBCheckBoxPlugin::icon() const
 
 QString DBCheckBoxPlugin::toolTip() const
 {
-    return trUtf8("QCheckBox que lee de base de datos, interactuando a través de objetos BaseBean");
+    return tr("QCheckBox que lee de base de datos, interactuando a través de objetos BaseBean");
 }
 
 QString DBCheckBoxPlugin::whatsThis() const
 {
-    return trUtf8("QCheckBox que lee de base de datos, interactuando a través de objetos BaseBean");
+    return tr("QCheckBox que lee de base de datos, interactuando a través de objetos BaseBean");
 }
 
 bool DBCheckBoxPlugin::isContainer() const

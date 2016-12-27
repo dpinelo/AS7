@@ -49,12 +49,12 @@ QIcon DBFileUploadPlugin::icon() const
 
 QString DBFileUploadPlugin::toolTip() const
 {
-    return trUtf8("Permite subir ficheros asociados a la base de datos.");
+    return tr("Permite subir ficheros asociados a la base de datos.");
 }
 
 QString DBFileUploadPlugin::whatsThis() const
 {
-    return trUtf8("Permite subir ficheros asociados a la base de datos.");
+    return tr("Permite subir ficheros asociados a la base de datos.");
 }
 
 bool DBFileUploadPlugin::isContainer() const

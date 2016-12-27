@@ -348,7 +348,9 @@ void DBChooseRecordButton::showEvent(QShowEvent *event)
             }
             else
             {
-                QLogger::QLog_Error(AlephERP::stLogOther, QString("DBChooseRecordButton: %1 asignado a un field %2, con una relación 1M, cuando debería ser 11 o M1.").arg(objectName()).arg(fld->dbFieldName()));
+                QLogger::QLog_Error(AlephERP::stLogOther,
+                                    QString("DBChooseRecordButton: %1 asignado a un field %2, con una relación 1M, cuando debería ser 11 o M1.").
+                                    arg(objectName(), fld->dbFieldName()));
             }
         }
     }
@@ -410,7 +412,7 @@ void DBChooseRecordButton::buttonClicked()
                 {
                     filter = QString("%1 AND").arg(filter);
                 }
-                filter = QString("%1 %2").arg(filter).arg(d->m_searchFilter);
+                filter = QString("%1 %2").arg(filter, d->m_searchFilter);
             }
         }
         else
@@ -855,15 +857,15 @@ void DBChooseRecordButton::contextMenuEvent(QContextMenuEvent *event)
             {
                 if ( !rel->father()->modified() && rel->metadata()->allowedInsertChild() )
                 {
-                    d->m_actionEdit->setText(trUtf8("Insertar un nuevo registro"));
+                    d->m_actionEdit->setText(tr("Insertar un nuevo registro"));
                     contextMenu.addAction(d->m_actionEdit);
                 }
                 else
                 {
                     if ( !rel->metadata()->readOnly() )
                     {
-                        d->m_actionEdit->setText(trUtf8("Editar registro seleccionado"));
-                        d->m_actionClear->setText(trUtf8("Limpiar los datos antes editados"));
+                        d->m_actionEdit->setText(tr("Editar registro seleccionado"));
+                        d->m_actionClear->setText(tr("Limpiar los datos antes editados"));
                         contextMenu.addAction(d->m_actionEdit);
                         contextMenu.addAction(d->m_actionClear);
                     }
@@ -874,18 +876,18 @@ void DBChooseRecordButton::contextMenuEvent(QContextMenuEvent *event)
                 contextMenu.addAction(d->m_actionView);
                 if ( !rel->metadata()->readOnly() )
                 {
-                    d->m_actionEdit->setText(trUtf8("Editar registro seleccionado"));
+                    d->m_actionEdit->setText(tr("Editar registro seleccionado"));
                     contextMenu.addAction(d->m_actionEdit);
                 }
-                d->m_actionClear->setText(trUtf8("Deseleccionar el registro antes seleccionado"));
+                d->m_actionClear->setText(tr("Deseleccionar el registro antes seleccionado"));
                 contextMenu.addAction(d->m_actionClear);
             }
         }
     }
     else
     {
-        d->m_actionEdit->setText(trUtf8("Editar registro seleccionado"));
-        d->m_actionClear->setText(trUtf8("Deseleccionar el registro antes seleccionado"));
+        d->m_actionEdit->setText(tr("Editar registro seleccionado"));
+        d->m_actionClear->setText(tr("Deseleccionar el registro antes seleccionado"));
         contextMenu.addAction(d->m_actionView);
         contextMenu.addAction(d->m_actionEdit);
         contextMenu.addAction(d->m_actionClear);
@@ -908,7 +910,7 @@ bool DBChooseRecordButtonPrivate::checkPreviousInserted()
         if ( !father.isNull() && father->modified() && father->dbState() == BaseBean::INSERT )
         {
             int ret = QMessageBox::question(q_ptr, qApp->applicationName(),
-                                            QObject::trUtf8("Previamente creó un nuevo registro de tipo <strong>%1</strong>. "
+                                            QObject::tr("Previamente creó un nuevo registro de tipo <strong>%1</strong>. "
                                                     "Este registro aún no ha sido guardado en la base de datos. ¿Desea editarlo? <br/>"
                                                     "Si responde no, perderá este registro que insertó y se abrirá la ventana de búsqueda.").arg(father->metadata()->alias()),
                                             QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel );

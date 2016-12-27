@@ -66,6 +66,7 @@
 #include "forms/changepassworddlg.h"
 #include "forms/perpmainwindow.h"
 #include "forms/dbrecorddlg.h"
+#include "forms/dbsearchdlg.h"
 #include "scripts/perpscriptengine.h"
 #include "reports/reportrun.h"
 #include "widgets/dbtableview.h"
@@ -236,7 +237,7 @@ QString AERPScriptCommon::saveToTempFile(const QString &content, const QString &
     QTemporaryFile file;
     if ( !extension.isEmpty() )
     {
-        file.setFileTemplate(QString("%1/alepherp_XXXXXX.%2").arg(QDir::tempPath()).arg(extension));
+        file.setFileTemplate(QString("%1/alepherp_XXXXXX.%2").arg(QDir::tempPath(), extension));
     }
     else
     {
@@ -494,7 +495,7 @@ QScriptValue AERPScriptCommon::beanByField(const QString &tableName, const QStri
     {
         return result;
     }
-    QString where = QString("%1=%2").arg(fieldName).arg(fld->metadata()->sqlValue(value));
+    QString where = QString("%1=%2").arg(fieldName, fld->metadata()->sqlValue(value));
     if ( !BaseDAO::selectFirst(bean, where, "", Database::databaseConnectionForThisThread()) )
     {
         result = QScriptValue(QScriptValue::UndefinedValue);
@@ -605,7 +606,7 @@ QVariant AERPScriptCommon::sqlSelectFirstColumn(const QString &sql, const QStrin
     if ( engine() )
     {
         QString defSql = sql;
-        if ( !defSql.toLower().contains("limit 1") )
+        if ( !defSql.contains("limit 1", Qt::CaseInsensitive) )
         {
             defSql.append(" LIMIT 1");
         }
@@ -1393,7 +1394,7 @@ QScriptValue AERPScriptCommon::nextCounter(DBField *fld, const QString &sqlFilte
     {
         return QScriptValue();
     }
-    QString sql = QString("SELECT max(%1) as column1 FROM %2").arg(fld->metadata()->dbFieldName()).arg(bean->metadata()->tableName());
+    QString sql = QString("SELECT max(%1) as column1 FROM %2").arg(fld->metadata()->dbFieldName(), bean->metadata()->tableName());
     QString where;
     if ( !sqlFilter.isEmpty() )
     {
@@ -1405,7 +1406,7 @@ QScriptValue AERPScriptCommon::nextCounter(DBField *fld, const QString &sqlFilte
     }
     if ( !where.isEmpty() )
     {
-        sql = QString("%1 WHERE %2").arg(sql).arg(where);
+        sql = QString("%1 WHERE %2").arg(sql, where);
     }
     QVariant result;
     QScriptValue scriptResult (QScriptValue::UndefinedValue);
@@ -1429,7 +1430,7 @@ QScriptValue AERPScriptCommon::nextCounter(DBField *fld, const QString &sqlFilte
             {
                 zeroString = zeroString + '0';
             }
-            QString stringValue = QString("%1%2").arg(zeroString).arg(tmp);
+            QString stringValue = QString("%1%2").arg(zeroString, tmp);
             scriptResult = QScriptValue(stringValue);
         }
         else if ( fld->metadata()->type() == QVariant::Int || fld->metadata()->type() == QVariant::Double || fld->metadata()->type() == QVariant::LongLong )
@@ -1465,7 +1466,7 @@ QScriptValue AERPScriptCommon::date(const QString &stringDate, const QString &fo
   */
 QScriptValue AERPScriptCommon::importResource()
 {
-    QString fileName = QFileDialog::getOpenFileName(0, trUtf8("Seleccione el fichero que desea agregar"));
+    QString fileName = QFileDialog::getOpenFileName(0, tr("Seleccione el fichero que desea agregar"));
     if ( fileName.isNull() )
     {
         return QScriptValue(QScriptValue::UndefinedValue);
@@ -1473,7 +1474,7 @@ QScriptValue AERPScriptCommon::importResource()
     QFile file(fileName);
     if (  !file.open(QIODevice::ReadOnly) )
     {
-        QMessageBox::warning(0,qApp->applicationName(), trUtf8("No se pudo abrir el archivo."), QMessageBox::Ok);
+        QMessageBox::warning(0,qApp->applicationName(), tr("No se pudo abrir el archivo."), QMessageBox::Ok);
         return QScriptValue(QScriptValue::UndefinedValue);
     }
     QByteArray binaryContent = file.readAll();
@@ -1774,7 +1775,7 @@ bool AERPScriptCommon::sendEmail(const QString &to, const QString &cc, const QSt
     QString from;
     if ( !AERPLoggedUser::instance()->userName().isEmpty() && !AERPLoggedUser::instance()->email().isEmpty() )
     {
-        from = QString("%1 <%2>").arg(AERPLoggedUser::instance()->name()).arg(AERPLoggedUser::instance()->email());
+        from = QString("%1 <%2>").arg(AERPLoggedUser::instance()->name(), AERPLoggedUser::instance()->email());
     }
     else if ( !AERPLoggedUser::instance()->email().isEmpty() )
     {
@@ -1855,7 +1856,7 @@ bool AERPScriptCommon::enterOnBatchMode()
 #ifdef ALEPHERP_LOCALMODE
     QProgressDialog progress(0);
     QString templateMessage = "Preparando el sistema para entrar en modo de trabajo local. \nSincronizando datos remotos: %1. Este proceso puede durar unos minutos. Por favor, espere...";
-    progress.setLabelText(trUtf8("Iniciando proceso de sincronización con datos remotos.."));
+    progress.setLabelText(tr("Iniciando proceso de sincronización con datos remotos.."));
     progress.setWindowTitle(qApp->applicationName());
     progress.setWindowModality(Qt::WindowModal);
     progress.setCancelButton(0);
@@ -1866,7 +1867,7 @@ bool AERPScriptCommon::enterOnBatchMode()
     connect (BeansFactory::instance(), SIGNAL(endEnterWorkMode()), &progress, SLOT(close()));
     if ( !BeansFactory::enterOnBatchMode(templateMessage) )
     {
-        QMessageBox::warning(0,qApp->applicationName(), trUtf8("No se han podido cargar los datos para el trabajo en local. \nInforme de error: %1").
+        QMessageBox::warning(0,qApp->applicationName(), tr("No se han podido cargar los datos para el trabajo en local. \nInforme de error: %1").
                              arg(BeansFactory::lastErrorMessage()), QMessageBox::Ok);
         return false;
     }
@@ -1945,7 +1946,7 @@ QScriptValue AERPScriptCommon::chooseRecordFromComboBox(const QString &tableName
     }
     else
     {
-        showedLabel = trUtf8("Seleccione: %1").arg(m->alias());
+        showedLabel = tr("Seleccione: %1").arg(m->alias());
     }
     bool ok;
     QString selectedValue = QInputDialog::getItem(0, qApp->applicationName(), label, showedStrings, -1, false, &ok);
@@ -1998,6 +1999,40 @@ QScriptValue AERPScriptCommon::chooseRecordsFromTable(const QString &tableName,
     return list;
 }
 
+QScriptValue AERPScriptCommon::chooseRecordsFromDBSearch(const QString &tableName, const QString &where)
+{
+    QScriptValue result = QScriptValue::NullValue;
+    QScopedPointer<DBSearchDlg> dlg (new DBSearchDlg(tableName, false));
+    if ( dlg->openSuccess() )
+    {
+        if ( !where.isEmpty() )
+        {
+            dlg->setFilterData(where);
+        }
+        dlg->setModal(true);
+        dlg->setCanSelectSeveral(true);
+        dlg->setCanInsertRecords(false);
+        dlg->setCanEditRecords(false);
+        dlg->init();
+        dlg->exec();
+
+        BaseBeanSharedPointerList list = dlg->checkedBeans();
+        result = engine()->newArray(list.size());
+        if ( list.size() > 0 )
+        {
+            int idx = 0;
+            foreach (BaseBeanSharedPointer bean, list)
+            {
+                QScriptValue objBean = engine()->newQObject(bean->clone(NULL),
+                                                            QScriptEngine::ScriptOwnership,
+                                                            QScriptEngine::PreferExistingWrapperObject);
+                result.setProperty(idx, objBean);
+            }
+        }
+    }
+    return result;
+}
+
 QScriptValue AERPScriptCommon::chooseRecordFromTable(const QString &tableName,
                                                      const QString &where,
                                                      const QString &order,
@@ -2014,7 +2049,9 @@ QScriptValue AERPScriptCommon::chooseRecordFromTable(const QString &tableName,
     {
         return QScriptValue(QScriptValue::NullValue);
     }
-    QScriptValue scriptBean = engine()->newQObject(bean->clone(NULL), QScriptEngine::ScriptOwnership, QScriptEngine::PreferExistingWrapperObject);
+    QScriptValue scriptBean = engine()->newQObject(bean->clone(NULL),
+                                                   QScriptEngine::ScriptOwnership,
+                                                   QScriptEngine::PreferExistingWrapperObject);
     return scriptBean;
 }
 
@@ -2075,7 +2112,7 @@ QScriptValue AERPScriptCommon::chooseChildFromComboBox(BaseBean *bean,
     }
     else
     {
-        showedLabel = trUtf8("Seleccione: %1").arg(alias);
+        showedLabel = tr("Seleccione: %1").arg(alias);
     }
     bool ok;
     QString selectedValue = QInputDialog::getItem(0, qApp->applicationName(), label, showedStrings, -1, false, &ok);
@@ -2285,9 +2322,13 @@ double AERPScriptCommon::getDouble(const QScriptValue &parent, const QString &la
     }
 }
 
-QString AERPScriptCommon::getText(const QString &label)
+QString AERPScriptCommon::getText(const QString &label, const QString &defaultValue)
 {
-    return QInputDialog::getText(0, qApp->applicationName(), label);
+    return QInputDialog::getText(0,
+                                 qApp->applicationName(),
+                                 label,
+                                 QLineEdit::Normal,
+                                 defaultValue);
 }
 
 QScriptValue AERPScriptCommon::getDate(const QString &label, const QDate &defaultDate)
@@ -2534,7 +2575,7 @@ QScriptValue AERPScriptCommon::dataTable()
     lay->addWidget(table);
     QDialogButtonBox *buttonGroup = new QDialogButtonBox(dlg.data());
     buttonGroup->addButton(new QPushButton(QIcon(":/aplicacion/images/ok.png"), "&Ok"), QDialogButtonBox::AcceptRole);
-    buttonGroup->addButton(new QPushButton(QIcon(":/generales/images/close.png"), trUtf8("&Cancelar")), QDialogButtonBox::RejectRole);
+    buttonGroup->addButton(new QPushButton(QIcon(":/generales/images/close.png"), tr("&Cancelar")), QDialogButtonBox::RejectRole);
 
     connect(buttonGroup, SIGNAL(accepted()), dlg.data(), SLOT(accept()));
     connect(buttonGroup, SIGNAL(rejected()), dlg.data(), SLOT(reject()));
@@ -2639,7 +2680,7 @@ void AERPScriptCommon::generateDefinitionFileSql(const QString &module, const QS
     QFile file(fileName);
     if ( !file.open(QIODevice::Truncate | QIODevice::WriteOnly) )
     {
-        QMessageBox::warning(0,qApp->applicationName(), trUtf8("No se pudo abrir el archivo."), QMessageBox::Ok);
+        QMessageBox::warning(0,qApp->applicationName(), tr("No se pudo abrir el archivo."), QMessageBox::Ok);
         return;
     }
     QTextStream out(&file);
@@ -2675,7 +2716,7 @@ bool AERPScriptCommon::importData(const QString &fileName, const QString &progre
     CommonsFunctions::processEvents();
     if ( !ModulesDAO::instance()->importData(f, tableName) )
     {
-        QMessageBox::warning(0,qApp->applicationName(), trUtf8("Ocurrió un error importando datos. \nEl error es: %1").arg(BaseDAO::lastErrorMessage()), QMessageBox::Ok);
+        QMessageBox::warning(0,qApp->applicationName(), tr("Ocurrió un error importando datos. \nEl error es: %1").arg(BaseDAO::lastErrorMessage()), QMessageBox::Ok);
         return false;
     }
     return true;
@@ -2700,8 +2741,7 @@ QString AERPScriptCommon::getSystemObjectPath(const QString &objectName, const Q
         if ( obj->name() == objectName && obj->type() == type )
         {
             QString fileName = QString("%1/%2").
-                               arg(QDir::fromNativeSeparators(alephERPSettings->dataPath())).
-                               arg(obj->name());
+                               arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), obj->name());
             return fileName;
         }
     }
@@ -2744,7 +2784,7 @@ BaseBeanSharedPointerList AERPScriptCommonPrivate::chooseRecordsFromTable(const 
     }
     else
     {
-        showedLabel = QObject::trUtf8("Seleccione: %1").arg(m->alias());
+        showedLabel = QObject::tr("Seleccione: %1").arg(m->alias());
     }
 
     // Creamos el diálogo
@@ -2811,7 +2851,7 @@ BaseBeanSharedPointer AERPScriptCommonPrivate::chooseRecordFromTable(const QStri
     }
     else
     {
-        showedLabel = QObject::trUtf8("Seleccione: %1").arg(m->alias());
+        showedLabel = QObject::tr("Seleccione: %1").arg(m->alias());
     }
 
     // Creamos el diálogo

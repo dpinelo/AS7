@@ -20,12 +20,7 @@
 #ifndef BASEBEAN_H
 #define BASEBEAN_H
 
-#include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include <QtCore>
 #include <QtScript>
 #include <aerpcommon.h>
@@ -63,7 +58,7 @@ typedef QList<BaseBeanWeakPointer> BaseBeanWeakPointerList;
 typedef QPointer<RelatedElement> RelatedElementPointer;
 typedef QList<RelatedElementPointer> RelatedElementPointerList;
 
-inline BaseBeanSharedPointerList AERP_WEAKLIST_TO_STRONGLIST(const BaseBeanWeakPointerList &weakList)
+inline const BaseBeanSharedPointerList AERP_WEAKLIST_TO_STRONGLIST(const BaseBeanWeakPointerList &weakList)
 {
     BaseBeanSharedPointerList strongList;
     for(int i = 0 ; i < weakList.size() ; i++)
@@ -73,7 +68,7 @@ inline BaseBeanSharedPointerList AERP_WEAKLIST_TO_STRONGLIST(const BaseBeanWeakP
     return strongList;
 }
 
-inline BaseBeanWeakPointerList AERP_STRONGLIST_TO_WEAKLIST(const BaseBeanSharedPointerList &strongList)
+inline const BaseBeanWeakPointerList AERP_STRONGLIST_TO_WEAKLIST(const BaseBeanSharedPointerList &strongList)
 {
     BaseBeanWeakPointerList weakList;
     for(int i = 0 ; i < strongList.size() ; i++)
@@ -83,7 +78,7 @@ inline BaseBeanWeakPointerList AERP_STRONGLIST_TO_WEAKLIST(const BaseBeanSharedP
     return weakList;
 }
 
-inline BaseBeanPointerList AERP_STRONGLIST_TO_POINTERLIST(const BaseBeanSharedPointerList &strongList)
+inline const BaseBeanPointerList AERP_STRONGLIST_TO_POINTERLIST(const BaseBeanSharedPointerList &strongList)
 {
     BaseBeanPointerList list;
     for(int i = 0 ; i < strongList.size() ; i++)
@@ -102,7 +97,6 @@ inline BaseBeanPointerList AERP_STRONGLIST_TO_POINTERLIST(const BaseBeanSharedPo
 class ALEPHERP_DLL_EXPORT BaseBean : public DBObject
 {
     Q_OBJECT
-    Q_ENUMS(DbBeanStates)
 
     /** Identificador único en base de datos. OID en PostgreSQL */
     Q_PROPERTY(qlonglong dbOid READ dbOid)
@@ -167,7 +161,7 @@ private:
     Q_DISABLE_COPY(BaseBean)
     BaseBeanPrivate *d;
 
-    void init(BaseBeanMetadata *m, bool hastToSetDefaultValue, BaseBeanPointerList fatherBeans);
+    void init(BaseBeanMetadata *m, bool hastToSetDefaultValue, const BaseBeanPointerList &fatherBeans);
     void addRelatedElement(RelatedElement *element);
     /** Funciones factoria para crear los datos internos de este bean */
     DBRelation *newRelation(DBRelationMetadata *m);
@@ -199,6 +193,7 @@ public:
         TO_BE_DELETED = 4,
         DELETED = 8
     };
+    Q_ENUM(DbBeanStates)
 
     BaseBeanMetadata * metadata() const;
     qlonglong dbOid() const;
@@ -221,22 +216,22 @@ public:
 
     QString lastError() const;
 
-    QList<DBField *> fields() const;
+    const QList<DBField *> fields() const;
     QVariantMap fieldsMap() const;
-    Q_INVOKABLE DBField * field(const QString &dbFieldName);
-    Q_INVOKABLE DBField * field(int index);
-    Q_INVOKABLE QList<DBField *> pkFields ();
-    int fieldIndex(const QString &dbFieldName);
+    Q_INVOKABLE DBField *field(const QString &dbFieldName);
+    Q_INVOKABLE DBField *field(int index) const;
+    Q_INVOKABLE const QList<DBField *> pkFields() const;
+    int fieldIndex(const QString &dbFieldName) const;
     int fieldCount() const;
     bool modifiedRelatedElements() const;
 
-    QList<DBRelation *> relations(AlephERP::RelationTypes type = AlephERP::All) const;
+    const QList<DBRelation *> relations(AlephERP::RelationTypes type = AlephERP::All) const;
     QVariantMap relationsMap() const;
     Q_INVOKABLE DBRelation * relation(const QString &relationName);
     int relationIndex(const QString &relationName);
-    Q_INVOKABLE BaseBeanPointerList relationChildren(const QString &relationName, const QString &order = "", bool includeToBeDeleted = false);
+    Q_INVOKABLE const BaseBeanPointerList relationChildren(const QString &relationName, const QString &order = "", bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointer relationChildByField(const QString &relationName, const QString &fieldName, const QVariant &id, bool includeToBeDeleted = false);
-    Q_INVOKABLE BaseBeanPointerList relationChildrenByFilter(const QString &relationName, const QString &filter, const QString &order = "", bool includeToBeDeleted = false);
+    Q_INVOKABLE const BaseBeanPointerList relationChildrenByFilter(const QString &relationName, const QString &filter, const QString &order = "", bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointer relationChildByOid(const QString &telationName, qlonglong oid, bool includeToBeDeleted = false);
     Q_INVOKABLE BaseBeanPointer father(const QString &relationName);
     Q_INVOKABLE QVariant fatherFieldValue(const QString &relationName, const QString &field);
@@ -248,18 +243,18 @@ public:
     QList<DBObject *> navigateThrough(const QString &relationName, const QString &relationFilters);
     DBObject *navigateThroughProperties(const QString &path, bool returnIntermediate = false);
 
-    Q_INVOKABLE QVariant fieldValue(int dbField);
+    Q_INVOKABLE QVariant fieldValue(int dbField) const;
     Q_INVOKABLE QVariant fieldValue(const QString &dbFieldName);
     Q_INVOKABLE virtual void setFieldValue(const QString &dbFieldName, const QVariant &value);
     Q_INVOKABLE virtual void setFieldValue(int index, const QVariant &value);
     Q_INVOKABLE virtual void setFieldValueFromSqlRawData(const QString &dbFieldName, const QString &data);
     Q_INVOKABLE virtual void setOverwriteFieldValue(const QString &dbFieldName, const QVariant &value);
     Q_INVOKABLE bool isFieldEmpty(const QString &dbFieldName);
-    Q_INVOKABLE QPixmap pixmapFieldValue(int dbField);
+    Q_INVOKABLE QPixmap pixmapFieldValue(int dbField) const;
     Q_INVOKABLE QPixmap pixmapFieldValue(const QString &dbFieldName);
 
-    Q_INVOKABLE QVariant pkValue();
-    Q_INVOKABLE QVariantList pkListValue();
+    Q_INVOKABLE QVariant pkValue() const;
+    Q_INVOKABLE const QVariantList pkListValue() const;
     Q_INVOKABLE QString pkSerializedValue();
     Q_INVOKABLE bool pkEqual(const QVariant &value);
     Q_INVOKABLE void setPkValue(const QVariant &id);
@@ -300,7 +295,7 @@ public:
     RelatedElementPointer newRelatedElement(AERPDocMngmntDocument *doc, const QStringList &category = QStringList());
 #endif
 
-    Q_INVOKABLE RelatedElementPointerList getRelatedElements(AlephERP::RelatedElementTypes type = AlephERP::NoneAll, AlephERP::RelatedElementCardinalities cardinality = AlephERP::PointToChild, bool includeToBeDelete = false);
+    Q_INVOKABLE const RelatedElementPointerList getRelatedElements(AlephERP::RelatedElementTypes type = AlephERP::NoneAll, AlephERP::RelatedElementCardinalities cardinality = AlephERP::PointToChild, bool includeToBeDelete = false);
     Q_INVOKABLE RelatedElementPointerList getRelatedElementsByRelatedTableName(const QString &tableName, AlephERP::RelatedElementCardinalities cardinality = AlephERP::PointToChild, bool includeToBeDelete = false);
     Q_INVOKABLE RelatedElementPointerList getRelatedElementsByCategory(const QString &category, AlephERP::RelatedElementTypes type = AlephERP::NoneAll, AlephERP::RelatedElementCardinalities cardinality = AlephERP::PointToChild, bool includeToBeDelete = false);
     Q_INVOKABLE RelatedElementPointerList getRelatedElementsByCategoryAndRelatedTableName(const QString &tableName, const QString &category, AlephERP::RelatedElementCardinalities cardinality = AlephERP::PointToChild, bool includeToBeDelete = false);
@@ -341,22 +336,22 @@ public:
 
     void copyValues(BaseBeanPointer otherBean, bool saveValues = false);
     void copyValues(BaseBeanPointer otherBean, const QStringList &fields);
-    void copyRelationChildren(BaseBeanPointer otherBean, QStringList &relationNames);
+    void copyRelationChildren(BaseBeanPointer otherBean, const QStringList &relationNames);
     void deepCopyValues(BaseBeanPointer otherBean, const QStringList &relationNames);
 
-    QString hash(bool useRawValue = false);
-    QString rawHash();
+    QString hash(bool useRawValue = false) const;
+    QString rawHash() const;
     QString emailTemplate() const;
     QString emailSubject() const;
     QString repositoryPath() const;
     QStringList repositoryKeywords() const;
 
-    QList<DBField *> counterFields(const QString &fld);
+    const QList<DBField *> counterFields(const QString &fld);
 
-    AERPUserRowAccessList access();
+    AERPUserRowAccessList access() const;
     void setAccess(AERPUserRowAccessList list);
     void appendAccess(const AERPUserRowAccess &item);
-    bool checkAccess(QChar access);
+    bool checkAccess(QChar access) const;
 
     // Sí, soy un cateto... y cometí un error de novato en inglés. childs en lugar de children... ole mis ... Lo corrijo, y mientras
     // dejo esto por compatibilidad hacia atrás con otros clientes...

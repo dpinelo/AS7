@@ -54,8 +54,6 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value,
                        int role = Qt::EditRole);
-    QModelIndexList match (const QHash<int, QVariant> &values, int role,
-                           int hits = 1, Qt::MatchFlags flags = Qt::MatchFlags( Qt::MatchStartsWith | Qt::MatchWrap ) ) const;
 
     void setQuery (const QString & query);
 
@@ -65,9 +63,7 @@ public:
     QString getSql();
     QString getSqlCount();
 
-    virtual BaseBeanSharedPointer bean (QModelIndex &index, bool onlyVisibleData);
     BaseBeanSharedPointerList beans(const QModelIndexList &list);
-
     virtual BaseBeanSharedPointer bean(const QModelIndex &index, bool reloadIfNeeded = true) const;
     virtual BaseBeanMetadata * metadata() const;
     virtual QModelIndex indexByPk(const QVariant &value);

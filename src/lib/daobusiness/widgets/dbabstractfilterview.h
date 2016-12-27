@@ -86,8 +86,9 @@ public:
     virtual DBAbstractViewInterface *itemViewIface();
 
     virtual bool isFrozenModel() const;
+    virtual bool isInlineEditMode() const;
 
-    Q_INVOKABLE BaseBeanPointer selectedBean();
+    Q_INVOKABLE BaseBeanPointer selectedBean(bool foceReloadIfNeeded = true);
     Q_INVOKABLE void setSelectedBean(const BaseBeanSharedPointer &bean);
     Q_INVOKABLE QVariant filterValue(const QString &dbfieldName);
 
@@ -127,6 +128,8 @@ public slots:
     virtual void disableRestoreSaveState();
     virtual bool isRestoreSaveStateEnabled();
     virtual void reSort();
+    virtual void setInlineEdit(bool enabled);
+    virtual void saveInlineEdit();
 
 signals:
     void columnHeaderClicked(int logicalIndex);

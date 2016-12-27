@@ -35,7 +35,7 @@ void Graph::topologicalSortUtil(int v, bool visited[],
 
 // The function to do Topological Sort. It uses recursive
 // topologicalSortUtil()
-QList<int> Graph::topologicalSort()
+const QList<int> Graph::topologicalSort()
 {
     stack<int> Stack;
 

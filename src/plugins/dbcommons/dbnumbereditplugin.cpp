@@ -49,12 +49,12 @@ QIcon DBNumberEditPlugin::icon() const
 
 QString DBNumberEditPlugin::toolTip() const
 {
-    return trUtf8("Editor numérico");
+    return tr("Editor numérico");
 }
 
 QString DBNumberEditPlugin::whatsThis() const
 {
-    return trUtf8("Editor numérico");
+    return tr("Editor numérico");
 }
 
 bool DBNumberEditPlugin::isContainer() const

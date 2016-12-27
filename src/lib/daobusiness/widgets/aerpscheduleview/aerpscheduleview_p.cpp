@@ -729,18 +729,21 @@ AERPScheduleInternalItem::AERPScheduleInternalItem(AERPScheduleView *parent, QMo
     : QObject(parent), m_iModelRow(index.row()), m_geometries(geometries)
 {
     m_moving = false;
-    if (parent)
+    if (!parent)
     {
-        if (index.isValid())
-        {
-            if (m_geometries.empty())
-            {
-                int startOffset = this->startTableOffset();
-                int endOffset = startOffset + this->rows() - 1;
-                m_geometries = parent->qxt_d().calculateRangeGeometries(startOffset, endOffset);
-            }
-        }
+        return;
     }
+    if (!index.isValid())
+    {
+        return;
+    }
+    if (!m_geometries.empty())
+    {
+        return;
+    }
+    int startOffset = this->startTableOffset();
+    int endOffset = startOffset + this->rows() - 1;
+    m_geometries = parent->qxt_d().calculateRangeGeometries(startOffset, endOffset);
 }
 
 AERPScheduleView * AERPScheduleInternalItem::parentView() const
@@ -809,28 +812,28 @@ QVariant AERPScheduleInternalItem::data(int role) const
 
 int AERPScheduleInternalItem::startTableOffset() const
 {
-    if (parentView() && parentView()->model())
+    if (!parentView() || !parentView()->model())
     {
-        int startTime = data(Qxt::ItemStartTimeRole).toInt();
-        int zoomDepth = parentView()->currentZoomDepth(Qxt::Second);
-
-        qint32 offset = startTime - parentView()->qxt_d().m_startUnixTime;
-
-        //the start of the current item does not fit in the view
-        //so we have to align it to the nearest boundaries
-        if (offset % zoomDepth)
-        {
-            int lower = offset / zoomDepth * zoomDepth;
-            int upper = lower + zoomDepth;
-
-            offset = (offset - lower >= upper - offset ? upper : lower);
-
-            return parentView()->qxt_d().unixTimeToOffset(offset + parentView()->qxt_d().m_startUnixTime);
-        }
-
-        return parentView()->qxt_d().unixTimeToOffset(startTime);
+        return -1;
     }
-    return -1;
+    int startTime = data(Qxt::ItemStartTimeRole).toInt();
+    int zoomDepth = parentView()->currentZoomDepth(Qxt::Second);
+
+    qint32 offset = startTime - parentView()->qxt_d().m_startUnixTime;
+
+    //the start of the current item does not fit in the view
+    //so we have to align it to the nearest boundaries
+    if (offset % zoomDepth)
+    {
+        int lower = offset / zoomDepth * zoomDepth;
+        int upper = lower + zoomDepth;
+
+        offset = (offset - lower >= upper - offset ? upper : lower);
+
+        return parentView()->qxt_d().unixTimeToOffset(offset + parentView()->qxt_d().m_startUnixTime);
+    }
+
+    return parentView()->qxt_d().unixTimeToOffset(startTime);
 }
 
 int AERPScheduleInternalItem::endTableOffset() const
@@ -857,24 +860,24 @@ void AERPScheduleInternalItem::setRowsUsed(int rows)
 
 int AERPScheduleInternalItem::rows() const
 {
-    if (parentView() && parentView()->model())
+    if (!parentView() || !parentView()->model())
     {
-        int iNumSecs = data(Qxt::ItemDurationRole).toInt();
-        int zoomDepth = parentView()->currentZoomDepth(Qxt::Second);
-
-        //the length of the current item does not fit in the view
-        //so we have to align it to the nearest boundaries
-        if (iNumSecs % zoomDepth)
-        {
-            int lower = iNumSecs / zoomDepth * zoomDepth;
-            int upper = lower + zoomDepth;
-
-            return (iNumSecs - lower >= upper - iNumSecs ? (upper / zoomDepth) : (lower / zoomDepth));
-
-        }
-        return (iNumSecs / zoomDepth);
+        return -1;
     }
-    return -1;
+    int iNumSecs = data(Qxt::ItemDurationRole).toInt();
+    int zoomDepth = parentView()->currentZoomDepth(Qxt::Second);
+
+    //the length of the current item does not fit in the view
+    //so we have to align it to the nearest boundaries
+    if (iNumSecs % zoomDepth)
+    {
+        int lower = iNumSecs / zoomDepth * zoomDepth;
+        int upper = lower + zoomDepth;
+
+        return (iNumSecs - lower >= upper - iNumSecs ? (upper / zoomDepth) : (lower / zoomDepth));
+
+    }
+    return (iNumSecs / zoomDepth);
 }
 
 bool qxtScheduleItemLessThan(const AERPScheduleInternalItem * item1, const AERPScheduleInternalItem * item2)

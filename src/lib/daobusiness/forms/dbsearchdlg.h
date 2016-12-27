@@ -91,6 +91,7 @@ public:
         EditRecord = 0x008,
         NewRecord = 0x010
     };
+    Q_ENUM(DBSearchButtonsFlag)
     Q_DECLARE_FLAGS (DBSearchButtons, DBSearchButtonsFlag)
 
 private:

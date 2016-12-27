@@ -127,11 +127,11 @@ void DBTableViewColumnOrderForm::init()
             {
                 if ( d->m_order->at(j).first == fld->dbFieldName() )
                 {
-                    textOrder = d->m_order->at(j).second == QStringLiteral("ASC") ? trUtf8(TEXT_ORDER_ASC) : trUtf8(TEXT_ORDER_DESC);
+                    textOrder = d->m_order->at(j).second == QStringLiteral("ASC") ? tr(TEXT_ORDER_ASC) : tr(TEXT_ORDER_DESC);
                 }
             }
             QListWidgetItem *item = new QListWidgetItem (ui->listWidget);
-            item->setText(QString("%1%2").arg(name).arg(textOrder));
+            item->setText(QString("%1%2").arg(name, textOrder));
             item->setIcon(d->m_iconAscending);
             item->setData(AlephERP::DBFieldNameRole, value);
             if ( columnHidden )
@@ -168,7 +168,7 @@ void DBTableViewColumnOrderForm::okClicked()
         QListWidgetItem *item = ui->listWidget->item(i);
         QPair<QString, QString> pair;
         pair.first = item->data(AlephERP::DBFieldNameRole).toString();
-        pair.second = ( ui->listWidget->item(i)->text().contains(trUtf8(TEXT_ORDER_ASC))
+        pair.second = ( ui->listWidget->item(i)->text().contains(tr(TEXT_ORDER_ASC))
                         ? QString("ASC") : QString("DESC") );
         d->m_order->append(pair);
     }
@@ -181,18 +181,18 @@ void DBTableViewColumnOrderForm::itemHasBeenDoubleClicked(QListWidgetItem *item)
     {
         return;
     }
-    if ( item->text().contains(trUtf8(TEXT_ORDER_ASC)) )
+    if ( item->text().contains(tr(TEXT_ORDER_ASC)) )
     {
         item->setIcon(d->m_iconDescending);
         QString text = item->text();
-        text.replace(trUtf8(TEXT_ORDER_ASC), trUtf8(TEXT_ORDER_DESC));
+        text.replace(tr(TEXT_ORDER_ASC), tr(TEXT_ORDER_DESC));
         item->setText(text);
     }
     else
     {
         item->setIcon(d->m_iconAscending);
         QString text = item->text();
-        text.replace(trUtf8(TEXT_ORDER_DESC), trUtf8(TEXT_ORDER_ASC));
+        text.replace(tr(TEXT_ORDER_DESC), tr(TEXT_ORDER_ASC));
         item->setText(text);
     }
     showOrderIconOnButton();
@@ -291,7 +291,7 @@ void DBTableViewColumnOrderForm::setColumnVisible()
 
     if ( selectedItems.size() == 0 )
     {
-        QMessageBox::information(this, qApp->applicationName(), trUtf8("Debe seleccionar una columna."), QMessageBox::Ok);
+        QMessageBox::information(this, qApp->applicationName(), tr("Debe seleccionar una columna."), QMessageBox::Ok);
         return;
     }
 

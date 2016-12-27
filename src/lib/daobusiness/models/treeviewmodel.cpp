@@ -399,7 +399,7 @@ void TreeViewModel::checkAllItems(bool checked)
     }
 }
 
-void TreeViewModel::setCheckedItems(QModelIndexList list, bool checked)
+void TreeViewModel::setCheckedItems(const QModelIndexList &list, bool checked)
 {
     int lessRow=INT_MAX, lessCol=INT_MAX, maxRow=0, maxCol=0;
     if ( list.size() == 0 )

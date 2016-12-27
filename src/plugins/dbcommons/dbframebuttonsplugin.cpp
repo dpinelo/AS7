@@ -49,12 +49,12 @@ QIcon DBFrameButtonsPlugin::icon() const
 
 QString DBFrameButtonsPlugin::toolTip() const
 {
-    return trUtf8("Frame que presenta un conjunto de botones leídos de forma interna o de una tabla.");
+    return tr("Frame que presenta un conjunto de botones leídos de forma interna o de una tabla.");
 }
 
 QString DBFrameButtonsPlugin::whatsThis() const
 {
-    return trUtf8("Frame que presenta un conjunto de botones leídos de forma interna o de una tabla.");
+    return tr("Frame que presenta un conjunto de botones leídos de forma interna o de una tabla.");
 }
 
 bool DBFrameButtonsPlugin::isContainer() const
