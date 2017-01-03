@@ -740,7 +740,7 @@ QString DBFieldPrivate::sqlValue(const QVariant &val, bool includeQuotesOnString
     else if ( m->type() == QVariant::Date )
     {
         QDate fecha = val.toDate();
-        if ( !fecha.isNull() || !fecha.isValid() )
+        if ( fecha.isNull() || !fecha.isValid() )
         {
             return QString("null");
         }
