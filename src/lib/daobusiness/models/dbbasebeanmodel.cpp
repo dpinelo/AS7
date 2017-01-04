@@ -229,9 +229,13 @@ bool DBBaseBeanModelPrivate::stillBackgroundUpdatePetitions()
   @see FilterBaseBeanModel
   @see BaseBeanMetadata
  */
-DBBaseBeanModel::DBBaseBeanModel(const QString &tableName, const QString &where,
-                                 const QString &order, bool isStaticModel, bool useEnvVars,
-                                 bool workLoadingOnBackground, QObject *parent) :
+DBBaseBeanModel::DBBaseBeanModel(const QString &tableName,
+                                 const QString &where,
+                                 const QString &order,
+                                 bool isStaticModel,
+                                 bool useEnvVars,
+                                 bool workLoadingOnBackground,
+                                 QObject *parent) :
     BaseBeanModel(parent), d(new DBBaseBeanModelPrivate(this))
 {
     d->m_metadata = BeansFactory::metadataBean(tableName);
@@ -1095,12 +1099,17 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
             return false;
         }
         bool beanFetched = d->m_beansFetched.at(row);
-        // Alguien se está interesando si la fila se ha obtenido o no... así que la vamos a obtener en segundo plano
-        if ( !beanFetched && d->m_workLoadingOnBackground )
+        return beanFetched;
+    }
+
+    if ( role == AlephERP::FetchBeanOnBackgroundRole )
+    {
+        if ( !isLoadingData() && d->m_workLoadingOnBackground )
         {
             d->fetchBeansOnBackground(row);
+            return true;
         }
-        return beanFetched;
+        return false;
     }
 
     if ( role == AlephERP::SortRole )
