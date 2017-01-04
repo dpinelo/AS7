@@ -414,7 +414,7 @@ bool DBSearchDlg::init()
         connect(ui->pbUncheckAll, SIGNAL(clicked(bool)), this, SLOT(uncheckAll()));
     }
 
-    setWindowTitle(tr("Búsqueda de %1 [*]").arg(d->m_metadata->alias()));
+    setWindowTitleBreadCrumb(tr("Búsqueda de %1 [*]").arg(d->m_metadata->alias()));
     d->setToolTipForWidgets();
 
     // Establecemos antes de abrir el Qs, los valores por defecto

@@ -110,7 +110,7 @@ bool BaseBeanValidator::validate()
         result = result & d->checkPk();
         result = result & d->checkUniqueCompound();
     }
-    foreach(DBField *fld, fields)
+    for(DBField *fld : fields)
     {
         bool r = fld->validate();
         if ( !r )
@@ -168,8 +168,8 @@ bool BaseBeanValidatorPrivate::checkPk()
 
     QVariant pk = m_bean->pkValue();
     // Si la primary key es o contiene un valor serial, se pasa la validación automáticamente
-    QList<DBFieldMetadata *> fldPk = m_bean->metadata()->pkFields();
-    foreach (DBFieldMetadata *fld, fldPk)
+    const QList<DBFieldMetadata *> fldPk = m_bean->metadata()->pkFields();
+    for (DBFieldMetadata *fld : fldPk)
     {
         if ( fld->serial() )
         {

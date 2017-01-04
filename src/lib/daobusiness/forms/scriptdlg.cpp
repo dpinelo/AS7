@@ -74,7 +74,7 @@ bool ScriptDlg::init()
     setupMainWidget();
     if ( !d->m_widget.isNull() )
     {
-        setWindowTitle(d->m_widget->windowTitle());
+        setWindowTitleBreadCrumb(d->m_widget->windowTitle());
     }
     else
     {
