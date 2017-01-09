@@ -583,8 +583,8 @@ void DBReportRunDlg::enableButtons()
     bool value = d->m_run->canExecute();
     ui->pbPDF->setEnabled(value);
     ui->pbPrint->setEnabled(value);
-    ui->pbPreview->setEnabled(d->m_run->cancelExportToSpreadSheet());
-    ui->pbSpreadSheet->setEnabled(d->m_run->cancelExportToSpreadSheet());
+    ui->pbPreview->setEnabled(d->m_run->canExportSpreadSheet());
+    ui->pbSpreadSheet->setEnabled(d->m_run->canExportSpreadSheet());
 }
 
 bool DBReportRunDlg::exportToSpreadSheet()
