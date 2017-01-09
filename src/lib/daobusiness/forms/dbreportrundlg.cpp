@@ -82,7 +82,7 @@ DBReportRunDlg::DBReportRunDlg(ReportRun *run, QWidget *parent, Qt::WindowFlags 
 {
     ui->setupUi(this);
     d->m_run = run;
-    if ( run != NULL && run->metadata() != NULL )
+    if ( run != Q_NULLPTR && run->metadata() != Q_NULLPTR )
     {
         setObjectName(QString("DBReportRunDlg-%1").arg(run->metadata()->name()));
     }
@@ -137,27 +137,29 @@ void DBReportRunDlg::rbReportSelected(bool value)
     {
         return;
     }
-    if ( value )
+    if ( !value )
     {
-        QRadioButton *rb = qobject_cast<QRadioButton *>(sender());
-        if ( rb != NULL )
-        {
-            QString reportName = rb->property(AlephERP::stReportName).toString();
-            d->m_run->setReportName(reportName);
-            d->setupMainWidget();
-            d->showAvailableButtons();
-            d->setDefaultValueParemeters();
-            if ( d->m_run->metadata() )
-            {
-                ui->gbPreview->setVisible(!d->m_run->metadata()->exportSql().isEmpty());
-                ui->pbPreviewData->setVisible(!d->m_run->metadata()->exportSql().isEmpty());
-            }
-            else
-            {
-                ui->gbPreview->setVisible(false);
-                ui->pbPreviewData->setVisible(false);
-            }
-        }
+        return;
+    }
+    QRadioButton *rb = qobject_cast<QRadioButton *>(sender());
+    if ( rb == Q_NULLPTR )
+    {
+        return;
+    }
+    QString reportName = rb->property(AlephERP::stReportName).toString();
+    d->m_run->setReportName(reportName);
+    d->setupMainWidget();
+    d->showAvailableButtons();
+    d->setDefaultValueParemeters();
+    if ( d->m_run->metadata() )
+    {
+        ui->gbPreview->setVisible(!d->m_run->metadata()->exportSql().isEmpty());
+        ui->pbPreviewData->setVisible(!d->m_run->metadata()->exportSql().isEmpty());
+    }
+    else
+    {
+        ui->gbPreview->setVisible(false);
+        ui->pbPreviewData->setVisible(false);
     }
 }
 
@@ -183,12 +185,12 @@ bool DBReportRunDlg::init()
         return false;
     }
 
-    if ( d->m_run->metadata() == NULL && d->m_run->availableReports().size() == 0 )
+    if ( d->m_run->metadata() == Q_NULLPTR && d->m_run->availableReports().size() == 0 )
     {
         QMessageBox::warning(this, qApp->applicationName(), tr("Existe un error en la definición de metadatos del informe."));
         return false;
     }
-    if ( d->m_run->metadata() == NULL && d->m_run->availableReports().size() > 0 )
+    if ( d->m_run->metadata() == Q_NULLPTR && d->m_run->availableReports().size() > 0 )
     {
         // Nos han pedido que abramos el formulario para seleccionar un informe
         d->buildUIChooseReport();
@@ -211,7 +213,7 @@ bool DBReportRunDlg::init()
     setWindowFlags(windowFlags() | Qt::WindowMinMaxButtonsHint |
                    Qt::WindowSystemMenuHint | Qt::WindowContextHelpButtonHint);
 
-    if ( d->m_run->metadata() != NULL )
+    if ( d->m_run->metadata() != Q_NULLPTR )
     {
         setWindowTitleBreadCrumb(tr("Informes - %1").arg(d->m_run->metadata()->alias()));
         ui->pbSpreadSheet->setVisible(d->m_run->canExportSpreadSheet());
@@ -246,7 +248,7 @@ bool DBReportRunDlg::init()
             if ( !setFocus )
             {
                 QLabel *lbl = qobject_cast<QLabel *>(widget);
-                if ( lbl == NULL )
+                if ( lbl == Q_NULLPTR )
                 {
                     widget->setFocus();
                     setFocus = true;
@@ -369,7 +371,7 @@ void DBReportRunDlgPrivate::buildUIParameters()
     QVBoxLayout *lay = new QVBoxLayout;
     BaseBeanPointer bean = m_run->beans().first();
     BaseBeanMetadata *m = bean->metadata();
-    if ( m == NULL )
+    if ( m == Q_NULLPTR )
     {
         q_ptr->ui->gbParameters->setVisible(false);
         QLogger::QLog_Debug(AlephERP::stLogOther, QObject::tr("Este informe no está asociado a ninguna tabla. No puede crearse una interfaz automática."));
@@ -385,8 +387,8 @@ void DBReportRunDlgPrivate::buildUIParameters()
         {
             DBFieldMetadata *fld = m->field(fieldName);
             QString text = paramInfo.description.isEmpty() ? fld->fieldName() : paramInfo.description;
-            QLabel *lbl = NULL;
-            DBBaseWidget *edit = NULL;
+            QLabel *lbl = Q_NULLPTR;
+            DBBaseWidget *edit = Q_NULLPTR;
             if ( fld->type() == QVariant::String )
             {
                 edit = new DBLineEdit(q_ptr);
@@ -427,7 +429,7 @@ void DBReportRunDlgPrivate::buildUIParameters()
                 lbl = new QLabel(q_ptr);
                 lbl->setText(text);
             }
-            if ( edit != NULL )
+            if ( edit != Q_NULLPTR )
             {
                 count++;
                 QHBoxLayout *lineLayout = new QHBoxLayout();
@@ -436,7 +438,7 @@ void DBReportRunDlgPrivate::buildUIParameters()
                 {
                     edit->setValue(paramInfo.defaultValue);
                 }
-                if ( lbl != NULL )
+                if ( lbl != Q_NULLPTR )
                 {
                     lineLayout->addWidget(lbl);
                 }
@@ -581,8 +583,8 @@ void DBReportRunDlg::enableButtons()
     bool value = d->m_run->canExecute();
     ui->pbPDF->setEnabled(value);
     ui->pbPrint->setEnabled(value);
-    ui->pbPreview->setEnabled(value);
-    ui->pbSpreadSheet->setEnabled(value);
+    ui->pbPreview->setEnabled(d->m_run->cancelExportToSpreadSheet());
+    ui->pbSpreadSheet->setEnabled(d->m_run->cancelExportToSpreadSheet());
 }
 
 bool DBReportRunDlg::exportToSpreadSheet()
@@ -687,7 +689,7 @@ void DBReportRunDlg::previewData()
         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
         ui->tableView->setModel(queryModel);
         CommonsFunctions::restoreOverrideCursor();
-        if ( oldQueryModel != NULL )
+        if ( oldQueryModel != Q_NULLPTR )
         {
             delete oldQueryModel;
         }
@@ -702,7 +704,7 @@ void DBReportRunDlg::previewData()
   */
 bool DBReportRunDlgPrivate::setupMainWidget()
 {
-    if ( m_run.isNull() || m_run->metadata() == NULL )
+    if ( m_run.isNull() || m_run->metadata() == Q_NULLPTR )
     {
         return false;
     }
@@ -712,7 +714,7 @@ bool DBReportRunDlgPrivate::setupMainWidget()
 
     if ( BeansFactory::systemUi.contains(fileName) )
     {
-        if ( q_ptr->ui->gbParameters->layout() != NULL )
+        if ( q_ptr->ui->gbParameters->layout() != Q_NULLPTR )
         {
             delete q_ptr->ui->gbParameters->layout();
         }
@@ -743,21 +745,24 @@ bool DBReportRunDlgPrivate::setupMainWidget()
     else
     {
         QLogger::QLog_Debug(AlephERP::stLogOther, QString("DBReportRunDlgPrivate::setupMainWidget: No existe el UI: [%1]").arg(fileName));
-        if ( q_ptr->ui->gbParameters->layout() != NULL )
+        if ( q_ptr->ui->gbParameters->layout() != Q_NULLPTR )
         {
             delete q_ptr->ui->gbParameters->layout();
         }
         AERPReportsInterface *iface = m_run->iface();
-        if ( iface != NULL && iface->canRetrieveParametersRequired() )
+        if ( iface != Q_NULLPTR )
         {
-            buildUIParameters();
-            result = true;
-        }
-        else
-        {
-            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::tr("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de informes de sistema de su programa.").arg(fileName),
-                                 QMessageBox::Ok);
-            result = false;
+            if ( iface->canRetrieveParametersRequired() )
+            {
+                buildUIParameters();
+                result = true;
+            }
+            else
+            {
+                QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::tr("No se ha podido cargar la interfaz de usuario de este formulario <i>%1</i>. Existe un problema en la definición de informes de sistema de su programa.").arg(fileName),
+                                     QMessageBox::Ok);
+                result = false;
+            }
         }
     }
     // Ahora recorremos todos los controles que se han añadidos, para que cuando se modifiquen, se habilite la ejecución de informes
@@ -787,7 +792,7 @@ bool DBReportRunDlgPrivate::setupMainWidget()
   */
 void DBReportRunDlgPrivate::execQs()
 {
-    if ( m_run.isNull() || m_run->metadata() == NULL )
+    if ( m_run.isNull() || m_run->metadata() == Q_NULLPTR )
     {
         return;
     }
@@ -886,7 +891,7 @@ bool DBReportRunDlgPrivate::qsCanRun()
 
 void DBReportRunDlgPrivate::showAvailableButtons()
 {
-    if ( m_run->metadata() == NULL )
+    if ( m_run->metadata() == Q_NULLPTR )
     {
         q_ptr->ui->pbEdit->setVisible(false);
         q_ptr->ui->pbPreview->setVisible(false);
@@ -899,7 +904,7 @@ void DBReportRunDlgPrivate::showAvailableButtons()
     else
     {
         AERPReportsInterface *iface = m_run->iface();
-        if ( iface != NULL )
+        if ( iface != Q_NULLPTR )
         {
             if ( AERPLoggedUser::instance()->dbaMode() )
             {
@@ -909,9 +914,9 @@ void DBReportRunDlgPrivate::showAvailableButtons()
             {
                 q_ptr->ui->pbEdit->setVisible(false);
             }
-            q_ptr->ui->pbPrint->setVisible(iface->canPreview());
-            q_ptr->ui->pbPreview->setVisible(iface->canPreview());
-            q_ptr->ui->pbPDF->setVisible(iface->canCreatePDF());
+            q_ptr->ui->pbPrint->setVisible(m_run->canPreview());
+            q_ptr->ui->pbPreview->setVisible(m_run->canPreview());
+            q_ptr->ui->pbPDF->setVisible(m_run->canCreatePDF());
         }
         else
         {
@@ -919,7 +924,6 @@ void DBReportRunDlgPrivate::showAvailableButtons()
             q_ptr->ui->pbPreview->setVisible(false);
             q_ptr->ui->pbPDF->setVisible(false);
             q_ptr->ui->pbPrint->setVisible(false);
-            QMessageBox::warning(q_ptr, qApp->applicationName(), QObject::tr("No se ha podido cargar el plugin de impresión"));
         }
         if (!m_run.isNull())
         {

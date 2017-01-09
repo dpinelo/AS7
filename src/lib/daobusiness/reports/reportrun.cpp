@@ -53,7 +53,7 @@ public:
 
     explicit ReportRunPrivate(ReportRun *qq) : q_ptr(qq)
     {
-        m_parentWidget = NULL;
+        m_parentWidget = Q_NULLPTR;
         m_dialogIsShowedNow = false;
         m_cancelExportToSpreadSheet = false;
     }
@@ -84,47 +84,48 @@ void ReportRun::setReportName(const QString &reportName)
 {
     d->m_reportName = reportName;
     d->m_metadata = QPointer<ReportMetadata> (BeansFactory::metadataReport(reportName));
-    if ( d->m_metadata != NULL && iface() != NULL )
+    if ( d->m_metadata == Q_NULLPTR || iface() == Q_NULLPTR )
     {
-        QFileInfo fi(d->m_metadata->absolutePath());
-        if ( !fi.exists() )
+        return;
+    }
+    QFileInfo fi(d->m_metadata->absolutePath());
+    if ( !fi.exists() )
+    {
+        if ( !BeansFactory::systemReports.contains(d->m_metadata->reportName()) )
         {
-            if ( !BeansFactory::systemReports.contains(d->m_metadata->reportName()) )
+            if ( AERPLoggedUser::instance()->dbaMode() )
             {
-                if ( AERPLoggedUser::instance()->dbaMode() )
+                if ( iface()->canEditReports() )
                 {
-                    if ( iface()->canEditReports() )
+                    // TODO: No me gusta esto aquí, pero por el momento lo dejamos...
+                    int ret = QMessageBox::question(0, qApp->applicationName(),
+                                                    tr("El informe de nombre %1 parece que no existe en el sistema. ¿Desea crear un nuevo nuevo?").arg(d->m_metadata->reportName()), QMessageBox::Yes | QMessageBox::No);
+                    if ( ret == QMessageBox::Yes )
                     {
-                        // TODO: No me gusta esto aquí, pero por el momento lo dejamos...
-                        int ret = QMessageBox::question(0, qApp->applicationName(),
-                                                        tr("El informe de nombre %1 parece que no existe en el sistema. ¿Desea crear un nuevo nuevo?").arg(d->m_metadata->reportName()), QMessageBox::Yes | QMessageBox::No);
-                        if ( ret == QMessageBox::Yes )
+                        if ( !editReport() )
                         {
-                            if ( !editReport() )
-                            {
-                                QMessageBox::warning(0, qApp->applicationName(),
-                                                     tr("No se ha podido abrir la interfaz de edición/creación. El error es: %1.").arg(ReportRun::lastErrorMessage()));
-                                emit canExecuteReport(false);
-                                return;
-                            }
-                            else
-                            {
-                                emit canExecuteReport(true);
-                            }
+                            QMessageBox::warning(0, qApp->applicationName(),
+                                                 tr("No se ha podido abrir la interfaz de edición/creación. El error es: %1.").arg(ReportRun::lastErrorMessage()));
+                            emit canExecuteReport(false);
+                            return;
+                        }
+                        else
+                        {
+                            emit canExecuteReport(true);
                         }
                     }
-                    else
-                    {
-                        QMessageBox::warning(0, qApp->applicationName(),
-                                             tr("El informe de nombre %1 no existe en el sistema.").arg(d->m_metadata->reportName()));
-                        emit canExecuteReport(false);
-                        return;
-                    }
+                }
+                else
+                {
+                    QMessageBox::warning(0, qApp->applicationName(),
+                                         tr("El informe de nombre %1 no existe en el sistema.").arg(d->m_metadata->reportName()));
+                    emit canExecuteReport(false);
+                    return;
                 }
             }
         }
-        iface()->setReportPath(d->m_metadata->absolutePath());
     }
+    iface()->setReportPath(d->m_metadata->absolutePath());
 }
 
 QString ReportRun::reportName() const
@@ -141,35 +142,36 @@ void ReportRun::setBeans(BaseBeanPointerList beans)
 {
     d->m_beans = beans;
     // Si el bean sólo tiene un único informe seleccionado, lo asociamos a este motor
-    if ( !d->m_beans.isEmpty() )
+    if ( d->m_beans.isEmpty() )
     {
-        BaseBeanPointer bean = d->m_beans.first();
-        if ( bean.isNull() )
-        {
-            return;
-        }
-        QList<ReportMetadata *> reports;
-        if ( bean->metadata()->viewForTable().isEmpty() )
-        {
-            reports = ReportRun::availableReports(bean->metadata()->tableName());
-        }
-        else
-        {
-            reports = ReportRun::availableReports(bean->metadata()->viewForTable());
-        }
-        if ( reports.size() == 1 )
-        {
-            d->m_reportName = reports.at(0)->name();
-            d->m_metadata = reports.at(0);
-            // Todo está preparado para poder imprimir. Emitimos la señal.
-            emit canExecuteReport(true);
-        }
-        else
-        {
-            d->m_reportName.clear();
-            d->m_metadata = NULL;
-            emit canExecuteReport(false);
-        }
+        return;
+    }
+    BaseBeanPointer bean = d->m_beans.first();
+    if ( bean.isNull() )
+    {
+        return;
+    }
+    QList<ReportMetadata *> reports;
+    if ( bean->metadata()->viewForTable().isEmpty() )
+    {
+        reports = ReportRun::availableReports(bean->metadata()->tableName());
+    }
+    else
+    {
+        reports = ReportRun::availableReports(bean->metadata()->viewForTable());
+    }
+    if ( reports.size() == 1 )
+    {
+        d->m_reportName = reports.at(0)->name();
+        d->m_metadata = reports.at(0);
+        // Todo está preparado para poder imprimir. Emitimos la señal.
+        emit canExecuteReport(true);
+    }
+    else
+    {
+        d->m_reportName.clear();
+        d->m_metadata = Q_NULLPTR;
+        emit canExecuteReport(false);
     }
 }
 
@@ -207,8 +209,8 @@ void ReportRun::setLinkedTo(const QString &value)
 QList<ReportMetadata *> ReportRun::availableReports(const QString &tableName)
 {
     QList<ReportMetadata *> list;
-    QList<ReportMetadata *> temp = BeansFactory::metadataReportsByLinkedTo(tableName);
-    foreach (ReportMetadata *metadata, temp)
+    const QList<ReportMetadata *> temp = BeansFactory::metadataReportsByLinkedTo(tableName);
+    for (ReportMetadata *metadata : temp)
     {
         if ( AERPLoggedUser::instance()->checkMetadataAccess('r', metadata->name()) )
         {
@@ -230,7 +232,7 @@ QList<ReportMetadata *> ReportRun::availableReports()
     QList<ReportMetadata *> list;
     if ( d->m_beans.isEmpty() )
     {
-        foreach (ReportMetadata *m, BeansFactory::metadataReports)
+        for (ReportMetadata *m : BeansFactory::metadataReports)
         {
             if ( AERPLoggedUser::instance()->checkMetadataAccess('r', m->name()) )
             {
@@ -263,7 +265,7 @@ QList<ReportMetadata *> ReportRun::availableReports()
  */
 QList<AlephERP::ReportParameterInfo> ReportRun::parametersRequired()
 {
-    if ( iface() == NULL )
+    if ( iface() == Q_NULLPTR )
     {
         return QList<AlephERP::ReportParameterInfo>();
     }
@@ -280,7 +282,7 @@ AERPReportsInterface *ReportRun::iface()
     if ( !d->m_metadata.isNull() )
     {
         AERPReportsInterface *iface = ReportRun::loadPlugin(d->m_metadata->pluginName());
-        if ( iface == NULL )
+        if ( iface == Q_NULLPTR )
         {
             d->m_lastErrorMessage = tr("Cannot load plugin: %1.").arg(d->m_metadata->pluginName());
             emit canExecuteReport(false);
@@ -291,7 +293,7 @@ AERPReportsInterface *ReportRun::iface()
     {
         d->m_lastErrorMessage = tr("No existen los metadatos asociados al informe");
     }
-    return NULL;
+    return Q_NULLPTR;
 }
 
 QString ReportRun::pathToGeneratedFile()
@@ -310,7 +312,11 @@ bool ReportRun::canPreview()
     {
         return false;
     }
-    if ( iface() == NULL )
+    if ( iface() == Q_NULLPTR )
+    {
+        return false;
+    }
+    if ( d->m_metadata->reportName().isEmpty() )
     {
         return false;
     }
@@ -323,7 +329,11 @@ bool ReportRun::canCreatePDF()
     {
         return false;
     }
-    if ( iface() == NULL )
+    if ( iface() == Q_NULLPTR )
+    {
+        return false;
+    }
+    if ( d->m_metadata->reportName().isEmpty() )
     {
         return false;
     }
@@ -342,6 +352,10 @@ bool ReportRun::canExecute()
         return false;
     }
     if ( d->m_metadata.isNull() )
+    {
+        return false;
+    }
+    if ( d->m_metadata->reportName().isEmpty() )
     {
         return false;
     }
@@ -381,8 +395,8 @@ QVariantMap ReportRunPrivate::buildEnvVarParameterBinding()
         envVarIt.next();
         if ( parameterBinding.contains(envVarIt.key()) )
         {
-            QList<QString> parameterNames = parameterBinding.values(envVarIt.key());
-            foreach (const QString &paramName, parameterNames)
+            const QList<QString> parameterNames = parameterBinding.values(envVarIt.key());
+            for (const QString &paramName : parameterNames)
             {
                 binding[paramName] = envVarIt.value();
             }
@@ -406,8 +420,8 @@ QVariantMap ReportRunPrivate::buildParameterBindingForBean(BaseBeanPointer bean)
         {
             if ( parameterBinding.contains(fld->metadata()->dbFieldName()) )
             {
-                QList<QString> parameterNames = parameterBinding.values(fld->metadata()->dbFieldName());
-                foreach (const QString &paramName, parameterNames)
+                const QList<QString> parameterNames = parameterBinding.values(fld->metadata()->dbFieldName());
+                for (const QString &paramName : parameterNames)
                 {
                     binding[paramName] = fld->value();
                 }
@@ -427,10 +441,10 @@ QVariantMap ReportRunPrivate::buildParameterBindingForBean(BaseBeanPointer bean)
  */
 AERPReportsInterface * ReportRun::loadPlugin(const QString &pluginName)
 {
-    AERPReportsInterface *iface = NULL;
+    AERPReportsInterface *iface = Q_NULLPTR;
     static QPluginLoader *pluginLoader;
 
-    if ( pluginLoader == NULL )
+    if ( pluginLoader == Q_NULLPTR )
     {
         QString reportPluginDir = QString("%1/plugins/reports").arg(QApplication::applicationDirPath());
 #if defined(Q_OS_WIN)
@@ -487,14 +501,14 @@ AERPReportsInterface * ReportRun::loadPlugin(const QString &pluginName)
 bool ReportRun::editReport(const QString &reportName)
 {
     ReportMetadata *m = BeansFactory::metadataReport(reportName);
-    if ( m == NULL )
+    if ( m == Q_NULLPTR )
     {
         m_lastMessage = QString("ReportMetadata::editReport: No existe el report: %1").arg(reportName);
         QLogger::QLog_Error(AlephERP::stLogOther, m_lastMessage);
         return false;
     }
     AERPReportsInterface *iface = ReportRun::loadPlugin(m->pluginName());
-    if ( iface == NULL )
+    if ( iface == Q_NULLPTR )
     {
         m_lastMessage = QString("ReportMetadata::editReport: No pudo cargarse el plugin");
         QLogger::QLog_Error(AlephERP::stLogOther, m_lastMessage);
@@ -596,7 +610,7 @@ bool ReportRunPrivate::prepareReport(BaseBeanPointer bean)
             }
         }
     }
-    if ( q_ptr->iface() == NULL )
+    if ( q_ptr->iface() == Q_NULLPTR )
     {
         return false;
     }
@@ -618,6 +632,10 @@ bool ReportRunPrivate::prepareReport(BaseBeanPointer bean)
 
 void ReportRunPrivate::setParametersOnIface(const QVariantMap &parameters)
 {
+    if ( q_ptr->iface() == Q_NULLPTR )
+    {
+        return;
+    }
     QVariantMap param = buildEnvVarParameterBinding();
     QMapIterator<QString, QVariant> it(parameters);
     while (it.hasNext())
@@ -634,14 +652,14 @@ void ReportRunPrivate::setParametersOnIface(const QVariantMap &parameters)
 bool ReportRun::print(int numCopies)
 {
     d->m_lastErrorMessage = "";
-    if ( iface() == NULL )
+    if ( iface() == Q_NULLPTR )
     {
         return false;
     }
     // Si tenemos un listado de beans, se ejecuta por cada bean
     if ( !d->m_beans.isEmpty() )
     {
-        foreach (BaseBeanPointer bean, d->m_beans)
+        for (BaseBeanPointer bean : d->m_beans)
         {
             if ( !bean.isNull() && d->prepareReport(bean) )
             {
@@ -671,7 +689,7 @@ bool ReportRun::print(int numCopies)
 bool ReportRun::preview(int numCopies)
 {
     d->m_lastErrorMessage = "";
-    if ( iface() == NULL )
+    if ( iface() == Q_NULLPTR )
     {
         return false;
     }
@@ -706,7 +724,7 @@ bool ReportRun::preview(int numCopies)
 bool ReportRun::pdf(int numCopies, bool open)
 {
     d->m_lastErrorMessage = "";
-    if ( iface() == NULL )
+    if ( iface() == Q_NULLPTR )
     {
         return false;
     }
@@ -728,7 +746,7 @@ bool ReportRun::pdf(int numCopies, bool open)
                                                              QDir::homePath());
             if ( !path.isEmpty() )
             {
-                foreach (BaseBeanPointer bean, d->m_beans)
+                for (BaseBeanPointer bean : d->m_beans)
                 {
                     if ( !bean.isNull() && d->prepareReport(bean) )
                     {
@@ -811,8 +829,8 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
     // Vamos a generar la hoja de cálculo a partir de la consulta
     d->m_cancelExportToSpreadSheet = false;
     QScopedPointer<AERPSpreadSheet> spread(new AERPSpreadSheet());
-    AERPSpreadSheetIface *iface = NULL;
-    foreach (AERPSpreadSheetIface *i, AERPSpreadSheet::ifaces())
+    AERPSpreadSheetIface *iface = Q_NULLPTR;
+    for (AERPSpreadSheetIface *i : AERPSpreadSheet::ifaces())
     {
         if ( i->type() == type )
         {
@@ -821,7 +839,7 @@ bool ReportRun::exportToSpreadSheet(const QString &type, const QString &file)
         }
     }
     QString sql = d->m_metadata->exportSql();
-    if ( iface == NULL || !iface->canWriteFiles() || !canExportSpreadSheet() || sql.isEmpty())
+    if ( iface == Q_NULLPTR || !iface->canWriteFiles() || !canExportSpreadSheet() || sql.isEmpty())
     {
         d->m_lastErrorMessage = tr("No existe ningún plugin disponible que pueda escribir un fichero de tipo: %1").arg(type);
         return false;
