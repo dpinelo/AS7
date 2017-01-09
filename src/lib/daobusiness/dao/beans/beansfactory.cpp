@@ -18,11 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include "configuracion.h"
 #include <aerpcommon.h>
 #include <globales.h>
@@ -665,7 +661,7 @@ AERPSystemObject *BeansFactory::systemObject(const QString &objectName, const QS
             return so;
         }
     }
-    return NULL;
+    return Q_NULLPTR;
 }
 
 AERPSystemModule *BeansFactory::module(const QString &id)
@@ -681,7 +677,7 @@ AERPSystemModule *BeansFactory::module(const QString &id)
     }
     QLogger::QLog_Info(AlephERP::stLogOther, QString("BeansFactory::module: No existe el módulo [%1].\nMódulos disponibles: [%2]").
                         arg(id, availableModules.join("\n")));
-    return NULL;
+    return Q_NULLPTR;
 }
 
 /*!
@@ -706,7 +702,7 @@ BaseBean * BeansFactory::newBaseBean(const QString &tableName, bool setDefaultVa
     if ( metadata.isNull() )
     {
         QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::newBaseBean: No existe la tabla: [%1]").arg(tableName));
-        return NULL;
+        return Q_NULLPTR;
     }
 
     BaseBean *obj = new BaseBean();
@@ -729,7 +725,7 @@ BaseBean *BeansFactory::originalBean(BaseBeanPointer view, QObject *parent)
 {
     if ( view.isNull() )
     {
-        return NULL;
+        return Q_NULLPTR;
     }
 
     // Si es una vista como tal, y tiene definido de quién es la vista, proporcionamos el metadato de este campo.
@@ -751,7 +747,7 @@ BaseBean *BeansFactory::originalBean(BaseBeanPointer view, QObject *parent)
             return obj;
         }
     }
-    return NULL;
+    return Q_NULLPTR;
 }
 
 BaseBeanSharedPointer BeansFactory::originalQBean(BaseBeanPointer view, QObject *parent)
@@ -926,7 +922,7 @@ BaseBeanMetadata *BeansFactory::metadataBean(const QString &name)
         }
     }
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBeanMetadata::metadataBean: No existe la tabla: [%1]").arg(name));
-    return NULL;
+    return Q_NULLPTR;
 }
 
 QList<BaseBeanMetadata *> BeansFactory::metadataBeansList(const QStringList &names)
@@ -953,7 +949,7 @@ ReportMetadata *BeansFactory::metadataReport(const QString &name)
         }
     }
     QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::metadataReport: No existe el informe: [%1]").arg(name));
-    return NULL;
+    return Q_NULLPTR;
 }
 
 /**

@@ -418,8 +418,8 @@ bool DBSearchDlg::init()
     d->setToolTipForWidgets();
 
     // Establecemos antes de abrir el Qs, los valores por defecto
-    QList<QWidget *> list = findChildren<QWidget *>();
-    foreach (QWidget *widget, list)
+    const QList<QWidget *> list = findChildren<QWidget *>();
+    for (QWidget *widget : list)
     {
         if ( widget->property(AlephERP::stAerpControl).toBool() )
         {
@@ -759,18 +759,9 @@ void DBSearchDlgPrivate::setCombosNotSelected()
 void DBSearchDlgPrivate::execQs()
 {
     QString qsName;
-    QString uiName;
-    if ( m_metadata->uiDbSearch().isEmpty() )
-    {
-        uiName = QString("%1.search.ui").arg(q_ptr->tableName());
-    }
-    else
-    {
-        uiName = m_metadata->uiDbSearch();
-    }
     if ( m_metadata->qsDbSearch().isEmpty() )
     {
-        qsName = QString ("%1.search.qs").arg(q_ptr->tableName());
+        qsName = QString ("%1.search.qs").arg(m_metadata->tableName());
     }
     else
     {
@@ -781,8 +772,7 @@ void DBSearchDlgPrivate::execQs()
 
     // Ejecutamos el script asociado. La filosofía fundamental de ese script es proporcionar
     // algo de código básico que justifique este formulario de búsqueda
-    if ( !BeansFactory::systemScripts.contains(qsName) ||
-            !BeansFactory::systemWidgets.contains(uiName) )
+    if ( !BeansFactory::systemScripts.contains(qsName) )
     {
         return;
     }

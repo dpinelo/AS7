@@ -19,11 +19,7 @@
  ***************************************************************************/
 #include <QtCore>
 #include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include <QtScript>
 #include <QtCore>
 #include <QtXml>
@@ -324,7 +320,7 @@ void AERPScriptCommon::methodToInvokeOnFileChange(const QString &method)
     }
     QScriptValue containerObject, func;
     bool found = false;
-    foreach (QScriptContext *ctx, contexts)
+    for (QScriptContext *ctx : contexts)
     {
         if (ctx != NULL && !found)
         {
@@ -352,7 +348,7 @@ void AERPScriptCommon::methodToInvokeOnDirChange(const QString &method)
     }
     QScriptValue containerObject, func;
     bool found = false;
-    foreach (QScriptContext *ctx, contexts)
+    for (QScriptContext *ctx : contexts)
     {
         if (ctx != NULL && !found)
         {
@@ -840,10 +836,10 @@ QScriptValue AERPScriptCommon::beansOnTransaction()
     }
 
     QScriptValue list = engine()->newArray();
-    BaseBeanPointerList beans = AERPTransactionContext::instance()->beansOrderedToPersist(context);
+    const BaseBeanPointerList beans = AERPTransactionContext::instance()->beansOrderedToPersist(context);
     int i = 0;
     list.setProperty("length", beans.size());
-    foreach (BaseBeanPointer b, beans)
+    for (BaseBeanPointer b : beans)
     {
         QScriptValue obj = engine()->newQObject(b.data(), QScriptEngine::QtOwnership);
         list.setProperty(i, obj);
@@ -929,20 +925,20 @@ bool AERPScriptCommon::rollback()
  * @param list
  * @return
  */
-QScriptValue AERPScriptCommon::orderMetadatasForInsertUpdate(QList<BaseBeanMetadata *> list)
+QScriptValue AERPScriptCommon::orderMetadatasForInsertUpdate(const QList<BaseBeanMetadata *> &list)
 {
     QStringList tableToOrders;
-    foreach (BaseBeanMetadata *metadata, list)
+    for (BaseBeanMetadata *metadata : list)
     {
         tableToOrders << metadata->tableName();
     }
 
-    QStringList listTableNames = BeansFactory::orderMetadataTableNamesForInsertOrUpdate(tableToOrders);
+    const QStringList listTableNames = BeansFactory::orderMetadataTableNamesForInsertOrUpdate(tableToOrders);
     QScriptValue finalList = engine()->newArray();
     int index = 0;
-    foreach (const QString & tableName, listTableNames)
+    for (const QString & tableName : listTableNames)
     {
-        foreach (BaseBeanMetadata *metadata, list)
+        for (BaseBeanMetadata *metadata : list)
         {
             if ( metadata->tableName() == tableName )
             {
@@ -1193,9 +1189,9 @@ QString AERPScriptCommon::username()
   */
 QStringList AERPScriptCommon::roles()
 {
-    QList<AlephERP::RoleInfo> roles = AERPLoggedUser::instance()->roles();
+    const QList<AlephERP::RoleInfo> roles = AERPLoggedUser::instance()->roles();
     QStringList result;
-    foreach ( const AlephERP::RoleInfo &role, roles )
+    for ( const AlephERP::RoleInfo &role : roles )
     {
         result.append(role.roleName);
     }
@@ -1935,7 +1931,7 @@ QScriptValue AERPScriptCommon::chooseRecordFromComboBox(const QString &tableName
         return QScriptValue(QScriptValue::NullValue);
     }
     QStringList showedStrings;
-    foreach (BaseBeanSharedPointer bean, beans)
+    for (BaseBeanSharedPointer bean : beans)
     {
         showedStrings.append(bean->fieldValue(fieldToShow).toString());
     }
@@ -1980,14 +1976,14 @@ QScriptValue AERPScriptCommon::chooseRecordsFromTable(const QString &tableName,
         QLogger::QLog_Debug(AlephERP::stLogOther, QString("AERPScriptCommon::chooseRecordFromComboBox: El engine es null"));
         return QScriptValue(QScriptValue::NullValue);
     }
-    BaseBeanSharedPointerList beans = d_ptr->chooseRecordsFromTable(tableName, where, order, label, userEnvVars);
+    const BaseBeanSharedPointerList beans = d_ptr->chooseRecordsFromTable(tableName, where, order, label, userEnvVars);
     if ( beans.isEmpty() )
     {
         return QScriptValue(QScriptValue::NullValue);
     }
     int index = 0;
     QScriptValue list = engine()->newArray();
-    foreach ( BaseBeanSharedPointer bean, beans )
+    for ( BaseBeanSharedPointer bean : beans )
     {
         if ( !bean.isNull() )
         {
@@ -2016,17 +2012,18 @@ QScriptValue AERPScriptCommon::chooseRecordsFromDBSearch(const QString &tableNam
         dlg->init();
         dlg->exec();
 
-        BaseBeanSharedPointerList list = dlg->checkedBeans();
+        const BaseBeanSharedPointerList list = dlg->checkedBeans();
         result = engine()->newArray(list.size());
         if ( list.size() > 0 )
         {
             int idx = 0;
-            foreach (BaseBeanSharedPointer bean, list)
+            for (BaseBeanSharedPointer bean : list)
             {
                 QScriptValue objBean = engine()->newQObject(bean->clone(NULL),
                                                             QScriptEngine::ScriptOwnership,
                                                             QScriptEngine::PreferExistingWrapperObject);
                 result.setProperty(idx, objBean);
+                idx++;
             }
         }
     }
@@ -2097,7 +2094,7 @@ QScriptValue AERPScriptCommon::chooseChildFromComboBox(BaseBean *bean,
     }
     QStringList showedStrings;
     QString alias;
-    foreach (BaseBeanPointer bean, beans)
+    for (BaseBeanPointer bean : beans)
     {
         if ( alias.isEmpty() )
         {
@@ -2587,9 +2584,9 @@ QScriptValue AERPScriptCommon::dataTable()
 
     if ( ret == QDialog::Accepted )
     {
-        QList<QTableWidgetItem *> items = table->selectedItems();
+        const QList<QTableWidgetItem *> items = table->selectedItems();
         QList<int> selectedRows;
-        foreach (QTableWidgetItem *item, items)
+        for (QTableWidgetItem *item : items)
         {
             if ( !selectedRows.contains(item->row()) )
             {
@@ -2598,7 +2595,7 @@ QScriptValue AERPScriptCommon::dataTable()
         }
         r = engine()->newArray(selectedRows.size());
         int idx = 0;
-        foreach (int row, selectedRows)
+        for (int row : selectedRows)
         {
             r.setProperty(idx, row);
             idx++;
@@ -2684,7 +2681,7 @@ void AERPScriptCommon::generateDefinitionFileSql(const QString &module, const QS
         return;
     }
     QTextStream out(&file);
-    foreach (QPointer<BaseBeanMetadata> m, BeansFactory::metadataBeans)
+    for (QPointer<BaseBeanMetadata> m : BeansFactory::metadataBeans)
     {
         if ( m && m->module()->id() == module )
         {
@@ -2735,8 +2732,8 @@ bool AERPScriptCommon::importData(const QString &fileName, const QString &progre
  */
 QString AERPScriptCommon::getSystemObjectPath(const QString &objectName, const QString &type)
 {
-    QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
-    foreach (AERPSystemObject *obj, list)
+    const QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
+    for (AERPSystemObject *obj : list)
     {
         if ( obj->name() == objectName && obj->type() == type )
         {
@@ -2932,7 +2929,7 @@ QScriptValue AERPScriptCommon::coordinates(const QString &address, const QString
     {
         QScriptValue data = engine()->newArray(d_ptr->m_geocoderData.size());
         int i = 0 ;
-        foreach (const AlephERP::AERPMapPosition &pos, d_ptr->m_geocoderData)
+        for (const AlephERP::AERPMapPosition &pos : d_ptr->m_geocoderData)
         {
             QScriptValue item = engine()->newObject();
             item.setProperty("address", pos.formattedAddress);
