@@ -97,6 +97,8 @@ public:
 
     Q_INVOKABLE QScriptValue readPropertyFromThisForm(const QString &name);
 
+    Q_INVOKABLE const QString setWindowTitleBreadCrumb(const QString &title);
+
     QDateTime lastKeyPressTimeStamp() const;
 
     static void exposeAERPControlToQsEngine(QDialog *dlg, AERPScriptQsObject *aerpQsEngine);

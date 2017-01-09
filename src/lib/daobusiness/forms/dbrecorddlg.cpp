@@ -20,11 +20,7 @@
 #include <QtCore>
 #include <QtUiTools>
 #include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include <QtSql>
 #include "configuracion.h"
 #include <globales.h>
@@ -690,19 +686,20 @@ bool DBRecordDlg::init()
     }
     if ( d->m_openType == AlephERP::Insert )
     {
-        setWindowTitle(tr("Inserción de %1 [*]").arg(d->m_bean->metadata()->alias()));
+        setWindowTitleBreadCrumb(tr("Inserción de %1 [*]").
+                       arg(d->m_bean->metadata()->alias()));
     }
     else
     {
         if ( !d->m_bean->metadata()->toStringScript().isEmpty() )
         {
-            setWindowTitle(tr("Edición de %1 [*] - %2").
+            setWindowTitleBreadCrumb(tr("Edición de %1 [*] - %2").
                                     arg(d->m_bean->metadata()->alias(),
                                         d->m_bean->toString()));
         }
         else
         {
-            setWindowTitle(tr("Edición de %1 [*]").
+            setWindowTitleBreadCrumb(tr("Edición de %1 [*]").
                                     arg(d->m_bean->metadata()->alias()));
         }
     }

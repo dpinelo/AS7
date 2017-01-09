@@ -120,7 +120,7 @@ public:
     Q_INVOKABLE bool commit();
     Q_INVOKABLE bool rollback();
 
-    Q_INVOKABLE QScriptValue orderMetadatasForInsertUpdate(QList<BaseBeanMetadata *> list);
+    Q_INVOKABLE QScriptValue orderMetadatasForInsertUpdate(const QList<BaseBeanMetadata *> &list);
     Q_INVOKABLE bool openLocalServerConnection();
 
     // -----------------------------------------------

@@ -255,7 +255,8 @@ public:
         EditRowTextRole = Qt::UserRole + 122,
         DeleteRowTextRole = Qt::UserRole + 123,
         AllParentsSerializedPrimaryKeyRole = Qt::UserRole + 124,
-        TreeItemRole = Qt::UserRole + 125
+        TreeItemRole = Qt::UserRole + 125,
+        FetchBeanOnBackgroundRole = Qt::UserRole + 126
     };
     Q_ENUM(ExtendRole)
 

@@ -611,7 +611,7 @@ bool DBWizardPage::validatePage ()
 void DBWizardPage::initializePage()
 {
     DBWizardDlg *parentWizard = qobject_cast<DBWizardDlg *>(wizard());
-    if ( parentWizard != NULL )
+    if ( parentWizard != Q_NULLPTR )
     {
         QScriptValue thisPage = parentWizard->engine()->createScriptValue(this);
         QScriptValueList args;
@@ -623,7 +623,7 @@ void DBWizardPage::initializePage()
 void DBWizardPage::cleanupPage()
 {
     DBWizardDlg *parentWizard = qobject_cast<DBWizardDlg *>(wizard());
-    if ( parentWizard != NULL )
+    if ( parentWizard != Q_NULLPTR )
     {
         QScriptValue thisPage = parentWizard->engine()->createScriptValue(this);
         QScriptValueList args;
@@ -635,7 +635,7 @@ void DBWizardPage::cleanupPage()
 bool DBWizardPage::isComplete() const
 {
     DBWizardDlg *parentWizard = qobject_cast<DBWizardDlg *>(wizard());
-    if ( parentWizard != NULL )
+    if ( parentWizard != Q_NULLPTR )
     {
         QScriptValue thisPage = parentWizard->engine()->createScriptValue(this);
         QScriptValueList args;

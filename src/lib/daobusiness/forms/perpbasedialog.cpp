@@ -35,6 +35,7 @@
 #include "dao/beans/dbrelation.h"
 #include "dao/beans/relatedelement.h"
 #include "forms/registereddialogs.h"
+#include "forms/dbformdlg.h"
 #include "widgets/dbbasewidget.h"
 #include "widgets/waitwidget.h"
 #include "widgets/dbnumberedit.h"
@@ -68,7 +69,7 @@ AERPBaseDialog::AERPBaseDialog(QWidget* parent, Qt::WindowFlags fl) :
     if ( main != NULL )
     {
         setWindowIcon(main->windowIcon());
-        setWindowTitle(main->windowTitle());
+        setWindowTitleBreadCrumb(main->windowTitle());
     }
     this->installEventFilter(this);
 }
@@ -635,6 +636,36 @@ QScriptValue AERPBaseDialog::readPropertyFromThisForm(const QString &name)
     }
 
     return d->m_engine->qsThisFormProperty(name);
+}
+
+const QString AERPBaseDialog::setWindowTitleBreadCrumb(const QString &title)
+{
+    QStringList breadCrumb;
+    if ( !title.isEmpty() )
+    {
+        breadCrumb << title;
+    }
+    QWidget *objectParent = qobject_cast<QWidget *>(parent());
+    while (objectParent != Q_NULLPTR)
+    {
+        const QString  parentWindowTitle = objectParent->property("windowTitle").toString();
+        if ( !parentWindowTitle.isEmpty() && (
+                 qobject_cast<AERPBaseDialog *>(objectParent) != Q_NULLPTR ||
+                 qobject_cast<DBFormDlg *>(objectParent) != Q_NULLPTR)
+             )
+        {
+            const QStringList pathWindowTitle = parentWindowTitle.split(" > ");
+            if ( pathWindowTitle.size() > 0 )
+            {
+                qDebug() << objectParent->metaObject()->className() << parentWindowTitle;
+                breadCrumb.prepend(pathWindowTitle.last());
+            }
+        }
+        objectParent = qobject_cast<QWidget *>(objectParent->parent());
+    }
+    const QString wt = breadCrumb.join(" > ");
+    setWindowTitle(wt);
+    return wt;
 }
 
 QDateTime AERPBaseDialog::lastKeyPressTimeStamp() const

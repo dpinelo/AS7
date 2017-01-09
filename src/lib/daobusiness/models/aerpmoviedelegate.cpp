@@ -81,6 +81,8 @@ void AERPMovieDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
             movieLabel->setMovie(m_animatedWaitMovie.data());
             m_view->setIndexWidget(index, movieLabel);
         }
+        // En este punto, interesa informar al modelo que por favor, obtenga el registro lo antes posible
+        index.data(AlephERP::FetchBeanOnBackgroundRole);
     }
 }
 

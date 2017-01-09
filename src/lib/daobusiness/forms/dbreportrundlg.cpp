@@ -213,12 +213,12 @@ bool DBReportRunDlg::init()
 
     if ( d->m_run->metadata() != NULL )
     {
-        setWindowTitle(tr("Informes - %1").arg(d->m_run->metadata()->alias()));
+        setWindowTitleBreadCrumb(tr("Informes - %1").arg(d->m_run->metadata()->alias()));
         ui->pbSpreadSheet->setVisible(d->m_run->canExportSpreadSheet());
     }
     else
     {
-        setWindowTitle(tr("Informes - %1").arg(qApp->applicationName()));
+        setWindowTitleBreadCrumb(tr("Informes - %1").arg(qApp->applicationName()));
     }
 
     connect (ui->pbClose, SIGNAL(clicked()), this, SLOT(close()));

@@ -229,9 +229,13 @@ bool DBBaseBeanModelPrivate::stillBackgroundUpdatePetitions()
   @see FilterBaseBeanModel
   @see BaseBeanMetadata
  */
-DBBaseBeanModel::DBBaseBeanModel(const QString &tableName, const QString &where,
-                                 const QString &order, bool isStaticModel, bool useEnvVars,
-                                 bool workLoadingOnBackground, QObject *parent) :
+DBBaseBeanModel::DBBaseBeanModel(const QString &tableName,
+                                 const QString &where,
+                                 const QString &order,
+                                 bool isStaticModel,
+                                 bool useEnvVars,
+                                 bool workLoadingOnBackground,
+                                 QObject *parent) :
     BaseBeanModel(parent), d(new DBBaseBeanModelPrivate(this))
 {
     d->m_metadata = BeansFactory::metadataBean(tableName);
@@ -736,19 +740,20 @@ void DBBaseBeanModelPrivate::fetchBeansOnBackground(int row)
     {
         return;
     }
-    if ( m_metadata != NULL )
+    if ( m_metadata == NULL )
     {
-        BeansPetition petition;
-        petition.initRow = offsetMultiply * m_offset;
-        petition.endRow = (offsetMultiply * m_offset) + m_offset;
-        petition.updatePetition = false;
-        petition.uuid = BackgroundDAO::instance()->selectBeans(m_metadata->tableName(),
-                                                                m_where,
-                                                                m_order,
-                                                                petition.initRow,
-                                                                m_offset);
-        m_beansPetitions.append(petition);
+        return;
     }
+    BeansPetition petition;
+    petition.initRow = offsetMultiply * m_offset;
+    petition.endRow = (offsetMultiply * m_offset) + m_offset;
+    petition.updatePetition = false;
+    petition.uuid = BackgroundDAO::instance()->selectBeans(m_metadata->tableName(),
+                                                            m_where,
+                                                            m_order,
+                                                            petition.initRow,
+                                                            m_offset);
+    m_beansPetitions.append(petition);
 }
 
 /**
@@ -1093,7 +1098,18 @@ QVariant DBBaseBeanModel::data(const QModelIndex & item, int role) const
         {
             return false;
         }
-        return d->m_beansFetched.at(row);
+        bool beanFetched = d->m_beansFetched.at(row);
+        return beanFetched;
+    }
+
+    if ( role == AlephERP::FetchBeanOnBackgroundRole )
+    {
+        if ( !isLoadingData() && d->m_workLoadingOnBackground )
+        {
+            d->fetchBeansOnBackground(row);
+            return true;
+        }
+        return false;
     }
 
     if ( role == AlephERP::SortRole )
