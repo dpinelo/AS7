@@ -790,8 +790,6 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
     {
         return;
     }
-    QString uiDbRecord = bean->metadata()->uiDbRecord();
-    QString qsDbRecord = bean->metadata()->qsDbRecord();
     // Si es una URL, abrimos el navegador
     if ( fld->metadata()->specialType() == DBFieldMetadata::UrlWeb && fld->value().isValid() )
     {
@@ -892,6 +890,8 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
                 return;
             }
             QPointer<DBRecordDlg> dlg = new DBRecordDlg(b, openType, true);
+            QString uiDbRecord = b->metadata()->uiDbRecord();
+            QString qsDbRecord = b->metadata()->qsDbRecord();
             if ( !uiDbRecord.isEmpty() )
             {
                 dlg->setUiCode(uiDbRecord);
