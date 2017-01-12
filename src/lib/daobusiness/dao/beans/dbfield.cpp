@@ -269,7 +269,7 @@ bool DBFieldPrivate::checkNull()
         {
             // Si el campo apunta a una relación, no podra tener valor cero... o, si es cero, pero
             // apunta a un padre que va a ser guardado, entonces pasa la validación.
-            QList<DBRelation *> relations = q_ptr->relations();
+            const QList<DBRelation *> relations = q_ptr->relations();
             for (DBRelation *rel : relations)
             {
                 if ( rel->metadata()->type() == DBRelationMetadata::MANY_TO_ONE && rel->father() )
@@ -348,7 +348,7 @@ bool DBFieldPrivate::checkUniqueOnFilterField()
 
     bool result = true;
     BaseBean *bean = q_ptr->bean();
-    QStringList filterFields = q_ptr->metadata()->uniqueOnFilterField().split(QRegExp(";|,"));
+    const QStringList filterFields = q_ptr->metadata()->uniqueOnFilterField().split(QRegExp(";|,"));
     QString sqlFilterField;
     for (const QString &filterField : filterFields)
     {
@@ -1074,7 +1074,7 @@ QString DBFieldPrivate::filterForUniqueOnFilterField(const QString where)
     {
         return where;
     }
-    QStringList parts = m->uniqueOnFilterField().split(QRegExp(";|,"));
+    const QStringList parts = m->uniqueOnFilterField().split(QRegExp(";|,"));
     if ( !parts.isEmpty() )
     {
         bool first = true;
@@ -1360,14 +1360,14 @@ void DBField::setInternalValue(const QVariant &newValue, bool overwriteOnReadOnl
         // ¿Hay que actualizar los valores de beans hijos? Esta actualización hace referencia
         // a relaciones 1->M, donde se ha establecido el valor de la parte 1 en esta función
         // y se debe poner los valores en los hijos de la parte M.
-        QList<DBRelation *> rels = relations();
+        const QList<DBRelation *> rels = relations();
         for (DBRelation *rel : rels)
         {
             if ( rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
             {
                 // Al llamar a la función internalChildren, sólo nos traemos los beans en memoria y no los que están
                 // en base de datos (estos ya vendrían con este campo relleno).
-                BaseBeanPointerList otherChildren = rel->internalChildren();
+                const BaseBeanPointerList otherChildren = rel->internalChildren();
                 for (BaseBeanPointer child : otherChildren)
                 {
                     if ( !child.isNull() )
@@ -1985,7 +1985,7 @@ QVariant DBFieldPrivate::calculateAggregateValue()
             DBRelation *rel = m_bean->relation(calc.relation.at(i));
             if ( rel != NULL )
             {
-                BaseBeanPointerList beans = rel->childrenByFilter(calc.filter.at(i));
+                const BaseBeanPointerList beans = rel->childrenByFilter(calc.filter.at(i));
                 for ( BaseBeanPointer bean : beans )
                 {
                     if ( !bean.isNull() )
@@ -2059,7 +2059,7 @@ void DBFieldPrivate::calculateAggregateScriptItem(const QString &relation, const
         DBRelation *rel = m_bean->relation(relation);
         if ( rel != NULL )
         {
-            BaseBeanPointerList beans = rel->childrenByFilter(filter);
+            const BaseBeanPointerList beans = rel->childrenByFilter(filter);
             for ( BaseBeanPointer bean : beans )
             {
                 if ( !bean.isNull() )
@@ -2110,7 +2110,7 @@ void DBFieldPrivate::calculateAggregateExpressionItem(int indexAggregate, const 
     DBRelation *rel = m_bean->relation(relation);
     if ( rel != NULL )
     {
-        BaseBeanPointerList beans = rel->childrenByFilter(filter);
+        const BaseBeanPointerList beans = rel->childrenByFilter(filter);
         for ( BaseBeanPointer bean : beans )
         {
             if ( !bean.isNull() )
@@ -2330,7 +2330,7 @@ QVariant DBFieldPrivate::calculateCounterOldMethod(const QString &connection, bo
         {
             if ( prefixs.size() > i && !prefixs.at(i).isEmpty() )
             {
-                QList<DBRelation *> rels = otherField->relations(AlephERP::ManyToOne);
+                const QList<DBRelation *> rels = otherField->relations(AlephERP::ManyToOne);
                 for ( DBRelation *rel : rels )
                 {
                     BaseBean *father = rel->father();

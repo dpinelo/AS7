@@ -94,33 +94,34 @@ bool BeansFactory::buildMetadataBeans()
     {
         //return false;
     }
-    QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
-    if ( SystemDAO::lastErrorMessage().isEmpty() )
+    const QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
+    if ( !SystemDAO::lastErrorMessage().isEmpty() )
     {
-        foreach (AERPSystemObject *object, list)
-        {
-            // ¿Existe un objeto hijo de éste, que se referencie y esté en otro módulo? Si es así, se escogerá ese
-            if ( object->type() == QStringLiteral("table") && !BeansFactory::hasDependObject(object) )
-            {
-                QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::buildMetadataBeans: Metadata disponible: [%1][%2]").
-                                    arg(object->module()->name(), object->name()));
-                BaseBeanMetadata *metadata = new BaseBeanMetadata(qApp);
-                metadata->setTableName(object->name());
-                metadata->setModule(object->module());
-                metadata->setXml(object->content());
-                BeansFactory::metadataBeans.append(metadata);
-                BeansFactory::instance()->emitProgressValue();
-            }
-        }
-        foreach (QPointer<BaseBeanMetadata> m, BeansFactory::metadataBeans)
-        {
-            if ( m )
-            {
-                m->consolidateTemp();
-            }
-        }
-        result = true;
+        return result;
     }
+    for (AERPSystemObject *object : list)
+    {
+        // ¿Existe un objeto hijo de éste, que se referencie y esté en otro módulo? Si es así, se escogerá ese
+        if ( object->type() == QStringLiteral("table") && !BeansFactory::hasDependObject(object) )
+        {
+            QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::buildMetadataBeans: Metadata disponible: [%1][%2]").
+                                arg(object->module()->name(), object->name()));
+            BaseBeanMetadata *metadata = new BaseBeanMetadata(qApp);
+            metadata->setTableName(object->name());
+            metadata->setModule(object->module());
+            metadata->setXml(object->content());
+            BeansFactory::metadataBeans.append(metadata);
+            BeansFactory::instance()->emitProgressValue();
+        }
+    }
+    for (QPointer<BaseBeanMetadata> m : BeansFactory::metadataBeans)
+    {
+        if ( m )
+        {
+            m->consolidateTemp();
+        }
+    }
+    result = true;
     return result;
 }
 
@@ -141,17 +142,18 @@ void BeansFactory::insertMetadataBean(AERPSystemObject *object)
 
 bool BeansFactory::hasDependObject(AERPSystemObject *object)
 {
-    QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
-    if ( SystemDAO::lastErrorMessage().isEmpty() )
+    const QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
+    if ( !SystemDAO::lastErrorMessage().isEmpty() )
     {
-        foreach (AERPSystemObject *child, list)
+        return false;
+    }
+    for (AERPSystemObject *child : list)
+    {
+        if ( child->idOrigin() > 0 )
         {
-            if ( child->idOrigin() > 0 )
+            if ( object->id() == child->idOrigin() )
             {
-                if ( object->id() == child->idOrigin() )
-                {
-                    return true;
-                }
+                return true;
             }
         }
     }
@@ -165,87 +167,89 @@ bool BeansFactory::buildUIWidgets()
 {
     bool result = false;
 
-    QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
-    if ( SystemDAO::lastErrorMessage().isEmpty() )
+    if ( !SystemDAO::lastErrorMessage().isEmpty() )
     {
-        foreach (AERPSystemObject *object, list)
-        {
-            if ( object->type() == QStringLiteral("ui") && !BeansFactory::hasDependObject(object) )
-            {
-                BeansFactory::systemUi[object->name()] = object->content().toUtf8();
-                BeansFactory::instance()->emitProgressValue();
-            }
-        }
-        result = true;
+        return false;
     }
+    const QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
+    for (AERPSystemObject *object : list)
+    {
+        if ( object->type() == QStringLiteral("ui") && !BeansFactory::hasDependObject(object) )
+        {
+            BeansFactory::systemUi[object->name()] = object->content().toUtf8();
+            BeansFactory::instance()->emitProgressValue();
+        }
+    }
+    result = true;
     return result;
 }
 
 bool BeansFactory::buildScripts()
 {
-    QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
-    if ( SystemDAO::lastErrorMessage().isEmpty() )
+    if ( !SystemDAO::lastErrorMessage().isEmpty() )
     {
-        foreach (AERPSystemObject *systemObject, list)
+        return false;
+    }
+    const QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
+    for (AERPSystemObject *systemObject : list)
+    {
+        if ( (systemObject->type() == QStringLiteral("qs") || systemObject->type() == QStringLiteral("js")) && !BeansFactory::hasDependObject(systemObject) )
         {
-            if ( (systemObject->type() == QStringLiteral("qs") || systemObject->type() == QStringLiteral("js")) && !BeansFactory::hasDependObject(systemObject) )
+            if ( systemObject->name() == QStringLiteral("__init__.js") || systemObject->name().contains("/") )
             {
-                if ( systemObject->name() == QStringLiteral("__init__.js") || systemObject->name().contains("/") )
+                QString fileName, dir, fullDir, fullFileName;
+                if ( systemObject->name() == QStringLiteral("__init__.js") )
                 {
-                    QString fileName, dir, fullDir, fullFileName;
-                    if ( systemObject->name() == QStringLiteral("__init__.js") )
+                    dir = "script/";
+                    fileName = "__init__.js";
+                }
+                else
+                {
+                    QStringList tree = systemObject->name().split("/");
+                    for (int i = 0 ; i < tree.size() - 1 ; i++ )
                     {
-                        dir = "script/";
-                        fileName = "__init__.js";
-                    }
-                    else
-                    {
-                        QStringList tree = systemObject->name().split("/");
-                        for (int i = 0 ; i < tree.size() - 1 ; i++ )
+                        if ( dir.isEmpty() )
                         {
-                            if ( dir.isEmpty() )
-                            {
-                                dir = QString("script/%1").arg(tree.at(i));
-                            }
-                            else
-                            {
-                                dir = QString("%1/%2").arg(dir, tree.at(i));
-                            }
+                            dir = QString("script/%1").arg(tree.at(i));
                         }
-                        fileName = tree.at(tree.size()-1);
-                    }
-                    fullDir = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), dir);
-                    QDir initDir(fullDir);
-                    if ( !initDir.exists() )
-                    {
-                        initDir.setPath(QDir::fromNativeSeparators(alephERPSettings->dataPath()));
-                        if ( !initDir.mkpath(dir) )
+                        else
                         {
-                            QMessageBox::warning(NULL, qApp->applicationName(), tr("No se pudo crear el subdirectorio: ").arg(fullDir), QMessageBox::Ok);
-                            return false;
+                            dir = QString("%1/%2").arg(dir, tree.at(i));
                         }
                     }
-                    fullFileName = QString("%1/%2").arg(fullDir, fileName);
-                    QFile file (fullFileName);
-                    if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
+                    fileName = tree.at(tree.size()-1);
+                }
+                fullDir = QString("%1/%2").arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), dir);
+                QDir initDir(fullDir);
+                if ( !initDir.exists() )
+                {
+                    initDir.setPath(QDir::fromNativeSeparators(alephERPSettings->dataPath()));
+                    if ( !initDir.mkpath(dir) )
                     {
-                        QMessageBox::warning(NULL, qApp->applicationName(), tr("No se pudo crear el archivo: ").arg(fullDir),
-                                             QMessageBox::Ok);
+                        QMessageBox::warning(NULL, qApp->applicationName(), tr("No se pudo crear el subdirectorio: ").arg(fullDir), QMessageBox::Ok);
                         return false;
                     }
-                    QTextStream out (&file);
-                    // OJO: En este caso particular no exportamos en UTF-8, la razón es que el motor QtScript espera los archivos .js
-                    // en la condificación estándar, por eso, comentamos.
-                    // out.setCodec("UTF-8");
-                    out << systemObject->content();
-                    file.flush();
-                    file.close();
                 }
-                BeansFactory::systemScripts[systemObject->name()] = systemObject->content();
-                BeansFactory::systemScriptsDebug[systemObject->name()] = systemObject->debug();
-                BeansFactory::systemScriptsDebugOnInit[systemObject->name()] = systemObject->onInitDebug();
-                BeansFactory::instance()->emitProgressValue();
+                fullFileName = QString("%1/%2").arg(fullDir, fileName);
+                QFile file (fullFileName);
+                if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
+                {
+                    QMessageBox::warning(NULL, qApp->applicationName(), tr("No se pudo crear el archivo: ").arg(fullDir),
+                                         QMessageBox::Ok);
+                    return false;
+                }
+                QTextStream out (&file);
+                // OJO: En este caso particular no exportamos en UTF-8, la razón es que el motor QtScript espera los archivos .js
+                // en la condificación estándar, por eso, comentamos.
+                // out.setCodec("UTF-8");
+                out << systemObject->content();
+                file.flush();
+                file.close();
             }
+            BeansFactory::systemScripts[systemObject->name()] = systemObject->content();
+            BeansFactory::systemScriptsDebug[systemObject->name()] = systemObject->debug();
+            BeansFactory::systemScriptsDebugOnInit[systemObject->name()] = systemObject->onInitDebug();
+            BeansFactory::instance()->emitProgressValue();
         }
     }
     return true;
@@ -258,45 +262,46 @@ bool BeansFactory::buildTableReports()
 {
     bool result = false;
 
-    QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
-    if ( SystemDAO::lastErrorMessage().isEmpty() )
+    if ( !SystemDAO::lastErrorMessage().isEmpty() )
     {
-        foreach (AERPSystemObject *systemObject, list)
-        {
-            if ( systemObject->type() == QStringLiteral("report") && !BeansFactory::hasDependObject(systemObject) )
-            {
-                QString fileName = QString("%1/%2").
-                                   arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), systemObject->name());
-                QFile file (fileName);
-                if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
-                {
-                    QMessageBox::warning(NULL, qApp->applicationName(), tr(MSG_NO_EXISTE_UI),
-                                         QMessageBox::Ok);
-                    return false;
-                }
-                QTextStream out (&file);
-                out.setCodec("UTF-8");
-                out << systemObject->content();
-                file.flush();
-                file.close();
-                // Ahora comprobamos que el archivo se ha guardado correctamente
-                if ( file.open(QFile::ReadOnly) )
-                {
-                    BeansFactory::systemReports << systemObject->name();
-                }
-                else
-                {
-                    QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::buildTableWidgets: No se ha creado el fichero: %1").arg(fileName));
-                    QString message = tr("No se ha podido crear el fichero: %1").arg(fileName);
-                    QMessageBox::warning(NULL, qApp->applicationName(), message, QMessageBox::Ok);
-                    return false;
-                }
-                file.close();
-                BeansFactory::instance()->emitProgressValue();
-            }
-        }
-        result = true;
+        return false;
     }
+    const QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
+    for (AERPSystemObject *systemObject : list)
+    {
+        if ( systemObject->type() == QStringLiteral("report") && !BeansFactory::hasDependObject(systemObject) )
+        {
+            QString fileName = QString("%1/%2").
+                               arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), systemObject->name());
+            QFile file (fileName);
+            if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
+            {
+                QMessageBox::warning(NULL, qApp->applicationName(), tr(MSG_NO_EXISTE_UI),
+                                     QMessageBox::Ok);
+                return false;
+            }
+            QTextStream out (&file);
+            out.setCodec("UTF-8");
+            out << systemObject->content();
+            file.flush();
+            file.close();
+            // Ahora comprobamos que el archivo se ha guardado correctamente
+            if ( file.open(QFile::ReadOnly) )
+            {
+                BeansFactory::systemReports << systemObject->name();
+            }
+            else
+            {
+                QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::buildTableWidgets: No se ha creado el fichero: %1").arg(fileName));
+                QString message = tr("No se ha podido crear el fichero: %1").arg(fileName);
+                QMessageBox::warning(NULL, qApp->applicationName(), message, QMessageBox::Ok);
+                return false;
+            }
+            file.close();
+            BeansFactory::instance()->emitProgressValue();
+        }
+    }
+    result = true;
     return result;
 }
 
@@ -309,44 +314,45 @@ bool BeansFactory::buildResources()
     bool result = false;
 
     QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
-    if ( SystemDAO::lastErrorMessage().isEmpty() )
+    if ( !SystemDAO::lastErrorMessage().isEmpty() )
     {
-        foreach (AERPSystemObject *systemObject, list)
-        {
-            if ( (systemObject->type() == QStringLiteral("rcc") || systemObject->type() == QStringLiteral("binary")) && !BeansFactory::hasDependObject(systemObject) )
-            {
-                bool canRegister = systemObject->type() == QStringLiteral("rcc");
-                QByteArray binaryContent = QByteArray::fromBase64(systemObject->content().toUtf8());
-                QString fileName = QString("%1/%2").
-                                   arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), systemObject->name());
-                QFile file (fileName);
-                if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
-                {
-                    return false;
-                }
-                file.write(binaryContent);
-                file.flush();
-                file.close();
-                // Ahora comprobamos que el archivo se ha guardado correctamente
-                if ( !file.open(QFile::ReadOnly) || systemObject->type() != "rcc" )
-                {
-                    canRegister = false;
-                }
-                file.close();
-                QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::buildResource: Registrando en sistema el archivo de recursos: %1").arg(fileName));
-                if ( canRegister && !QResource::registerResource(fileName) )
-                {
-                    QLogger::QLog_Error(AlephERP::stLogOther, QString("BeansFactory::buildResource: No se pudo registrar en sistema el archivo de recursos: %1").arg(fileName));
-                }
-                else
-                {
-                    loadedResources << fileName;
-                }
-                BeansFactory::instance()->emitProgressValue();
-            }
-        }
-        result = true;
+        return false;
     }
+    for (AERPSystemObject *systemObject : list)
+    {
+        if ( (systemObject->type() == QStringLiteral("rcc") || systemObject->type() == QStringLiteral("binary")) && !BeansFactory::hasDependObject(systemObject) )
+        {
+            bool canRegister = systemObject->type() == QStringLiteral("rcc");
+            QByteArray binaryContent = QByteArray::fromBase64(systemObject->content().toUtf8());
+            QString fileName = QString("%1/%2").
+                               arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), systemObject->name());
+            QFile file (fileName);
+            if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
+            {
+                return false;
+            }
+            file.write(binaryContent);
+            file.flush();
+            file.close();
+            // Ahora comprobamos que el archivo se ha guardado correctamente
+            if ( !file.open(QFile::ReadOnly) || systemObject->type() != "rcc" )
+            {
+                canRegister = false;
+            }
+            file.close();
+            QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::buildResource: Registrando en sistema el archivo de recursos: %1").arg(fileName));
+            if ( canRegister && !QResource::registerResource(fileName) )
+            {
+                QLogger::QLog_Error(AlephERP::stLogOther, QString("BeansFactory::buildResource: No se pudo registrar en sistema el archivo de recursos: %1").arg(fileName));
+            }
+            else
+            {
+                loadedResources << fileName;
+            }
+            BeansFactory::instance()->emitProgressValue();
+        }
+    }
+    result = true;
     return result;
 }
 
@@ -354,23 +360,24 @@ bool BeansFactory::buildMetadataReports()
 {
     bool result = false;
 
-    QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
-    if ( SystemDAO::lastErrorMessage().isEmpty() )
+    if ( !SystemDAO::lastErrorMessage().isEmpty() )
     {
-        foreach (AERPSystemObject *systemObject, list)
-        {
-            if ( systemObject->type() == QStringLiteral("reportDef") && !BeansFactory::hasDependObject(systemObject) )
-            {
-                ReportMetadata *metadata = new ReportMetadata(qApp);
-                metadata->setName(systemObject->name());
-                metadata->setModule(systemObject->module());
-                metadata->setXml(systemObject->content());
-                BeansFactory::metadataReports.append(metadata);
-                BeansFactory::instance()->emitProgressValue();
-            }
-        }
-        result = true;
+        return false;
     }
+    const QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
+    for (AERPSystemObject *systemObject : list)
+    {
+        if ( systemObject->type() == QStringLiteral("reportDef") && !BeansFactory::hasDependObject(systemObject) )
+        {
+            ReportMetadata *metadata = new ReportMetadata(qApp);
+            metadata->setName(systemObject->name());
+            metadata->setModule(systemObject->module());
+            metadata->setXml(systemObject->content());
+            BeansFactory::metadataReports.append(metadata);
+            BeansFactory::instance()->emitProgressValue();
+        }
+    }
+    result = true;
     return result;
 }
 
@@ -378,23 +385,24 @@ bool BeansFactory::buildScheduledJobs()
 {
     bool result = false;
 
-    QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
-    if ( SystemDAO::lastErrorMessage().isEmpty() )
+    if ( !SystemDAO::lastErrorMessage().isEmpty() )
     {
-        foreach (AERPSystemObject *systemObject, list)
-        {
-            if ( systemObject->type() == QStringLiteral("job") && !BeansFactory::hasDependObject(systemObject) )
-            {
-                AERPScheduledJobMetadata *metadata = new AERPScheduledJobMetadata(qApp);
-                metadata->setName(systemObject->name());
-                metadata->setModule(systemObject->module());
-                metadata->setXml(systemObject->content());
-                BeansFactory::metadataJobs.append(metadata);
-                BeansFactory::instance()->emitProgressValue();
-            }
-        }
-        result = true;
+        return false;
     }
+    const QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
+    for (AERPSystemObject *systemObject : list)
+    {
+        if ( systemObject->type() == QStringLiteral("job") && !BeansFactory::hasDependObject(systemObject) )
+        {
+            AERPScheduledJobMetadata *metadata = new AERPScheduledJobMetadata(qApp);
+            metadata->setName(systemObject->name());
+            metadata->setModule(systemObject->module());
+            metadata->setXml(systemObject->content());
+            BeansFactory::metadataJobs.append(metadata);
+            BeansFactory::instance()->emitProgressValue();
+        }
+    }
+    result = true;
     return result;
 }
 
@@ -402,29 +410,30 @@ bool BeansFactory::buildHelpResources()
 {
     bool result = false;
 
-    QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
-    if ( SystemDAO::lastErrorMessage().isEmpty() )
+    if ( !SystemDAO::lastErrorMessage().isEmpty() )
     {
-        foreach (AERPSystemObject *systemObject, list)
-        {
-            if ( systemObject->type() == QStringLiteral("help") && !BeansFactory::hasDependObject(systemObject) )
-            {
-                QByteArray binaryContent = QByteArray::fromBase64(systemObject->content().toUtf8());
-                QString fileName = QString("%1/%2").
-                                   arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), systemObject->name());
-                QFile file (fileName);
-                if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
-                {
-                    return false;
-                }
-                file.write(binaryContent);
-                file.flush();
-                file.close();
-                BeansFactory::instance()->emitProgressValue();
-            }
-        }
-        result = true;
+        return false;
     }
+    const QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
+    for (AERPSystemObject *systemObject : list)
+    {
+        if ( systemObject->type() == QStringLiteral("help") && !BeansFactory::hasDependObject(systemObject) )
+        {
+            QByteArray binaryContent = QByteArray::fromBase64(systemObject->content().toUtf8());
+            QString fileName = QString("%1/%2").
+                               arg(QDir::fromNativeSeparators(alephERPSettings->dataPath()), systemObject->name());
+            QFile file (fileName);
+            if ( !file.open( QFile::ReadWrite | QFile::Truncate ) )
+            {
+                return false;
+            }
+            file.write(binaryContent);
+            file.flush();
+            file.close();
+            BeansFactory::instance()->emitProgressValue();
+        }
+    }
+    result = true;
     return result;
 }
 
@@ -434,7 +443,7 @@ bool BeansFactory::buildHelpResources()
  */
 void BeansFactory::initJobs()
 {
-    foreach (AERPScheduledJobMetadata *m, BeansFactory::metadataJobs)
+    for (AERPScheduledJobMetadata *m : BeansFactory::metadataJobs)
     {
         if ( m->userName() == AERPLoggedUser::instance()->userName() ||
                 m->userName() == QStringLiteral("*") ||
@@ -455,7 +464,7 @@ void BeansFactory::initJobs()
  */
 void BeansFactory::buildCalculatedFieldRules()
 {
-    foreach (QPointer<BaseBeanMetadata> m, BeansFactory::metadataBeans)
+    for (QPointer<BaseBeanMetadata> m : BeansFactory::metadataBeans)
     {
         if ( m )
         {
@@ -466,7 +475,7 @@ void BeansFactory::buildCalculatedFieldRules()
 
 bool BeansFactory::unloadResources()
 {
-    foreach (const QString & resource, loadedResources)
+    for (const QString & resource : loadedResources)
     {
         QResource::unregisterResource(resource);
     }
@@ -655,8 +664,8 @@ AERPSystemObject *BeansFactory::newSystemObject(const QString &objectName, const
  */
 AERPSystemObject *BeansFactory::systemObject(const QString &objectName, const QString &type)
 {
-    QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
-    foreach (AERPSystemObject *so, list) {
+    const QList<AERPSystemObject *> list = SystemDAO::localSystemObjectsForThisDevice();
+    for (AERPSystemObject *so : list) {
         if ( so->type() == type && so->name() == objectName ) {
             return so;
         }
@@ -667,7 +676,7 @@ AERPSystemObject *BeansFactory::systemObject(const QString &objectName, const QS
 AERPSystemModule *BeansFactory::module(const QString &id)
 {
     QStringList availableModules;
-    foreach (AERPSystemModule *mod, BeansFactory::systemModules)
+    for (AERPSystemModule *mod : BeansFactory::systemModules)
     {
         availableModules << mod->id();
         if ( mod->id() == id )
@@ -737,7 +746,7 @@ BaseBean *BeansFactory::originalBean(BaseBeanPointer view, QObject *parent)
         return obj;
     }
 
-    foreach (BaseBeanMetadata *m, BeansFactory::metadataBeans)
+    for (BaseBeanMetadata *m : BeansFactory::metadataBeans)
     {
         if ( m->viewOnGrid() == view->metadata()->tableName() )
         {
@@ -766,7 +775,7 @@ BaseBeanSharedPointer BeansFactory::originalQBean(BaseBeanPointer view, QObject 
         return obj;
     }
 
-    foreach (BaseBeanMetadata *m, BeansFactory::metadataBeans)
+    for (BaseBeanMetadata *m : BeansFactory::metadataBeans)
     {
         if ( m->viewOnGrid() == view->metadata()->tableName() )
         {
@@ -858,7 +867,7 @@ void BeansFactory::clearSystemObjects()
     qDeleteAll(BeansFactory::metadataJobs);
     BeansFactory::metadataJobs.clear();
 
-    foreach (AERPScheduledJob *job, BeansFactory::jobs)
+    for (AERPScheduledJob *job : BeansFactory::jobs)
     {
         job->stop();
     }
@@ -914,7 +923,7 @@ bool BeansFactory::metadataSystemInited()
   */
 BaseBeanMetadata *BeansFactory::metadataBean(const QString &name)
 {
-    foreach (QPointer<BaseBeanMetadata> metadata, BeansFactory::metadataBeans)
+    for (QPointer<BaseBeanMetadata> metadata : BeansFactory::metadataBeans)
     {
         if ( metadata && metadata->tableName() == name )
         {
@@ -928,7 +937,7 @@ BaseBeanMetadata *BeansFactory::metadataBean(const QString &name)
 QList<BaseBeanMetadata *> BeansFactory::metadataBeansList(const QStringList &names)
 {
     QList<BaseBeanMetadata *> list;
-    foreach (const QString & name, names)
+    for (const QString & name : names)
     {
         BaseBeanMetadata *m = BeansFactory::metadataBean(name);
         if ( m != NULL )
@@ -941,7 +950,7 @@ QList<BaseBeanMetadata *> BeansFactory::metadataBeansList(const QStringList &nam
 
 ReportMetadata *BeansFactory::metadataReport(const QString &name)
 {
-    foreach (ReportMetadata *metadata, BeansFactory::metadataReports)
+    for (ReportMetadata *metadata : BeansFactory::metadataReports)
     {
         if ( metadata->name() == name )
         {
@@ -961,7 +970,7 @@ ReportMetadata *BeansFactory::metadataReport(const QString &name)
 QList<ReportMetadata *> BeansFactory::metadataReportsByLinkedTo(const QString &linked)
 {
     QList<ReportMetadata *> list;
-    foreach (ReportMetadata *metadata, BeansFactory::metadataReports)
+    for (ReportMetadata *metadata : BeansFactory::metadataReports)
     {
         if ( metadata->linkedTo().contains(linked) )
         {
@@ -994,7 +1003,7 @@ void checkFieldConsistency(DBFieldMetadata *fld, QVariantList &log, const stData
     }
 
     // ¿Alguno duplicado?
-    foreach ( DBFieldMetadata *tmpFld, m->fields() )
+    for ( DBFieldMetadata *tmpFld : m->fields() )
     {
         if ( tmpFld->dbFieldName() == fld->dbFieldName() && tmpFld != fld )
         {
@@ -1117,7 +1126,7 @@ void checkTableConsistency(BaseBeanMetadata *m, QVariantList &log)
             databaseInformation.maxChars[qry->value("column_name").toString()] = qry->value("character_maximum_length").toInt(); // Máximo número de caracteres
         }
         while ( qry->next() );
-        foreach ( DBFieldMetadata *fld, m->fields() )
+        for ( DBFieldMetadata *fld : m->fields() )
         {
             checkFieldConsistency(fld, log, databaseInformation);
         }
@@ -1170,7 +1179,7 @@ void checkTableConsistency(BaseBeanMetadata *m, QVariantList &log)
 bool BeansFactory::checkConsistencyMetadataDatabase(QVariantList &log)
 {
     // TODO: Por el momento sólo funciona para PostgreSQL
-    foreach (QPointer<BaseBeanMetadata> m, BeansFactory::metadataBeans)
+    for (QPointer<BaseBeanMetadata> m : BeansFactory::metadataBeans)
     {
         if ( m )
         {
@@ -1203,12 +1212,13 @@ bool BeansFactory::checkConsistencyMetadataDatabase(QVariantList &log)
  */
 bool BeansFactory::checkConsistencyMetadata(QVariantList &log)
 {
-    foreach (QPointer<BaseBeanMetadata> m, BeansFactory::metadataBeans)
+    for (QPointer<BaseBeanMetadata> m : BeansFactory::metadataBeans)
     {
         if ( m )
         {
             // Comprobemos si las relaciones están bien construidas
-            foreach ( DBRelationMetadata *rel, m->relations() )
+            const QList<DBRelationMetadata *> rels = m->relations();
+            for ( DBRelationMetadata *rel : rels )
             {
                 if ( rel != NULL )
                 {
@@ -1282,7 +1292,7 @@ QStringList BeansFactory::dbNotifications()
     notifications << AlephERP::stDeleteLockNotification;
     notifications << AlephERP::stNewLockNotification;
     notifications << AlephERP::stDeleteRowNotification;
-    foreach (AERPScheduledJobMetadata *m, BeansFactory::metadataJobs)
+    for (AERPScheduledJobMetadata *m : BeansFactory::metadataJobs)
     {
         if ( !m->databaseNotification().isEmpty() )
         {
@@ -1295,7 +1305,7 @@ QStringList BeansFactory::dbNotifications()
 QList<QPointer<BaseBeanMetadata> > BeansFactory::allowedMetadatasToUser()
 {
     QList<QPointer<BaseBeanMetadata> > list;
-    foreach (QPointer<BaseBeanMetadata> m, BeansFactory::instance()->metadataBeans)
+    for (QPointer<BaseBeanMetadata> m : BeansFactory::instance()->metadataBeans)
     {
         if ( m )
         {
@@ -1322,7 +1332,7 @@ QStringList BeansFactory::orderMetadataTableNamesForInsertOrUpdate()
 {
     QStringList tablesToOrder;
 
-    foreach (QPointer<BaseBeanMetadata> metadata, BeansFactory::metadataBeans)
+    for (QPointer<BaseBeanMetadata> metadata : BeansFactory::metadataBeans)
     {
         if ( metadata && !tablesToOrder.contains(metadata->tableName()) )
         {
@@ -1336,9 +1346,9 @@ QStringList BeansFactory::orderMetadataTableNamesForInsertOrUpdate(QStringList t
 {
     QStringList orderedTables;
 
-    QList<BaseBeanMetadata *> metadataBeansList = BeansFactory::metadataBeansList(tablesToOrder);
+    const QList<BaseBeanMetadata *> metadataBeansList = BeansFactory::metadataBeansList(tablesToOrder);
 
-    foreach ( BaseBeanMetadata *metadata, metadataBeansList )
+    for ( BaseBeanMetadata *metadata : metadataBeansList )
     {
         if ( !orderedTables.contains(metadata->tableName()) )
         {
@@ -1351,7 +1361,8 @@ QStringList BeansFactory::orderMetadataTableNamesForInsertOrUpdate(QStringList t
         // Aquí entra la parte recursiva
         QLogger::QLog_Debug(AlephERP::stLogOther, QString("BeansFactory::orderMetadataTableNamesForInsertOrUpdate: Procesamos %1").arg(metadata->tableName()));
         BeansFactory::processOrderMetadataTableNamesForInsertOrUpdate(metadata, orderedTables, tablesToOrder);
-        foreach (DBRelationMetadata *rel, metadata->relations(AlephERP::OneToMany | AlephERP::OneToOne))
+        const QList<DBRelationMetadata *> rels = metadata->relations(AlephERP::OneToMany | AlephERP::OneToOne);
+        for (DBRelationMetadata *rel : rels)
         {
             if ( !orderedTables.contains(rel->tableName()) && tablesToOrder.contains(rel->tableName()) )
             {
@@ -1362,7 +1373,7 @@ QStringList BeansFactory::orderMetadataTableNamesForInsertOrUpdate(QStringList t
     }
     // Ahora vamos a comprobar que éstas tablas cumplen con el orden establecido de orden de transacción en los metadatos
     QMap<int, QString> sortedTablesByMetadataInfo;
-    foreach (BaseBeanMetadata *metadata, metadataBeansList)
+    for (BaseBeanMetadata *metadata : metadataBeansList)
     {
         if ( metadata->orderOnTransaction() != -1 )
         {
@@ -1402,7 +1413,8 @@ QStringList BeansFactory::orderMetadataTableNamesForInsertOrUpdate(QStringList t
  */
 void BeansFactory::processOrderMetadataTableNamesForInsertOrUpdate(BaseBeanMetadata *father, QStringList &orderedTables, QStringList &tablesToOrder)
 {
-    foreach(DBRelationMetadata *rel, father->relations(AlephERP::ManyToOne))
+    const QList<DBRelationMetadata *> rels = father->relations(AlephERP::ManyToOne);
+    for(DBRelationMetadata *rel : rels)
     {
         BaseBeanMetadata *previousFather = BeansFactory::metadataBean(rel->tableName());
         if ( previousFather != NULL && tablesToOrder.contains(previousFather->tableName()) )

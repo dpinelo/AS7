@@ -23,10 +23,12 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBRecordDlg(BaseBeanMetadata
     QHash<int, QWidgetList> rowWidgets;
     int row = 0;
 
-    foreach (DBFieldMetadata *fld, metadata->fields())
+    const QList<DBFieldMetadata *> flds = metadata->fields();
+    for (DBFieldMetadata *fld : flds)
     {
         DBRelationMetadata *rel = NULL;
-        foreach (DBRelationMetadata *r, fld->relations(AlephERP::ManyToOne))
+        const QList<DBRelationMetadata *> rels = fld->relations(AlephERP::ManyToOne);
+        for (DBRelationMetadata *r : rels)
         {
             if ( rel == NULL )
             {
@@ -116,7 +118,8 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBSearchDlg(BaseBeanMetadata
     QHash<int, QWidgetList> rowWidgets;
     int row = 0;
 
-    foreach (DBFieldMetadata *fld, metadata->fields())
+    const QList<DBFieldMetadata *> flds = metadata->fields();
+    for (DBFieldMetadata *fld : flds)
     {
         if ( fld->includeOnGeneratedSearchDlg().isValid() && !fld->includeOnGeneratedSearchDlg().toBool() )
         {
@@ -125,9 +128,9 @@ QHash<int, QWidgetList> AERPBaseDialogPrivate::setupDBSearchDlg(BaseBeanMetadata
         if ( fld->includeOnGeneratedSearchDlg().toBool() || fld->visibleGrid() )
         {
             QWidgetList widList;
-            QList<DBRelationMetadata *> relations = fld->relations(AlephERP::ManyToOne);
+            const QList<DBRelationMetadata *> relations = fld->relations(AlephERP::ManyToOne);
             DBRelationMetadata *fatherRelation = NULL;
-            foreach ( DBRelationMetadata *tmp, relations )
+            for ( DBRelationMetadata *tmp : relations )
             {
                 fatherRelation = tmp;
             }
@@ -260,18 +263,19 @@ bool AERPBaseDialogPrivate::connectPushButtonToQsFunction(QPushButton *button)
         return false;
     }
     QScriptValue thisObject = m_engine->qsThisObject();
-    if ( thisObject.isValid() )
+    if ( !thisObject.isValid() )
     {
-        QScriptValue function = thisObject.property(methodNameToInvokeOnClicked);
-        QScriptValue functionOnProtoype = thisObject.prototype().property(methodNameToInvokeOnClicked);
-        if ( function.isValid() && function.isFunction() )
-        {
-            qScriptConnect(button, SIGNAL(clicked(bool)), thisObject, function);
-        }
-        else if ( functionOnProtoype.isValid() && functionOnProtoype.isFunction() )
-        {
-            qScriptConnect(button, SIGNAL(clicked(bool)), thisObject, functionOnProtoype);
-        }
+        return false;
+    }
+    QScriptValue function = thisObject.property(methodNameToInvokeOnClicked);
+    QScriptValue functionOnProtoype = thisObject.prototype().property(methodNameToInvokeOnClicked);
+    if ( function.isValid() && function.isFunction() )
+    {
+        qScriptConnect(button, SIGNAL(clicked(bool)), thisObject, function);
+    }
+    else if ( functionOnProtoype.isValid() && functionOnProtoype.isFunction() )
+    {
+        qScriptConnect(button, SIGNAL(clicked(bool)), thisObject, functionOnProtoype);
     }
     return true;
 }

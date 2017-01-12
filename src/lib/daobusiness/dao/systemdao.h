@@ -74,7 +74,7 @@ public:
     static bool checkModules();
     static bool checkSystemObjectsOnLocal(QString &failTable);
     static QList<AERPSystemObject *> localSystemObjects();
-    static QList<AERPSystemObject *> localSystemObjectsForThisDevice();
+    const static QList<AERPSystemObject *> localSystemObjectsForThisDevice();
     static QList<AERPSystemObject *> remoteSystemObjects();
     static bool createSystemTables(const QString &connectionName = "");
     static bool checkAlephERPSystemTables(QStringList &notExists, const QString &connectionName = "");

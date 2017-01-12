@@ -85,7 +85,7 @@ DBRelationMetadata * DBRelation::metadata() const
 
 BaseBeanPointer DBRelation::childByObjectName(const QString &objectName)
 {
-    BaseBeanPointerList items = children();
+    const BaseBeanPointerList items = children();
     for (BaseBeanPointer child : items)
     {
         if ( child && child->objectName() == objectName )
@@ -150,7 +150,7 @@ void DBRelation::updateChildrens()
                 QString where = QString("%1 = %2").arg(d->m->childFieldName(), rootField->sqlValue(true, "", true));
                 // Como vamos a obtener el nuevo padre, habrá que limpiarlo (por ejemplo, si tiene
                 // hijos de una relación)
-                QList<DBRelation *> rels = d->m_father->relations();
+                const QList<DBRelation *> rels = d->m_father->relations();
                 for (DBRelation *rel : rels)
                 {
                     rel->unloadChildren();
@@ -188,7 +188,7 @@ void DBRelation::updateChildrens()
     }
     else if ( d->m->type() == DBRelationMetadata::ONE_TO_ONE || d->m->type() == DBRelationMetadata::ONE_TO_MANY )
     {
-        QVector<BaseBeanSharedPointer> items = d->children();
+        const QVector<BaseBeanSharedPointer> items = d->children();
         for ( BaseBeanSharedPointer bean : items )
         {
             if ( bean )
@@ -200,7 +200,7 @@ void DBRelation::updateChildrens()
                 }
             }
         }
-        BaseBeanPointerList otherItems = d->otherChildren();
+        const BaseBeanPointerList otherItems = d->otherChildren();
         for ( BaseBeanPointer bean : otherItems )
         {
             if ( !bean.isNull() )
@@ -223,7 +223,7 @@ void DBRelation::updateChildrens()
 BaseBeanPointer DBRelation::childByField(const QString &dbField, const QVariant &value, bool includeToBeDeleted)
 {
     BaseBeanPointer result;
-    BaseBeanPointerList items = children();
+    const BaseBeanPointerList items = children();
     for ( BaseBeanPointer child : items )
     {
         if ( !child.isNull() )
@@ -268,7 +268,7 @@ BaseBeanPointer DBRelation::childByFilter(const QString &filter, bool includeToB
     else
     {
         // Iteramos por cada bean hijo, y por cada condición de filtrado.
-        BaseBeanPointerList items = children();
+        const BaseBeanPointerList items = children();
         for ( BaseBeanPointer bean : items )
         {
             bool result = true;
@@ -317,7 +317,7 @@ const BaseBeanPointerList DBRelation::childrenByFilter(const QString &filter, co
 
     // Iteramos por cada bean hijo, y por cada condición de filtrado.
     BaseBeanPointerList list;
-    BaseBeanPointerList items = children();
+    const BaseBeanPointerList items = children();
     for ( BaseBeanPointer bean : items )
     {
         if ( !bean.isNull() )
@@ -400,7 +400,7 @@ bool DBRelation::blockAllSignals(bool value)
         blockSignals(value);
         if ( d->m_childrenLoaded )
         {
-            QVector<BaseBeanSharedPointer> items = d->children();
+            const QVector<BaseBeanSharedPointer> items = d->children();
             for (BaseBeanSharedPointer child : items)
             {
                 if ( child )
@@ -408,7 +408,7 @@ bool DBRelation::blockAllSignals(bool value)
                     child->blockAllSignals(value);
                 }
             }
-            BaseBeanPointerList otherItems = d->otherChildren();
+            const BaseBeanPointerList otherItems = d->otherChildren();
             for (BaseBeanPointer child : otherItems)
             {
                 if ( child )
@@ -459,7 +459,7 @@ int DBRelation::childrenCount(bool includeToBeDeleted)
     }
     if ( !includeToBeDeleted )
     {
-        QVector<BaseBeanSharedPointer> items = d->children();
+        const QVector<BaseBeanSharedPointer> items = d->children();
         for (BaseBeanSharedPointer bean : items )
         {
             if ( bean && bean->dbState() == BaseBean::TO_BE_DELETED && bean->dbState() != BaseBean::DELETED )
@@ -467,7 +467,7 @@ int DBRelation::childrenCount(bool includeToBeDeleted)
                 count--;
             }
         }
-        BaseBeanPointerList otherItems = d->otherChildren();
+        const BaseBeanPointerList otherItems = d->otherChildren();
         for (BaseBeanPointer bean : otherItems)
         {
             if ( bean && bean->dbState() == BaseBean::TO_BE_DELETED && bean->dbState() != BaseBean::DELETED )
@@ -500,7 +500,7 @@ int DBRelation::childrenCountByState(BaseBean::DbBeanStates state)
     else
     {
         count = 0 ;
-        QVector<BaseBeanSharedPointer> items = d->children();
+        const QVector<BaseBeanSharedPointer> items = d->children();
         for (BaseBeanSharedPointer bean : items)
         {
             if ( bean && bean->dbState() == state)
@@ -508,7 +508,7 @@ int DBRelation::childrenCountByState(BaseBean::DbBeanStates state)
                 count++;
             }
         }
-        BaseBeanPointerList otherItems = d->otherChildren();
+        const BaseBeanPointerList otherItems = d->otherChildren();
         for (BaseBeanPointer bean : otherItems)
         {
             if ( bean && bean->dbState() == state)
@@ -628,7 +628,7 @@ const BaseBeanPointerList DBRelation::internalChildren() const
     }
     else
     {
-        QVector<BaseBeanSharedPointer> items = d->children();
+        const QVector<BaseBeanSharedPointer> items = d->children();
         for (BaseBeanSharedPointer b : items)
         {
             if ( b )
@@ -636,7 +636,7 @@ const BaseBeanPointerList DBRelation::internalChildren() const
                 list.append(b.data());
             }
         }
-        BaseBeanPointerList otherItems = d->otherChildren();
+        const BaseBeanPointerList otherItems = d->otherChildren();
         for (BaseBeanPointer b : otherItems)
         {
             if ( b )
@@ -836,7 +836,7 @@ BaseBeanSharedPointer DBRelation::newChild(int pos)
 BaseBeanPointer DBRelation::childByOid(qlonglong oid, bool includeToBeDeleted)
 {
     BaseBeanPointer result;
-    BaseBeanPointerList items = children();
+    const BaseBeanPointerList items = children();
     for ( BaseBeanPointer child : items )
     {
         if ( !child.isNull() )
@@ -1240,7 +1240,7 @@ const BaseBeanPointerList DBRelation::modifiedChildren() const
     {
         return list;
     }
-    QVector<BaseBeanSharedPointer> items = d->children();
+    const QVector<BaseBeanSharedPointer> items = d->children();
     for ( BaseBeanSharedPointer bean : items )
     {
         if ( bean && bean->modified() )
@@ -1248,7 +1248,7 @@ const BaseBeanPointerList DBRelation::modifiedChildren() const
             list.append(bean.data());
         }
     }
-    BaseBeanPointerList otherItems = d->otherChildren();
+    const BaseBeanPointerList otherItems = d->otherChildren();
     for ( BaseBeanPointer bean : otherItems )
     {
         if ( bean && bean.data()->modified() )
@@ -1317,7 +1317,7 @@ const BaseBeanPointerList DBRelation::children(const QString &order, bool includ
             if ( !possibleChild.isNull() && ancestorRel->metadata()->tableName() == d->m->tableName() )
             {
                 bool found = false;
-                BaseBeanPointerList otherItems = d->otherChildren();
+                const BaseBeanPointerList otherItems = d->otherChildren();
                 for (BaseBeanPointer childBean : otherItems)
                 {
                     if (childBean && childBean->objectName() == possibleChild->objectName())
@@ -1343,7 +1343,7 @@ const BaseBeanPointerList DBRelation::children(const QString &order, bool includ
     }
     if ( !includeToBeDeleted )
     {
-        QVector<BaseBeanSharedPointer> items = d->children();
+        const QVector<BaseBeanSharedPointer> items = d->children();
         for ( BaseBeanSharedPointer bean : items )
         {
             if ( bean && (bean->dbState() != BaseBean::TO_BE_DELETED && bean->dbState() != BaseBean::DELETED) )
@@ -1353,7 +1353,7 @@ const BaseBeanPointerList DBRelation::children(const QString &order, bool includ
         }
         if ( includeOtherChildren )
         {
-            BaseBeanPointerList otherItems = d->otherChildren();
+            const BaseBeanPointerList otherItems = d->otherChildren();
             for ( BaseBeanPointer bean : otherItems )
             {
                 if ( bean && (bean->dbState() != BaseBean::TO_BE_DELETED && bean->dbState() != BaseBean::DELETED) )
@@ -1783,7 +1783,7 @@ void DBRelation::setBrother(BaseBeanPointer bro)
         if ( !d->m_settingOtherSideBrother )
         {
             d->m_settingOtherSideBrother = true;
-            QList<DBRelation *> rels = bro->relations(AlephERP::OneToOne);
+            const QList<DBRelation *> rels = bro->relations(AlephERP::OneToOne);
             for (DBRelation *rel : rels)
             {
                 if ( rel->metadata()->tableName() == ownerBean()->metadata()->tableName() )
