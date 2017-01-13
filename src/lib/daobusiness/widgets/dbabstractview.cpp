@@ -853,61 +853,67 @@ void DBAbstractViewInterface::itemClicked(const QModelIndex &idx)
     {
         // Y ahora creamos el formulario que presentará los datos de este bean.
         CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
+        BaseBeanSharedPointer beanOnGrid = filterModel()->bean(idx);
         BaseBeanSharedPointer beanToEdit = filterModel()->beanToBeEdited(idx);
         BaseBeanPointer b = beanToEdit.data();
-        if ( b )
+        if ( b.isNull() )
         {
-            if ( !fld->metadata()->linkRelation().isEmpty() )
+            return;
+        }
+        QString uiDbRecord = beanOnGrid->metadata()->uiDbRecord().isEmpty() ?
+                    beanToEdit->metadata()->uiDbRecord() :
+                    beanOnGrid->metadata()->uiDbRecord();
+        QString qsDbRecord = beanOnGrid->metadata()->qsDbRecord().isEmpty() ?
+                    beanToEdit->metadata()->qsDbRecord() :
+                    beanOnGrid->metadata()->qsDbRecord();
+        if ( !fld->metadata()->linkRelation().isEmpty() )
+        {
+            if ( fld->value().isNull() || !fld->value().isValid() )
             {
-                if ( fld->value().isNull() || !fld->value().isValid() )
-                {
-                    CommonsFunctions::restoreOverrideCursor();
-                    return;
-                }
-                DBRelation *rel = beanToEdit->relation(fld->metadata()->linkRelation());
-                if ( rel == NULL )
-                {
-                    QLogger::QLog_Warning(AlephERP::stLogOther, QObject::tr("DBAbstractViewInterface::itemClicked: No existe la relación %1").arg(fld->metadata()->linkRelation()));
-                    return;
-                }
-                b = beanToEditFromRelation(rel);
-                if ( b.isNull() )
-                {
-                    QLogger::QLog_Warning(AlephERP::stLogOther, QObject::tr("DBAbstractViewInterface::itemClicked: No existe la relación %1").arg(fld->metadata()->linkRelation()));
-                    CommonsFunctions::restoreOverrideCursor();
-                    return;
-                }
-                if ( b->dbState() == BaseBean::INSERT && !b->modified() )
-                {
-                    CommonsFunctions::restoreOverrideCursor();
-                    return;
-                }
-            }
-            // ¿Está el formulario abierto?
-            if ( OpenedRecords::instance()->isBeanOpened(b) )
-            {
-                QApplication::restoreOverrideCursor();
+                CommonsFunctions::restoreOverrideCursor();
                 return;
             }
-            QPointer<DBRecordDlg> dlg = new DBRecordDlg(b, openType, true);
-            QString uiDbRecord = b->metadata()->uiDbRecord();
-            QString qsDbRecord = b->metadata()->qsDbRecord();
-            if ( !uiDbRecord.isEmpty() )
+            DBRelation *rel = beanToEdit->relation(fld->metadata()->linkRelation());
+            if ( rel == NULL )
             {
-                dlg->setUiCode(uiDbRecord);
+                QLogger::QLog_Warning(AlephERP::stLogOther, QObject::tr("DBAbstractViewInterface::itemClicked: No existe la relación %1").arg(fld->metadata()->linkRelation()));
+                return;
             }
-            if ( !qsDbRecord.isEmpty() )
+            b = beanToEditFromRelation(rel);
+            if ( b.isNull() )
             {
-                dlg->setQsCode(qsDbRecord);
+                QLogger::QLog_Warning(AlephERP::stLogOther, QObject::tr("DBAbstractViewInterface::itemClicked: No existe la relación %1").arg(fld->metadata()->linkRelation()));
+                CommonsFunctions::restoreOverrideCursor();
+                return;
             }
+            if ( b->dbState() == BaseBean::INSERT && !b->modified() )
+            {
+                CommonsFunctions::restoreOverrideCursor();
+                return;
+            }
+        }
+        // ¿Está el formulario abierto?
+        if ( OpenedRecords::instance()->isBeanOpened(b) )
+        {
             QApplication::restoreOverrideCursor();
-            if ( dlg->openSuccess() && dlg->init() )
-            {
-                OpenedRecords::instance()->registerRecord(beanToEdit, dlg);
-                dlg->setAttribute(Qt::WA_DeleteOnClose, true);
-                dlg->setCanChangeModality(true);
-                dlg->show();
-            }
+            return;
+        }
+        QPointer<DBRecordDlg> dlg = new DBRecordDlg(b, openType, true);
+        if ( !uiDbRecord.isEmpty() )
+        {
+            dlg->setUiCode(uiDbRecord);
+        }
+        if ( !qsDbRecord.isEmpty() )
+        {
+            dlg->setQsCode(qsDbRecord);
+        }
+        QApplication::restoreOverrideCursor();
+        if ( dlg->openSuccess() && dlg->init() )
+        {
+            OpenedRecords::instance()->registerRecord(beanToEdit, dlg);
+            dlg->setAttribute(Qt::WA_DeleteOnClose, true);
+            dlg->setCanChangeModality(true);
+            dlg->show();
         }
     }
 }
