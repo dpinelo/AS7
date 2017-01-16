@@ -559,7 +559,8 @@ void SystemDAO::writeDbMessages(QSqlQuery *qry)
 {
     if ( qry->lastError().databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
     {
-        SystemDAO::m_lastMessage = qry->lastError().databaseText();
+        QString stError = qry->lastError().databaseText().replace(AlephERP::stDatabaseErrorPrefix, "");
+        SystemDAO::m_lastMessage = stError;
     }
     else
     {

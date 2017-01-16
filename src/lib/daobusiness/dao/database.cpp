@@ -622,7 +622,8 @@ void Database::buildError(const QSqlError &error)
 {
     if ( error.databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
     {
-        Database::m_lastErrorMessage = error.databaseText();
+        QString stError = error.databaseText().replace(AlephERP::stDatabaseErrorPrefix, "");
+        Database::m_lastErrorMessage = stError;
     }
     else
     {
