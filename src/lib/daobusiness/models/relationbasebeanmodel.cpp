@@ -19,7 +19,6 @@
  ***************************************************************************/
 #include <QtGlobal>
 #include <QtWidgets>
-
 #include "dao/beans/basebean.h"
 #include "relationbasebeanmodel.h"
 #include <aerpcommon.h>
@@ -76,6 +75,7 @@ public:
     QString orderFieldClausule();
     DBFieldMetadata *fieldForColumn(int column);
     void loadChildren();
+    bool modelContainsBean(BaseBeanPointer bean) const;
 };
 
 void RelationBaseBeanModelPrivate::setInternalDataAndConnections()
@@ -123,14 +123,15 @@ int RelationBaseBeanModelPrivate::rowCount()
 
 QString RelationBaseBeanModelPrivate::orderField()
 {
-    if ( m_metadata != NULL )
+    if ( m_metadata == NULL )
     {
-        foreach (DBFieldMetadata *m, m_metadata->fields())
+        return QString("");
+    }
+    for (DBFieldMetadata *m : m_metadata->fields())
+    {
+        if ( m->orderField() )
         {
-            if ( m->orderField() )
-            {
-                return m->dbFieldName();
-            }
+            return m->dbFieldName();
         }
     }
     return QString("");
@@ -246,16 +247,17 @@ void RelationBaseBeanModel::fieldBeanModified(BaseBean *bean, const QString &fie
 
 void RelationBaseBeanModel::dbStateBeanModified(BaseBean *bean, int state)
 {
-    if ( bean != NULL  && d->m_relation)
+    if ( bean == NULL || !d->m_relation)
     {
-        // Se hace esto para que el modelo en filtro superior, sepa que esta fila ha cambiado, y debe actualizar
-        BaseBeanPointer child = d->m_relation->childByObjectName(bean->objectName());
-        if ( child &&
-             (state == BaseBean::DELETED || state == BaseBean::TO_BE_DELETED) )
-        {
-            emit layoutAboutToBeChanged();
-            emit layoutChanged();
-        }
+        return;
+    }
+    // Se hace esto para que el modelo en filtro superior, sepa que esta fila ha cambiado, y debe actualizar
+    BaseBeanPointer child = d->m_relation->childByObjectName(bean->objectName());
+    if ( child &&
+         (state == BaseBean::DELETED || state == BaseBean::TO_BE_DELETED) )
+    {
+        emit layoutAboutToBeChanged();
+        emit layoutChanged();
     }
 }
 
@@ -334,13 +336,30 @@ void RelationBaseBeanModelPrivate::loadChildren()
     }
     else
     {
-        QVector<BaseBeanSharedPointer> beans = m_relation->sharedChildren(m_order);
-        foreach (BaseBeanSharedPointer bean, beans)
+        const QVector<BaseBeanSharedPointer> beans = m_relation->sharedChildren(m_order);
+        for (BaseBeanSharedPointer bean : beans)
         {
-            m_beans.append(bean.data());
+            if ( !modelContainsBean(bean.data()) )
+            {
+                m_beans.append(bean.data());
+            }
         }
     }
     m_childrenLoaded = true;
+}
+
+bool RelationBaseBeanModelPrivate::modelContainsBean(BaseBeanPointer bean) const
+{
+    for (BaseBeanPointer beanOnModel : m_beans)
+    {
+        if ( bean &&
+             beanOnModel &&
+             beanOnModel->objectName() == bean->objectName() )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void RelationBaseBeanModel::clear()
@@ -362,7 +381,7 @@ BaseBeanSharedPointer RelationBaseBeanModel::bean(int row, bool reloadIfNeeded) 
 BaseBeanSharedPointerList RelationBaseBeanModel::beans(const QModelIndexList &list)
 {
     BaseBeanSharedPointerList result;
-    foreach ( QModelIndex index, list )
+    for ( const QModelIndex &index : list )
     {
         result.append(bean(index));
     }
@@ -377,8 +396,8 @@ BaseBeanSharedPointer RelationBaseBeanModel::bean(const QModelIndex &index, bool
     Q_UNUSED(reloadIfNeeded)
     if ( d->m_relation && AERP_CHECK_INDEX_OK(index.row(), d->m_beans) )
     {
-        QVector<BaseBeanSharedPointer> children = d->m_relation->sharedChildren();
-        foreach (BaseBeanSharedPointer child, children)
+        const QVector<BaseBeanSharedPointer> children = d->m_relation->sharedChildren();
+        for (BaseBeanSharedPointer child : children)
         {
             if ( child &&
                  d->m_beans.at(index.row()) &&
@@ -696,7 +715,7 @@ QModelIndexList RelationBaseBeanModel::indexes(const QString &dbColumnName, cons
 {
     QModelIndexList list;
     int row = 0;
-    foreach (BaseBeanPointer bean, d->m_beans)
+    for (BaseBeanPointer bean : d->m_beans)
     {
         if ( bean && bean->fieldValue(dbColumnName) == value )
         {
@@ -715,7 +734,7 @@ QModelIndex RelationBaseBeanModel::indexByPk(const QVariant &value)
 {
     int row = 0;
     QModelIndex result;
-    foreach (BaseBeanPointer bean, d->m_beans)
+    for (BaseBeanPointer bean : d->m_beans)
     {
         if ( bean && bean->pkValue().toMap() == value.toMap() )
         {

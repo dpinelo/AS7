@@ -20,7 +20,6 @@
 #include <QtCore>
 #include <QtGlobal>
 #include <QtWidgets>
-
 #include "dao/beans/basebean.h"
 #include "dbdetailview.h"
 #include "ui_dbdetailview.h"
@@ -1064,7 +1063,9 @@ BaseBeanSharedPointer DBDetailViewPrivate::insertRow()
         }
         newSourceRow = filterModel->rowCount(selectionModel->currentIndex());
         newSourceRowParent = selectionModel->currentIndex();
-    } else {
+    }
+    else
+    {
         newSourceRow = sourceModel->rowCount();
     }
 
