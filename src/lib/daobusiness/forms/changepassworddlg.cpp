@@ -52,6 +52,13 @@ ChangePasswordDlg::~ChangePasswordDlg()
 
 void ChangePasswordDlg::okClicked()
 {
+    if ( ui->txtNewPassword->text().isEmpty() )
+    {
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             tr("Debe introducir una contraseña válida."), QMessageBox::Ok);
+        return;
+    }
     if ( ui->txtNewPassword->text() != ui->txtReNewPassword->text() )
     {
         QMessageBox::warning(this,
