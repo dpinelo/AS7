@@ -18,11 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include <QtScript>
 #include <QtCore>
 #include <QtUiTools>
@@ -93,7 +89,7 @@ public:
 
 QHashVariant SearchPerformed::item(const QString &widgetName)
 {
-    foreach (const QHashVariant &item, m_widgetsSearchValues)
+    for (const QHashVariant &item : m_widgetsSearchValues)
     {
         if ( item["fieldName"] == widgetName )
         {
@@ -388,9 +384,9 @@ bool DBSearchDlg::init()
     // Ponemos la marca de los check boxes, en el primer elemento visible
     if ( d->m_canSelectSeveral && d->m_model )
     {
-        QList<DBFieldMetadata *> list = d->m_metadata->fields();
+        const QList<DBFieldMetadata *> list = d->m_metadata->fields();
         bool setCheckedColumn = false;
-        foreach ( DBFieldMetadata *fld, list )
+        for ( DBFieldMetadata *fld : list )
         {
             if ( fld->visibleGrid() && !setCheckedColumn )
             {
@@ -469,7 +465,7 @@ void DBSearchDlgPrivate::initTableModel()
     }
     // En este formulario, siempre ordenaremos por la primera columna visible...
     QString firstVisible, initOrder;
-    foreach (DBFieldMetadata *fld, m_metadata->fields())
+    for (DBFieldMetadata *fld : m_metadata->fields())
     {
         if ( firstVisible.isEmpty() && fld->visibleGrid() && fld->isOnDb() )
         {
@@ -543,7 +539,7 @@ void DBSearchDlgPrivate::initTreeModel()
     {
         return;
     }
-    foreach ( const QVariant &item, m_metadata->treeDefinitions() )
+    for ( const QVariant &item : m_metadata->treeDefinitions() )
     {
         QHashVariant hash = item.toHash();
         BaseBeanMetadata *metadata = BeansFactory::metadataBean(hash.value("name").toString());
@@ -641,8 +637,8 @@ void DBSearchDlgPrivate::setupWidget()
     if ( setupExternalWidget() )
     {
         // Establecemos algunos valores por defecto
-        QList<DBDateTimeEdit *> list = q_ptr->findChildren<DBDateTimeEdit *>();
-        foreach (DBDateTimeEdit *de, list)
+        const QList<DBDateTimeEdit *> list = q_ptr->findChildren<DBDateTimeEdit *>();
+        for (DBDateTimeEdit *de : list)
         {
             de->setDate(alephERPSettings->minimumDate());
             QObject::connect (de, SIGNAL(valueEdited(QVariant)), q_ptr, SLOT(setDateForAnotherDate()));
@@ -736,8 +732,8 @@ void DBSearchDlgPrivate::setCheckStateToPartially()
 {
     // Los checks tienen historia: ¿Seleccionados o no seleccionados? Funcionamiento incómodo. Por ello, inicialmente los ponemos en
     // modo "triestado", y si el usuario no ha seleccionada nada, no se incluyen en el filtro
-    QList<DBCheckBox *> chks = q_ptr->findChildren<DBCheckBox *>();
-    foreach (DBCheckBox *chk, chks)
+    const QList<DBCheckBox *> chks = q_ptr->findChildren<DBCheckBox *>();
+    for (DBCheckBox *chk : chks)
     {
         chk->setCheckState(Qt::PartiallyChecked);
     }
@@ -745,8 +741,8 @@ void DBSearchDlgPrivate::setCheckStateToPartially()
 
 void DBSearchDlgPrivate::setCombosNotSelected()
 {
-    QList<DBComboBox *> widgets = q_ptr->findChildren<DBComboBox *>();
-    foreach (DBComboBox *widget, widgets)
+    const QList<DBComboBox *> widgets = q_ptr->findChildren<DBComboBox *>();
+    for (DBComboBox *widget : widgets)
     {
         widget->setCurrentIndex(-1);
     }
@@ -906,8 +902,8 @@ void DBSearchDlg::select (const QModelIndex &index)
   */
 void DBSearchDlgPrivate::connectObjectsToSearch()
 {
-    QList<QWidget *> widgets = q_ptr->findChildren<QWidget *>();
-    foreach ( QWidget *widget, widgets )
+    const QList<QWidget *> widgets = q_ptr->findChildren<QWidget *>();
+    for ( QWidget *widget : widgets )
     {
         if ( widget->property(AlephERP::stAerpControl).toBool() )
         {
@@ -944,34 +940,33 @@ void DBSearchDlg::edit()
         QModelIndex source = d->m_filter->mapToSource(idx);
         d->m_selectedBean = d->m_model->bean(source);
     }
-    if ( !d->m_selectedBean.isNull() )
+    if ( d->m_selectedBean.isNull() )
     {
-        QPointer<DBRecordDlg> dlg;
-        if ( d->m_selectedBean->metadata()->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
-        {
+        QMessageBox::warning(this, qApp->applicationName(), tr("Debe seleccionar un registro a editar."));
+        return;
+    }
+    QPointer<DBRecordDlg> dlg;
+    BaseBeanSharedPointer beanToEdit = d->m_filter->beanToBeEdited(idx);
+    if ( d->m_selectedBean->metadata()->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
+    {
 #if defined(ALEPHERP_ADVANCED_EDIT) && defined (ALEPHERP_DEVTOOLS)
-            dlg = new AERPSystemObjectEditDlg(d->m_selectedBean.data(), openType, d->m_initContext, this);
+        dlg = new AERPSystemObjectEditDlg(beanToEdit.data(), openType, d->m_initContext, this);
 #else
-            return;
+        return;
 #endif
-        }
-        else
-        {
-            dlg = new DBRecordDlg(d->m_selectedBean.data(), openType, d->m_initContext, this);
-        }
-        CommonsFunctions::restoreOverrideCursor();
-        if ( dlg->openSuccess() && dlg->init() )
-        {
-            OpenedRecords::instance()->registerRecord(d->m_selectedBean, dlg);
-            dlg->setModal(true);
-            dlg->exec();
-        }
-        delete dlg;
     }
     else
     {
-        QMessageBox::warning(this,qApp->applicationName(), tr("Debe seleccionar un registro a editar."));
+        dlg = new DBRecordDlg(beanToEdit.data(), openType, d->m_initContext, this);
     }
+    CommonsFunctions::restoreOverrideCursor();
+    if ( dlg->openSuccess() && dlg->init() )
+    {
+        OpenedRecords::instance()->registerRecord(d->m_selectedBean, dlg);
+        dlg->setModal(true);
+        dlg->exec();
+    }
+    delete dlg;
 }
 
 /**
@@ -990,34 +985,33 @@ void DBSearchDlg::view()
         QModelIndex source = d->m_filter->mapToSource(idx);
         d->m_selectedBean = d->m_model->bean(source);
     }
-    if ( !d->m_selectedBean.isNull() )
+    if ( d->m_selectedBean.isNull() )
     {
-        QPointer<DBRecordDlg> dlg;
-        if ( d->m_selectedBean->metadata()->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
-        {
+        QMessageBox::warning(this, qApp->applicationName(), tr("Debe seleccionar un registro que visualizar."));
+        return;
+    }
+    QPointer<DBRecordDlg> dlg;
+    BaseBeanSharedPointer beanToEdit = d->m_filter->beanToBeEdited(idx);
+    if ( d->m_selectedBean->metadata()->tableName() == QString("%1_system").arg(alephERPSettings->systemTablePrefix()) )
+    {
 #if defined(ALEPHERP_ADVANCED_EDIT) && defined (ALEPHERP_DEVTOOLS)
-            dlg = new AERPSystemObjectEditDlg(d->m_selectedBean.data(), openType, d->m_initContext, this);
+        dlg = new AERPSystemObjectEditDlg(beanToEdit.data(), openType, d->m_initContext, this);
 #else
-            return;
+        return;
 #endif
-        }
-        else
-        {
-            dlg = new DBRecordDlg(d->m_selectedBean.data(), openType, d->m_initContext, this);
-        }
-        CommonsFunctions::restoreOverrideCursor();
-        if ( dlg->openSuccess() && dlg->init() )
-        {
-            OpenedRecords::instance()->registerRecord(d->m_selectedBean, dlg);
-            dlg->setModal(true);
-            dlg->exec();
-        }
-        delete dlg;
     }
     else
     {
-        QMessageBox::warning(this,qApp->applicationName(), tr("Debe seleccionar un registro que visualizar."));
+        dlg = new DBRecordDlg(beanToEdit.data(), openType, d->m_initContext, this);
     }
+    CommonsFunctions::restoreOverrideCursor();
+    if ( dlg->openSuccess() && dlg->init() )
+    {
+        OpenedRecords::instance()->registerRecord(d->m_selectedBean, dlg);
+        dlg->setModal(true);
+        dlg->exec();
+    }
+    delete dlg;
 }
 
 /**
@@ -1110,8 +1104,8 @@ void DBSearchDlg::setDateForAnotherDate()
     {
         return;
     }
-    QList<DBDateTimeEdit *> dateTimes = findChildren<DBDateTimeEdit *>();
-    foreach (DBDateTimeEdit *otherDe, dateTimes)
+    const QList<DBDateTimeEdit *> dateTimes = findChildren<DBDateTimeEdit *>();
+    for (DBDateTimeEdit *otherDe : dateTimes)
     {
         if ( deOrigin->fieldName() == otherDe->fieldName() && otherDe != deOrigin )
         {
@@ -1216,7 +1210,7 @@ void DBSearchDlg::search()
         return;
     }
     // ¿La búsqueda está en el histórico?
-    foreach (SearchPerformed *historySearch, d->m_searchHistory)
+    for (SearchPerformed *historySearch : d->m_searchHistory)
     {
         // Según la documentación:
         // Two hashes are considered equal if they contain the same (key, value) pairs.
@@ -1393,7 +1387,7 @@ void DBSearchDlgPrivate::resetFilter()
 QString DBSearchDlgPrivate::sqlWhere(SearchPerformed *searchState) const
 {
     QString where;
-    foreach (const QHashVariant &hashValue, searchState->m_widgetsSearchValues)
+    for (const QHashVariant &hashValue : searchState->m_widgetsSearchValues)
     {
         QVariant value = hashValue["value"];
         DBFieldMetadata *fld = m_metadata->field(hashValue["fieldName"].toString());
@@ -1449,8 +1443,8 @@ QList<QHashVariant> DBSearchDlgPrivate::searchState()
 {
     QStringList fieldsOnState;
     QList<QHashVariant> widgetsState;
-    QList<QWidget *> widgets = q_ptr->findChildren<QWidget *>();
-    foreach ( QWidget *widget, widgets )
+    const QList<QWidget *> widgets = q_ptr->findChildren<QWidget *>();
+    for ( QWidget *widget : widgets )
     {
         QVariant propertyFieldName = widget->property(AlephERP::stFieldName);
         if ( propertyFieldName.isValid() )
@@ -1646,8 +1640,8 @@ void DBSearchDlgPrivate::searchStateOnBetweenWidgets(DBBaseWidget *wid1, DBBaseW
 
 void DBSearchDlgPrivate::setToolTipForWidgets()
 {
-    QList<QWidget *> widgets = q_ptr->findChildren<QWidget *>();
-    foreach ( QWidget *widget, widgets )
+    const QList<QWidget *> widgets = q_ptr->findChildren<QWidget *>();
+    for ( QWidget *widget : widgets )
     {
         QVariant propertyFieldName = widget->property(AlephERP::stFieldName);
         if ( propertyFieldName.isValid() )
@@ -1674,7 +1668,7 @@ void DBSearchDlgPrivate::setToolTipForWidgets()
  */
 bool SearchPerformed::isEvolution(SearchPerformed *other)
 {
-    foreach (const QHashVariant &item, m_widgetsSearchValues)
+    for (const QHashVariant &item : m_widgetsSearchValues)
     {
         QHashVariant otherItem = other->item(item["fieldName"].toString());
         if ( !otherItem.isEmpty() )
@@ -1701,7 +1695,7 @@ bool SearchPerformed::isEvolution(SearchPerformed *other)
  */
 bool DBSearchDlgPrivate::isEmptySearch()
 {
-    foreach (const QHashVariant &item, searchState())
+    for (const QHashVariant &item : searchState())
     {
         if ( item.contains("value") && item["value"].isValid() )
         {
@@ -1724,18 +1718,18 @@ SearchPerformed *DBSearchDlgPrivate::findEvolution(SearchPerformed *actualSearch
     SearchPerformed *previous = NULL;
     QList<SearchPerformed *> matches;
     // Busquemos primero todas las búsquedas coincidentes, para después determinar la más cercana
-    foreach (SearchPerformed *searchPerformed, m_searchHistory)
+    for (SearchPerformed *searchPerformed : m_searchHistory)
     {
         if ( actualSearch->isEvolution(searchPerformed) )
         {
             matches.append(searchPerformed);
         }
     }
-    foreach (SearchPerformed *searchPerformed, matches)
+    for (SearchPerformed *searchPerformed : matches)
     {
         // El más actual o parecido a actualSearch será el que tenga más caracteres.
         int performedSearchChars = 0;
-        foreach (const QHashVariant &item, searchPerformed->m_widgetsSearchValues)
+        for (const QHashVariant &item : searchPerformed->m_widgetsSearchValues)
         {
             QString performedValue = item["value"].toString();
             performedSearchChars += performedValue.size();
