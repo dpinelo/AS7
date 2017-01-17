@@ -592,6 +592,7 @@ AERPCell *AERPSheet::createCell(const QString &row, const QString &column, const
     AERPCell *actualCell = cell(row, column);
     if ( actualCell != NULL )
     {
+        actualCell->setValue(value);
         return actualCell;
     }
     bool ok;
