@@ -233,7 +233,7 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
     {
         return;
     }
-    QList<QHash<QString, QString> > filters = m_metadata->itemsFilterColumn();
+    const QList<QHash<QString, QString> > filters = m_metadata->itemsFilterColumn();
     int i = 0;
 
     if ( filters.size() > 0 )
@@ -248,7 +248,7 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
         q_ptr->ui->gbCustomFilter->setVisible(false);
     }
 
-    foreach ( HashString filter, filters )
+    for ( const HashString &filter : filters )
     {
         if ( !m_removedStrongFilter.contains(filter["idFilter"]) )
         {
@@ -431,6 +431,7 @@ void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fl
             if ( layout == NULL )
             {
                 layout = new QHBoxLayout;
+                lay->addLayout(layout);
             }
         }
         else
