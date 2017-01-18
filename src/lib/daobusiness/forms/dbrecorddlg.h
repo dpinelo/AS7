@@ -36,6 +36,7 @@ class BaseBean;
 class BaseBeanObserver;
 class DBRecordDlgPrivate;
 class FilterBaseBeanModel;
+class DBFormDlg;
 
 namespace Ui
 {
@@ -143,8 +144,8 @@ public:
                 Qt::WindowFlags fl = 0);
     ~DBRecordDlg();
 
-    bool isWindowModified();
-    virtual bool closeButtonAskForSave();
+    bool isWindowModified() const;
+    virtual bool closeButtonAskForSave() const;
     virtual void setCloseButtonAskForSave(bool value);
     QString qsCode() const;
     QString uiCode() const;
@@ -167,6 +168,7 @@ public:
     void setForceSaveToDb(bool value);
     bool canNavigate() const;
     void setCanNavigate(bool value);
+    void setDbForm(DBFormDlg *dbForm);
 
     QWidget *contentWidget() const;
 

@@ -74,21 +74,22 @@ public:
                 m_list.removeAll(b);
             }
         }
-        if ( !bean.isNull() )
+        if ( bean.isNull() )
         {
-            if ( m_list.contains(bean) )
+            return;
+        }
+        if ( m_list.contains(bean) )
+        {
+            return;
+        }
+        for (BaseBeanPointer b : m_list)
+        {
+            if ( !b.isNull() && b->objectName() == bean->objectName() )
             {
                 return;
             }
-            for (BaseBeanPointer b : m_list)
-            {
-                if ( !b.isNull() && b->objectName() == bean->objectName() )
-                {
-                    return;
-                }
-            }
-            m_list.append(bean);
         }
+        m_list.append(bean);
     }
 
     bool removeBean(const BaseBeanPointer &bean)

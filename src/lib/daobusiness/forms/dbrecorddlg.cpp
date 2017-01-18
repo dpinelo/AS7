@@ -53,6 +53,7 @@
 #include "forms/aerpuseraccessrow.h"
 #include "forms/aerptransactioncontextprogressdlg.h"
 #include "forms/openedrecords.h"
+#include "forms/dbformdlg.h"
 #ifdef ALEPHERP_SMTP_SUPPORT
 #include "forms/sendemaildlg.h"
 #include "dao/emaildao.h"
@@ -140,11 +141,12 @@ public:
     bool m_canNavigate;
     DBRecordDlg::DBRecordButtons m_visibleButtons;
     QString m_originalBeanContext;
+    QPointer<DBFormDlg> m_dbForm;
 
     explicit DBRecordDlgPrivate(DBRecordDlg *qq) : q_ptr(qq)
     {
         m_closeButtonAskForSave = true;
-        m_widget = NULL;
+        m_widget = Q_NULLPTR;
         m_beanIsValid = false;
         m_canClose = false;
         m_initContext = false;
@@ -766,7 +768,7 @@ bool DBRecordDlg::init()
     }
 
     bool editable = true;
-    if ( d->m_bean->field(AlephERP::stFieldEditable) != NULL )
+    if ( d->m_bean->field(AlephERP::stFieldEditable) != Q_NULLPTR )
     {
         editable = d->m_bean->fieldValue(AlephERP::stFieldEditable).toBool();
     }
@@ -922,7 +924,7 @@ void DBRecordDlg::emailRecord()
 #endif
 }
 
-bool DBRecordDlg::closeButtonAskForSave()
+bool DBRecordDlg::closeButtonAskForSave() const
 {
     return d->m_closeButtonAskForSave;
 }
@@ -1459,7 +1461,7 @@ void DBRecordDlg::setupMainWidget()
 
     QBuffer buffer(&ba);
     d->m_widget = AERPUiLoader::instance()->load(&buffer, 0);
-    if ( d->m_widget != NULL )
+    if ( d->m_widget != Q_NULLPTR )
     {
         d->m_widget->setParent(this);
         ui->widgetLayout->addWidget(d->m_widget);
@@ -1621,7 +1623,7 @@ bool DBRecordDlg::validate()
         QString message = tr("<p>No se han cumplido los requisitos necesarios para guardar este registro: </p>%1").arg(d->m_observer->validateHtmlMessages());
         QMessageBox::information(this, qApp->applicationName(), message, QMessageBox::Ok);
         QWidget *obj = d->m_observer->focusWidgetOnBadValidate();
-        if ( obj != NULL )
+        if ( obj != Q_NULLPTR )
         {
             obj->setFocus(Qt::OtherFocusReason);
         }
@@ -1803,7 +1805,7 @@ void DBRecordDlg::setWindowModified(BaseBeanPointer bean, bool value)
     QDialog::setWindowModified(valueToSet);
 }
 
-bool DBRecordDlg::isWindowModified()
+bool DBRecordDlg::isWindowModified() const
 {
     return QDialog::isWindowModified();
 }
@@ -1812,7 +1814,7 @@ BaseBean * DBRecordDlg::bean()
 {
     if ( d->m_bean.isNull() )
     {
-        return NULL;
+        return Q_NULLPTR;
     }
     return d->m_bean.data();
 }
@@ -1905,7 +1907,7 @@ void DBRecordDlg::navigate(const QString &direction)
 void DBRecordDlg::navigateBean(BaseBeanPointer bean, AlephERP::FormOpenType openType)
 {
     // Esta función no se puede llamar desde el motor QS, ya que lo destruye.
-    if ( engine() != NULL || bean.isNull() || d->m_bean.isNull() )
+    if ( engine() != Q_NULLPTR || bean.isNull() || d->m_bean.isNull() )
     {
         return;
     }
@@ -2015,14 +2017,14 @@ void DBRecordDlg::reject()
 
 BaseBeanPointer DBRecordDlgPrivate::nextIndex(const QString &direction)
 {
-    if ( q_ptr->parent() == NULL )
+    if ( m_dbForm.isNull() )
     {
         return BaseBeanPointer();
     }
     BaseBeanPointer b;
     QString methodName = QString("%1Bean").arg(direction);
     QByteArray ba = methodName.toLatin1();
-    QMetaObject::invokeMethod(q_ptr->parent(),
+    QMetaObject::invokeMethod(m_dbForm,
                               ba.constData(),
                               Q_RETURN_ARG(BaseBeanPointer, b));
     return b;
@@ -2032,7 +2034,7 @@ void DBRecordDlg::keyPressEvent (QKeyEvent *e)
 {
     bool accept = true;
     QWidget *widgetFocus = QApplication::focusWidget();
-    if ( widgetFocus == NULL )
+    if ( widgetFocus == Q_NULLPTR )
     {
         return;
     }
@@ -2261,7 +2263,7 @@ void DBRecordDlg::saveAndClose()
   */
 QString DBRecordDlg::parentType()
 {
-    if ( parent() != NULL )
+    if ( parent() != Q_NULLPTR )
     {
         return parent()->metaObject()->className();
     }
@@ -2373,6 +2375,11 @@ void DBRecordDlg::setCanNavigate(bool value)
         d->m_canNavigate = false;
     }    
     setVisibleButtons(d->m_visibleButtons);
+}
+
+void DBRecordDlg::setDbForm(DBFormDlg *dbForm)
+{
+    d->m_dbForm = dbForm;
 }
 
 QWidget *DBRecordDlg::contentWidget() const
