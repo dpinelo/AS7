@@ -2217,7 +2217,7 @@ void DBFormDlg::availableButtonsFromBean()
     {
         return;
     }
-    ui->pbEdit->setEnabled(!bean->readOnly());
+    // ui->pbEdit->setEnabled(!bean->readOnly());
     ui->pbDelete->setEnabled(!bean->readOnly());
 }
 

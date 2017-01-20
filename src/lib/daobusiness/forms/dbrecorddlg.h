@@ -229,6 +229,7 @@ public slots:
     virtual void showOrHideHelp();
     virtual void restoreContext();
     virtual void sync();
+    virtual void uncheckInactive(const QVariant &value);
 #ifdef ALEPHERP_DOC_MANAGEMENT
     virtual void showOrHideDocuments();
 #endif

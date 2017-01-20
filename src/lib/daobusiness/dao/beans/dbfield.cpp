@@ -1124,7 +1124,9 @@ void DBField::setValue(const QVariant &argNewValue)
 
     newValue = argNewValue;
 
-    if ( d->m->dbFieldName() != AlephERP::stFieldEditable && d->m_bean->readOnly() )
+    if ( d->m->dbFieldName() != AlephERP::stFieldEditable &&
+         d->m->dbFieldName() != AlephERP::stInactive &&
+         d->m_bean->readOnly() )
     {
         return;
     }

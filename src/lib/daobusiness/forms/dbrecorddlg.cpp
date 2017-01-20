@@ -36,6 +36,7 @@
 #include "dao/beans/beansfactory.h"
 #include "dao/beans/basebeanmetadata.h"
 #include "dao/beans/reportmetadata.h"
+#include "dao/beans/dbfield.h"
 #include "dao/observerfactory.h"
 #include "dao/basebeanobserver.h"
 #include "dao/database.h"
@@ -65,6 +66,7 @@
 #include "widgets/dbchooserecordbutton.h"
 #include "widgets/relatedelementswidget.h"
 #include "widgets/aerphelpwidget.h"
+#include "widgets/dbbasewidget.h"
 #include "reports/reportrun.h"
 #ifdef ALEPHERP_DOC_MANAGEMENT
 #include "widgets/dbdocumentview.h"
@@ -839,6 +841,10 @@ void DBRecordDlg::setReadOnly(bool value)
             {
                 dbWidget->setDataEditable(!value);
                 dbWidget->applyFieldProperties();
+            }
+            else
+            {
+                connect(widget, SIGNAL(valueEdited(QVariant)), this, SLOT(uncheckInactive(QVariant)));
             }
         }
     }
@@ -2133,6 +2139,49 @@ void DBRecordDlg::sync()
     if ( d->m_bean )
     {
         d->m_bean->sync();
+    }
+}
+
+void DBRecordDlg::uncheckInactive(const QVariant &value)
+{
+    if ( value.toBool() == true || d->m_bean.isNull() )
+    {
+        return;
+    }
+    DBField *fld = d->m_bean->field(AlephERP::stInactive);
+    if ( fld == Q_NULLPTR )
+    {
+        return;
+    }
+    int ret = QMessageBox::question(this,
+                                   qApp->applicationName(),
+                                   tr("¿Desea volver a dar de alta el registro?"),
+                                   QMessageBox::Yes | QMessageBox::No);
+    if ( ret == QMessageBox::No )
+    {
+        QWidget *widget = qobject_cast<QWidget *>(sender());
+        if ( widget == Q_NULLPTR )
+        {
+            return;
+        }
+        if ( !widget->property(AlephERP::stAerpControl).toBool() )
+        {
+            return;
+        }
+        DBBaseWidget *dbBaseWidget = dynamic_cast<DBBaseWidget *>(widget);
+        dbBaseWidget->setValue(true);
+        return;
+    }
+    d->m_bean->setInactive(false);
+    if ( !d->m_bean->save() )
+    {
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             tr("Atención: No se ha podido guardar el registro. El error es %1").arg(d->m_bean->lastError()));
+    }
+    else
+    {
+        setReadOnly(false);
     }
 }
 
