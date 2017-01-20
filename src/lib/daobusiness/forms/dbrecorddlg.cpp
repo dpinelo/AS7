@@ -36,6 +36,7 @@
 #include "dao/beans/beansfactory.h"
 #include "dao/beans/basebeanmetadata.h"
 #include "dao/beans/reportmetadata.h"
+#include "dao/beans/dbfield.h"
 #include "dao/observerfactory.h"
 #include "dao/basebeanobserver.h"
 #include "dao/database.h"
@@ -53,6 +54,7 @@
 #include "forms/aerpuseraccessrow.h"
 #include "forms/aerptransactioncontextprogressdlg.h"
 #include "forms/openedrecords.h"
+#include "forms/dbformdlg.h"
 #ifdef ALEPHERP_SMTP_SUPPORT
 #include "forms/sendemaildlg.h"
 #include "dao/emaildao.h"
@@ -64,6 +66,7 @@
 #include "widgets/dbchooserecordbutton.h"
 #include "widgets/relatedelementswidget.h"
 #include "widgets/aerphelpwidget.h"
+#include "widgets/dbbasewidget.h"
 #include "reports/reportrun.h"
 #ifdef ALEPHERP_DOC_MANAGEMENT
 #include "widgets/dbdocumentview.h"
@@ -140,11 +143,12 @@ public:
     bool m_canNavigate;
     DBRecordDlg::DBRecordButtons m_visibleButtons;
     QString m_originalBeanContext;
+    QPointer<DBFormDlg> m_dbForm;
 
     explicit DBRecordDlgPrivate(DBRecordDlg *qq) : q_ptr(qq)
     {
         m_closeButtonAskForSave = true;
-        m_widget = NULL;
+        m_widget = Q_NULLPTR;
         m_beanIsValid = false;
         m_canClose = false;
         m_initContext = false;
@@ -397,25 +401,27 @@ void DBRecordDlgPrivate::discardContext()
 
 void DBRecordDlgPrivate::checkModifiedToSave()
 {
-    if ( m_openType != AlephERP::ReadOnly )
+    if ( m_openType == AlephERP::ReadOnly )
     {
-        if ( q_ptr->isWindowModified() )
+        return;
+    }
+    if ( !q_ptr->isWindowModified() )
+    {
+        return;
+    }
+    if ( q_ptr->ui->chkNavigateSavingChanges->isChecked() )
+    {
+        q_ptr->save();
+    }
+    else
+    {
+        int ret = QMessageBox::information(q_ptr,
+                                           qApp->applicationName(),
+                                           QObject::tr("Se han producido cambios. ¿Desea guardarlos?"),
+                                           QMessageBox::Yes | QMessageBox::No);
+        if ( ret == QMessageBox::Yes )
         {
-            if ( q_ptr->ui->chkNavigateSavingChanges->isChecked() )
-            {
-                q_ptr->save();
-            }
-            else
-            {
-                int ret = QMessageBox::information(q_ptr,
-                                                   qApp->applicationName(),
-                                                   QObject::tr("Se han producido cambios. ¿Desea guardarlos?"),
-                                                   QMessageBox::Yes | QMessageBox::No);
-                if ( ret == QMessageBox::Yes )
-                {
-                    q_ptr->save();
-                }
-            }
+            q_ptr->save();
         }
     }
 }
@@ -438,9 +444,9 @@ void DBRecordDlgPrivate::setWidgetStateFromDesignerProperties()
     propertiesToApply.insert(AlephERP::stDataEditableForRoles, "readOnly");
     propertiesToApply.insert(AlephERP::stVisibleForRoles, "visible");
 
-    QList<QWidget *> widgets = q_ptr->findChildren<QWidget *>();
+    const QList<QWidget *> widgets = q_ptr->findChildren<QWidget *>();
 
-    foreach (QWidget *widget, widgets)
+    for (QWidget *widget : widgets)
     {
         const QList<const char*> propertiesHashNamesKeys = propertiesHashNames.keys();
         for (const char *roleProperty : propertiesHashNamesKeys)
@@ -448,8 +454,8 @@ void DBRecordDlgPrivate::setWidgetStateFromDesignerProperties()
             if ( widget->property(roleProperty).isValid() )
             {
                 QStringList roles = widget->property(roleProperty).toStringList();
-                QList<const char *> props = propertiesToApply.values(roleProperty);
-                foreach (const char *finalPro, props)
+                const QList<const char *> props = propertiesToApply.values(roleProperty);
+                for (const char *finalPro : props)
                 {
                     DBBaseWidget::applyPropertiesByRole(widget, roles, finalPro);
                 }
@@ -457,12 +463,12 @@ void DBRecordDlgPrivate::setWidgetStateFromDesignerProperties()
                 // miramos las propiedades de usuario
                 if ( !AERPLoggedUser::instance()->hasAnyRole(roles) )
                 {
-                    QList<const char *> usersProperties = propertiesHashNames.values(roleProperty);
-                    foreach (const char *userProperty, usersProperties)
+                    const QList<const char *> usersProperties = propertiesHashNames.values(roleProperty);
+                    for (const char *userProperty : usersProperties)
                     {
                         QStringList users = widget->property(userProperty).toStringList();
-                        QList<const char *> props = propertiesToApply.values(roleProperty);
-                        foreach (const char *finalPro, props)
+                        const QList<const char *> props = propertiesToApply.values(roleProperty);
+                        for (const char *finalPro : props)
                         {
                             DBBaseWidget::applyPropertiesByUser(widget, users, finalPro);
                         }
@@ -472,8 +478,8 @@ void DBRecordDlgPrivate::setWidgetStateFromDesignerProperties()
                 QStringList values = widget->property(roleProperty).toStringList();
                 if ( !values.isEmpty() )
                 {
-                    QObjectList children = widget->children();
-                    foreach (QObject * child, children)
+                    const QObjectList children = widget->children();
+                    for (QObject * child : children)
                     {
                         child->setProperty(roleProperty, values);
                     }
@@ -728,8 +734,8 @@ bool DBRecordDlg::init()
 #endif
 
     QSqlDatabase db = Database::getQDatabase();
-    QStringList tmp = db.driver()->subscribedToNotifications();
-    foreach (const QString &a, tmp)
+    const QStringList tmp = db.driver()->subscribedToNotifications();
+    for (const QString &a : tmp)
     {
         QLogger::QLog_Debug(AlephERP::stLogOther, tr("DBRecordDlg::init: Notificaciones suscritas: %1").arg(a));
     }
@@ -764,7 +770,7 @@ bool DBRecordDlg::init()
     }
 
     bool editable = true;
-    if ( d->m_bean->field(AlephERP::stFieldEditable) != NULL )
+    if ( d->m_bean->field(AlephERP::stFieldEditable) != Q_NULLPTR )
     {
         editable = d->m_bean->fieldValue(AlephERP::stFieldEditable).toBool();
     }
@@ -824,8 +830,8 @@ DBRecordDlg::~DBRecordDlg()
 
 void DBRecordDlg::setReadOnly(bool value)
 {
-    QList<QWidget *> widgets = findChildren<QWidget *>();
-    foreach ( QWidget *widget, widgets )
+    const QList<QWidget *> widgets = findChildren<QWidget *>();
+    for ( QWidget *widget : widgets )
     {
         if ( widget->property(AlephERP::stAerpControl).isValid() &&
              widget->property(AlephERP::stAerpControl).toBool() )
@@ -835,6 +841,10 @@ void DBRecordDlg::setReadOnly(bool value)
             {
                 dbWidget->setDataEditable(!value);
                 dbWidget->applyFieldProperties();
+            }
+            else
+            {
+                connect(widget, SIGNAL(valueEdited(QVariant)), this, SLOT(uncheckInactive(QVariant)));
             }
         }
     }
@@ -871,55 +881,56 @@ void DBRecordDlg::emailRecord()
         return;
     }
     QScopedPointer<SendEmailDlg> dlg (new SendEmailDlg(d->m_bean, this));
-    if ( dlg->openSuccess() )
+    if ( !dlg->openSuccess() )
     {
-        if ( d->isPrintButtonVisible() )
+        return;
+    }
+    if ( d->isPrintButtonVisible() )
+    {
+        int ret = QMessageBox::question(this, qApp->applicationName(),
+                                        tr("¿Desea enviar con el correo electrónico el impreso asociado a este registro?"), QMessageBox::Yes | QMessageBox::No);
+        if ( ret == QMessageBox::Yes )
         {
-            int ret = QMessageBox::question(this, qApp->applicationName(),
-                                            tr("¿Desea enviar con el correo electrónico el impreso asociado a este registro?"), QMessageBox::Yes | QMessageBox::No);
-            if ( ret == QMessageBox::Yes )
+            // Ejecutamos el informe asociado, a este bean.
+            ReportRun reportRun;
+            BaseBeanPointerList beans;
+            beans << d->m_bean;
+            reportRun.setBeans(beans);
+            reportRun.setParentWidget(this);
+            if ( !reportRun.pdf(1, false) )
             {
-                // Ejecutamos el informe asociado, a este bean.
-                ReportRun reportRun;
-                BaseBeanPointerList beans;
-                beans << d->m_bean;
-                reportRun.setBeans(beans);
-                reportRun.setParentWidget(this);
-                if ( !reportRun.pdf(1, false) )
-                {
-                    QMessageBox::information(this, qApp->applicationName(),
-                                             tr("Se ha producido un error al ejecutar el informe. El error es: %1").arg(reportRun.message()), QMessageBox::Ok);
-                }
-                else
-                {
-                    dlg->addAttachment(reportRun.pathToGeneratedFile(), "application/pdf");
-                }
+                QMessageBox::information(this, qApp->applicationName(),
+                                         tr("Se ha producido un error al ejecutar el informe. El error es: %1").arg(reportRun.message()), QMessageBox::Ok);
+            }
+            else
+            {
+                dlg->addAttachment(reportRun.pathToGeneratedFile(), "application/pdf");
             }
         }
-        dlg->setModal(true);
-        dlg->exec();
-        if ( dlg->wasSent() )
+    }
+    dlg->setModal(true);
+    dlg->exec();
+    if ( dlg->wasSent() )
+    {
+        EmailObject email = dlg->sentEmail();
+        if (!EmailDAO::saveEmail(email))
         {
-            EmailObject email = dlg->sentEmail();
-            if (!EmailDAO::saveEmail(email))
+            QMessageBox::warning(this, qApp->applicationName(), tr("No se ha podido guardar el correo electrónico en los históricos, aunque se envió correctamente."), QMessageBox::Ok);
+        }
+        RelatedElementPointer element = d->m_bean->newRelatedElement(email);
+        if ( d->m_bean->dbState() != BaseBean::INSERT )
+        {
+            RelatedDAO::saveRelatedElement(element);
+            if ( !d->m_relatedWidget.isNull() )
             {
-                QMessageBox::warning(this, qApp->applicationName(), tr("No se ha podido guardar el correo electrónico en los históricos, aunque se envió correctamente."), QMessageBox::Ok);
-            }
-            RelatedElementPointer element = d->m_bean->newRelatedElement(email);
-            if ( d->m_bean->dbState() != BaseBean::INSERT )
-            {
-                RelatedDAO::saveRelatedElement(element);
-                if ( !d->m_relatedWidget.isNull() )
-                {
-                    d->m_relatedWidget->refresh();
-                }
+                d->m_relatedWidget->refresh();
             }
         }
     }
 #endif
 }
 
-bool DBRecordDlg::closeButtonAskForSave()
+bool DBRecordDlg::closeButtonAskForSave() const
 {
     return d->m_closeButtonAskForSave;
 }
@@ -1069,10 +1080,78 @@ bool DBRecordDlg::lock()
     }
     // Intenamos obtener un bloqueo.
     d->m_lockId = BaseDAO::newLock(d->m_bean->metadata()->tableName(), AERPLoggedUser::instance()->userName(), d->m_bean->pkValue());
-    if ( d->m_lockId == -1 )
+    if ( d->m_lockId != -1 )
     {
-        // Error general en el acceso a los bloqueos...
-        if ( !BaseDAO::lastErrorMessage().isEmpty() )
+        return true;
+    }
+    // Error general en el acceso a los bloqueos...
+    if ( !BaseDAO::lastErrorMessage().isEmpty() )
+    {
+        CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             tr("Ocurrió un error generando el bloqueo del registro. <br/>El error es: %1.").
+                                arg(CommonsFunctions::processToHtml(BaseDAO::lastErrorMessage())),
+                             QMessageBox::Ok);
+        CommonsFunctions::restoreOverrideCursor();
+        return false;
+    }
+    else
+    {
+        // Ha devuelto -1 sin mensaje de error. Seguro que hay otro bloqueo anterior, busquemos información.
+        QHash<QString, QVariant> info;
+        if ( BaseDAO::lockInformation(d->m_bean->metadata()->tableName(), d->m_bean->pkValue(), info) )
+        {
+            bool hasToUnlock = false;
+            if ( info[AlephERP::stUserName].toString().toLower() == AERPLoggedUser::instance()->userName().toLower() )
+            {
+                d->m_lockId = info["id"].toInt();
+            }
+            else
+            {
+                QDateTime blockDate = info.value("ts").toDateTime();
+                QString message = tr("El registro actual se encuentra bloqueado por el usuario: <b>%1</b>. "
+                                         "Fue bloqueado: </i>%2</i>. "
+                                         "¿Desea desbloquearlo? Si lo desbloquea, el usuario %3 perderá "
+                                         "todos sus datos.").
+                                  arg(info.value(AlephERP::stUserName).toString(),
+                                      alephERPSettings->locale()->toString(blockDate, alephERPSettings->locale()->dateFormat()),
+                                      info.value(AlephERP::stUserName).toString());
+                CommonsFunctions::setOverrideCursor(QCursor(Qt::ArrowCursor));
+                int ret = QMessageBox::information(this,qApp->applicationName(), message, QMessageBox::Yes | QMessageBox::No);
+                CommonsFunctions::restoreOverrideCursor();
+                if ( ret == QMessageBox::Yes )
+                {
+                    hasToUnlock = true;
+                }
+                else
+                {
+                    // Al no bloquear, sólo puede abrir en modo lectura...
+                    setReadOnly(true);
+                }
+            }
+            if ( hasToUnlock )
+            {
+                int idLock = info["id"].toInt();
+                bool result = BaseDAO::unlock(idLock);
+                if ( result )
+                {
+                    d->m_lockId = BaseDAO::newLock(d->m_bean->metadata()->tableName(), AERPLoggedUser::instance()->userName(), d->m_bean->pkValue());
+                    if ( d->m_lockId == -1 )
+                    {
+                        CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
+                        QMessageBox::warning(this,
+                                             qApp->applicationName(),
+                                             tr("Ocurrió un error generando el bloqueo del registro. <br/>El error es: %1.").
+                                                arg(CommonsFunctions::processToHtml(BaseDAO::lastErrorMessage())),
+                                             QMessageBox::Ok);
+                        CommonsFunctions::restoreOverrideCursor();
+                        return false;
+                    }
+                }
+            }
+        }
+        else
         {
             CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
             QMessageBox::warning(this,
@@ -1082,73 +1161,6 @@ bool DBRecordDlg::lock()
                                  QMessageBox::Ok);
             CommonsFunctions::restoreOverrideCursor();
             return false;
-        }
-        else
-        {
-            // Ha devuelto -1 sin mensaje de error. Seguro que hay otro bloqueo anterior, busquemos información.
-            QHash<QString, QVariant> info;
-            if ( BaseDAO::lockInformation(d->m_bean->metadata()->tableName(), d->m_bean->pkValue(), info) )
-            {
-                bool hasToUnlock = false;
-                if ( info[AlephERP::stUserName].toString().toLower() == AERPLoggedUser::instance()->userName().toLower() )
-                {
-                    d->m_lockId = info["id"].toInt();
-                }
-                else
-                {
-                    QDateTime blockDate = info.value("ts").toDateTime();
-                    QString message = tr("El registro actual se encuentra bloqueado por el usuario: <b>%1</b>. "
-                                             "Fue bloqueado: </i>%2</i>. "
-                                             "¿Desea desbloquearlo? Si lo desbloquea, el usuario %3 perderá "
-                                             "todos sus datos.").
-                                      arg(info.value(AlephERP::stUserName).toString(),
-                                          alephERPSettings->locale()->toString(blockDate, alephERPSettings->locale()->dateFormat()),
-                                          info.value(AlephERP::stUserName).toString());
-                    CommonsFunctions::setOverrideCursor(QCursor(Qt::ArrowCursor));
-                    int ret = QMessageBox::information(this,qApp->applicationName(), message, QMessageBox::Yes | QMessageBox::No);
-                    CommonsFunctions::restoreOverrideCursor();
-                    if ( ret == QMessageBox::Yes )
-                    {
-                        hasToUnlock = true;
-                    }
-                    else
-                    {
-                        // Al no bloquear, sólo puede abrir en modo lectura...
-                        setReadOnly(true);
-                    }
-                }
-                if ( hasToUnlock )
-                {
-                    int idLock = info["id"].toInt();
-                    bool result = BaseDAO::unlock(idLock);
-                    if ( result )
-                    {
-                        d->m_lockId = BaseDAO::newLock(d->m_bean->metadata()->tableName(), AERPLoggedUser::instance()->userName(), d->m_bean->pkValue());
-                        if ( d->m_lockId == -1 )
-                        {
-                            CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
-                            QMessageBox::warning(this,
-                                                 qApp->applicationName(),
-                                                 tr("Ocurrió un error generando el bloqueo del registro. <br/>El error es: %1.").
-                                                    arg(CommonsFunctions::processToHtml(BaseDAO::lastErrorMessage())),
-                                                 QMessageBox::Ok);
-                            CommonsFunctions::restoreOverrideCursor();
-                            return false;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                CommonsFunctions::setOverrideCursor(Qt::ArrowCursor);
-                QMessageBox::warning(this,
-                                     qApp->applicationName(),
-                                     tr("Ocurrió un error generando el bloqueo del registro. <br/>El error es: %1.").
-                                        arg(CommonsFunctions::processToHtml(BaseDAO::lastErrorMessage())),
-                                     QMessageBox::Ok);
-                CommonsFunctions::restoreOverrideCursor();
-                return false;
-            }
         }
     }
     return true;
@@ -1338,7 +1350,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
                 // ¿Se han insertado Documentos y no se quieren conservar?
                 if ( !d->m_documentWidget.isNull() )
                 {
-                    QList<AERPDocMngmntDocument *> docsModified = d->m_documentWidget->modifiedDocuments();
+                    const QList<AERPDocMngmntDocument *> docsModified = d->m_documentWidget->modifiedDocuments();
                     if ( docsModified.size() > 0 )
                     {
                         int ret = QMessageBox::information(this,
@@ -1347,7 +1359,7 @@ void DBRecordDlg::closeEvent(QCloseEvent * event)
                                                            QMessageBox::Yes | QMessageBox::No);
                         if ( ret == QMessageBox::Yes )
                         {
-                            foreach (AERPDocMngmntDocument *doc, docsModified)
+                            for (AERPDocMngmntDocument *doc : docsModified)
                             {
                                 if (!AERPDocumentDAOWrapper::instance()->deleteDocument(doc))
                                 {
@@ -1455,7 +1467,7 @@ void DBRecordDlg::setupMainWidget()
 
     QBuffer buffer(&ba);
     d->m_widget = AERPUiLoader::instance()->load(&buffer, 0);
-    if ( d->m_widget != NULL )
+    if ( d->m_widget != Q_NULLPTR )
     {
         d->m_widget->setParent(this);
         ui->widgetLayout->addWidget(d->m_widget);
@@ -1617,7 +1629,7 @@ bool DBRecordDlg::validate()
         QString message = tr("<p>No se han cumplido los requisitos necesarios para guardar este registro: </p>%1").arg(d->m_observer->validateHtmlMessages());
         QMessageBox::information(this, qApp->applicationName(), message, QMessageBox::Ok);
         QWidget *obj = d->m_observer->focusWidgetOnBadValidate();
-        if ( obj != NULL )
+        if ( obj != Q_NULLPTR )
         {
             obj->setFocus(Qt::OtherFocusReason);
         }
@@ -1799,7 +1811,7 @@ void DBRecordDlg::setWindowModified(BaseBeanPointer bean, bool value)
     QDialog::setWindowModified(valueToSet);
 }
 
-bool DBRecordDlg::isWindowModified()
+bool DBRecordDlg::isWindowModified() const
 {
     return QDialog::isWindowModified();
 }
@@ -1808,7 +1820,7 @@ BaseBean * DBRecordDlg::bean()
 {
     if ( d->m_bean.isNull() )
     {
-        return NULL;
+        return Q_NULLPTR;
     }
     return d->m_bean.data();
 }
@@ -1901,7 +1913,7 @@ void DBRecordDlg::navigate(const QString &direction)
 void DBRecordDlg::navigateBean(BaseBeanPointer bean, AlephERP::FormOpenType openType)
 {
     // Esta función no se puede llamar desde el motor QS, ya que lo destruye.
-    if ( engine() != NULL || bean.isNull() || d->m_bean.isNull() )
+    if ( engine() != Q_NULLPTR || bean.isNull() || d->m_bean.isNull() )
     {
         return;
     }
@@ -2011,14 +2023,14 @@ void DBRecordDlg::reject()
 
 BaseBeanPointer DBRecordDlgPrivate::nextIndex(const QString &direction)
 {
-    if ( q_ptr->parent() == NULL )
+    if ( m_dbForm.isNull() )
     {
         return BaseBeanPointer();
     }
     BaseBeanPointer b;
     QString methodName = QString("%1Bean").arg(direction);
     QByteArray ba = methodName.toLatin1();
-    QMetaObject::invokeMethod(q_ptr->parent(),
+    QMetaObject::invokeMethod(m_dbForm,
                               ba.constData(),
                               Q_RETURN_ARG(BaseBeanPointer, b));
     return b;
@@ -2028,7 +2040,7 @@ void DBRecordDlg::keyPressEvent (QKeyEvent *e)
 {
     bool accept = true;
     QWidget *widgetFocus = QApplication::focusWidget();
-    if ( widgetFocus == NULL )
+    if ( widgetFocus == Q_NULLPTR )
     {
         return;
     }
@@ -2130,6 +2142,49 @@ void DBRecordDlg::sync()
     }
 }
 
+void DBRecordDlg::uncheckInactive(const QVariant &value)
+{
+    if ( value.toBool() == true || d->m_bean.isNull() )
+    {
+        return;
+    }
+    DBField *fld = d->m_bean->field(AlephERP::stInactive);
+    if ( fld == Q_NULLPTR )
+    {
+        return;
+    }
+    int ret = QMessageBox::question(this,
+                                   qApp->applicationName(),
+                                   tr("¿Desea volver a dar de alta el registro?"),
+                                   QMessageBox::Yes | QMessageBox::No);
+    if ( ret == QMessageBox::No )
+    {
+        QWidget *widget = qobject_cast<QWidget *>(sender());
+        if ( widget == Q_NULLPTR )
+        {
+            return;
+        }
+        if ( !widget->property(AlephERP::stAerpControl).toBool() )
+        {
+            return;
+        }
+        DBBaseWidget *dbBaseWidget = dynamic_cast<DBBaseWidget *>(widget);
+        dbBaseWidget->setValue(true);
+        return;
+    }
+    d->m_bean->setInactive(false);
+    if ( !d->m_bean->save() )
+    {
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             tr("Atención: No se ha podido guardar el registro. El error es %1").arg(d->m_bean->lastError()));
+    }
+    else
+    {
+        setReadOnly(false);
+    }
+}
+
 #ifdef ALEPHERP_DEVTOOLS
 void DBRecordDlg::inspectBean()
 {
@@ -2141,8 +2196,8 @@ void DBRecordDlg::inspectBean()
         d->m_inspectorWidget->inspect(d->m_bean.data());
         d->m_inspectorWidget->inspect(contextName());
         // Vamos a agregar todos los beans también del contexto
-        BaseBeanPointerList list = AERPTransactionContext::instance()->beansOnContext(contextName());
-        foreach (BaseBeanPointer b, list)
+        const BaseBeanPointerList list = AERPTransactionContext::instance()->beansOnContext(contextName());
+        for (BaseBeanPointer b : list)
         {
             if ( !b.isNull() && b->objectName() != d->m_bean->objectName() )
             {
@@ -2257,7 +2312,7 @@ void DBRecordDlg::saveAndClose()
   */
 QString DBRecordDlg::parentType()
 {
-    if ( parent() != NULL )
+    if ( parent() != Q_NULLPTR )
     {
         return parent()->metaObject()->className();
     }
@@ -2369,6 +2424,11 @@ void DBRecordDlg::setCanNavigate(bool value)
         d->m_canNavigate = false;
     }    
     setVisibleButtons(d->m_visibleButtons);
+}
+
+void DBRecordDlg::setDbForm(DBFormDlg *dbForm)
+{
+    d->m_dbForm = dbForm;
 }
 
 QWidget *DBRecordDlg::contentWidget() const

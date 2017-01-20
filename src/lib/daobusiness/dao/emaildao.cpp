@@ -370,7 +370,8 @@ void EmailDAO::writeDbMessages(QSqlQuery *qry)
 {
     if ( qry->lastError().databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
     {
-        m_lastErrorMessage = qry->lastError().databaseText();
+        QString stError = qry->lastError().databaseText().replace(AlephERP::stDatabaseErrorPrefix, "");
+        m_lastErrorMessage = stError;
     }
     else
     {

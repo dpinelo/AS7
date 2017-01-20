@@ -107,10 +107,10 @@ void BuiltInExpressionDef::processExpression()
     int idx = exp.indexIn(result);
     while (idx != -1)
     {
-        QStringList list = exp.capturedTexts();
+        const QStringList list = exp.capturedTexts();
         if ( !list.isEmpty() )
         {
-            foreach (const QString &item, list)
+            for (const QString &item : list)
             {
                 if ( !item.isEmpty() )
                 {

@@ -121,8 +121,8 @@ QString DBAbstractFilterViewPrivate::initSortForModel()
     {
         if ( m_metadata->initOrderSort().isEmpty() )
         {
-            QList<DBFieldMetadata *> fields = m_metadata->fields();
-            foreach ( DBFieldMetadata *fld, fields )
+            const QList<DBFieldMetadata *> fields = m_metadata->fields();
+            for ( DBFieldMetadata *fld : fields )
             {
                 if ( fld->visibleGrid() && fld->isOnDb() )
                 {
@@ -162,24 +162,25 @@ QString DBAbstractFilterViewPrivate::initOrderedColumn()
         QTreeView *tv = qobject_cast<QTreeView *>(m_itemView.data());
         order = alephERPSettings->viewIndicatorColumnOrder<QTreeView>(tv);
     }
-    if ( order.isEmpty() )
+    if ( !order.isEmpty() )
     {
-        QString sortModel = initSortForModel();
-        if ( !sortModel.isEmpty() )
+        return order;
+    }
+    QString sortModel = initSortForModel();
+    if ( !sortModel.isEmpty() )
+    {
+        QStringList parts = sortModel.split(QStringLiteral(" "));
+        if ( parts.size() == 2 )
         {
-            QStringList parts = sortModel.split(QStringLiteral(" "));
-            if ( parts.size() == 2 )
-            {
-                return parts.first();
-            }
+            return parts.first();
         }
-        QList<DBFieldMetadata *> fields = m_metadata->fields();
-        foreach ( DBFieldMetadata *fld, fields )
+    }
+    const QList<DBFieldMetadata *> fields = m_metadata->fields();
+    for ( DBFieldMetadata *fld : fields )
+    {
+        if ( fld->visibleGrid() )
         {
-            if ( fld->visibleGrid() )
-            {
-                return fld->dbFieldName();
-            }
+            return fld->dbFieldName();
         }
     }
     return order;
@@ -233,7 +234,7 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
     {
         return;
     }
-    QList<QHash<QString, QString> > filters = m_metadata->itemsFilterColumn();
+    const QList<QHash<QString, QString> > filters = m_metadata->itemsFilterColumn();
     int i = 0;
 
     if ( filters.size() > 0 )
@@ -248,7 +249,7 @@ void DBAbstractFilterViewPrivate::createStrongFilter()
         q_ptr->ui->gbCustomFilter->setVisible(false);
     }
 
-    foreach ( HashString filter, filters )
+    for ( const HashString &filter : filters )
     {
         if ( !m_removedStrongFilter.contains(filter["idFilter"]) )
         {
@@ -360,7 +361,7 @@ void DBAbstractFilterViewPrivate::createComboStringFilter(const QHash<QString, Q
                 if ( BaseDAO::select(list, rel->tableName(), sqlFilterForStrongFilter(rel->tableName(), filter), order) )
                 {
                     // Añadimos los hijos de la relación al combo
-                    foreach ( BaseBeanSharedPointer child, list )
+                    for ( BaseBeanSharedPointer child : list )
                     {
                         QString where = QString("%1=%2").arg(fieldToFilter, child->sqlFieldValue(rel->childFieldName()));
                         cb->addItem(child->displayFieldValue(relationFieldToShow), where);
@@ -431,6 +432,7 @@ void DBAbstractFilterViewPrivate::createLineTextStringFilter(DBFieldMetadata *fl
             if ( layout == NULL )
             {
                 layout = new QHBoxLayout;
+                lay->addLayout(layout);
             }
         }
         else
@@ -505,7 +507,7 @@ void DBAbstractFilterViewPrivate::destroyStrongFilter(const QString &dbFieldName
         QList<QLabel*> listLbl = q_ptr->findChildren<QLabel*>(QRegExp("lblStrongFilter.+"));
         qDeleteAll(listCb);
         qDeleteAll(listLbl);
-        foreach (HashString hash, m_metadata->itemsFilterColumn())
+        for (const HashString &hash : m_metadata->itemsFilterColumn())
         {
             m_removedStrongFilter.append(hash["idFilter"]);
         }
@@ -522,7 +524,7 @@ void DBAbstractFilterViewPrivate::destroyStrongFilter(const QString &dbFieldName
         {
             delete listLb1;
         }
-        foreach (HashString hash, m_metadata->itemsFilterColumn())
+        for (const HashString &hash : m_metadata->itemsFilterColumn())
         {
             if (hash[AlephERP::stFieldToFilter] == dbFieldName)
             {
@@ -605,8 +607,8 @@ bool DBAbstractFilterViewPrivate::filterTypeToApply(QObject *obj, const QString 
 QString DBAbstractFilterViewPrivate::buildFilterWhere(const QString &aditionalSql)
 {
     QString whereFilter;
-    QList<QComboBox*> list = q_ptr->findChildren<QComboBox*>(QRegExp("cbStrongFilter.+"));
-    foreach (QComboBox *cb, list)
+    const QList<QComboBox*> list = q_ptr->findChildren<QComboBox*>(QRegExp("cbStrongFilter.+"));
+    for (QComboBox *cb : list)
     {
         if (cb->currentIndex() != -1)
         {
@@ -624,8 +626,8 @@ QString DBAbstractFilterViewPrivate::buildFilterWhere(const QString &aditionalSq
             }
         }
     }
-    QList<QLineEdit*> lineEdits = q_ptr->findChildren<QLineEdit *>(QRegExp("leStrongFilter.+"));
-    foreach (QLineEdit *le, lineEdits)
+    const QList<QLineEdit*> lineEdits = q_ptr->findChildren<QLineEdit *>(QRegExp("leStrongFilter.+"));
+    for (QLineEdit *le : lineEdits)
     {
         if ( !le->text().isEmpty() )
         {
@@ -675,14 +677,14 @@ void DBAbstractFilterViewPrivate::addFieldsCombo()
     {
         return;
     }
-    QList<DBFieldMetadata *> fields = m_metadata->fields();
+    const QList<DBFieldMetadata *> fields = m_metadata->fields();
     bool blockState = q_ptr->ui->cbFastFilter->blockSignals(true);
     q_ptr->ui->cbFastFilter->clear();
-    foreach ( DBFieldMetadata *fld, fields )
+    for ( DBFieldMetadata *fld : fields )
     {
         bool visibleStrongFilter = false;
-        QList<QHash<QString, QString> > itemFilterColumn = m_metadata->itemsFilterColumn();
-        foreach ( HashString item, itemFilterColumn )
+        const QList<QHash<QString, QString> > itemFilterColumn = m_metadata->itemsFilterColumn();
+        for ( const HashString &item : itemFilterColumn )
         {
             if ( item[AlephERP::stFieldToFilter] == fld->dbFieldName() )
             {
@@ -812,7 +814,7 @@ void DBAbstractFilterViewPrivate::createSubTotals()
     {
         return;
     }
-    HashStringList subTotals = m_metadata->infoSubTotals();
+    const HashStringList subTotals = m_metadata->infoSubTotals();
     if ( m_metadata.isNull() || subTotals.size() == 0 )
     {
         return;
@@ -826,7 +828,7 @@ void DBAbstractFilterViewPrivate::createSubTotals()
     lay->addItem(horizontalSpacer);
     q_ptr->layout()->addWidget(gb);
 
-    foreach ( HashString subTotal, subTotals )
+    for ( const HashString &subTotal : subTotals )
     {
         // Obtenemos el campo por el que se realizará el filtro fuerte
         DBFieldMetadata *fld = m_metadata->field(subTotal["name"]);
@@ -871,8 +873,8 @@ void DBAbstractFilterViewPrivate::calculateSubTotals()
     {
         return;
     }
-    HashStringList subTotals = m_metadata->infoSubTotals();
-    foreach ( HashString subTotal, subTotals )
+    const HashStringList subTotals = m_metadata->infoSubTotals();
+    for ( HashString subTotal : subTotals )
     {
         QLineEdit *le = q_ptr->findChild<QLineEdit *>(QString("leSubTotal%1").arg(subTotal["name"]));
         DBFieldMetadata *fld = m_metadata->field(subTotal["name"]);

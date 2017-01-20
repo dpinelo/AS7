@@ -926,7 +926,7 @@ DBField *BaseBean::field(const QString &dbFieldName)
             }
         }
     }
-    if ( field == NULL )
+    if ( field == Q_NULLPTR )
     {
          if ( !dbFieldName.isEmpty() &&
                dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
@@ -943,7 +943,7 @@ DBField * BaseBean::field(int index) const
 {
     if ( index < 0 || index >= d->m_fields.size() )
     {
-        return NULL;
+        return Q_NULLPTR;
     }
     return d->m_fields.at(index);
 }
@@ -1028,7 +1028,7 @@ DBRelation * BaseBean::relation(const QString &relationName)
             break;
         }
     }
-    if ( rel == NULL && !relationName.isEmpty() )
+    if ( rel == Q_NULLPTR && !relationName.isEmpty() )
     {
         QLogger::QLog_Info(AlephERP::stLogOther, QString("BaseBean::relation: [%1]. No existe la relación: [%2]").arg(d->m->tableName(), relationName));
     }
@@ -1042,7 +1042,7 @@ BaseBeanPointer BaseBean::father(const QString &relationName)
 {
     BaseBean *bean = NULL;
     DBRelation *rel = relation(relationName);
-    if ( rel == NULL || relationName.isEmpty() )
+    if ( rel == Q_NULLPTR || relationName.isEmpty() )
     {
         QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::father: [%1]. No existe la relación: [%2]").arg(d->m->tableName(), relationName));
     }
@@ -1109,7 +1109,7 @@ QVariant BaseBean::fieldValue(const QString &dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL )
+    if ( fld == Q_NULLPTR )
     {
         if ( !dbFieldName.isEmpty() &&
              dbFieldName != QLatin1String(AlephERP::stFieldEditable) &&
@@ -1133,7 +1133,7 @@ bool BaseBean::isFieldEmpty(const QString &dbFieldName)
         return true;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL )
+    if ( fld == Q_NULLPTR )
     {
         if ( !dbFieldName.isEmpty() &&
               dbFieldName != QLatin1String(AlephERP::stInactive) &&
@@ -1194,7 +1194,7 @@ QString BaseBean::displayFieldValue(const QString & dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL )
+    if ( fld == Q_NULLPTR )
     {
         if ( !dbFieldName.isEmpty() &&
               dbFieldName != QLatin1String(AlephERP::stInactive) &&
@@ -1236,7 +1236,7 @@ QString BaseBean::sqlFieldValue(const QString & dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL )
+    if ( fld == Q_NULLPTR )
     {
         if ( !dbFieldName.isEmpty() &&
              dbFieldName != QLatin1String(AlephERP::stInactive) &&
@@ -1265,7 +1265,7 @@ QString BaseBean::toolTipField(const QString &dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL )
+    if ( fld == Q_NULLPTR )
     {
          if ( !dbFieldName.isEmpty() &&
                dbFieldName != QLatin1String(AlephERP::stInactive) &&
@@ -1302,7 +1302,7 @@ QVariant BaseBean::defaultFieldValue(const QString &dbFieldName)
         return value;
     }
     DBField *fld = field(dbFieldName);
-    if ( fld == NULL )
+    if ( fld == Q_NULLPTR )
     {
          if ( !dbFieldName.isEmpty() &&
                dbFieldName != QLatin1String(AlephERP::stInactive) &&
@@ -1327,7 +1327,7 @@ QString BaseBean::sqlWhere(const QString &fieldName, const QString &op)
 {
     QString sql;
     DBField *fld = field(fieldName);
-    if ( fld == NULL )
+    if ( fld == Q_NULLPTR )
     {
          if ( !fieldName.isEmpty() &&
                fieldName != QLatin1String(AlephERP::stInactive) &&
@@ -1564,7 +1564,7 @@ void BaseBean::setModified()
     QMutexLocker lock(&d->m_mutex);
     // Es importante saber quién nos invoca
     DBObject *dbObject = qobject_cast<DBObject *>(sender());
-    if ( dbObject == NULL )
+    if ( dbObject == Q_NULLPTR )
     {
         return;
     }
@@ -2132,7 +2132,7 @@ bool BaseBean::checkFilter(const QString &filterExpression, Qt::CaseSensitivity 
                 }
             }
         }
-        if ( bean == NULL )
+        if ( bean == Q_NULLPTR )
         {
             return false;
         }
@@ -2270,7 +2270,7 @@ DBObject *BaseBean::navigateThroughProperties(const QString &path, bool returnIn
 
     for (int i = 0 ; i < items.size() ; i++)
     {
-        if ( obj == NULL )
+        if ( obj == Q_NULLPTR )
         {
             if ( returnIntermediate )
             {
@@ -2278,7 +2278,7 @@ DBObject *BaseBean::navigateThroughProperties(const QString &path, bool returnIn
             }
             else
             {
-                return NULL;
+                return Q_NULLPTR;
             }
         }
         QByteArray ba = items.at(i).toUtf8();
@@ -2286,7 +2286,7 @@ DBObject *BaseBean::navigateThroughProperties(const QString &path, bool returnIn
         if ( !v.isValid() )
         {
             QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBean::navigateThroughProperties: La ruta [%1] no conduce a ningún lugar. Item: [%2]").arg(path, items.at(i)));
-            return NULL;
+            return Q_NULLPTR;
         }
         // http://liveblue.wordpress.com/2012/10/29/qobject-multiple-inheritance-and-smart-delegators/
         // Ahí está la razón para estas cosas...
@@ -2294,13 +2294,13 @@ DBObject *BaseBean::navigateThroughProperties(const QString &path, bool returnIn
         // type used when constructing the QVariant. Qt5 introduces a nifty feature where you can safely
         // extract a QObject * from any QVariant built from a QObjectDerived *.
         obj = (DBField *)(v.value<DBField *>());
-        if ( obj == NULL )
+        if ( obj == Q_NULLPTR )
         {
             obj = (DBRelation *)(v.value<DBRelation *>());
-            if ( obj == NULL )
+            if ( obj == Q_NULLPTR )
             {
                 obj = (BaseBean *)(v.value<BaseBean *>());
-                if ( obj == NULL )
+                if ( obj == Q_NULLPTR )
                 {
                     BaseBeanPointer beanPointer = (BaseBeanPointer) (v.value<BaseBeanPointer>());
                     if ( !beanPointer.isNull() )
@@ -2317,7 +2317,7 @@ DBObject *BaseBean::navigateThroughProperties(const QString &path, bool returnIn
                         else
                         {
                             QLogger::QLog_Debug(AlephERP::stLogOther, QString("BaseBean::navigateThroughProperties: La ruta [%1] no ha podido ser convertida a un objeto valido..").arg(path));
-                            return NULL;
+                            return Q_NULLPTR;
                         }
                     }
                 }
@@ -2350,7 +2350,7 @@ QList<DBObject *> BaseBeanPrivate::iterateNavigation(BaseBean *bean, const QStri
 {
     QList<DBObject *> list;
 
-    if ( bean == NULL )
+    if ( bean == Q_NULLPTR )
     {
         return list;
     }
@@ -2365,7 +2365,7 @@ QList<DBObject *> BaseBeanPrivate::iterateNavigation(BaseBean *bean, const QStri
 
         // Veamos que es el siguiente item que viene...
         DBField *fld = bean->field(objectName);
-        if ( fld == NULL )
+        if ( fld == Q_NULLPTR )
         {
             DBRelation *rel = bean->relation(objectName);
             if ( rel != NULL )
@@ -2642,7 +2642,7 @@ QWidget *BaseBean::focusWidgetOnBadValidate()
         else
         {
             QLogger::QLog_Warning(AlephERP::stLogOther, "BaseBean::focusWidgetOnBadValidate: observador nulo.");
-            return NULL;
+            return Q_NULLPTR;
         }
     }
     else
@@ -2781,13 +2781,13 @@ RelatedElementPointer BaseBean::newRelatedElement(const QString &tableName, cons
     if ( !d->m->canHaveRelatedElements() )
     {
         QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::newRelatedElement: La tabla [%1] no puede tener elementos relacionados").arg(d->m->tableName()));
-        return NULL;
+        return Q_NULLPTR;
     }
 
-    if ( BeansFactory::instance()->metadataBean(tableName) == NULL )
+    if ( BeansFactory::instance()->metadataBean(tableName) == Q_NULLPTR )
     {
         QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::newRelatedElement: No existe ninguna tabla de nombre: [%1]").arg(tableName));
-        return NULL;
+        return Q_NULLPTR;
     }
     RelatedElementPointer element = newRelatedElement(AlephERP::Record);
     setModified();
@@ -2835,7 +2835,7 @@ QScriptValue BaseBean::newRelatedElement()
         return result;
     }
 
-    if ( engine() == NULL || context() == NULL )
+    if ( engine() == Q_NULLPTR || context() == Q_NULLPTR )
     {
         QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::newRelatedElement: Invocada función sin motor ni contexto."));
         return result;
@@ -2872,7 +2872,7 @@ QScriptValue BaseBean::newRelatedElement()
         if ( arg1.isString() )
         {
             QString tableName = arg1.toString();
-            if ( BeansFactory::instance()->metadataBean(tableName) == NULL )
+            if ( BeansFactory::instance()->metadataBean(tableName) == Q_NULLPTR )
             {
                 QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::newRelatedElement: No existe ninguna tabla: [%1]").arg(tableName));
                 return QScriptValue(QScriptValue::NullValue);
@@ -2915,7 +2915,7 @@ RelatedElementPointer BaseBean::newRelatedElement(BaseBeanPointer related, const
     if ( !d->m->canHaveRelatedElements() )
     {
         QLogger::QLog_Error(AlephERP::stLogOther, QString("BaseBean::newRelatedElement: La tabla [%1] no puede tener elementos relacionados").arg(d->m->tableName()));
-        return NULL;
+        return Q_NULLPTR;
     }
     RelatedElementPointer element = newRelatedElement(AlephERP::Record);
     setModified();
@@ -2942,7 +2942,7 @@ RelatedElementPointer BaseBean::newRelatedElement(RelatedElementPointer otherEle
 {
     if ( otherElement.isNull() )
     {
-        return NULL;
+        return Q_NULLPTR;
     }
     RelatedElementPointer element = newRelatedElement(otherElement->type());
     setModified();
@@ -2973,7 +2973,7 @@ RelatedElementPointer BaseBean::newRelatedElement(const EmailObject &emailConten
 {
     if ( !d->m->canHaveRelatedElements() )
     {
-        return NULL;
+        return Q_NULLPTR;
     }
     RelatedElementPointer element = newRelatedElement(AlephERP::Email);
     setModified();
@@ -2993,7 +2993,7 @@ RelatedElementPointer BaseBean::newRelatedElement(AERPDocMngmntDocument *doc, co
 {
     if ( !d->m->canHaveRelatedElements() )
     {
-        return NULL;
+        return Q_NULLPTR;
     }
     RelatedElementPointer element = newRelatedElement(AlephERP::Document);
     setModified();
@@ -3492,7 +3492,7 @@ bool BaseBean::reloadFromLinkedBean()
  */
 QScriptValue BaseBean::copyValues()
 {
-    if ( context() == NULL )
+    if ( context() == Q_NULLPTR )
     {
         return QScriptValue(QScriptValue::UndefinedValue);
     }
@@ -3636,7 +3636,7 @@ void BaseBean::touch()
  */
 void BaseBean::registerRecalculateFields()
 {
-    if ( engine() == NULL || context() == NULL )
+    if ( engine() == Q_NULLPTR || context() == Q_NULLPTR )
     {
         return;
     }
@@ -3748,7 +3748,7 @@ BaseBeanPointer BaseBean::clone(QObject *parent)
 {
     if ( d->m->tableName().isEmpty() )
     {
-        return NULL;
+        return Q_NULLPTR;
     }
     BaseBeanPointer copyBean = BeansFactory::instance()->newBaseBean(d->m->tableName(), false);
     copyBean->setParent(parent);
@@ -3883,7 +3883,7 @@ DBField *BaseBean::fieldForRole(int role)
             }
         }
     }
-    return NULL;
+    return Q_NULLPTR;
 }
 
 QString BaseBean::scheduleTitle()

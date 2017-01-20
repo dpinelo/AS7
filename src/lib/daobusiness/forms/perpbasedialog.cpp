@@ -18,12 +18,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
-
 #include "perpbasedialog.h"
 #include "perpbasedialog_p.h"
 #include "configuracion.h"
@@ -304,7 +299,7 @@ QScriptValue AERPBaseDialog::callQSMethod(const QString &method, const QObjectLi
     {
         return QScriptValue();
     }
-    foreach (QObject *object, args)
+    for (QObject *object : args)
     {
         QScriptValue val = d->m_engine->createScriptValue(object);
         argList.append(val);
@@ -360,7 +355,7 @@ QScriptValue AERPBaseDialog::callQSMethod(const QString &method, const BaseBeanS
     QScriptValueList argList;
     QScriptValue array = d->m_engine->newArray();
     int i = 0;
-    foreach (BaseBeanSharedPointer bean, beans)
+    for (BaseBeanSharedPointer bean : beans)
     {
         array.setProperty(i, d->m_engine->createScriptValue(bean.data()));
         i++;
@@ -381,7 +376,7 @@ QScriptValue AERPBaseDialog::callQSMethod(const QString &method, const BaseBeanP
     QScriptValueList argList;
     QScriptValue array = d->m_engine->newArray();
     int i = 0;
-    foreach (BaseBeanPointer bean, beans)
+    for (BaseBeanPointer bean : beans)
     {
         array.setProperty(i, d->m_engine->createScriptValue(bean.data()));
         i++;
@@ -402,7 +397,7 @@ QScriptValue AERPBaseDialog::callQSMethod(const QString &method, const RelatedEl
     QScriptValueList argList;
     QScriptValue array = d->m_engine->newArray();
     int i = 0;
-    foreach (RelatedElementPointer relElement, relElements)
+    for (RelatedElementPointer relElement : relElements)
     {
         array.setProperty(i, d->m_engine->createScriptValue(relElement.data()));
         i++;
@@ -434,8 +429,8 @@ QScriptValue AERPBaseDialog::qsThisObject()
 
 void AERPBaseDialog::installEventFilters()
 {
-    QList<QWidget *> children = findChildren<QWidget *>();
-    foreach ( QWidget *child, children )
+    const QList<QWidget *> children = findChildren<QWidget *>();
+    for ( QWidget *child : children )
     {
         if ( child->property(AlephERP::stAerpControl).toBool() )
         {
@@ -446,8 +441,8 @@ void AERPBaseDialog::installEventFilters()
 
 void AERPBaseDialog::connectPushButtonsToQsFunctions()
 {
-    QList<QPushButton *> buttons = findChildren<QPushButton *>();
-    foreach (QPushButton *button, buttons)
+    const QList<QPushButton *> buttons = findChildren<QPushButton *>();
+    for (QPushButton *button : buttons)
     {
         d->connectPushButtonToQsFunction(button);
     }
@@ -459,8 +454,8 @@ void AERPBaseDialog::connectPushButtonsToQsFunctions()
   */
 void AERPBaseDialog::exposeAERPControlToQsEngine(QDialog *dlg, AERPScriptQsObject *engine)
 {
-    QList<QWidget *> list = dlg->findChildren<QWidget *>();
-    foreach ( QWidget *widget, list )
+    const QList<QWidget *> list = dlg->findChildren<QWidget *>();
+    for ( QWidget *widget : list )
     {
         if ( widget->property(AlephERP::stAerpControl).toBool() ||
              widget->property(AlephERP::stAddToThisForm).toBool() )

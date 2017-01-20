@@ -592,6 +592,7 @@ AERPCell *AERPSheet::createCell(const QString &row, const QString &column, const
     AERPCell *actualCell = cell(row, column);
     if ( actualCell != NULL )
     {
+        actualCell->setValue(value);
         return actualCell;
     }
     bool ok;
@@ -795,7 +796,7 @@ int AERPSheet::cellDecimalPlaces(int rowId, const QString &column)
 
 void AERPSheet::addColumn(const QString &columnName)
 {
-    QString col = QString('A' + d->m_columns.size());
+    QString col = AERPSpreadSheet::columnStringName(d->m_columns.size());
     d->m_columns.append(col);
     d->m_columnNames[col] = columnName;
     d->m_hasColumnNames = true;
@@ -842,7 +843,7 @@ void AERPSheet::setColumnName(int index, const QString &columnName)
     }
     else
     {
-        QString col = QString('A' + index);
+        QString col = AERPSpreadSheet::columnStringName(index);
         d->m_columns.append(col);
         d->m_columnNames[col] = columnName;
         d->m_hasColumnNames = true;

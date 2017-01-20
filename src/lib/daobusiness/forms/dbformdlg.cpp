@@ -1128,6 +1128,7 @@ void DBFormDlg::edit(const QString &insert, const QString &uiCode, const QString
     else
     {
         dlg = new DBRecordDlg(bean, openType, true);
+        dlg->setDbForm(this);
     }
     CommonsFunctions::restoreOverrideCursor();
     if ( !uiCode.isEmpty() )
@@ -1235,6 +1236,7 @@ void DBFormDlg::insertChild()
                     }
                     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
                     QPointer<DBRecordDlg> dlg = new DBRecordDlg(bean, AlephERP::Insert, true, this);
+                    dlg->setDbForm(this);
                     if ( !d->uiDbNewRecordForSelectedRow().isEmpty() )
                     {
                         dlg->setUiCode(d->uiDbNewRecordForSelectedRow());
@@ -2215,7 +2217,7 @@ void DBFormDlg::availableButtonsFromBean()
     {
         return;
     }
-    ui->pbEdit->setEnabled(!bean->readOnly());
+    // ui->pbEdit->setEnabled(!bean->readOnly());
     ui->pbDelete->setEnabled(!bean->readOnly());
 }
 
@@ -2283,6 +2285,7 @@ void DBFormDlg::view()
     else
     {
         dlg = new DBRecordDlg(bean, openType, true);
+        dlg->setDbForm(this);
     }
     CommonsFunctions::restoreOverrideCursor();
     if ( !d->uiDbRecordForSelectedRow().isEmpty() )

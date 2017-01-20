@@ -559,7 +559,8 @@ void SystemDAO::writeDbMessages(QSqlQuery *qry)
 {
     if ( qry->lastError().databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
     {
-        SystemDAO::m_lastMessage = qry->lastError().databaseText();
+        QString stError = qry->lastError().databaseText().replace(AlephERP::stDatabaseErrorPrefix, "");
+        SystemDAO::m_lastMessage = stError;
     }
     else
     {
@@ -1168,7 +1169,7 @@ QList<AERPSystemObject *> SystemDAO::localSystemObjects()
  * para procesar después el resultado y buscar sólo los que mejor cuadran a este dispositivo
  * @return
  */
-QList<AERPSystemObject *> SystemDAO::localSystemObjectsForThisDevice()
+const QList<AERPSystemObject *> SystemDAO::localSystemObjectsForThisDevice()
 {
     QList<AERPSystemObject *> allObjects = SystemDAO::localSystemObjects();
     QList<AERPSystemObject *> result;

@@ -219,7 +219,8 @@ bool BaseDAO::commit(const QString &connection)
     {
         if ( db.lastError().databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
         {
-            m_threadLastMessage.setLocalData(db.lastError().databaseText());
+            QString error = db.lastError().databaseText().replace(AlephERP::stDatabaseErrorPrefix, "");
+            m_threadLastMessage.setLocalData(error);
         }
         else
         {

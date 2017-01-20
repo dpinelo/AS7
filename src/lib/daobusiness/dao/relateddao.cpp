@@ -48,7 +48,8 @@ void RelatedDAO::writeDbMessages(QSqlQuery *qry)
 {
     if ( qry->lastError().databaseText().contains(AlephERP::stDatabaseErrorPrefix) )
     {
-        m_relatedDaoThreadLastMessage.setLocalData(qry->lastError().databaseText());
+        QString stError = qry->lastError().databaseText().replace(AlephERP::stDatabaseErrorPrefix, "");
+        m_relatedDaoThreadLastMessage.setLocalData(stError);
     }
     else
     {
