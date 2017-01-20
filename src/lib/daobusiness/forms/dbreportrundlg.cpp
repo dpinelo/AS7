@@ -709,7 +709,7 @@ bool DBReportRunDlgPrivate::setupMainWidget()
         return false;
     }
 
-    bool result;
+    bool result = false;
     QString fileName = QString("%1.report.ui").arg(m_run->metadata()->parameterForm());
 
     if ( BeansFactory::systemUi.contains(fileName) )
