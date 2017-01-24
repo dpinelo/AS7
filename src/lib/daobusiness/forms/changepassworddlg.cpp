@@ -66,6 +66,17 @@ void ChangePasswordDlg::okClicked()
                              tr("No ha escrito bien la nueva contraseña. Debe ser la misma en los dos controles de texto inferiores."), QMessageBox::Ok);
         return;
     }
+    const QString passwordStrength = ChangePasswordDlg::checkPasswordStrength(ui->txtNewPassword->text());
+    if ( !passwordStrength.isEmpty() )
+    {
+        ui->txtNewPassword->clear();
+        ui->txtReNewPassword->clear();
+        QMessageBox::warning(this,
+                             qApp->applicationName(),
+                             passwordStrength);
+        return;
+    }
+
     if ( UserDAO::changePassword(m_userName, ui->txtOldPassword->text(), ui->txtNewPassword->text()) )
     {
         QMessageBox::information(this,
@@ -80,4 +91,26 @@ void ChangePasswordDlg::okClicked()
                              tr("Ha ocurrido un error tratando de cambiar su contraseña."
                              "\nEl error es: <i>%1</i>").arg(UserDAO::lastErrorMessage()), QMessageBox::Ok);
     }
+}
+
+const QString ChangePasswordDlg::checkPasswordStrength(const QString &password)
+{
+    const QString errorMessage = QObject::tr("Su contraseña debe tener una longitud mínima de 8 caracters, y debe contener un dígito, al menos un carácter en mayúsculas, y un carácter especial.");
+    if (password.length() < 8)
+    {
+        return errorMessage;
+    }
+    if (!password.contains(QRegExp("[0-9]")))
+    {
+        return errorMessage;
+    }
+    if (!password.contains(QRegExp("[A-Z]")))
+    {
+        return errorMessage;
+    }
+    if (!password.contains(QRegExp("[^0-9a-zA-Z]")))
+    {
+        return errorMessage;
+    }
+    return QString("");
 }

@@ -41,6 +41,8 @@ public:
     explicit ChangePasswordDlg(const QString &userName, bool emptyPassword = false, QWidget *parent = 0);
     ~ChangePasswordDlg();
 
+    static const QString checkPasswordStrength(const QString &password);
+
 protected slots:
     void okClicked();
 
