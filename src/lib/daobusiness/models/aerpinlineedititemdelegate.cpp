@@ -18,7 +18,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include <QDebug>
-
 #include <aerpcommon.h>
 #include <globales.h>
 #include "aerpinlineedititemdelegate.h"
@@ -44,7 +43,6 @@ class AERPInlineEditItemDelegatePrivate
 {
 public:
     AERPInlineEditItemDelegate *q_ptr;
-    QString m_type;
 
     AERPInlineEditItemDelegatePrivate(AERPInlineEditItemDelegate *qq) : q_ptr(qq)
     {
@@ -256,15 +254,27 @@ void AERPInlineEditItemDelegate::paint(QPainter *painter, const QStyleOptionView
 
 bool AERPInlineEditItemDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
-    if ( event->type() == QEvent::MouseButtonPress && d->m_type == QStringLiteral("DBChooseRecordButton") )
+    if ( event->type() != QEvent::MouseButtonRelease )
+    {
+        return QStyledItemDelegate::editorEvent(event, model, option, index);
+    }
+    if ( !index.isValid() )
+    {
+        return QStyledItemDelegate::editorEvent(event, model, option, index);
+    }
+    QVariant pointer = index.data(AlephERP::DBFieldRole);
+    DBField *fld = static_cast<DBField *>(pointer.value<void *>());
+    if ( fld == NULL )
+    {
+        return QStyledItemDelegate::editorEvent(event, model, option, index);
+    }
+    QString type = d->widgetTypeForDBField(fld);
+    if ( type == QStringLiteral("DBChooseRecordButton") )
     {
         buttonClicked(index);
         return true;
     }
-    else
-    {
-        return QStyledItemDelegate::editorEvent(event, model, option, index);
-    }
+    return QStyledItemDelegate::editorEvent(event, model, option, index);
 }
 
 /**
@@ -547,6 +557,10 @@ QWidget *AERPInlineEditItemDelegatePrivate::createDBCheckBox(QWidget *parent, DB
 
 QString AERPInlineEditItemDelegatePrivate::widgetTypeForDBField(DBField *fld)
 {
+    if ( !fld->metadata()->behaviourOnInlineEdit().value("widgetOnEdit").toString().isEmpty() )
+    {
+        return fld->metadata()->behaviourOnInlineEdit().value("widgetOnEdit").toString();
+    }
     if ( fld->metadata()->type() == QVariant::String )
     {
         return "DBLineEdit";
@@ -565,10 +579,6 @@ QString AERPInlineEditItemDelegatePrivate::widgetTypeForDBField(DBField *fld)
     else if ( fld->metadata()->type() == QVariant::Bool )
     {
         return "DBCheckBox";
-    }
-    if ( !fld->metadata()->behaviourOnInlineEdit().value("widgetOnEdit").toString().isEmpty() )
-    {
-        return fld->metadata()->behaviourOnInlineEdit().value("widgetOnEdit").toString();
     }
     return "DBLineEdit";
 }
