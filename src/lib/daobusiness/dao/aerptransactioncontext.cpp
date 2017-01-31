@@ -133,12 +133,12 @@ public:
         return false;
     }
 
-    QStringList previousSql() const
+    const QStringList previousSql() const
     {
         return m_beforeSqls;
     }
 
-    QStringList finalsSql() const
+    const QStringList finalsSql() const
     {
         return m_afterSqls;
     }
@@ -323,7 +323,7 @@ bool AERPTransactionContext::addToContext(const QString &contextName, const Base
         // Obtener los hijos no debe en este caso de desencadenar ningún tipo de proceso. Por eso accedemos a ellos
         // con la estructura interna.
         bool previousState = bean->blockAllSignals(true);
-        BaseBeanPointerList list = relation->internalChildren();
+        const BaseBeanPointerList list = relation->internalChildren();
         bean->blockAllSignals(previousState);
         for (BaseBeanPointer child : list)
         {
@@ -547,7 +547,8 @@ bool AERPTransactionContext::commit(const QString &contextName, bool discardCont
     }
 
     // Ejecutamos las SQL Previas
-    for (const QString &sql : d->m_contextObjects[contextName]->previousSql())
+    const QStringList previousSql = d->m_contextObjects[contextName]->previousSql();
+    for (const QString &sql : previousSql)
     {
         if ( !BaseDAO::execute(sql) )
         {
@@ -1020,7 +1021,7 @@ const BaseBeanPointerList AERPTransactionContext::beansOrderedToPersist(const QS
  */
 bool AERPTransactionContext::isDirty(const QString &contextName)
 {
-    QList<BaseBeanPointer> list = beansOnContext(contextName);
+    const QList<BaseBeanPointer> list = beansOnContext(contextName);
     for (BaseBeanPointer bean : list)
     {
         if ( !bean.isNull() && bean->modified() )
@@ -1033,7 +1034,7 @@ bool AERPTransactionContext::isDirty(const QString &contextName)
 
 bool AERPTransactionContext::isOnTransaction(BaseBeanPointer bean)
 {
-    QList<BaseBeanPointer> beans = AERPTransactionContext::instance()->beansOnContext(bean->actualContext());
+    const QList<BaseBeanPointer> beans = AERPTransactionContext::instance()->beansOnContext(bean->actualContext());
     for (BaseBeanPointer b : beans)
     {
         if ( bean->dbState() == BaseBean::INSERT )
@@ -1153,7 +1154,7 @@ const BaseBeanPointerList AERPTransactionContextPrivate::orderBeansForTransactio
 {
     // TODO: Hay que ver el caso en el que los beans dependan de otro de su misma tabla!!!
     BaseBeanPointerList orderedBeans;
-    BaseBeanPointerList beansOnContext = m_contextObjects[contextName]->list();
+    const BaseBeanPointerList beansOnContext = m_contextObjects[contextName]->list();
     Graph graph(beansOnContext.size());
     const char *graphIndexProperty = "graphIndex";
 

@@ -23,11 +23,7 @@
 #include <QtCore>
 #include <QtGlobal>
 #include <QDebug>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include <aerpcommon.h>
 #ifdef Q_OS_ANDROID
 #include <aerpandroidenvironment.h>
@@ -370,7 +366,7 @@ void AlephERPSettings::init (void)
     m_modeDBA = m_settings->value(KEY_DBA_MODE).toBool();
 
     m_modelRefreshTimeout = m_settings->value(KEY_MODEL_REFRESH_TIMEOUT, 30000).toInt();
-    m_modelsRefresh = m_settings->value(KEY_MODELS_REFRESH, false).toBool();
+    m_modelsRefresh = m_settings->value(KEY_MODELS_REFRESH, true).toBool();
     if ( m_modelRefreshTimeout == 0 )
     {
         m_modelsRefresh = false;

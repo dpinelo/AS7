@@ -224,9 +224,9 @@ void AERPSpreadSheet::loadPlugins()
     QString pluginDirPath = QString("%1/plugins/spreadsheet").arg(QApplication::applicationDirPath());
     QDir pluginDir(pluginDirPath);
 #if defined(Q_OS_WIN)
-    QStringList plugins = pluginDir.entryList(QStringList() << QString("*.dll"), QDir::Files);
+    const QStringList plugins = pluginDir.entryList(QStringList() << QString("*.dll"), QDir::Files);
 #else
-    QStringList plugins = pluginDir.entryList(QStringList() << QString("*.so"), QDir::Files);
+    const QStringList plugins = pluginDir.entryList(QStringList() << QString("*.so"), QDir::Files);
 #endif
 
     for (const QString &pluginFile : plugins)
@@ -376,7 +376,7 @@ AERPSheet *AERPSpreadSheet::sheet(const QString &value)
 
 AERPSheet *AERPSpreadSheet::sheet(int index)
 {
-    QList<AERPSheet *> list = d->m_sheets.values();
+    const QList<AERPSheet *> list = d->m_sheets.values();
     for (AERPSheet *sheet : list)
     {
         if ( sheet->index() == index )
@@ -404,7 +404,7 @@ bool AERPSpreadSheet::saveAs(const QString &path, const QString &typeToSave)
     }
     QScopedPointer<AERPSpreadSheet> spread(new AERPSpreadSheet());
     AERPSpreadSheetIface *iface = NULL;
-    QList<AERPSpreadSheetIface *> list = AERPSpreadSheet::ifaces();
+    const QList<AERPSpreadSheetIface *> list = AERPSpreadSheet::ifaces();
     for (AERPSpreadSheetIface *i : list)
     {
         if ( i->type() == type )
@@ -1184,7 +1184,7 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
     }
     QStringList displayTypes;
 
-    QList<AERPSpreadSheetIface *> list = AERPSpreadSheet::ifaces();
+    const QList<AERPSpreadSheetIface *> list = AERPSpreadSheet::ifaces();
     for (AERPSpreadSheetIface *iface : list)
     {
         if ( iface->canWriteFiles() )
@@ -1214,7 +1214,7 @@ void AERPSpreadSheetUtil::exportSpreadSheet(FilterBaseBeanModel *filterModel, QW
         return;
     }
     AERPSpreadSheetIface *iface = NULL;
-    QList<AERPSpreadSheetIface *> listIfaces = AERPSpreadSheet::ifaces();
+    const QList<AERPSpreadSheetIface *> listIfaces = AERPSpreadSheet::ifaces();
     for (AERPSpreadSheetIface *i : listIfaces)
     {
         if ( i->displayType() == displayType )

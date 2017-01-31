@@ -94,7 +94,7 @@ public:
     explicit BaseBeanPrivate(BaseBean *qq);
 
     static QString extractFilterOperator(const QString &filter);
-    void setDefaultValues(BaseBeanPointerList fathers = BaseBeanPointerList());
+    void setDefaultValues(const BaseBeanPointerList &fathers = BaseBeanPointerList());
     void connectCounterFields();
     void connectAggregateFields();
     QList<DBObject *> iterateNavigation(DBField *fld, const QStringList &relativePath, const QStringList &filters);
@@ -132,7 +132,7 @@ BaseBeanPrivate::BaseBeanPrivate(BaseBean *qq) :
     m_calculateFieldsEnabled = true;
 }
 
-void BaseBeanPrivate::setDefaultValues(BaseBeanPointerList fatherBeans)
+void BaseBeanPrivate::setDefaultValues(const BaseBeanPointerList &fatherBeans)
 {
     QMutexLocker lock(&m_mutex);
 
@@ -140,7 +140,7 @@ void BaseBeanPrivate::setDefaultValues(BaseBeanPointerList fatherBeans)
     // Si invocamos a este objeto con "padres" de relaciones, los asignamos
     for (BaseBeanPointer father : fatherBeans)
     {
-        QList<DBRelation *> relations = q_ptr->relations(AlephERP::ManyToOne);
+        const QList<DBRelation *> relations = q_ptr->relations(AlephERP::ManyToOne);
         for (DBRelation *rel : relations)
         {
             if ( father && rel->metadata()->tableName() == father->metadata()->tableName() )
@@ -459,8 +459,8 @@ void BaseBean::init(BaseBeanMetadata *m, bool hastToSetDefaultValue, const BaseB
 {
     QMutexLocker lock(&d->m_mutex);
     d->m = m;
-    QList<DBFieldMetadata *> fieldsMetadata = d->m->fields();
-    QList<DBRelationMetadata *>relationsMetadata = d->m->relations();
+    const QList<DBFieldMetadata *> fieldsMetadata = d->m->fields();
+    const QList<DBRelationMetadata *>relationsMetadata = d->m->relations();
     for (DBFieldMetadata *metadata : fieldsMetadata)
     {
         newField(metadata);
@@ -616,7 +616,7 @@ void BaseBean::makeCalculatedFieldsConnections(const QString &fieldToCalc, const
         // Nos conectamos también a las relaciones agregadas
         if ( field->metadata()->aggregate() )
         {
-            QStringList rels = field->metadata()->aggregateCalc().relation;
+            const QStringList rels = field->metadata()->aggregateCalc().relation;
             for (const QString &rel : rels)
             {
                 DBRelation *r = relation(rel);
@@ -1352,7 +1352,7 @@ QString BaseBean::sqlWherePk()
 {
     QString where;
 
-    QList<DBField *> pk = pkFields();
+    const QList<DBField *> pk = pkFields();
     if ( pk.isEmpty() )
     {
         return where;
@@ -1374,7 +1374,7 @@ QString BaseBean::sqlWherePk()
 QVariant BaseBean::pkValue() const
 {
     QVariantMap pkValues;
-    QList<DBField *> pk = pkFields();
+    const QList<DBField *> pk = pkFields();
     if ( pk.isEmpty() )
     {
         return QVariant();
@@ -1389,7 +1389,7 @@ QVariant BaseBean::pkValue() const
 const QVariantList BaseBean::pkListValue() const
 {
     QVariantList list;
-    QList<DBField *> pk = pkFields();
+    const QList<DBField *> pk = pkFields();
     if ( pk.isEmpty() )
     {
         return list;
@@ -1480,7 +1480,7 @@ void BaseBean::setDbState(BaseBean::DbBeanStates value)
         {
             if ( rel->metadata()->deleteCascade() && (rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY || rel->metadata()->type() == DBRelationMetadata::ONE_TO_ONE) )
             {
-                BaseBeanPointerList internalChildren = rel->internalChildren();
+                const BaseBeanPointerList internalChildren = rel->internalChildren();
                 for (BaseBeanPointer b : internalChildren)
                 {
                     b->setDbState(BaseBean::TO_BE_DELETED);
@@ -2086,7 +2086,7 @@ bool BaseBean::checkFilter(const QString &filterExpression, Qt::CaseSensitivity 
         return true;
     }
 
-    QStringList conditions = filterExpression.split(QRegExp(" (AND|and) "));
+    const QStringList conditions = filterExpression.split(QRegExp(" (AND|and) "));
 
     for ( const QString &filter : conditions )
     {
@@ -2436,7 +2436,7 @@ QList<DBObject *> BaseBeanPrivate::iterateNavigation(DBField *fld, const QString
             }
             else
             {
-                BaseBeanPointerList children = rel->childrenByFilter(filter);
+                const BaseBeanPointerList children = rel->childrenByFilter(filter);
                 for (BaseBeanPointer pointerBean : children)
                 {
                     if ( !pointerBean.isNull() )
@@ -2480,7 +2480,7 @@ QList<DBObject *> BaseBeanPrivate::iterateNavigation(DBRelation *rel, const QStr
         }
         else
         {
-            BaseBeanPointerList pointerBeans = rel->children(filter);
+            const BaseBeanPointerList pointerBeans = rel->children(filter);
             for (BaseBeanPointer pointerBean : pointerBeans)
             {
                 if ( !pointerBean.isNull() )
@@ -2738,7 +2738,7 @@ bool BaseBeanPrivate::checkAccess(QChar access) const
         return true;
     }
     // Se hacen dos bucles para tener en cuenta la granularidad de los permisos.
-    QList<AERPUserRowAccess> accessItems =  q_ptr->access();
+    const QList<AERPUserRowAccess> accessItems =  q_ptr->access();
     for (const AERPUserRowAccess &item : accessItems)
     {
         if ( (item.userName() == AERPLoggedUser::instance()->userName() ||
@@ -3058,7 +3058,7 @@ const RelatedElementPointerList BaseBean::getRelatedElements(AlephERP::RelatedEl
 RelatedElementPointerList BaseBean::getRelatedElementsByRelatedTableName(const QString &tableName, AlephERP::RelatedElementCardinalities cardinality, bool includeToBeDelete)
 {
     RelatedElementPointerList elements;
-    RelatedElementPointerList allElements = getRelatedElements(AlephERP::Record, cardinality, includeToBeDelete);
+    const RelatedElementPointerList allElements = getRelatedElements(AlephERP::Record, cardinality, includeToBeDelete);
     for (RelatedElementPointer element : allElements)
     {
         if ( !element.isNull() )
@@ -3544,7 +3544,7 @@ QScriptValue BaseBean::copyRelationChildren()
     QStringList relationNames;
     if (context()->argumentCount() == 1)
     {
-        QList<DBRelation *> rels = relations(AlephERP::OneToMany | AlephERP::OneToOne);
+        const QList<DBRelation *> rels = relations(AlephERP::OneToMany | AlephERP::OneToOne);
         for (DBRelation *rel : rels)
         {
             relationNames.append(rel->metadata()->name());
@@ -3589,7 +3589,7 @@ QScriptValue BaseBean::deepCopyValues()
     QStringList relationNames;
     if (context()->argumentCount() == 1)
     {
-        QList<DBRelation *> rels = relations(AlephERP::OneToMany | AlephERP::OneToOne);
+        const QList<DBRelation *> rels = relations(AlephERP::OneToMany | AlephERP::OneToOne);
         for (DBRelation *rel : rels)
         {
             relationNames.append(rel->metadata()->name());
@@ -3667,7 +3667,7 @@ void BaseBean::setValuesFromFilter(const QString &filter)
     {
         return;
     }
-    QStringList parts = filter.split(QRegExp(" (AND|and) "));
+    const QStringList parts = filter.split(QRegExp(" (AND|and) "));
     for (const QString &part : parts)
     {
         QStringList subparts = part.split("=");
@@ -3991,7 +3991,7 @@ void BaseBean::copyRelationChildren(BaseBeanPointer otherBean, const QStringList
         DBRelation *thisRel = relation(relationName);
         if (otherRel != NULL && thisRel != NULL)
         {
-            BaseBeanPointerList otherRelChildren = otherRel->children("", false);
+            const BaseBeanPointerList otherRelChildren = otherRel->children("", false);
             for (BaseBeanPointer child : otherRelChildren)
             {
                 if (!child.isNull())
@@ -4018,7 +4018,7 @@ void BaseBean::deepCopyValues(BaseBeanPointer otherBean, const QStringList &rela
     QStringList definitiveRelationsNames;
     if ( relationNames.isEmpty() )
     {
-        QList<DBRelation *> rels = relations(AlephERP::OneToMany | AlephERP::OneToOne);
+        const QList<DBRelation *> rels = relations(AlephERP::OneToMany | AlephERP::OneToOne);
         for (DBRelation *rel : rels)
         {
             definitiveRelationsNames.append(rel->metadata()->name());
@@ -4037,7 +4037,7 @@ void BaseBean::deepCopyValues(BaseBeanPointer otherBean, const QStringList &rela
         DBRelation *thisRel = relation(relationName);
         if (otherRel != NULL && thisRel != NULL && thisRel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY)
         {
-            BaseBeanPointerList otherRelChildren = otherRel->children("", false);
+            const BaseBeanPointerList otherRelChildren = otherRel->children("", false);
             for (BaseBeanPointer child : otherRelChildren)
             {
                 if (!child.isNull())

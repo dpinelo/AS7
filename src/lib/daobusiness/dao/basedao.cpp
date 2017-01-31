@@ -424,7 +424,7 @@ BaseBeanSharedPointerList BaseDAO::getContentCachedQuery(const QString &tableNam
             BaseBeanSharedPointerList temp;
             if ( getCopies )
             {
-                BaseBeanSharedPointerList list = content->hashCachedBeans[sql];
+                const BaseBeanSharedPointerList list = content->hashCachedBeans[sql];
                 for (BaseBeanSharedPointer bean : list)
                 {
                     temp.append(bean->clone());
@@ -678,7 +678,7 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
         }
         sqlFields = QString("%1%2").arg(sqlFields, fld->dbFieldName());
     }
-    QList<DBField *> pkFields = firstBean->pkFields();
+    const QList<DBField *> pkFields = firstBean->pkFields();
     for ( DBField *fld : pkFields )
     {
         if ( !sqlFields.isEmpty() )
@@ -689,7 +689,7 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
     }
     for ( BaseBeanSharedPointer bean : list )
     {
-        QList<DBField *> pkFields = bean->pkFields();
+        const QList<DBField *> pkFields = bean->pkFields();
         QString temp;
         temp = QString("(");
         for ( DBField *fld : pkFields )
@@ -724,7 +724,7 @@ void BaseDAO::preloadMemoFields(const BaseBeanSharedPointerList &list, const QSt
             for ( BaseBeanSharedPointer bean : list )
             {
                 bool equal = true;
-                QList<DBField *> pkFields = bean->pkFields();
+                const QList<DBField *> pkFields = bean->pkFields();
                 for ( DBField *fld : pkFields )
                 {
                     equal = equal & ( fld->value() == qry->value(memoIndex.size() + i));
@@ -794,7 +794,7 @@ bool BaseDAO::loadUserEnvVars(const QString &connection)
      */
 
     QString idRoles, sql;
-    QList<AlephERP::RoleInfo> userRoles = AERPLoggedUser::instance()->roles();
+    const QList<AlephERP::RoleInfo> userRoles = AERPLoggedUser::instance()->roles();
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
     for ( const AlephERP::RoleInfo &userRole : userRoles )
@@ -866,7 +866,7 @@ QVariant BaseDAO::loadUserEnvVar(const QString &userName, const QString &envVar,
     QVariant data;
 
     QString idRoles, sql;
-    QList<AlephERP::RoleInfo> userRoles = UserDAO::userRoles(userName);
+    const QList<AlephERP::RoleInfo> userRoles = UserDAO::userRoles(userName);
     CommonsFunctions::setOverrideCursor(Qt::WaitCursor);
     QScopedPointer<QSqlQuery> qry (new QSqlQuery(Database::getQDatabase(connection)));
     for ( const AlephERP::RoleInfo &userRole : userRoles )
@@ -1347,7 +1347,7 @@ bool BaseDAO::selectSeveralByPk(BaseBeanSharedPointerList &beans, const QVariant
     {
         return false;
     }
-    QList<DBFieldMetadata *> pk = metadata->pkFields();
+    const QList<DBFieldMetadata *> pk = metadata->pkFields();
     if ( pk.size() == 0 )
     {
         return false;
@@ -1460,7 +1460,7 @@ bool BaseDAO::selectByPk(const QVariant &id, BaseBean *bean, const QString &conn
         return false;
     }
     bool blockSignalState = bean->blockSignals(true);
-    QList<DBField *> pk = bean->pkFields();
+    const QList<DBField *> pk = bean->pkFields();
     if ( pk.isEmpty() )
     {
         bean->blockSignals(blockSignalState);
@@ -1931,7 +1931,7 @@ bool BaseDAO::insert(BaseBean *bean, const QString &idTransaction, const QString
         return false;
     }
 
-    QList<DBField *> pkFields = bean->pkFields();
+    const QList<DBField *> pkFields = bean->pkFields();
     // Para evitar los problemas de escape de caracteres y demás, se utilizará la claúsula bindValue
     // para lo cual, debemos primero construir un INSERT del tipo:
     // INSERT INTO tabla (field1, field2, field3) VALUES(?, ?,?);
@@ -2263,7 +2263,7 @@ bool BaseDAO::remove(BaseBean *bean, const QString &idTransaction, const QString
     }
 
     // Vamos a eliminar todas las referencias a hijos con relaciones en cascada.
-    QList<DBRelation *> rels = bean->relations(AlephERP::OneToMany | AlephERP::OneToOne);
+    const QList<DBRelation *> rels = bean->relations(AlephERP::OneToMany | AlephERP::OneToOne);
     for ( DBRelation *rel : rels )
     {
         if ( rel->metadata()->avoidDeleteIfIsReferenced() && rel->childrenCount() > 0 )
@@ -2281,7 +2281,7 @@ bool BaseDAO::remove(BaseBean *bean, const QString &idTransaction, const QString
         }
         if ( rel->metadata()->deleteCascade() && !rel->metadata()->dbReferentialIntegrity() )
         {
-            BaseBeanPointerList children = rel->children();
+            const BaseBeanPointerList children = rel->children();
             for ( BaseBeanPointer child : children )
             {
                 if ( !child.isNull() && !BaseDAO::remove(child.data(), idTransaction) )
@@ -2403,7 +2403,7 @@ bool BaseDAO::removeReference(BaseBean *bean, DBRelation *relation, const QStrin
 
 bool BaseDAO::updateBrothersFieldKey(BaseBean *bean, const QString &idTransaction, const QString &connectionName)
 {
-    QList<DBRelation *> rels = bean->relations(AlephERP::OneToOne);
+    const QList<DBRelation *> rels = bean->relations(AlephERP::OneToOne);
     for (DBRelation *rel : rels)
     {
         DBField *fld = bean->field(rel->metadata()->rootFieldName());
@@ -2838,7 +2838,7 @@ bool BaseDAO::copyBaseBean(const BaseBeanPointer &orig, const BaseBeanPointer &d
     {
         return false;
     }
-    QList<DBRelation *> rels = orig->relations();
+    const QList<DBRelation *> rels = orig->relations();
     for ( DBRelation *rel : rels )
     {
         if ( rel->metadata()->includeOnCopy() )
@@ -2886,7 +2886,7 @@ bool BaseDAO::copyBaseBean(const BaseBeanPointer &orig, const BaseBeanPointer &d
         DBRelation *relDest = dest->relation(rel->metadata()->tableName());
         if ( relDest != NULL && rel->metadata()->type() == DBRelationMetadata::ONE_TO_MANY )
         {
-            BaseBeanPointerList children = rel->children();
+            const BaseBeanPointerList children = rel->children();
             for ( BaseBeanPointer child : children )
             {
                 BaseBeanSharedPointer childDest = relDest->newChild();
@@ -3146,7 +3146,7 @@ bool BaseDAO::reloadRelationsChangedAfterSave(BaseBean *bean)
     {
         return false;
     }
-    QList<DBRelation *> relations = bean->relations();
+    const QList<DBRelation *> relations = bean->relations();
     for (DBRelation *relation : relations)
     {
         if ( relation->metadata()->reloadFromDBAfterSave() )
@@ -3214,7 +3214,7 @@ void BaseDAO::clearBeansCache()
 QString BaseDAO::filterRowWhere(BaseBeanMetadata *metadata, const QString &alias)
 {
     QString idRoleSql;
-    QList<AlephERP::RoleInfo> userRoles = AERPLoggedUser::instance()->roles();
+    const QList<AlephERP::RoleInfo> userRoles = AERPLoggedUser::instance()->roles();
     for (const AlephERP::RoleInfo &rol : userRoles)
     {
         if ( !idRoleSql.isEmpty() )
@@ -3233,7 +3233,7 @@ QString BaseDAO::filterRowWhere(BaseBeanMetadata *metadata, const QString &alias
 
 QString BaseDAO::proccessSqlToAddAlias(const QString &sql, BaseBeanMetadata *metadata, const QString &alias)
 {
-    QList<DBFieldMetadata *> fields = metadata->fields();
+    const QList<DBFieldMetadata *> fields = metadata->fields();
     QString result = sql;
     QString uniqueString = QUuid::createUuid().toString();
     // Procesamos la claúsula where para añadir el alias
@@ -3277,7 +3277,7 @@ bool BaseDAO::alterTableForForeignKeys(const QString &connectionName)
         if ( metadata->dbObjectType() == AlephERP::Table )
         {
             BaseDAO::transaction(connectionName);
-            QList<DBRelationMetadata *> relations = metadata->relations(AlephERP::All);
+            const QList<DBRelationMetadata *> relations = metadata->relations(AlephERP::All);
             for (DBRelationMetadata *rel : relations)
             {
                 bool exists = false;
