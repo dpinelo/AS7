@@ -2266,6 +2266,21 @@ void DBFormDlg::view()
     }
 
     model->freezeModel();
+
+    const QString functionName = QStringLiteral("beforeView");
+    if ( engine()->existQsFunction(functionName) )
+    {
+        QScriptValue result;
+        if ( engine()->callQsObjectFunction(result, functionName) )
+        {
+            if ( !result.toBool() )
+            {
+                model->defrostModel();
+                return;
+            }
+        }
+    }
+
     CommonsFunctions::setOverrideCursor(QCursor(Qt::WaitCursor));
     BaseBeanSharedPointer bean = model->beanToBeEdited(d->rowIndexSelected());
     QPointer<DBRecordDlg> dlg;
