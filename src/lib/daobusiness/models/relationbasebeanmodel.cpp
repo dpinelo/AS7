@@ -364,8 +364,10 @@ bool RelationBaseBeanModelPrivate::modelContainsBean(BaseBeanPointer bean) const
 
 void RelationBaseBeanModel::clear()
 {
+    beginResetModel();
     d->m_beans.clear();
     d->m_childrenLoaded = false;
+    endResetModel();
 }
 
 /*!

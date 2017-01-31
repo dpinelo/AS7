@@ -67,11 +67,15 @@ public:
 
     void addBean(const BaseBeanPointer &bean)
     {
-        for (BaseBeanPointer b : m_list)
+        for (int i = 0 ;  i < m_list.size() ; ++i)
         {
-            if ( b.isNull() )
+            if ( AERP_CHECK_INDEX_OK(i, m_list) )
             {
-                m_list.removeAll(b);
+                BaseBeanPointer b = m_list.at(i);
+                if ( b.isNull() )
+                {
+                    m_list.removeAt(i);
+                }
             }
         }
         if ( bean.isNull() )
@@ -94,11 +98,15 @@ public:
 
     bool removeBean(const BaseBeanPointer &bean)
     {
-        for (BaseBeanPointer b : m_list)
+        for (int i = 0 ;  i < m_list.size() ; ++i)
         {
-            if ( b.isNull() )
+            if ( AERP_CHECK_INDEX_OK(i, m_list) )
             {
-                m_list.removeAll(b);
+                BaseBeanPointer b = m_list.at(i);
+                if ( b.isNull() )
+                {
+                    m_list.removeAt(i);
+                }
             }
         }
         if ( bean.isNull() )
@@ -437,7 +445,8 @@ bool AERPTransactionContext::discardContext(const QString &contextName)
         QLogger::QLog_Info(AlephERP::stLogDB, QString("AERPTransactionContext::discard: No existe el contexto: [%1]").arg(contextName));
         return false;
     }
-    for (BaseBeanPointer bean : d->m_contextObjects[contextName]->list())
+    const BaseBeanPointerList beans = d->m_contextObjects[contextName]->list();
+    for (BaseBeanPointer bean : beans)
     {
         if ( !bean.isNull() )
         {
@@ -1151,68 +1160,74 @@ const BaseBeanPointerList AERPTransactionContextPrivate::orderBeansForTransactio
     // Primero asignemos índices a los beans para agregarlos al grafo
     for (int i = 0 ; i < beansOnContext.size() ; ++i)
     {
-        beansOnContext[i]->setProperty(graphIndexProperty, i);
+        if ( !beansOnContext.at(i).isNull() )
+        {
+            beansOnContext[i]->setProperty(graphIndexProperty, i);
+        }
     }
 
     // Vamos a construir el grafo. Para ello recorremos todos los beans, y examinamos las relaciones o
     // Si la tienen, y el registro está en el contexto, se añade al grafo
     for (BaseBeanPointer bean : beansOnContext)
     {
-        const QList<DBRelation *> relationsManyToOne = bean->relations(AlephERP::ManyToOne);
-        for (DBRelation *rel : relationsManyToOne)
+        if ( !bean.isNull() )
         {
-            if ( rel->isFatherLoaded() )
+            const QList<DBRelation *> relationsManyToOne = bean->relations(AlephERP::ManyToOne);
+            for (DBRelation *rel : relationsManyToOne)
             {
-                BaseBeanPointer father = rel->father(false);
-                if ( father && father->actualContext() == contextName )
+                if ( rel->isFatherLoaded() )
                 {
-                    QLogger::QLog_Debug(AlephERP::stLogDB,
-                                        QString("AERPTransactionContextPrivate::orderBeansForTransaction: Camino del grafo [%1] [%2] [%3] [%4]").
-                                        arg(father->metadata()->tableName()).
-                                        arg(father->property(graphIndexProperty).toInt()).
-                                        arg(bean->metadata()->tableName()).
-                                        arg(bean->property(graphIndexProperty).toInt())
-                                        );
-                    graph.addEdge(father->property(graphIndexProperty).toInt(), bean->property(graphIndexProperty).toInt());
-                }
-            }
-        }
-        const QList<DBRelation *> relationsOneToOne = bean->relations(AlephERP::OneToOne);
-        for (DBRelation *rel : relationsOneToOne)
-        {
-            BaseBeanPointer brother = rel->brother();
-            if ( brother && brother->actualContext() == contextName )
-            {
-                QLogger::QLog_Debug(AlephERP::stLogDB,
-                                    QString("AERPTransactionContextPrivate::orderBeansForTransaction: Camino del grafo [%1] [%2] [%3] [%4]").
-                                    arg(bean->metadata()->tableName()).
-                                    arg(bean->property(graphIndexProperty).toInt()).
-                                    arg(brother->metadata()->tableName()).
-                                    arg(brother->property(graphIndexProperty).toInt())
-                                    );
-                graph.addEdge(bean->property(graphIndexProperty).toInt(), brother->property(graphIndexProperty).toInt());
-            }
-        }
-        const QList<DBRelation *> relationsOneToMany = bean->relations(AlephERP::OneToMany);
-        for (DBRelation *rel : relationsOneToMany)
-        {
-            // Si no se han obtenido los hijos cuando llegamos a la transacción... ¡¡es que no hay que obtenerlos!!
-            if ( bean->dbState() == BaseBean::INSERT ||
-                 rel->childrenLoaded() )
-            {
-                const BaseBeanPointerList children = rel->children();
-                for (BaseBeanPointer child : children)
-                {
-                    if ( child->actualContext() == contextName )
+                    BaseBeanPointer father = rel->father(false);
+                    if ( father && father->actualContext() == contextName )
                     {
                         QLogger::QLog_Debug(AlephERP::stLogDB,
                                             QString("AERPTransactionContextPrivate::orderBeansForTransaction: Camino del grafo [%1] [%2] [%3] [%4]").
+                                            arg(father->metadata()->tableName()).
+                                            arg(father->property(graphIndexProperty).toInt()).
                                             arg(bean->metadata()->tableName()).
-                                            arg(bean->property(graphIndexProperty).toInt()).
-                                            arg(child->metadata()->tableName()).
-                                            arg(child->property(graphIndexProperty).toInt())
+                                            arg(bean->property(graphIndexProperty).toInt())
                                             );
-                        graph.addEdge(bean->property(graphIndexProperty).toInt(), child->property(graphIndexProperty).toInt());
+                        graph.addEdge(father->property(graphIndexProperty).toInt(), bean->property(graphIndexProperty).toInt());
+                    }
+                }
+            }
+            const QList<DBRelation *> relationsOneToOne = bean->relations(AlephERP::OneToOne);
+            for (DBRelation *rel : relationsOneToOne)
+            {
+                BaseBeanPointer brother = rel->brother();
+                if ( brother && brother->actualContext() == contextName )
+                {
+                    QLogger::QLog_Debug(AlephERP::stLogDB,
+                                        QString("AERPTransactionContextPrivate::orderBeansForTransaction: Camino del grafo [%1] [%2] [%3] [%4]").
+                                        arg(bean->metadata()->tableName()).
+                                        arg(bean->property(graphIndexProperty).toInt()).
+                                        arg(brother->metadata()->tableName()).
+                                        arg(brother->property(graphIndexProperty).toInt())
+                                        );
+                    graph.addEdge(bean->property(graphIndexProperty).toInt(), brother->property(graphIndexProperty).toInt());
+                }
+            }
+            const QList<DBRelation *> relationsOneToMany = bean->relations(AlephERP::OneToMany);
+            for (DBRelation *rel : relationsOneToMany)
+            {
+                // Si no se han obtenido los hijos cuando llegamos a la transacción... ¡¡es que no hay que obtenerlos!!
+                if ( bean->dbState() == BaseBean::INSERT ||
+                     rel->childrenLoaded() )
+                {
+                    const BaseBeanPointerList children = rel->children();
+                    for (BaseBeanPointer child : children)
+                    {
+                        if ( child && child->actualContext() == contextName )
+                        {
+                            QLogger::QLog_Debug(AlephERP::stLogDB,
+                                                QString("AERPTransactionContextPrivate::orderBeansForTransaction: Camino del grafo [%1] [%2] [%3] [%4]").
+                                                arg(bean->metadata()->tableName()).
+                                                arg(bean->property(graphIndexProperty).toInt()).
+                                                arg(child->metadata()->tableName()).
+                                                arg(child->property(graphIndexProperty).toInt())
+                                                );
+                            graph.addEdge(bean->property(graphIndexProperty).toInt(), child->property(graphIndexProperty).toInt());
+                        }
                     }
                 }
             }
@@ -1220,8 +1235,7 @@ const BaseBeanPointerList AERPTransactionContextPrivate::orderBeansForTransactio
     }
     // Se realiza la ordenación topológica
     const QList<int> indexOrdered = graph.topologicalSort();
-
-    for(int graphId : indexOrdered)
+    for (int graphId : indexOrdered)
     {
         // Busquemos el bean en el contexto, y agregémoslo
         for (BaseBeanPointer bean : beansOnContext)

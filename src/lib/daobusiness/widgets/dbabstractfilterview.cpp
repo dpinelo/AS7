@@ -1014,6 +1014,7 @@ void DBAbstractFilterView::init(bool initStrongFilter)
     connect(d->m_modelFilter.data(), SIGNAL(initRefresh()), this, SLOT(disableUserRefresh()));
     connect(d->m_modelFilter.data(), SIGNAL(endRefresh()), this, SLOT(allowUserRefresh()));
     connect(ui->pbRefresh, SIGNAL(clicked()), this, SLOT(forceRefresh()));
+    ui->pbRefresh->setVisible(alephERPSettings->modelsRefresh());
 }
 
 /*!

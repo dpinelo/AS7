@@ -550,19 +550,7 @@ bool DBAbstractViewInterface::setupInternalModel()
     clearModels();
     if ( m_tableName.isEmpty() && m_relationName.isEmpty() )
     {
-        if ( observer() != NULL )
-        {
-            DBField *fld = qobject_cast<DBField *>(observer()->entity());
-            if ( fld != NULL )
-            {
-                if ( fld->metadata()->optionsList().size() > 0 )
-                {
-                    m_sourceModel = new AERPOptionListModel(m_thisWidget);
-                    ((AERPOptionListModel *)m_sourceModel.data())->setKeyValues(fld->metadata()->optionsList());
-                    ((AERPOptionListModel *)m_sourceModel.data())->setIcons(fld->metadata()->optionsIcons());
-                }
-            }
-        }
+        createOptionModel();
     }
     else
     {
@@ -575,53 +563,11 @@ bool DBAbstractViewInterface::setupInternalModel()
             // Internal data indica si los datos se leen de base de datos o si se leen desde beans en memoria
             if ( !m_tableName.isEmpty() )
             {
-                m_metadata = BeansFactory::metadataBean(m_tableName);
-                // El filtro aquí pasado es fuerte (se traduce en la SQL)
-                if ( m_metadata != NULL )
-                {
-                    m_sourceModel = new DBBaseBeanModel(m_tableName, m_filter, m_order);
-                    m_sourceModel->setParent(m_thisWidget);
-                }
+                createBaseBeanModel();
             }
             else if ( !m_relationName.isEmpty() )
             {
-                AbstractObserver *obs = observer();
-                if ( obs != NULL )
-                {
-                    if ( observerType(beanFromContainer()) == AlephERP::DbRelation || observerType(beanFromContainer()) == AlephERP::DbMultipleRelation )
-                    {
-                        if ( observerType(beanFromContainer()) == AlephERP::DbMultipleRelation )
-                        {
-                            if ( m_relationName.contains(".") )
-                            {
-                                m_sourceModel = new MultipleRelationBaseBeanModel(beanFromContainer(), m_relationName, true, m_order, m_thisWidget);
-                            }
-                            else
-                            {
-                                DBRelation *relation = beanFromContainer()->relation(m_relationName);
-                                if ( relation )
-                                {
-                                    m_sourceModel = new RelationBaseBeanModel(relation, true, m_order, m_loadOnBackground, m_thisWidget);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            if ( m_relationName.contains(".") )
-                            {
-                                m_sourceModel = new MultipleRelationBaseBeanModel(beanFromContainer(), m_relationName, m_readOnlyModel, m_order, m_thisWidget);
-                            }
-                            else
-                            {
-                                DBRelation *relation = beanFromContainer()->relation(m_relationName);
-                                if ( relation )
-                                {
-                                    m_sourceModel = new RelationBaseBeanModel(relation, m_readOnlyModel, m_order, m_loadOnBackground, m_thisWidget);
-                                }
-                            }
-                        }
-                    }
-                }
+                createRelationModel();
             }
         }
     }
@@ -657,6 +603,77 @@ bool DBAbstractViewInterface::setupInternalModel()
     // un modelo interno.
     m_externalModel = false;
     return true;
+}
+
+void DBAbstractViewInterface::createOptionModel()
+{
+    if ( observer() != NULL )
+    {
+        DBField *fld = qobject_cast<DBField *>(observer()->entity());
+        if ( fld != NULL )
+        {
+            if ( fld->metadata()->optionsList().size() > 0 )
+            {
+                m_sourceModel = new AERPOptionListModel(m_thisWidget);
+                ((AERPOptionListModel *)m_sourceModel.data())->setKeyValues(fld->metadata()->optionsList());
+                ((AERPOptionListModel *)m_sourceModel.data())->setIcons(fld->metadata()->optionsIcons());
+            }
+        }
+    }
+}
+
+void DBAbstractViewInterface::createBaseBeanModel()
+{
+    m_metadata = BeansFactory::metadataBean(m_tableName);
+    // El filtro aquí pasado es fuerte (se traduce en la SQL)
+    if ( m_metadata != NULL )
+    {
+        m_sourceModel = new DBBaseBeanModel(m_tableName, m_filter, m_order);
+        m_sourceModel->setParent(m_thisWidget);
+    }
+}
+
+void DBAbstractViewInterface::createRelationModel()
+{
+    AbstractObserver *obs = observer();
+    if ( obs == NULL )
+    {
+        return;
+    }
+    if ( observerType(beanFromContainer()) != AlephERP::DbRelation && observerType(beanFromContainer()) != AlephERP::DbMultipleRelation )
+    {
+        return;
+    }
+    if ( observerType(beanFromContainer()) == AlephERP::DbMultipleRelation )
+    {
+        if ( m_relationName.contains(".") )
+        {
+            m_sourceModel = new MultipleRelationBaseBeanModel(beanFromContainer(), m_relationName, true, m_order, m_thisWidget);
+        }
+        else
+        {
+            DBRelation *relation = beanFromContainer()->relation(m_relationName);
+            if ( relation )
+            {
+                m_sourceModel = new RelationBaseBeanModel(relation, true, m_order, m_loadOnBackground, m_thisWidget);
+            }
+        }
+    }
+    else
+    {
+        if ( m_relationName.contains(".") )
+        {
+            m_sourceModel = new MultipleRelationBaseBeanModel(beanFromContainer(), m_relationName, m_readOnlyModel, m_order, m_thisWidget);
+        }
+        else
+        {
+            DBRelation *relation = beanFromContainer()->relation(m_relationName);
+            if ( relation )
+            {
+                m_sourceModel = new RelationBaseBeanModel(relation, m_readOnlyModel, m_order, m_loadOnBackground, m_thisWidget);
+            }
+        }
+    }
 }
 
 void DBAbstractViewInterface::setSourceModel(QAbstractItemModel *model)

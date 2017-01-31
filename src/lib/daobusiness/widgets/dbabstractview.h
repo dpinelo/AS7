@@ -22,11 +22,7 @@
 
 #include <QtCore>
 #include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include <QtScript>
 #include <alepherpglobal.h>
 #include <aerpcommon.h>
@@ -98,6 +94,9 @@ protected:
 protected:
     QString className();
     BaseBeanPointer beanToEditFromRelation(DBRelation *rel);
+    void createOptionModel();
+    void createBaseBeanModel();
+    void createRelationModel();
 
 public:
     DBAbstractViewInterface(QWidget *widget, QHeaderView *header);

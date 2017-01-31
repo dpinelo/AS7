@@ -19,11 +19,7 @@
  ***************************************************************************/
 #include <QtCore>
 #include <QtGlobal>
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-#include <QtGui>
-#else
 #include <QtWidgets>
-#endif
 #include "configuracion.h"
 #include "dao/beans/basebean.h"
 #include "dbtableview.h"
@@ -85,11 +81,7 @@ DBTableView::DBTableView (QWidget * parent) :
     connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(itemClicked(QModelIndex)));
     connect(m_hideColumn, SIGNAL(triggered()), this, SLOT(fromMenuHideColumn()));
 
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-    m_header->setMovable(true);
-#else
     m_header->setSectionsMovable(true);
-#endif
 
     setContextMenuPolicy(Qt::CustomContextMenu);
     m_header->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -500,6 +492,11 @@ void DBTableView::refresh()
     }
     if ( filterModel() )
     {
+        BaseBeanModel *model = qobject_cast<BaseBeanModel *>(filterModel()->sourceModel());
+        if ( model != NULL )
+        {
+            model->refresh(true);
+        }
         filterModel()->invalidate();
     }
 }
@@ -737,11 +734,7 @@ void DBTableView::setCanMoveRows(bool value)
     d->m_canMoveRows = value;
     if ( value && filterModel() )
     {
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-        verticalHeader()->setMovable(true);
-#else
         verticalHeader()->setSectionsMovable(true);
-#endif
         connect(verticalHeader(), SIGNAL(sectionMoved(int,int,int)), this, SLOT(newRowOrder(int,int,int)));
         setDragEnabled(true);
         setDragDropMode(QAbstractItemView::InternalMove);
@@ -753,11 +746,7 @@ void DBTableView::setCanMoveRows(bool value)
     }
     else
     {
-#if (QT_VERSION < QT_VERSION_CHECK(5,0,0))
-        verticalHeader()->setMovable(false);
-#else
         verticalHeader()->setSectionsMovable(false);
-#endif
         setDragEnabled(false);
     }
 }

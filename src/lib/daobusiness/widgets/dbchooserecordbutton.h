@@ -59,6 +59,7 @@ class ALEPHERP_DLL_EXPORT DBChooseRecordButton : public QPushButton, public DBBa
     Q_PROPERTY(bool userModified READ userModified WRITE setUserModified)
     Q_PROPERTY(QVariant value READ value WRITE setValue)
     Q_PROPERTY(bool dataFromParentDialog READ dataFromParentDialog WRITE setDataFromParentDialog)
+    Q_PROPERTY (QString reportParameterBinding READ reportParameterBinding WRITE setReportParameterBinding)
 
     /** Tabla en la que buscar el registro. Si este valor está vacío se buscará en la tabla
     relacionada de la columna indicada por fieldName. */
